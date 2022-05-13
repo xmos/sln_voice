@@ -18,8 +18,8 @@ option(SOLUTION_AVONA_CI_TESTING     "Enable CI test applications"  OFF)
 ## Import some helpful macros
 include(xcore_sdk/tools/cmake_utils/xmos_macros.cmake)
 
-## Add library usage targets
-add_subdirectory(modules)
+## Add frameworks
+add_subdirectory(xcore_sdk)
 
 ## Add top level project targets
 if(PROJECT_IS_TOP_LEVEL)
