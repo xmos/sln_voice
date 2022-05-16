@@ -33,24 +33,40 @@
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 
+#define IS_RAM(a)                    \
+  (((uintptr_t)a >= XS1_RAM_BASE) && \
+   ((uintptr_t)a <= (XS1_RAM_BASE + XS1_RAM_SIZE)))
+
+#define IS_SWMEM(a)                    \
+  (((uintptr_t)a >= XS1_SWMEM_BASE) && \
+   (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
+
 static int cnt = 0;
 /* Uh oh, hacking this in for now */
 size_t swmem_load(void *dest, const void *src, size_t size)
 {
     // xassert(IS_SWMEM(src));
+    rtos_printf("cnt: %d\n", cnt++);
 
-    if (qspi_flash_ctx != NULL) {
-        // rtos_printf(
-        //         "BEFORE rtos_qspi_flash_read   dest=0x%x    src=0x%x    size=%d\n",
-        //         dest, src, size);
-        // uint32_t tic = get_reference_time();
-rtos_printf("cnt: %d\n", cnt++);
-        rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)dest,
-                             (unsigned)(src - XS1_SWMEM_BASE), size);
-        // rtos_printf("AFTER rtos_qspi_flash_read   size=%d      duration=%lu\n",
-        //             size,
-        //             (get_reference_time() - tic) / PLATFORM_REFERENCE_MHZ);
-        return size;
+    if (IS_SWMEM(src)) {
+        if (qspi_flash_ctx != NULL) {
+            rtos_printf(
+                    "BEFORE rtos_qspi_flash_read   dest=0x%x    src=0x%x    size=%d\n",
+                    dest, src, size);
+            uint32_t tic = get_reference_time();
+
+            rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)dest,
+                                 (unsigned)(src - XS1_SWMEM_BASE), size);
+            rtos_printf("AFTER rtos_qspi_flash_read   size=%d      duration=%lu\n",
+                        size,
+                        (get_reference_time() - tic) / PLATFORM_REFERENCE_MHZ);
+            return size;
+        }
+    } else if (IS_RAM(src)) {
+        memcpy(dest,src,size);
+    } else {
+        rtos_printf("***not expected wanted src=0x%x    size=%d\n", src, size);
+        // xassert(0);
     }
     return 0;
 }
@@ -60,7 +76,7 @@ static int ndx = 0;
 void uart_write(char data) //API for Wanson's Debug
 {
     if( data == '\n') {
-        rtos_printf("uart:%s\n", uart_buffer);
+        // rtos_printf("uart:%s\n", uart_buffer);
 
 #if 0
         for(int i=0; i<ndx; i++) {

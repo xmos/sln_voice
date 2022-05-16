@@ -108,7 +108,4 @@ void wanson_engine_intertile_task_create(uint32_t priority)
                 samples_to_engine_stream_buf,
                 uxTaskPriorityGet(NULL),
                 NULL);
-
-                    rtos_printf("wanson init\n");
-                    Wanson_ASR_Init();
 }

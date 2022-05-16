@@ -18,9 +18,30 @@
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
 
+/* in it's own thread for debug purposes right now... */
+static void wanson_eng_thread(void *arg)
+{
+    (void) arg;
+
+    rtos_printf("wanson init uses stack: %d\n", RTOS_THREAD_STACK_SIZE(wanson_eng_thread));
+    Wanson_ASR_Init();
+
+    while(1) {
+        rtos_printf("****wanson init done\n");
+    }
+}
+
 #pragma stackfunction 2000
 void wanson_engine_task(void *args)
 {
+    xTaskCreate((TaskFunction_t)wanson_eng_thread,
+            "wanson_eng_thread",
+            RTOS_THREAD_STACK_SIZE(wanson_eng_thread),
+            NULL,
+            uxTaskPriorityGet(NULL)+1,
+            NULL);
+    while(1) {;}
+
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
 
     int32_t buf[appconfINFERENCE_FRAMES_PER_INFERENCE] = {0};
@@ -28,8 +49,8 @@ void wanson_engine_task(void *args)
 
     /* Perform any initialization here */
     // rtos_printf("create wanson task\n");
-    // wanson_task_create(uxTaskPriorityGet(NULL), NULL);
-    vTaskDelay(pdMS_TO_TICKS(3000));    // dummy time so the other thread calling wanson's init has time to finish reading in from swmem
+    // wanson_task_create(uxTaskPriorityGet(NULL), NULL);   // in the API but doesnt exist
+    vTaskDelay(pdMS_TO_TICKS(5000));    // dummy time so the other thread calling wanson's init has time to finish reading in from swmem
 
 #if 1
     rtos_printf("wanson reset for wakeup\n");

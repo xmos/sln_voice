@@ -107,6 +107,8 @@ merge_binaries(application_wanson_dev tile0_application_wanson_dev tile1_applica
 #**********************
 create_run_target(application_wanson)
 create_debug_target(application_wanson)
+create_flash_app_target(application_wanson)
 
 create_run_target(application_wanson_dev)
 create_debug_target(application_wanson_dev)
+create_flash_app_target(application_wanson_dev)
