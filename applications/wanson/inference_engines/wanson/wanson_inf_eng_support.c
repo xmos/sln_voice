@@ -89,6 +89,7 @@ void wanson_engine_task_create(unsigned priority)
                 NULL);
 }
 
+#include "wanson_api.h"
 void wanson_engine_intertile_task_create(uint32_t priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(
@@ -101,11 +102,13 @@ void wanson_engine_intertile_task_create(uint32_t priority)
                 NULL,
                 priority-1,
                 NULL);
-
     xTaskCreate((TaskFunction_t)wanson_engine_task,
                 "wanson_eng",
                 RTOS_THREAD_STACK_SIZE(wanson_engine_task),
                 samples_to_engine_stream_buf,
                 uxTaskPriorityGet(NULL),
                 NULL);
+
+                    rtos_printf("wanson init\n");
+                    Wanson_ASR_Init();
 }

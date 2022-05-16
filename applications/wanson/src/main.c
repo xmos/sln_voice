@@ -33,6 +33,7 @@
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 
+static int cnt = 0;
 /* Uh oh, hacking this in for now */
 size_t swmem_load(void *dest, const void *src, size_t size)
 {
@@ -43,7 +44,7 @@ size_t swmem_load(void *dest, const void *src, size_t size)
         //         "BEFORE rtos_qspi_flash_read   dest=0x%x    src=0x%x    size=%d\n",
         //         dest, src, size);
         // uint32_t tic = get_reference_time();
-
+rtos_printf("cnt: %d\n", cnt++);
         rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)dest,
                              (unsigned)(src - XS1_SWMEM_BASE), size);
         // rtos_printf("AFTER rtos_qspi_flash_read   size=%d      duration=%lu\n",
@@ -54,9 +55,25 @@ size_t swmem_load(void *dest, const void *src, size_t size)
     return 0;
 }
 
+static char uart_buffer[100] = {0};
+static int ndx = 0;
 void uart_write(char data) //API for Wanson's Debug
 {
-    rtos_printf("uart:%c\n", data);
+    if( data == '\n') {
+        rtos_printf("uart:%s\n", uart_buffer);
+
+#if 0
+        for(int i=0; i<ndx; i++) {
+            rtos_printf("%x",uart_buffer[i]);
+        }
+        rtos_printf("\n");
+#endif
+        ndx = 0;
+
+    } else {
+        uart_buffer[ndx] = data;
+        ndx++;
+    }
 // char data_buf=data;
 // rtos_uart_write(uart_ctx, &data_buf,1);
 }
