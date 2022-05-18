@@ -9,6 +9,7 @@
 #define MAX_COLS 16 // (128/8)
 #define TOP_MARGIN 10
 #define LEFT_MARGIN 1
+#define MAX_LINES 2
 
 // font attribs
 #define FONT_SIZE 1
