@@ -14,13 +14,13 @@ This example is supported on the XK_VOICE_L71 board.
 Building the Firmware
 *********************
 
-Run the following commands in the xcore_sdk root folder to build the firmware:
+Run the following commands in the root folder to build the firmware:
 
 .. tab:: Linux and Mac
 
     .. code-block:: console
 
-        $ cmake -B build -DCMAKE_TOOLCHAIN_FILE=tools/xmos_cmake_toolchain/xs3a.cmake
+        $ cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         $ cd build
         $ make application_wanson
 
@@ -28,7 +28,7 @@ Run the following commands in the xcore_sdk root folder to build the firmware:
 
     .. code-block:: console
 
-        $ cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=tools/xmos_cmake_toolchain/xs3a.cmake
+        $ cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         $ cd build
         $ nmake application_wanson
 
@@ -47,7 +47,7 @@ Inside of the build folder root, after building the firmware:
 
         $ xobjdump --strip application_wanson.xe
         $ xobjdump --split application_wanson.xb
-        $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_wanson.xe --target-file platform.xn
+        $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_wanson.xe --target-file platform_def.xn
 
 
 .. tab:: Windows
@@ -56,7 +56,7 @@ Inside of the build folder root, after building the firmware:
 
         $ xobjdump --strip application_wanson.xe
         $ xobjdump --split application_wanson.xb
-        $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_wanson.xe --target-file platform.xn
+        $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_wanson.xe --target-file platform_def.xn
 
 
 From the xcore_sdk build folder run:
