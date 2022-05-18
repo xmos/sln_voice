@@ -18,29 +18,14 @@
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
 
-/* in it's own thread for debug purposes right now... */
-static void wanson_eng_thread(void *arg)
-{
-    (void) arg;
+#include "ssd1306_rtos_support.h"
 
-    rtos_printf("wanson init uses stack: %d\n", RTOS_THREAD_STACK_SIZE(wanson_eng_thread));
-    Wanson_ASR_Init();
-
-    while(1) {
-        rtos_printf("****wanson init done\n");
-    }
-}
-
-#pragma stackfunction 2000
+#pragma stackfunction 1000
 void wanson_engine_task(void *args)
 {
-    xTaskCreate((TaskFunction_t)wanson_eng_thread,
-            "wanson_eng_thread",
-            RTOS_THREAD_STACK_SIZE(wanson_eng_thread),
-            NULL,
-            uxTaskPriorityGet(NULL)+1,
-            NULL);
-    while(1) {;}
+    rtos_printf("Wanson init\n");
+    Wanson_ASR_Init();
+    rtos_printf("Wanson init done\n");
 
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
 
@@ -48,20 +33,20 @@ void wanson_engine_task(void *args)
     int16_t buf_short[2 * appconfINFERENCE_FRAMES_PER_INFERENCE] = {0};
 
     /* Perform any initialization here */
-    // rtos_printf("create wanson task\n");
-    // wanson_task_create(uxTaskPriorityGet(NULL), NULL);   // in the API but doesnt exist
-    vTaskDelay(pdMS_TO_TICKS(5000));    // dummy time so the other thread calling wanson's init has time to finish reading in from swmem
-
-#if 1
-    rtos_printf("wanson reset for wakeup\n");
+#if 1   // domain doesn't do anything right now, 0 is both wakeup and asr
+    rtos_printf("Wanson reset for wakeup\n");
     int ret = Wanson_ASR_Reset(0);
 #else
-    rtos_printf("wanson reset for asr\n");
+    rtos_printf("Wanson reset for asr\n");
     int ret = Wanson_ASR_Reset(1);
 #endif
-    rtos_printf("wanson reset ret: %d\n", ret);
+    rtos_printf("Wanson reset ret: %d\n", ret);
 
-    char **text_ptr = NULL;
+    /* Alert other tile to start the audio pipeline */
+    int dummy = 0;
+    rtos_intertile_tx(intertile_ctx, appconfWANSON_READY_SYNC_PORT, &dummy, sizeof(dummy));
+
+    char *text_ptr = NULL;
     int id = 0;
     while (1)
     {
@@ -83,9 +68,11 @@ void wanson_engine_task(void *args)
         }
 
         /* Perform inference here */
-        ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, text_ptr, &id);
+        ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
+
         if (ret) {
-            rtos_printf("inference got ret %d and %s\n", ret, text_ptr); // wanson doesnt seem to return a valid string ptr
+            rtos_printf("inference got ret %d: %s %d\n", ret, text_ptr, id);
+            ssd1306_display_ascii_to_bitmap(text_ptr);
         }
 
         /* Push back history */

@@ -11,9 +11,10 @@
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
 
+#define appconfWANSON_READY_SYNC_PORT             16
+
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
-#define FS_TILE_NO              FLASH_TILE_NO
 #define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
 #define INFERENCE_TILE_NO       FLASH_TILE_NO
 
@@ -89,6 +90,7 @@
 #define appconfUSB_AUDIO_TASK_PRIORITY              (configMAX_PRIORITIES / 2 + 1)
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
+#define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"
 

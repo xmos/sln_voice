@@ -27,69 +27,14 @@
 #include "inference_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
-// #include "keyword_inference.h"
-#include "inference_hmi/inference_hmi.h"
 #include "rtos_swmem.h"
+#include "ssd1306_rtos_support.h"
+#include "xcore_device_memory.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 
-#define IS_RAM(a)                    \
-  (((uintptr_t)a >= XS1_RAM_BASE) && \
-   ((uintptr_t)a <= (XS1_RAM_BASE + XS1_RAM_SIZE)))
-
-#define IS_SWMEM(a)                    \
-  (((uintptr_t)a >= XS1_SWMEM_BASE) && \
-   (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
-
-static int cnt = 0;
-/* Uh oh, hacking this in for now */
-size_t swmem_load(void *dest, const void *src, size_t size)
-{
-    // xassert(IS_SWMEM(src));
-    rtos_printf("cnt: %d\n", cnt++);
-
-    if (IS_SWMEM(src)) {
-        if (qspi_flash_ctx != NULL) {
-            rtos_printf(
-                    "BEFORE rtos_qspi_flash_read   dest=0x%x    src=0x%x    size=%d\n",
-                    dest, src, size);
-            uint32_t tic = get_reference_time();
-
-            rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)dest,
-                                 (unsigned)(src - XS1_SWMEM_BASE), size);
-            rtos_printf("AFTER rtos_qspi_flash_read   size=%d      duration=%lu\n",
-                        size,
-                        (get_reference_time() - tic) / PLATFORM_REFERENCE_MHZ);
-            return size;
-        }
-    } else if (IS_RAM(src)) {
-        memcpy(dest,src,size);
-    } else {
-        rtos_printf("***not expected wanted src=0x%x    size=%d\n", src, size);
-        // xassert(0);
-    }
-    return 0;
-}
-
-static char uart_buffer[100] = {0};
-static int ndx = 0;
 void uart_write(char data) //API for Wanson's Debug
 {
-    if( data == '\n') {
-        // rtos_printf("uart:%s\n", uart_buffer);
-
-#if 0
-        for(int i=0; i<ndx; i++) {
-            rtos_printf("%x",uart_buffer[i]);
-        }
-        rtos_printf("\n");
-#endif
-        ndx = 0;
-
-    } else {
-        uart_buffer[ndx] = data;
-        ndx++;
-    }
 // char data_buf=data;
 // rtos_uart_write(uart_ctx, &data_buf,1);
 }
@@ -170,7 +115,7 @@ int audio_pipeline_output(void *output_app_data,
 #endif
 
 #if appconfINFERENCE_ENABLED
-    inference_engine_sample_push(output_audio_frames, frame_count);
+    inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
@@ -201,20 +146,23 @@ void startup_task(void *arg)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(FS_TILE_NO)
-    rtos_swmem_init(RTOS_SWMEM_READ_FLAG);
-    rtos_swmem_start(configMAX_PRIORITIES);
-    // rtos_fatfs_init(qspi_flash_ctx);
+#if ON_TILE(FLASH_TILE_NO)
+    swmem_setup(qspi_flash_ctx, configMAX_PRIORITIES-1);
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-    // keyword_engine_args_t *kw_eng_args = pvPortMalloc( sizeof(keyword_engine_args_t) );
-    // kw_eng_args->egrp_inference = xEventGroupCreate();
+    ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, NULL);
-    // inference_hmi_create(appconfINFERENCE_HMI_TASK_PRIORITY, kw_eng_args->egrp_inference);
 #endif
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    // Wait until the Wanson engine is initialized before we start the
+    // audio pipeline.
+    {
+        int ret = 0;
+        rtos_intertile_rx_len(intertile_ctx, appconfWANSON_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
+        rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
+    }
     audio_pipeline_init(NULL, NULL);
 #endif
 
