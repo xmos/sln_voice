@@ -4,7 +4,6 @@
 #if defined(__XC__)
 extern "C" {
 #endif
-    void wanson_task_create(unsigned priority, StreamBufferHandle_t audio_stream);
     int Wanson_ASR_Init();
 
 
