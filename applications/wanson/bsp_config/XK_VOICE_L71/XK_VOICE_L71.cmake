@@ -15,10 +15,12 @@ target_include_directories(xcore_sdk_app_wanson_board_support_xk_voice_l71
 )
 target_link_libraries(xcore_sdk_app_wanson_board_support_xk_voice_l71
     INTERFACE
-        sdk::core
-        sdk::rtos_freertos
-        sdk::rtos::audio_drivers
-        sdk::app::wanson::dac::dac3101
+        core::general
+        rtos::freertos
+        rtos::drivers::general
+        rtos::drivers::audio
+        rtos::drivers::usb
+        sdk::app::ffd::dac::dac3101
 )
 target_compile_options(xcore_sdk_app_wanson_board_support_xk_voice_l71
     INTERFACE

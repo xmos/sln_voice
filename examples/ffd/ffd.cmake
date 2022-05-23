@@ -41,11 +41,8 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sdk::core
-    sdk::rtos_freertos
     sdk::app::inference_engine::keyword
-    sdk::rtos_usb
-    sdk::rtos::audio_drivers
+    rtos::freertos_usb
     sdk::lib_src
     avona::agc
     avona::ic
@@ -107,6 +104,8 @@ merge_binaries(application_ffd_dev tile0_application_ffd_dev tile1_application_f
 #**********************
 create_run_target(application_ffd)
 create_debug_target(application_ffd)
+create_flash_app_target(application_ffd)
 
 create_run_target(application_ffd_dev)
 create_debug_target(application_ffd_dev)
+create_flash_app_target(application_ffd_dev)
