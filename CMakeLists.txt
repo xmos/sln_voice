@@ -24,8 +24,9 @@ add_subdirectory(xcore_sdk)
 ## Add top level project targets
 if(PROJECT_IS_TOP_LEVEL)
     include(applications/applications.cmake)
+    include(examples/examples.cmake)
+endif()
 
-    if(SOLUTION_AVONA_CI_TESTING)
-        include(test/tests.cmake)
-    endif()
+if(SOLUTION_AVONA_CI_TESTING)
+    include(test/tests.cmake)
 endif()
