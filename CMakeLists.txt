@@ -12,7 +12,7 @@ project(solution_avona)
 enable_language(CXX C ASM)
 
 ## Project options
-option(SOLUTION_AVONA_CI_TESTING     "Enable CI test applications"  OFF)
+option(SOLUTION_AVONA_TESTS     "Enable solution avona tests"  OFF)
 
 ## TODO these should be moved outside of the xcore_sdk repository
 ## Import some helpful macros
@@ -27,6 +27,6 @@ if(PROJECT_IS_TOP_LEVEL)
     include(examples/examples.cmake)
 endif()
 
-if(SOLUTION_AVONA_CI_TESTING)
+if(SOLUTION_AVONA_TESTS)
     include(test/tests.cmake)
 endif()
