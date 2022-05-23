@@ -46,10 +46,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sdk::core
-    sdk::rtos_freertos
-    sdk::rtos::usb_device_control
-    sdk::rtos::audio_drivers
+    rtos::usb_device_control
     sdk::lib_src
 )
 
@@ -96,11 +93,12 @@ merge_binaries(application_stlp tile0_application_stlp tile1_application_stlp 1)
 #**********************
 create_run_target(application_stlp)
 create_debug_target(application_stlp)
+create_flash_app_target(application_stlp)
 
 #**********************
 # XMOS Development Targets
 #**********************
-include(${CMAKE_CURRENT_LIST_DIR}/stlp_dev.cmake)
+# include(${CMAKE_CURRENT_LIST_DIR}/stlp_dev.cmake)
 
 #**********************
 # Filesystem support targets
