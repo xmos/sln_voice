@@ -43,6 +43,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
+    sdk::app::inference_engine::wanson
     rtos::freertos_usb
     sdk::lib_src
     avona::agc
