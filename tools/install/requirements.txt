@@ -1,6 +1,0 @@
-Jinja2
-matplotlib
-numpy
-opencv-python
-PyYAML
-xmos-ai-tools
