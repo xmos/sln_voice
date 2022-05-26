@@ -1,7 +1,7 @@
 
 ## Create custom board targets for application
-add_library(sln_avona_app_stlp_board_support_xcore_ai_explorer INTERFACE)
-target_sources(sln_avona_app_stlp_board_support_xcore_ai_explorer
+add_library(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer INTERFACE)
+target_sources(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -9,28 +9,28 @@ target_sources(sln_avona_app_stlp_board_support_xcore_ai_explorer
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
 )
-target_include_directories(sln_avona_app_stlp_board_support_xcore_ai_explorer
+target_include_directories(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(sln_avona_app_stlp_board_support_xcore_ai_explorer
+target_link_libraries(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer
     INTERFACE
         core::general
         rtos::freertos
         rtos::drivers::general
         rtos::drivers::audio
         rtos::drivers::usb
-        sln_avona::app::stlp::dac::aic3204
+        sln_avona::example::keyword_spotter::dac::aic3204
 )
-target_compile_options(sln_avona_app_stlp_board_support_xcore_ai_explorer
+target_compile_options(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn
 )
-target_link_options(sln_avona_app_stlp_board_support_xcore_ai_explorer
+target_link_options(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn
 )
-target_compile_definitions(sln_avona_app_stlp_board_support_xcore_ai_explorer
+target_compile_definitions(sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer
     INTERFACE
         XCOREAI_EXPLORER=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -52,4 +52,4 @@ target_compile_definitions(sln_avona_app_stlp_board_support_xcore_ai_explorer
 )
 
 ## Create an alias
-add_library(sln_avona::app::stlp::xcore_ai_explorer ALIAS sln_avona_app_stlp_board_support_xcore_ai_explorer)
+add_library(sln_avona::example::keyword_spotter::xcore_ai_explorer ALIAS sln_avona_example_keyword_spotter_board_support_xcore_ai_explorer)

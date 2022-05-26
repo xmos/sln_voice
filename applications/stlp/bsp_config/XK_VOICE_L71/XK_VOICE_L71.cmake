@@ -1,7 +1,7 @@
 
 ## Create custom board targets for application
-add_library(xcore_sdk_app_stlp_board_support_xk_voice_l71 INTERFACE)
-target_sources(xcore_sdk_app_stlp_board_support_xk_voice_l71
+add_library(sln_avona_app_stlp_board_support_xk_voice_l71 INTERFACE)
+target_sources(sln_avona_app_stlp_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -9,28 +9,28 @@ target_sources(xcore_sdk_app_stlp_board_support_xk_voice_l71
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
 )
-target_include_directories(xcore_sdk_app_stlp_board_support_xk_voice_l71
+target_include_directories(sln_avona_app_stlp_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(xcore_sdk_app_stlp_board_support_xk_voice_l71
+target_link_libraries(sln_avona_app_stlp_board_support_xk_voice_l71
     INTERFACE
         core::general
         rtos::freertos
         rtos::drivers::general
         rtos::drivers::audio
         rtos::drivers::usb
-        sdk::app::stlp::dac::dac3101
+        sln_avona::app::stlp::dac::dac3101
 )
-target_compile_options(xcore_sdk_app_stlp_board_support_xk_voice_l71
+target_compile_options(sln_avona_app_stlp_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_link_options(xcore_sdk_app_stlp_board_support_xk_voice_l71
+target_link_options(sln_avona_app_stlp_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_compile_definitions(xcore_sdk_app_stlp_board_support_xk_voice_l71
+target_compile_definitions(sln_avona_app_stlp_board_support_xk_voice_l71
     INTERFACE
         XK_VOICE_L71=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -52,4 +52,4 @@ target_compile_definitions(xcore_sdk_app_stlp_board_support_xk_voice_l71
 )
 
 ## Create an alias
-add_library(sdk::app::stlp::xk_voice_l71 ALIAS xcore_sdk_app_stlp_board_support_xk_voice_l71)
+add_library(sln_avona::app::stlp::xk_voice_l71 ALIAS sln_avona_app_stlp_board_support_xk_voice_l71)

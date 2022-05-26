@@ -118,7 +118,7 @@
 #define appconfUSB_AUDIO_RELEASE   0
 #define appconfUSB_AUDIO_TESTING   1
 #ifndef appconfUSB_AUDIO_MODE
-#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_TESTING
+#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_RELEASE
 #endif
 
 #define appconfSPI_AUDIO_RELEASE   0
