@@ -37,3 +37,4 @@ for ((i = 0; i < ${#applications[@]}; i += 1)); do
     (cd ${path}/build_${board}; cp ${make_target}.xe ${DIST_DIR})
 done
 
+log_metadata "${DIST_DIR}/applications_metadata.json"

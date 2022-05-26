@@ -13,3 +13,15 @@ function log_errors {
         return 1
     fi    
 }
+
+# A small utility to log metadata about the CI run.
+function log_metadata {
+    if $GITHUB_ACTIONS
+    then
+        metadata_filename="$@"
+        template='{"actor":"%s","event":"%s","ref":"%s","sha":"%s"}'
+        json_string=$(printf "$template" "$GITHUB_ACTOR" "$GITHUB_EVENT_NAME" "$GITHUB_REF_NAME" "$GITHUB_SHA")
+        echo "Build metadata: $json_string"
+        echo "$json_string" >> $metadata_filename
+    fi    
+}
