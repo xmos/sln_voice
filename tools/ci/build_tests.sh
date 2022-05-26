@@ -33,5 +33,3 @@ for ((i = 0; i < ${#applications[@]}; i += 1)); do
     (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DDEBUG_STLP_USB_MIC_INPUT=1; log_errors make ${make_target} -j)
     (cd ${path}/build_${board}; cp ${make_target}.xe ${DIST_DIR})
 done
-
-log_metadata "${DIST_DIR}/tests_metadata.json"

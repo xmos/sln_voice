@@ -45,6 +45,10 @@ jobs:
         run: |
           docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_examples.sh
 
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/examples_metadata.json
+
       - name: Save example app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -68,6 +72,10 @@ jobs:
         run: |
           docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_applications.sh
 
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/applications_metadata.json
+
       - name: Save reference app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -90,6 +98,10 @@ jobs:
       - name: Build
         run: |
           docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_tests.sh
+
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/tests_metadata.json
 
       - name: Save reference app firmware artifacts
         uses: actions/upload-artifact@v3
