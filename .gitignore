@@ -19,7 +19,6 @@
 *.s
 *.xi
 *.i
-*.a
 *.xmt
 **/_build/
 **/build_*/
