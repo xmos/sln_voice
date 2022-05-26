@@ -33,3 +33,11 @@ for ((i = 0; i < ${#applications[@]}; i += 1)); do
     (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DDEBUG_STLP_USB_MIC_INPUT=1; log_errors make ${make_target} -j)
     (cd ${path}/build_${board}; cp ${make_target}.xe ${DIST_DIR})
 done
+
+if $CI
+then
+    metadata_filename="${DIST_DIR}/metadata.json"
+    template='{"actor":"%s","sha":"%s"}'
+    json_string=$(printf "$template" "$GITHUB_ACTOR" "$GITHUB_SHA")
+    echo "$json_string" >> metadata_filename
+fi
