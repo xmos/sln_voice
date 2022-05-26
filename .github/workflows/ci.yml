@@ -1,0 +1,110 @@
+# YAML schema for GitHub Actions:
+# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/workflow-syntax-for-github-actions
+#
+# Helpful YAML parser to clarify YAML syntax:
+# https://yaml-online-parser.appspot.com/
+#
+# This workflow uses actions that are not certified by GitHub. They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support documentation.
+#
+# This file contains the workflows that are run prior to merging a pull request.
+
+name: CI
+
+on:
+  push:
+    branches:
+      - 'develop'
+      - 'main'
+  pull_request:
+    branches:
+      - 'develop'
+      - 'main'
+
+  # Allow manually triggering of the workflow.
+  workflow_dispatch: {}
+
+env:
+  SDK_BUILDER_IMAGE: 'ghcr.io/xmos/sdk_app_builder:develop'
+
+jobs:
+  build_examples:
+    name: Build example applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SDK
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Pull SDK builder image
+        run: |
+          docker pull ${SDK_BUILDER_IMAGE}
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_examples.sh
+
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/examples_metadata.json
+
+      - name: Save example app firmware artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sln_avona_example_apps
+          path: ./dist/*
+
+  build_applications:
+    name: Build reference applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SDK
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Pull SDK builder image
+        run: |
+          docker pull ${SDK_BUILDER_IMAGE}
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_applications.sh
+
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/applications_metadata.json
+
+      - name: Save reference app firmware artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sln_avona_reference_apps
+          path: ./dist/*
+
+  build_tests:
+    name: Build tests and test applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SDK
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Pull SDK builder image
+        run: |
+          docker pull ${SDK_BUILDER_IMAGE}
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_tests.sh
+
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/tests_metadata.json
+
+      - name: Save reference app firmware artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: sln_avona_test_apps
+          path: ./dist/*
