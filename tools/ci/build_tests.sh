@@ -9,10 +9,6 @@ source ${SLN_AVONA_ROOT}/tools/ci/helper_functions.sh
 DIST_DIR=${SLN_AVONA_ROOT}/dist
 mkdir -p ${DIST_DIR}
 
-GITHUB_ACTIONS=true
-log_metadata "${DIST_DIR}/metadata.json"
-exit
-
 # setup configurations
 # row format is: "name make_target BOARD toolchain"
 applications=(
