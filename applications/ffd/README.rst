@@ -1,8 +1,12 @@
-============================
-Wanson App
-============================
+===========================================
+Wanson Local Speech Recognition Application
+===========================================
 
-This is the XMOS FFD reference design with Wanson Keyword spotter
+This is the XMOS far-field local dictionary (FFD) reference design with Wanson speech recognition.  
+
+This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50. You can reset the counter to 0 by restarting or rebooting the application.  
+
+The Wanson speech recognition library `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is library subject to the `Wanson Restrictive License <https://github.com/xmos/sln_avona/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md>`__.
 
 ******************
 Supported Hardware
