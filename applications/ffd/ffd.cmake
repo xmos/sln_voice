@@ -9,7 +9,7 @@ set(APP_INCLUDES
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/inference_engines/inference_engines.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/inference/inference.cmake)
 
 #**********************
 # Flags
