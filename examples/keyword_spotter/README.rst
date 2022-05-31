@@ -20,17 +20,17 @@ Run the following commands in the root folder to build the firmware:
 
     .. code-block:: console
 
-        $ cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-        $ cd build
-        $ make example_keyword_spotter
+        cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+        cd build
+        make example_keyword_spotter
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        $ cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-        $ cd build
-        $ nmake example_keyword_spotter
+        cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+        cd build
+        nmake example_keyword_spotter
 
 
 ********************
@@ -43,13 +43,13 @@ From the build folder run:
 
     .. code-block:: console
 
-        $ make run_example_keyword_spotter
+        make run_example_keyword_spotter
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        $ nmake run_example_keyword_spotter
+        nmake run_example_keyword_spotter
 
 
 ********************************
@@ -62,10 +62,10 @@ From the build folder run:
 
     .. code-block:: console
 
-        $ make debug_example_keyword_spotter
+        make debug_example_keyword_spotter
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        $ nmake debug_example_keyword_spotter
+        nmake debug_example_keyword_spotter
