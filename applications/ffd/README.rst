@@ -14,21 +14,21 @@ Speech Recognition
 
 The application will recognize the following utterances:
 
-.. list-table:: Wakeup Utterances
+.. list-table::
     :widths: 100
     :header-rows: 1
     :align: left
 
-    * - Utterance
+    * - Wakeup Utterances
     * - Hello XMOS
     * - Hello Wanson
 
-.. list-table:: Command Utterances
+.. list-table::
     :widths: 100
     :header-rows: 1
     :align: left
 
-    * - Utterance
+    * - Command Utterances
     * - Switch On the TV
     * - Channel up
     * - Channel down
