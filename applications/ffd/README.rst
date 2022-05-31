@@ -6,7 +6,45 @@ This is the XMOS far-field local dictionary (FFD) reference design with Wanson s
 
 This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50. You can reset the counter to 0 by restarting or rebooting the application.  
 
-The Wanson speech recognition library `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is library subject to the `Wanson Restrictive License <https://github.com/xmos/sln_avona/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md>`__.
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the `Wanson Restrictive License <https://github.com/xmos/sln_avona/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md>`__.
+
+******************
+Speech Recognition
+******************
+
+The application will recognize the following utterances:
+
+.. list-table:: Wakeup Utterances
+    :widths: 100
+    :header-rows: 1
+    :align: left
+
+    * - Utterance
+    * - Hello XMOS
+    * - Hello Wanson
+
+.. list-table:: Command Utterances
+    :widths: 100
+    :header-rows: 1
+    :align: left
+
+    * - Utterance
+    * - Switch On the TV
+    * - Channel up
+    * - Channel down
+    * - Volume up
+    * - Volume down
+    * - Switch off the TV
+    * - Switch on the lights
+    * - Brightness up
+    * - Brightness down
+    * - Switch off the lights
+    * - Switch on the fan
+    * - Speed up the fan
+    * - Slow down the fan
+    * - Set higher temperature
+    * - Set lower temperature
+    * - Switch off the Fan
 
 ******************
 Supported Hardware
@@ -45,23 +83,11 @@ Before the firmware is run, the swmem must be loaded.  This application currentl
 
 Inside of the build folder root, after building the firmware:
 
-.. tab:: Linux and Mac
+.. code-block:: console
 
-    .. code-block:: console
-
-        $ xobjdump --strip application_ffd.xe
-        $ xobjdump --split application_ffd.xb
-        $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_ffd.xe --target-file platform_def.xn
-
-
-.. tab:: Windows
-
-    .. code-block:: console
-
-        $ xobjdump --strip application_ffd.xe
-        $ xobjdump --split application_ffd.xb
-        $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_ffd.xe --target-file platform_def.xn
-
+    $ xobjdump --strip application_ffd.xe
+    $ xobjdump --split application_ffd.xb
+    $ xflash --boot-partition-size 0x100000 --data image_n0c0.swmem --factory application_ffd.xe --target-file platform_def.xn
 
 From the build folder run:
 
