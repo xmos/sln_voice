@@ -16,6 +16,39 @@
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
+#include "ssd1306_rtos_support.h"
+
+void wanson_engine_proc_keyword_result(const char **text, int id)
+{
+    // some temporary fixes to the strings returned
+    switch (id) {
+        case 200:
+            // fix capital "On"
+            ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
+            break;
+        case 420:
+            // fix lower case "speed"
+            // fix word wrapping
+            ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
+            break;
+        case 430:
+            // fix lower case "slow"
+            ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
+            break;
+        case 440:
+            // fix lower case "set"
+            // fix word wrapping
+            ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
+            break;
+        case 450:
+            // fix lower case "set"
+            // fix word wrapping
+            ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
+            break;
+        default:
+            ssd1306_display_ascii_to_bitmap((char *)*text);
+    }
+}
 
 int32_t inference_engine_create(uint32_t priority, void *args)
 {
