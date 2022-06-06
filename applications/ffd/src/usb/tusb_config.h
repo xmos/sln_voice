@@ -64,12 +64,26 @@
 #define CFG_TUD_MSC               0
 #define CFG_TUD_HID               0
 #define CFG_TUD_MIDI              0
+#if appconfUSB_AUDIO_ENABLED
 #define CFG_TUD_AUDIO             1
+#else
+#define CFG_TUD_AUDIO             0
+#endif
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+#define CFG_TUD_VENDOR            1
+#else
 #define CFG_TUD_VENDOR            0
+#endif
+
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+#define CFG_TUD_VENDOR_TX_BUFSIZE   64
+#define CFG_TUD_VENDOR_RX_BUFSIZE   64
+#endif
 
 //--------------------------------------------------------------------
 // AUDIO CLASS DRIVER CONFIGURATION
 //--------------------------------------------------------------------
+#if appconfUSB_AUDIO_ENABLED
 extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 
 #define CFG_TUD_AUDIO_FUNC_1_DESC_LEN                       tud_audio_desc_lengths[0]
@@ -100,5 +114,6 @@ extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 #define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ              (AUDIO_FRAMES_PER_USB_FRAME * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX)
 #define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX          (CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ + 2)   // Maximum EP IN size for all AS alternate settings used. Plus 2 for CRC
 #define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ       CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ*3
+#endif /* appconfUSB_AUDIO_ENABLED */
 
 #endif /* _TUSB_CONFIG_H_ */

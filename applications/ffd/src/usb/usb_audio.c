@@ -44,6 +44,7 @@
 
 #include "app_conf.h"
 
+#if appconfUSB_AUDIO_ENABLED
 // Audio controls
 // Current states
 bool mute[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; 						// +1 for master channel 0
@@ -65,6 +66,7 @@ static TaskHandle_t usb_audio_out_task_handle;
 #define RATE_MULTIPLIER (appconfUSB_AUDIO_SAMPLE_RATE / appconfAUDIO_PIPELINE_SAMPLE_RATE)
 
 #define USB_FRAMES_PER_VFE_FRAME (appconfAUDIO_PIPELINE_FRAME_ADVANCE / (appconfAUDIO_PIPELINE_SAMPLE_RATE / 1000))
+#endif /* appconfUSB_AUDIO_ENABLED */
 
 //--------------------------------------------------------------------+
 // Device callbacks
@@ -97,6 +99,7 @@ void tud_resume_cb(void)
 
 }
 
+#if appconfUSB_AUDIO_ENABLED
 //--------------------------------------------------------------------+
 // AUDIO Task
 //--------------------------------------------------------------------+
@@ -775,3 +778,4 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
     xTaskCreate((TaskFunction_t) usb_audio_in_task, "usb_audio_in_task", portTASK_STACK_DEPTH(usb_audio_in_task), intertile_ctx, priority, NULL);
     xTaskCreate((TaskFunction_t) usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
 }
+#endif /* appconfUSB_AUDIO_ENABLED */

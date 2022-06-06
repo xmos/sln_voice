@@ -46,7 +46,7 @@ void audio_pipeline_input(void *input_app_data,
 {
     (void) input_app_data;
 
-#if appconfUSB_ENABLED
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
     int32_t **usb_mic_audio_frame = NULL;
 
     if (mic_from_usb) {
@@ -107,7 +107,7 @@ int audio_pipeline_output(void *output_app_data,
                 portMAX_DELAY);
 #endif
 
-#if appconfUSB_ENABLED
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
     usb_audio_send(intertile_ctx,
                 frame_count,
                 output_audio_frames,
@@ -185,7 +185,7 @@ static void tile_common_init(chanend_t c)
     platform_init(c);
     chanend_free(c);
 
-#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED && ON_TILE(USB_TILE_NO)
     usb_audio_init(intertile_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
 #endif
 

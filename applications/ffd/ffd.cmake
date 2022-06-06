@@ -111,3 +111,6 @@ create_flash_app_target(application_ffd)
 create_run_target(application_ffd_dev)
 create_debug_target(application_ffd_dev)
 create_flash_app_target(application_ffd_dev)
+
+include(${CMAKE_CURRENT_LIST_DIR}/ffd_i2c_output.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffd_usb_output.cmake)

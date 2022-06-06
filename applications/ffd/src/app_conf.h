@@ -35,11 +35,15 @@
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED   1
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED   0
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
 #define appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR 0x01
+#endif
+
+#ifndef appconfINFERENCE_USB_OUTPUT_ENABLED
+#define appconfINFERENCE_USB_OUTPUT_ENABLED   0
 #endif
 
 #ifndef appconfSSD1306_DISPLAY_ENABLED
@@ -62,10 +66,14 @@
 #define appconfUSB_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
 #endif
 
+#ifndef appconfUSB_AUDIO_ENABLED
+#define appconfUSB_AUDIO_ENABLED 0
+#endif
+
 #define appconfUSB_AUDIO_RELEASE   0
 #define appconfUSB_AUDIO_TESTING   1
 #ifndef appconfUSB_AUDIO_MODE
-#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_TESTING
+#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_RELEASE
 #endif
 
 #define appconfMIC_SRC_MICS        0
