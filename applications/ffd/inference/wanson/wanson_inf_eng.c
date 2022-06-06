@@ -72,7 +72,34 @@ void wanson_engine_task(void *args)
 
         if (ret) {
             rtos_printf("inference got ret %d: %s %d\n", ret, text_ptr, id);
-            ssd1306_display_ascii_to_bitmap(text_ptr);
+            // some temporary fixes to the strings returned
+            switch (id) {
+                case 200:
+                    // fix capital "On"
+                    ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
+                    break;
+                case 420:
+                    // fix lower case "speed"
+                    // fix word wrapping
+                    ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
+                    break;
+                case 430:
+                    // fix lower case "slow"
+                    ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
+                    break;
+                case 440:
+                    // fix lower case "set"
+                    // fix word wrapping
+                    ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
+                    break; 
+                case 450:
+                    // fix lower case "set"
+                    // fix word wrapping
+                    ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
+                    break;
+                default:
+                    ssd1306_display_ascii_to_bitmap(text_ptr);
+            }
         }
 
         /* Push back history */
