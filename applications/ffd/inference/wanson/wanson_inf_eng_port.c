@@ -51,15 +51,15 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
     }
 #endif
 #if appconfINFERENCE_I2C_OUTPUT_ENABLED
-    i2c_regop_res_t ret;
-    uint8_t *buf = &id;
+    i2c_res_t ret;
+    uint8_t buf = (uint8_t)(id & 0xFF);
     size_t sent = 0;
 
     ret = rtos_i2c_master_write(
         i2c_master_ctx,
         appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR,
-        buf,
-        sizeof(id),
+        &buf,
+        sizeof(uint8_t),
         &sent,
         1
     );
