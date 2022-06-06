@@ -34,6 +34,18 @@
 #define appconfINFERENCE_ENABLED   1
 #endif
 
+#ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED   1
+#endif
+
+#ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
+#define appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR 0x01
+#endif
+
+#ifndef appconfSSD1306_DISPLAY_ENABLED
+#define appconfSSD1306_DISPLAY_ENABLED   1
+#endif
+
 #ifndef appconfI2S_ENABLED
 #define appconfI2S_ENABLED   0
 #endif
