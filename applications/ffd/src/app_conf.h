@@ -35,7 +35,7 @@
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED   0
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED   1
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
@@ -47,7 +47,7 @@
 #endif
 
 #ifndef appconfSSD1306_DISPLAY_ENABLED
-#define appconfSSD1306_DISPLAY_ENABLED   1
+#define appconfSSD1306_DISPLAY_ENABLED   0
 #endif
 
 #ifndef appconfI2S_ENABLED

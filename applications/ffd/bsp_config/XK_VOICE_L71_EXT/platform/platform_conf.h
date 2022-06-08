@@ -15,6 +15,14 @@
 /*****************************************/
 /* Intertile Communication Configuration */
 /*****************************************/
+#ifndef appconfI2C_MASTER_RPC_PORT
+#define appconfI2C_MASTER_RPC_PORT 10
+#endif /* appconfI2C_MASTER_RPC_PORT */
+
+#ifndef appconfI2C_MASTER_RPC_PRIORITY
+#define appconfI2C_MASTER_RPC_PRIORITY (configMAX_PRIORITIES/2)
+#endif /* appconfI2C_MASTER_RPC_PRIORITY */
+
 #ifndef appconfGPIO_T0_RPC_PORT
 #define appconfGPIO_T0_RPC_PORT 11
 #endif /* appconfGPIO_T0_RPC_PORT */
@@ -34,9 +42,17 @@
 #define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off I/O cores. Must be kept off core 0 with the RTOS tick ISR */
 #endif /* appconfPDM_MIC_IO_CORE */
 
+#ifndef appconfI2S_IO_CORE
+#define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
+#endif /* appconfI2S_IO_CORE */
+
 #ifndef appconfPDM_MIC_INTERRUPT_CORE
 #define appconfPDM_MIC_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 #endif /* appconfPDM_MIC_INTERRUPT_CORE */
+
+#ifndef appconfI2S_INTERRUPT_CORE
+#define appconfI2S_INTERRUPT_CORE               4 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#endif /* appconfI2S_INTERRUPT_CORE */
 
 /*****************************************/
 /*  I/O and interrupt cores for Tile 1   */

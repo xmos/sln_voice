@@ -69,7 +69,6 @@ void wanson_engine_task(void *args)
         ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
         if (ret) {
-            rtos_printf("inference got ret %d: %s %d\n", ret, text_ptr, id);
             wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
         }
 

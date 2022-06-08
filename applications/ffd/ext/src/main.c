@@ -15,22 +15,24 @@
 
 /* Library headers */
 #include "rtos_printf.h"
+#include "src.h"
 
 /* App headers */
 #include "app_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
+#include "usb_support.h"
+#include "usb_audio.h"
 #include "audio_pipeline/audio_pipeline.h"
 #include "inference_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "rtos_swmem.h"
+#include "ssd1306_rtos_support.h"
 #include "xcore_device_memory.h"
 
-extern void startup_task(void *arg);
-extern void tile_common_init(chanend_t c);
+volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 
-__attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,
                           size_t ch_count,
@@ -38,6 +40,22 @@ void audio_pipeline_input(void *input_app_data,
 {
     (void) input_app_data;
 
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
+    int32_t **usb_mic_audio_frame = NULL;
+
+    if (mic_from_usb) {
+        usb_mic_audio_frame = input_audio_frames;
+        usb_audio_recv(intertile_ctx,
+                       frame_count,
+                       usb_mic_audio_frame,
+                       ch_count);
+    } else {
+        rtos_mic_array_rx(mic_array_ctx,
+                          input_audio_frames,
+                          frame_count,
+                          portMAX_DELAY);
+    }
+#else
     static int flushed;
     while (!flushed) {
         size_t received;
@@ -58,15 +76,37 @@ void audio_pipeline_input(void *input_app_data,
                       input_audio_frames,
                       frame_count,
                       portMAX_DELAY);
+#endif
 }
 
-__attribute__((weak))
 int audio_pipeline_output(void *output_app_data,
                           int32_t **output_audio_frames,
                           size_t ch_count,
                           size_t frame_count)
 {
     (void) output_app_data;
+
+#if appconfI2S_ENABLED
+    /* I2S expects sample channel format */
+    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
+        /* ASR output is first */
+        tmp[j][0] = output_audio_frames[j];
+        tmp[j][1] = output_audio_frames[j];
+    }
+
+    rtos_i2s_tx(i2s_ctx,
+                (int32_t*) tmp,
+                frame_count,
+                portMAX_DELAY);
+#endif
+
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
+    usb_audio_send(intertile_ctx,
+                frame_count,
+                output_audio_frames,
+                4);
+#endif
 
 #if appconfINFERENCE_ENABLED
     inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
@@ -75,14 +115,6 @@ int audio_pipeline_output(void *output_app_data,
     return AUDIO_PIPELINE_FREE_FRAME;
 }
 
-void vApplicationMallocFailedHook(void)
-{
-    rtos_printf("Malloc Failed on tile %d!\n", THIS_XCORE_TILE);
-    xassert(0);
-    for(;;);
-}
-
-__attribute__((weak))
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
@@ -98,6 +130,9 @@ void startup_task(void *arg)
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
+#if appconfSSD1306_DISPLAY_ENABLED
+    ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
+#endif
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, NULL);
 #endif
 
@@ -118,17 +153,14 @@ void startup_task(void *arg)
 	}
 }
 
-void vApplicationMinimalIdleHook(void)
-{
-    rtos_printf("idle hook on tile %d core %d\n", THIS_XCORE_TILE, rtos_core_id_get());
-    asm volatile("waiteu");
-}
-
-__attribute__((weak))
 void tile_common_init(chanend_t c)
 {
     platform_init(c);
     chanend_free(c);
+
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED && ON_TILE(USB_TILE_NO)
+    usb_audio_init(intertile_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
+#endif
 
     xTaskCreate((TaskFunction_t) startup_task,
                 "startup_task",
@@ -140,25 +172,3 @@ void tile_common_init(chanend_t c)
     rtos_printf("start scheduler on tile %d\n", THIS_XCORE_TILE);
     vTaskStartScheduler();
 }
-
-#if ON_TILE(0)
-void main_tile0(chanend_t c0, chanend_t c1, chanend_t c2, chanend_t c3)
-{
-    (void) c0;
-    (void) c2;
-    (void) c3;
-
-    tile_common_init(c1);
-}
-#endif
-
-#if ON_TILE(1)
-void main_tile1(chanend_t c0, chanend_t c1, chanend_t c2, chanend_t c3)
-{
-    (void) c1;
-    (void) c2;
-    (void) c3;
-
-    tile_common_init(c0);
-}
-#endif

@@ -9,11 +9,16 @@
 #include "platform/app_pll_ctrl.h"
 #include "platform/driver_instances.h"
 #include "platform/platform_init.h"
+#include "adaptive_rate_adjust.h"
+#include "usb_support.h"
 
 static void mclk_init(chanend_t other_tile_c)
 {
 #if ON_TILE(1)
     app_pll_init();
+#endif
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
+    adaptive_rate_adjust_init(other_tile_c, MCLK_CLKBLK);
 #endif
 }
 
@@ -83,6 +88,32 @@ static void gpio_init(void)
 #endif
 }
 
+static void i2c_init(void)
+{
+    static rtos_driver_rpc_t i2c_rpc_config;
+
+#if ON_TILE(I2C_TILE_NO)
+    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
+    rtos_i2c_master_init(
+            i2c_master_ctx,
+            PORT_I2C_SCL, 0, 0,
+            PORT_I2C_SDA, 0, 0,
+            0,
+            400);
+
+    rtos_i2c_master_rpc_host_init(
+            i2c_master_ctx,
+            &i2c_rpc_config,
+            client_intertile_ctx,
+            1);
+#else
+    rtos_i2c_master_rpc_client_init(
+            i2c_master_ctx,
+            &i2c_rpc_config,
+            intertile_ctx);
+#endif
+}
+
 static void mics_init(void)
 {
 #if ON_TILE(MICARRAY_TILE_NO)
@@ -93,6 +124,37 @@ static void mics_init(void)
 #endif
 }
 
+static void i2s_init(void)
+{
+#if appconfI2S_ENABLED && ON_TILE(I2S_TILE_NO)
+    port_t p_i2s_dout[1] = {
+            PORT_I2S_DAC_DATA
+    };
+    port_t p_i2s_din[1] = {
+            PORT_I2S_ADC_DATA
+    };
+
+    rtos_i2s_master_init(
+            i2s_ctx,
+            (1 << appconfI2S_IO_CORE),
+            p_i2s_dout,
+            1,
+            p_i2s_din,
+            1,
+            PORT_I2S_BCLK,
+            PORT_I2S_LRCLK,
+            PORT_MCLK,
+            I2S_CLKBLK);
+#endif
+}
+
+static void usb_init(void)
+{
+#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
+    usb_manager_init();
+#endif
+}
+
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
@@ -100,5 +162,8 @@ void platform_init(chanend_t other_tile_c)
     mclk_init(other_tile_c);
     gpio_init();
     flash_init();
+    i2c_init();
     mics_init();
+    i2s_init();
+    usb_init();
 }

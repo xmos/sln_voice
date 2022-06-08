@@ -3,7 +3,6 @@
 add_library(sln_avona_app_ffd_board_support_xk_voice_l71 INTERFACE)
 target_sources(sln_avona_app_ffd_board_support_xk_voice_l71
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/driver_instances.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
@@ -19,8 +18,6 @@ target_link_libraries(sln_avona_app_ffd_board_support_xk_voice_l71
         rtos::freertos
         rtos::drivers::general
         rtos::drivers::audio
-        rtos::drivers::usb
-        sln_avona::app::ffd::dac::dac3101
 )
 target_compile_options(sln_avona_app_ffd_board_support_xk_voice_l71
     INTERFACE
@@ -37,8 +34,6 @@ target_compile_definitions(sln_avona_app_ffd_board_support_xk_voice_l71
         PLATFORM_SUPPORTS_TILE_1=1
         PLATFORM_SUPPORTS_TILE_2=0
         PLATFORM_SUPPORTS_TILE_3=0
-        USB_TILE_NO=0
-        USB_TILE=tile[USB_TILE_NO]
 
         MIC_ARRAY_CONFIG_MCLK_FREQ=24576000
         MIC_ARRAY_CONFIG_PDM_FREQ=3072000

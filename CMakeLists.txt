@@ -14,10 +14,6 @@ enable_language(CXX C ASM)
 ## Project options
 option(SOLUTION_AVONA_TESTS     "Enable solution avona tests"  OFF)
 
-## TODO these should be moved outside of the xcore_sdk repository
-## Import some helpful macros
-include(xcore_sdk/tools/cmake_utils/xmos_macros.cmake)
-
 ## Add frameworks
 add_subdirectory(xcore_sdk)
 
