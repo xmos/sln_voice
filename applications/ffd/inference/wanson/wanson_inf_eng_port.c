@@ -16,6 +16,7 @@
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
+#include "ssd1306_rtos_support.h"
 
 __attribute__((weak))
 void wanson_engine_proc_keyword_result(const char **text, int id)
