@@ -22,6 +22,7 @@ extern "C" {
 
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
+#define I2C_TILE_NO        0
 #define MICARRAY_TILE_NO   1
 
 /** TILE 0 Clock Blocks */
@@ -43,5 +44,6 @@ extern rtos_qspi_flash_t *qspi_flash_ctx;
 extern rtos_gpio_t *gpio_ctx_t0;
 extern rtos_gpio_t *gpio_ctx_t1;
 extern rtos_mic_array_t *mic_array_ctx;
+extern rtos_i2c_master_t *i2c_master_ctx;
 
 #endif /* DRIVER_INSTANCES_H_ */

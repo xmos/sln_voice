@@ -36,6 +36,15 @@ static void flash_start(void)
 #endif
 }
 
+static void i2c_master_start(void)
+{
+    rtos_i2c_master_rpc_config(i2c_master_ctx, appconfI2C_MASTER_RPC_PORT, appconfI2C_MASTER_RPC_PRIORITY);
+
+#if ON_TILE(I2C_TILE_NO)
+    rtos_i2c_master_start(i2c_master_ctx);
+#endif
+}
+
 static void mics_start(void)
 {
 #if ON_TILE(MICARRAY_TILE_NO)
@@ -52,5 +61,6 @@ void platform_start(void)
 
     gpio_start();
     flash_start();
+    i2c_master_start();
     mics_start();
 }

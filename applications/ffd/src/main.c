@@ -26,9 +26,45 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "rtos_swmem.h"
 #include "xcore_device_memory.h"
+#include "ssd1306_rtos_support.h"
 
 extern void startup_task(void *arg);
 extern void tile_common_init(chanend_t c);
+
+void wanson_engine_proc_keyword_result(const char **text, int id)
+{
+    rtos_printf("%s %d\n", (char*)*text, id);
+#if appconfSSD1306_DISPLAY_ENABLED
+    // some temporary fixes to the strings returned
+    switch (id) {
+        case 200:
+            // fix capital "On"
+            ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
+            break;
+        case 420:
+            // fix lower case "speed"
+            // fix word wrapping
+            ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
+            break;
+        case 430:
+            // fix lower case "slow"
+            ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
+            break;
+        case 440:
+            // fix lower case "set"
+            // fix word wrapping
+            ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
+            break;
+        case 450:
+            // fix lower case "set"
+            // fix word wrapping
+            ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
+            break;
+        default:
+            ssd1306_display_ascii_to_bitmap((char *)*text);
+    }
+#endif
+}
 
 __attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
@@ -98,6 +134,9 @@ void startup_task(void *arg)
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
+#if appconfSSD1306_DISPLAY_ENABLED
+    ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
+#endif
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, NULL);
 #endif
 

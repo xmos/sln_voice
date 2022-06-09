@@ -83,6 +83,32 @@ static void gpio_init(void)
 #endif
 }
 
+static void i2c_init(void)
+{
+    static rtos_driver_rpc_t i2c_rpc_config;
+
+#if ON_TILE(I2C_TILE_NO)
+    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
+    rtos_i2c_master_init(
+            i2c_master_ctx,
+            PORT_I2C_SCL, 0, 0,
+            PORT_I2C_SDA, 0, 0,
+            0,
+            400);
+
+    rtos_i2c_master_rpc_host_init(
+            i2c_master_ctx,
+            &i2c_rpc_config,
+            client_intertile_ctx,
+            1);
+#else
+    rtos_i2c_master_rpc_client_init(
+            i2c_master_ctx,
+            &i2c_rpc_config,
+            intertile_ctx);
+#endif
+}
+
 static void mics_init(void)
 {
 #if ON_TILE(MICARRAY_TILE_NO)
@@ -100,5 +126,6 @@ void platform_init(chanend_t other_tile_c)
     mclk_init(other_tile_c);
     gpio_init();
     flash_init();
+    i2c_init();
     mics_init();
 }

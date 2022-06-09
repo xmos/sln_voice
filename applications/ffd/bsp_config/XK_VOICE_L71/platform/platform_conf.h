@@ -15,6 +15,14 @@
 /*****************************************/
 /* Intertile Communication Configuration */
 /*****************************************/
+#ifndef appconfI2C_MASTER_RPC_PORT
+#define appconfI2C_MASTER_RPC_PORT 10
+#endif /* appconfI2C_MASTER_RPC_PORT */
+
+#ifndef appconfI2C_MASTER_RPC_PRIORITY
+#define appconfI2C_MASTER_RPC_PRIORITY (configMAX_PRIORITIES/2)
+#endif /* appconfI2C_MASTER_RPC_PRIORITY */
+
 #ifndef appconfGPIO_T0_RPC_PORT
 #define appconfGPIO_T0_RPC_PORT 11
 #endif /* appconfGPIO_T0_RPC_PORT */

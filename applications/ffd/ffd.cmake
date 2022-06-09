@@ -2,7 +2,7 @@
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
-set(APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src)
+set(APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306)
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/inference/inference.cmake)
