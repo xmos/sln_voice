@@ -18,7 +18,7 @@
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
 
-#pragma stackfunction 1000
+#pragma stackfunction 1200
 void wanson_engine_task(void *args)
 {
     rtos_printf("Wanson init\n");
