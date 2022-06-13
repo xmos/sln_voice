@@ -6,42 +6,33 @@
 #include <stddef.h>
 #include <xs1.h>
 
-#define IS_RAM(a)                    \
-  (((uintptr_t)a >= XS1_RAM_BASE) && \
-   ((uintptr_t)a <= (XS1_RAM_BASE + XS1_RAM_SIZE)))
-#define IS_NOT_RAM(a) ((uintptr_t)a > XS1_RAM_BASE)
-#define IS_EXTMEM(a)                    \
-  (((uintptr_t)a >= XS1_EXTMEM_BASE) && \
-   (((uintptr_t)a <= (XS1_EXTMEM_BASE + XS1_EXTMEM_SIZE))))
 #define IS_SWMEM(a)                    \
   (((uintptr_t)a >= XS1_SWMEM_BASE) && \
    (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+// NOTE: Wanson ASR engine calls swmem_setup and swmem_load functions.  
+//       However, this is confusing given swmem is not used.  
+//       We use the macros below as an attempt to mitigate this confusion.
+#define model_data_init(...) swmem_setup(__VA_ARGS__)
+#define model_data_load(...) swmem_load(__VA_ARGS__) 
 
 #include "rtos_qspi_flash.h"
 
 /**
- * Initialize and start the SwMem driver.
+ * Initialize and start the model data loading.
  *
  * @param[in]  ctx  RTOS QSPI flash driver context
- * @param[in]  swmem_task_priority RTOS task priority
+ * @param[in]  swmem_task_priority RTOS task priority (currently unused)
  */
-void swmem_setup(rtos_qspi_flash_t *ctx, unsigned swmem_task_priority);
+void model_data_init(rtos_qspi_flash_t *ctx, unsigned swmem_task_priority);
 
 /**
- * Load memory from the SwMem memory segment.
+ * Load model data from flash.
  *
  * @param[out] dest Pointer to the memory location to copy to
  * @param[in]  src  Pointer to the memory location to copy from
  * @param[in]  size Number of bytes to copy
  */
-size_t swmem_load(void *dest, const void *src, size_t size);
-
-#ifdef __cplusplus
-}
-#endif
+size_t model_data_load(void *dest, const void *src, size_t size);
 
 #endif  // XCORE_DEVICE_MEMORY_H_
