@@ -10,21 +10,10 @@
   (((uintptr_t)a >= XS1_SWMEM_BASE) && \
    (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
 
-// NOTE: Wanson ASR engine calls swmem_setup and swmem_load functions.  
+// NOTE: Wanson ASR engine calls the swmem_load function.  
 //       However, this is confusing given swmem is not used.  
-//       We use the macros below as an attempt to mitigate this confusion.
-#define model_data_init(...) swmem_setup(__VA_ARGS__)
+//       We use the macro below as an attempt to mitigate this confusion.
 #define model_data_load(...) swmem_load(__VA_ARGS__) 
-
-#include "rtos_qspi_flash.h"
-
-/**
- * Initialize and start the model data loading.
- *
- * @param[in]  ctx  RTOS QSPI flash driver context
- * @param[in]  swmem_task_priority RTOS task priority (currently unused)
- */
-void model_data_init(rtos_qspi_flash_t *ctx, unsigned swmem_task_priority);
 
 /**
  * Load model data from flash.
