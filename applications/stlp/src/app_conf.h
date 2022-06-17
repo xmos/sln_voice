@@ -13,6 +13,7 @@
 #define appconfSPI_AUDIO_PORT          5
 #define appconfWW_SAMPLES_PORT         6
 #define appconfAUDIOPIPELINE_PORT      7
+#define appconfI2S_OUTPUT_SLAVE_PORT   8
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
@@ -81,11 +82,7 @@
 #endif
 
 #ifndef appconfEXTERNAL_MCLK
-#if XK_VOICE_L71 && appconfI2C_CTRL_ENABLED
-#define appconfEXTERNAL_MCLK       1
-#else
 #define appconfEXTERNAL_MCLK       0
-#endif
 #endif
 
 /*

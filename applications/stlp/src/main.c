@@ -32,6 +32,35 @@
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
+#if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+void i2s_slave_intertile(void *args) {
+    (void) args;
+    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+
+    while(1) {
+        memset(tmp, 0x00, sizeof(tmp));
+
+        size_t bytes_received = 0;
+        bytes_received = rtos_intertile_rx_len(
+                intertile_ctx,
+                appconfI2S_OUTPUT_SLAVE_PORT,
+                portMAX_DELAY);
+
+        xassert(bytes_received == sizeof(tmp));
+
+        rtos_intertile_rx_data(
+                intertile_ctx,
+                tmp,
+                bytes_received);
+
+        rtos_i2s_tx(i2s_ctx,
+                    (int32_t*) tmp,
+                    appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                    portMAX_DELAY);
+    }
+}
+#endif
+
 void audio_pipeline_input(void *input_app_data,
                         int32_t **input_audio_frames,
                         size_t ch_count,
@@ -118,6 +147,7 @@ int audio_pipeline_output(void *output_app_data,
     (void) output_app_data;
 
 #if appconfI2S_ENABLED
+#if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -154,6 +184,21 @@ int audio_pipeline_output(void *output_app_data,
                     appconfI2S_AUDIO_SAMPLE_RATE / appconfAUDIO_PIPELINE_SAMPLE_RATE,
                     portMAX_DELAY);
     }
+#endif
+#elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
+    /* I2S expects sample channel format */
+    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+    int32_t *tmpptr = (int32_t *)output_audio_frames;
+    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
+        /* ASR output is first */
+        tmp[j][0] = *(tmpptr+j);
+        tmp[j][1] = *(tmpptr+j+appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+    }
+
+    rtos_intertile_tx(intertile_ctx,
+                      appconfI2S_OUTPUT_SLAVE_PORT,
+                      tmp,
+                      sizeof(tmp));
 #endif
 #endif
 
@@ -274,6 +319,15 @@ void startup_task(void *arg)
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
     platform_start();
+
+#if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+    xTaskCreate((TaskFunction_t) i2s_slave_intertile,
+                "i2s_slave_intertile",
+                RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
+                NULL,
+                appconfAUDIO_PIPELINE_TASK_PRIORITY,
+                NULL);
+#endif
 
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);

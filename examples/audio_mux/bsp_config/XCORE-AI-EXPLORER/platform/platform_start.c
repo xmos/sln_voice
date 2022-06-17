@@ -13,13 +13,8 @@
 /* App headers */
 #include "platform_conf.h"
 #include "platform/driver_instances.h"
-#include "dac3101.h"
+#include "aic3204.h"
 #include "usb_support.h"
-
-#if appconfI2C_CTRL_ENABLED
-#include "app_control/app_control.h"
-#include "device_control_i2c.h"
-#endif
 
 extern void i2s_rate_conversion_enable(void);
 
@@ -45,22 +40,19 @@ static void flash_start(void)
 
 static void i2c_master_start(void)
 {
-#if !appconfI2C_CTRL_ENABLED
     rtos_i2c_master_rpc_config(i2c_master_ctx, appconfI2C_MASTER_RPC_PORT, appconfI2C_MASTER_RPC_PRIORITY);
 
 #if ON_TILE(I2C_TILE_NO)
     rtos_i2c_master_start(i2c_master_ctx);
 #endif
-#endif
 }
 
 static void audio_codec_start(void)
 {
-#if !appconfI2C_CTRL_ENABLED
 #if appconfI2S_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
-    if (dac3101_init(appconfI2S_AUDIO_SAMPLE_RATE) != 0) {
+    if (aic3204_init() != 0) {
         rtos_printf("DAC initialization failed\n");
     }
     rtos_intertile_tx(intertile_ctx, 0, &ret, sizeof(ret));
@@ -69,39 +61,10 @@ static void audio_codec_start(void)
     rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
 #endif
 #endif
-#endif
-}
-
-static void i2c_slave_start(void)
-{
-#if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
-    rtos_i2c_slave_start(i2c_slave_ctx,
-                         device_control_i2c_ctx,
-                         (rtos_i2c_slave_start_cb_t) device_control_i2c_start_cb,
-                         (rtos_i2c_slave_rx_cb_t) device_control_i2c_rx_cb,
-                         (rtos_i2c_slave_tx_start_cb_t) device_control_i2c_tx_start_cb,
-                         (rtos_i2c_slave_tx_done_cb_t) NULL,
-                         appconfI2C_INTERRUPT_CORE,
-                         appconfI2C_TASK_PRIORITY);
-#endif
-}
-
-static void spi_start(void)
-{
-#if appconfSPI_OUTPUT_ENABLED && ON_TILE(SPI_OUTPUT_TILE_NO)
-    rtos_spi_slave_start(spi_slave_ctx,
-                         NULL,
-                         (rtos_spi_slave_start_cb_t) spi_slave_start_cb,
-                         (rtos_spi_slave_xfer_done_cb_t) spi_slave_xfer_done_cb,
-                         appconfSPI_INTERRUPT_CORE,
-                         appconfSPI_TASK_PRIORITY);
-#endif
 }
 
 static void mics_start(void)
 {
-    rtos_mic_array_rpc_config(mic_array_ctx, appconfMIC_ARRAY_RPC_PORT, appconfMIC_ARRAY_RPC_PRIORITY);
-
 #if ON_TILE(MICARRAY_TILE_NO)
     rtos_mic_array_start(
             mic_array_ctx,
@@ -113,9 +76,7 @@ static void mics_start(void)
 static void i2s_start(void)
 {
 #if appconfI2S_ENABLED
-#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_i2s_rpc_config(i2s_ctx, appconfI2S_RPC_PORT, appconfI2S_RPC_PRIORITY);
-#endif
 #if ON_TILE(I2S_TILE_NO)
     if (appconfI2S_AUDIO_SAMPLE_RATE == 3*appconfAUDIO_PIPELINE_SAMPLE_RATE) {
         i2s_rate_conversion_enable();
@@ -123,10 +84,10 @@ static void i2s_start(void)
 
     rtos_i2s_start(
             i2s_ctx,
-            rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, appconfI2S_AUDIO_SAMPLE_RATE),
+            rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, appconfPIPELINE_AUDIO_SAMPLE_RATE),
             I2S_MODE_I2S,
-            2.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-            1.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE * (appconfI2S_TDM_ENABLED ? 3 : 1),
+            2.2 * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME,
+            1.2 * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME,
             appconfI2S_INTERRUPT_CORE);
 #endif
 #endif
@@ -146,9 +107,7 @@ void platform_start(void)
     gpio_start();
     flash_start();
     i2c_master_start();
-    i2c_slave_start();
     audio_codec_start();
-    spi_start();
     mics_start();
     i2s_start();
     usb_start();
