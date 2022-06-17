@@ -125,10 +125,6 @@ void startup_task(void *arg)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(FLASH_TILE_NO)
-    swmem_setup(qspi_flash_ctx, configMAX_PRIORITIES-1);
-#endif
-
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
 #if appconfSSD1306_DISPLAY_ENABLED
     ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
