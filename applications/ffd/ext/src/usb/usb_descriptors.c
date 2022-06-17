@@ -68,6 +68,7 @@ uint8_t const* tud_descriptor_device_cb(void)
 // Configuration Descriptor
 //--------------------------------------------------------------------+
 
+#if appconfUSB_AUDIO_ENABLED
 const size_t uac2_interface_descriptors_length =
         TUD_AUDIO_DESC_CLK_SRC_LEN +
 #if AUDIO_OUTPUT_ENABLED
@@ -114,17 +115,33 @@ const size_t uac2_total_descriptors_length =
 const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
         uac2_total_descriptors_length
 };
+#endif /* appconfUSB_AUDIO_ENABLED */
 
-#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * uac2_total_descriptors_length)
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+#define VENDOR_SIZE     TUD_VENDOR_DESC_LEN
+#else
+#define VENDOR_SIZE     0
+#endif
+
+#if appconfUSB_AUDIO_ENABLED
+#define AUDIO_SIZE      (CFG_TUD_AUDIO * uac2_total_descriptors_length)
+#else
+#define AUDIO_SIZE      0
+#endif
+
+#define CONFIG_TOTAL_LEN    TUD_CONFIG_DESC_LEN + VENDOR_SIZE + AUDIO_SIZE
+
 #define EPNUM_AUDIO   0x01
-
+#define EPNUM_KEYWORD 0x02
 
 #define AUDIO_INTERFACE_STRING_INDEX 4
+#define KEYWORD_INTERFACE_STRING_INDEX 4
 
 uint8_t const desc_configuration[] = {
     // Interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 400),
 
+#if appconfUSB_AUDIO_ENABLED
     /* Standard Interface Association Descriptor (IAD) */
     TUD_AUDIO_DESC_IAD(/*_firstitfs*/ ITF_NUM_AUDIO_CONTROL, /*_nitfs*/ 1+AUDIO_OUTPUT_ENABLED+AUDIO_INPUT_ENABLED, /*_stridx*/ 0x00),
     /* Standard AC Interface Descriptor(4.7.1) */
@@ -133,7 +150,7 @@ uint8_t const desc_configuration[] = {
     TUD_AUDIO_DESC_CS_AC(/*_bcdADC*/ 0x0200, /*_category*/ AUDIO_FUNC_OTHER, /*_totallen*/ uac2_interface_descriptors_length, /*_ctrl*/ AUDIO_CS_AS_INTERFACE_CTRL_LATENCY_POS),
     /* Clock Source Descriptor(4.7.2.1) */
     TUD_AUDIO_DESC_CLK_SRC(/*_clkid*/ UAC2_ENTITY_CLOCK, /*_attr*/ AUDIO_CLOCK_SOURCE_ATT_INT_PRO_CLK, /*_ctrl*/ (AUDIO_CTRL_R << AUDIO_CLOCK_SOURCE_CTRL_CLK_VAL_POS) | (AUDIO_CTRL_R << AUDIO_CLOCK_SOURCE_CTRL_CLK_FRQ_POS), /*_assocTerm*/ 0x00,  /*_stridx*/ 0x00),
-
+#endif
 
 #if AUDIO_OUTPUT_ENABLED
     /* Input Terminal Descriptor(4.7.2.4) */
@@ -195,6 +212,11 @@ uint8_t const desc_configuration[] = {
     /* Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) */
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
+
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+    // Interface number, string index, EP Out & IN address, EP size
+    TUD_VENDOR_DESCRIPTOR(ITF_NUM_KEYWORD, KEYWORD_INTERFACE_STRING_INDEX, EPNUM_KEYWORD, 0x80 | EPNUM_KEYWORD, VENDOR_EP_SIZE)
+#endif
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -216,6 +238,9 @@ char const *string_desc_arr[] = {(const char[]) {0x09, 0x04}, // 0: is supported
         AVONA_PRODUCT_STR,          // 2: Product
         "123456",                   // 3: Serials, should use chip ID
         AVONA_PRODUCT_STR,          // 4: Audio Interface
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+        "FFD Keyword",              // 5: Keyword Interface
+#endif
         };
 
 static uint16_t _desc_str[32];

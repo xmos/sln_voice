@@ -18,8 +18,6 @@
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
 
-#include "ssd1306_rtos_support.h"
-
 #pragma stackfunction 1200
 void wanson_engine_task(void *args)
 {
@@ -71,35 +69,7 @@ void wanson_engine_task(void *args)
         ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
         if (ret) {
-            rtos_printf("inference got ret %d: %s %d\n", ret, text_ptr, id);
-            // some temporary fixes to the strings returned
-            switch (id) {
-                case 200:
-                    // fix capital "On"
-                    ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
-                    break;
-                case 420:
-                    // fix lower case "speed"
-                    // fix word wrapping
-                    ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
-                    break;
-                case 430:
-                    // fix lower case "slow"
-                    ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
-                    break;
-                case 440:
-                    // fix lower case "set"
-                    // fix word wrapping
-                    ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
-                    break; 
-                case 450:
-                    // fix lower case "set"
-                    // fix word wrapping
-                    ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
-                    break;
-                default:
-                    ssd1306_display_ascii_to_bitmap(text_ptr);
-            }
+            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
         }
 
         /* Push back history */

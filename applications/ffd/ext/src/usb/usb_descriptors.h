@@ -6,6 +6,7 @@
 
 #include "tusb_config.h"
 
+#if appconfUSB_AUDIO_ENABLED
 #if CFG_TUD_AUDIO_ENABLE_EP_IN && CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX > 0
 #define AUDIO_INPUT_ENABLED 1
 #else
@@ -16,14 +17,23 @@
 #else
 #define AUDIO_OUTPUT_ENABLED 0
 #endif
+#else
+#define AUDIO_INPUT_ENABLED 0
+#define AUDIO_OUTPUT_ENABLED 0
+#endif /* appconfUSB_AUDIO_ENABLED */
 
 enum {
+#if appconfUSB_AUDIO_ENABLED
     ITF_NUM_AUDIO_CONTROL = 0,
 #if AUDIO_OUTPUT_ENABLED
     ITF_NUM_AUDIO_STREAMING_SPK,
 #endif
 #if AUDIO_INPUT_ENABLED
     ITF_NUM_AUDIO_STREAMING_MIC,
+#endif
+#endif
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+    ITF_NUM_KEYWORD,
 #endif
     ITF_NUM_TOTAL
 };
@@ -39,5 +49,7 @@ enum {
 #define UAC2_ENTITY_MIC_INPUT_TERMINAL  0x21
 #define UAC2_ENTITY_MIC_FEATURE_UNIT    0x22
 #define UAC2_ENTITY_MIC_OUTPUT_TERMINAL 0x23
+
+#define VENDOR_EP_SIZE  512
 
 #endif /* USB_DESCRIPTORS_H_ */

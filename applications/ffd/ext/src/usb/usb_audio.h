@@ -4,7 +4,7 @@
 #ifndef USB_AUDIO_H_
 #define USB_AUDIO_H_
 
-#if appconfUSB_ENABLED
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
 void usb_audio_send(rtos_intertile_t *intertile_ctx,
                     size_t frame_count,
                     int32_t **frame_buffers,

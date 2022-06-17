@@ -17,8 +17,8 @@
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
 #include "ssd1306_rtos_support.h"
+#include "usb_keyword_device.h"
 
-__attribute__((weak))
 void wanson_engine_proc_keyword_result(const char **text, int id)
 {
     rtos_printf("%s %d\n", (char*)*text, id);
@@ -70,34 +70,7 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
         rtos_printf("I2C inference output was not acknowledged\n\tSent %d bytes\n", sent);
     }
 #endif
-}
-
-int32_t inference_engine_create(uint32_t priority, void *args)
-{
-    (void) args;
-#if appconfINFERENCE_ENABLED
-#if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
-    wanson_engine_task_create(priority);
-#else
-    wanson_engine_intertile_task_create(priority);
+#if appconfINFERENCE_USB_OUTPUT_ENABLED
+    usb_keyword_update(id);
 #endif
-#endif
-    return 0;
-}
-
-int32_t inference_engine_sample_push(int32_t *buf, size_t frames)
-{
-#if appconfINFERENCE_ENABLED
-#if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
-    wanson_engine_samples_send_local(
-            frames,
-            buf);
-#else
-    wanson_engine_samples_send_remote(
-            intertile_ctx,
-            frames,
-            buf);
-#endif
-#endif
-    return 0;
 }

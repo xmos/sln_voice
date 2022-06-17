@@ -205,12 +205,13 @@ static chanend_t sof_t1_isr_c;
 
 bool tud_xcore_sof_cb(uint8_t rhport)
 {
+#if appconfUSB_AUDIO_ENABLED
 #if XCOREAI_EXPLORER
     sof_cb();
 #else
     chanend_out_end_token(sof_t1_isr_c);
 #endif
-
+#endif /* appconfUSB_AUDIO_ENABLED */
     /* False tells TinyUSB to not send the SOF event to the stack */
     return false;
 }
