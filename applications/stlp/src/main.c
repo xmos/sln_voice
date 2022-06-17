@@ -118,6 +118,7 @@ int audio_pipeline_output(void *output_app_data,
     (void) output_app_data;
 
 #if appconfI2S_ENABLED
+#if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -154,6 +155,7 @@ int audio_pipeline_output(void *output_app_data,
                     appconfI2S_AUDIO_SAMPLE_RATE / appconfAUDIO_PIPELINE_SAMPLE_RATE,
                     portMAX_DELAY);
     }
+#endif
 #endif
 #endif
 

@@ -81,11 +81,7 @@
 #endif
 
 #ifndef appconfEXTERNAL_MCLK
-#if XK_VOICE_L71 && appconfI2C_CTRL_ENABLED
-#define appconfEXTERNAL_MCLK       1
-#else
 #define appconfEXTERNAL_MCLK       0
-#endif
 #endif
 
 /*
