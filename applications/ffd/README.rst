@@ -19,7 +19,7 @@ The application will recognize the following utterances:
     :header-rows: 1
     :align: left
 
-    * - Wakeup Utterances
+    * - Wakeword Utterances
     * - Hello XMOS
     * - Hello Wanson
 
@@ -29,7 +29,7 @@ The application will recognize the following utterances:
     :align: left
 
     * - Command Utterances
-    * - Switch On the TV
+    * - Switch on the TV
     * - Channel up
     * - Channel down
     * - Volume up
@@ -44,7 +44,7 @@ The application will recognize the following utterances:
     * - Slow down the fan
     * - Set higher temperature
     * - Set lower temperature
-    * - Switch off the Fan
+    * - Switch off the fan
 
 ******************
 Supported Hardware
