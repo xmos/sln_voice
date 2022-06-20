@@ -108,9 +108,15 @@ void wanson_engine_task(void *args)
             } else if (inference_state == STATE_EXPECTING_COMMAND && IS_WAKEWORD(id)) {
                 xTimerReset(display_clear_timer, 0);
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
-            } else if (inference_state == STATE_PROCESSING_COMMAND && (IS_COMMAND(id) || IS_WAKEWORD(id))) {
+                // remain in STATE_EXPECTING_COMMAND state
+            } else if (inference_state == STATE_PROCESSING_COMMAND && IS_WAKEWORD(id)) {
                 xTimerReset(display_clear_timer, 0);
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                inference_state = STATE_EXPECTING_COMMAND;
+            } else if (inference_state == STATE_PROCESSING_COMMAND && IS_COMMAND(id)) {
+                xTimerReset(display_clear_timer, 0);
+                wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                // remain in STATE_PROCESSING_COMMAND state
             }
         }
 
