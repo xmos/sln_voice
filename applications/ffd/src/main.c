@@ -24,6 +24,7 @@
 #include "inference_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
+#include "leds.h"
 #include "rtos_swmem.h"
 #include "xcore_device_memory.h"
 #include "ssd1306_rtos_support.h"
@@ -92,6 +93,10 @@ void startup_task(void *arg)
 
 #if ON_TILE(1)
     gpio_gpi_init(gpio_ctx_t0);
+#endif
+
+#if ON_TILE(0)
+    led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
