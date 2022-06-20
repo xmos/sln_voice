@@ -95,10 +95,6 @@ void startup_task(void *arg)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(0)
-    led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
-#endif
-
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
 #if appconfSSD1306_DISPLAY_ENABLED
     ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
@@ -115,6 +111,10 @@ void startup_task(void *arg)
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
     audio_pipeline_init(NULL, NULL);
+#endif
+
+#if ON_TILE(0)
+    led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
 #endif
 
 	for (;;) {
