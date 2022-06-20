@@ -32,7 +32,7 @@ typedef enum inference_state {
 
 static inference_state_t inference_state;
 
-void vDisplayClearCallback( TimerHandle_t pxTimer )
+void vDisplayClearCallback(TimerHandle_t pxTimer)
 {
 #if appconfSSD1306_DISPLAY_ENABLED
     ssd1306_display_ascii_to_bitmap("\0");
@@ -46,9 +46,9 @@ void wanson_engine_task(void *args)
     inference_state = STATE_EXPECTING_WAKEWORD;
 
 #if ON_TILE(0)
-    // NOTE: The Wanson model uses the .SwMem_data attribute but not SwMem event handling code is required.
-    //       This may cause xflash may whine if the compiler optimizes out __swmem_address. 
-    //       To prevent this, we simply need to init the swmem.
+    // NOTE: The Wanson model uses the .SwMem_data attribute but no SwMem event handling code is required.
+    //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol. 
+    //       To work around this, we simply need to init the swmem.
     rtos_swmem_init(0);
 #endif
 
