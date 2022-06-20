@@ -15,9 +15,11 @@
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
+#include "rtos_swmem.h"
 #include "ssd1306_rtos_support.h"
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
+#include "xcore_device_memory.h"
 
 #define IS_WAKEWORD(id)   (id < 200)
 #define IS_COMMAND(id)    (id >= 200)
@@ -42,7 +44,14 @@ void vDisplayClearCallback( TimerHandle_t pxTimer )
 void wanson_engine_task(void *args)
 {
     inference_state = STATE_EXPECTING_WAKEWORD;
-    
+
+#if ON_TILE(0)
+    // NOTE: The Wanson model uses the .SwMem_data attribute but not SwMem event handling code is required.
+    //       This may cause xflash may whine if the compiler optimizes out __swmem_address. 
+    //       To prevent this, we simply need to init the swmem.
+    rtos_swmem_init(0);
+#endif
+
     rtos_printf("Wanson init\n");
     Wanson_ASR_Init();
     rtos_printf("Wanson init done\n");
