@@ -176,7 +176,6 @@ void usb_audio_recv(rtos_intertile_t *intertile_ctx,
     }
 
     if (frame_buf_ptr != NULL) {
-        memset(frame_buf_ptr, 0, sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * num_chans);
         for(int ch=0; ch<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++) {
             for (int i=0; i<appconfAUDIO_PIPELINE_FRAME_ADVANCE; i++) {
                 if (ch < num_chans) {

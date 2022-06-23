@@ -28,12 +28,6 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
-/**
- * A positive delay will delay mics
- * A negative delay will delay ref
- */
-#define appconfINPUT_SAMPLES_MIC_DELAY_MS        0
-
 #define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  0
 #define appconfAUDIO_PIPELINE_SKIP_AEC           0
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD    0
