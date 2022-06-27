@@ -1,5 +1,5 @@
-.. _sln_avona_user_guide:
+.. _sln_voice_user_guide:
 
-#################################
-Avona Reference Design User Guide
-#################################
+###############################
+XCORE-VOICE Solution User Guide
+###############################
