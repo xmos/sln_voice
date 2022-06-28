@@ -35,6 +35,10 @@
 #define appconfINFERENCE_ENABLED   1
 #endif
 
+#ifndef appconfINFERENCE_RAW_OUTPUT
+#define appconfINFERENCE_RAW_OUTPUT   0
+#endif
+
 #ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
 #define appconfINFERENCE_I2C_OUTPUT_ENABLED   0
 #endif
@@ -53,6 +57,18 @@
 
 #ifndef appconfI2S_ENABLED
 #define appconfI2S_ENABLED   0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
+#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD   0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_NS
+#define appconfAUDIO_PIPELINE_SKIP_NS   0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_AGC
+#define appconfAUDIO_PIPELINE_SKIP_AGC   0
 #endif
 
 #ifndef appconfI2S_AUDIO_SAMPLE_RATE
