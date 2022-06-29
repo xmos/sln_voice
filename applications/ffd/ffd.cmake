@@ -73,6 +73,7 @@ merge_binaries(application_ffd tile0_application_ffd tile1_application_ffd 1)
 create_run_target(application_ffd)
 create_debug_target(application_ffd)
 create_flash_app_target(application_ffd)
+
 #**********************
 # Include FFD Debug and Extension targets
 #**********************
