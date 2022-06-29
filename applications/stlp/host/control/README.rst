@@ -1,8 +1,8 @@
-==============================
-Avona Host Control Application
-==============================
+====================================
+XCORE-VOICE Host Control Application
+====================================
 
-This is the XMOS Avona host control application.
+This is the XCORE-VOICE host control application.
 
 
 ***** 
@@ -10,20 +10,6 @@ Setup
 ***** 
 
 This application requires the xcore_sdk and Amazon Wakeword.
-
-Set the environment variable XCORE_SDK_PATH to the root of the xcore_sdk and
-
-.. tab:: Linux and MacOS
-
-    .. code-block:: console
-
-        $ export XCORE_SDK_PATH=/path/to/sdk
-        
-.. tab:: Windows x86 native tools CMD prompt
-
-    .. code-block:: console
-    
-        $ set XCORE_SDK_PATH=C:\path\to\sdk\
 
 LibUSB 1.0 is required for Linux. Install these packages:
 

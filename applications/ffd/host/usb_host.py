@@ -10,7 +10,7 @@ KEYWORD_ENDPOINT = 0x82
 dev = usb.core.find(idVendor=0x20B1, idProduct=0x0020)
 
 if dev is None:
-    raise ValueError('Avona device not found')
+    raise ValueError('XCORE-VOICE device not found')
 
 # print(dev)
 

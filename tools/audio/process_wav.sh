@@ -3,7 +3,7 @@ set -e
 
 help()
 {
-   echo "Voice reference design wav file processor"
+   echo "XCORE-VOICE reference design wav file processor"
    echo
    echo "Syntax: process_wav.sh [-c|h] to_device.wav from_device.wav"
    echo "options:"
@@ -30,10 +30,10 @@ OUTPUT_FILE=${@:$OPTIND+1:1}
 uname=`uname`
 if [[ "$uname" == 'Linux' ]]; then
     DEVICE_DRIVER="alsa"
-    DEVICE_NAME="hw:CARD=Avona Voice Reference Design,DEV=0"
+    DEVICE_NAME="hw:CARD=XCORE-VOICE,DEV=0"
 elif [[ "$uname" == 'Darwin' ]]; then
     DEVICE_DRIVER="coreaudio"
-    DEVICE_NAME="Avona Voice Reference Design"
+    DEVICE_NAME="XCORE-VOICE"
 fi
 
 # determine input remix pattern
