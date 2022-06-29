@@ -47,7 +47,7 @@ void wanson_engine_task(void *args)
 
 #if ON_TILE(0)
     // NOTE: The Wanson model uses the .SwMem_data attribute but no SwMem event handling code is required.
-    //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol. 
+    //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol.
     //       To work around this, we simply need to init the swmem.
     rtos_swmem_init(0);
 #endif
@@ -60,8 +60,8 @@ void wanson_engine_task(void *args)
     TimerHandle_t display_clear_timer = xTimerCreate(
         "disp_clr",
         pdMS_TO_TICKS(appconfINFERENCE_RESET_DELAY_MS),
-        pdFALSE, 
-        NULL, 
+        pdFALSE,
+        NULL,
         vDisplayClearCallback);
 
     int32_t buf[appconfINFERENCE_FRAMES_PER_INFERENCE] = {0};
@@ -106,6 +106,9 @@ void wanson_engine_task(void *args)
         ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
         if (ret) {
+#if appconfINFERENCE_RAW_OUTPUT
+            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+#else
             if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {
                 xTimerReset(display_clear_timer, 0);
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
@@ -127,6 +130,7 @@ void wanson_engine_task(void *args)
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
                 // remain in STATE_PROCESSING_COMMAND state
             }
+#endif
         }
 
         /* Push back history */
