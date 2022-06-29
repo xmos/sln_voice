@@ -29,13 +29,46 @@
 /* Intent Engine Configuration */
 #define appconfINFERENCE_FRAME_BUFFER_MULT      8       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINFERENCE_FRAMES_PER_INFERENCE   240
+#define appconfINFERENCE_RESET_DELAY_MS         5000
 
 #ifndef appconfINFERENCE_ENABLED
 #define appconfINFERENCE_ENABLED   1
 #endif
 
+#ifndef appconfINFERENCE_RAW_OUTPUT
+#define appconfINFERENCE_RAW_OUTPUT   0
+#endif
+
+#ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED   0
+#endif
+
+#ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
+#define appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR 0x01
+#endif
+
+#ifndef appconfINFERENCE_USB_OUTPUT_ENABLED
+#define appconfINFERENCE_USB_OUTPUT_ENABLED   0
+#endif
+
+#ifndef appconfSSD1306_DISPLAY_ENABLED
+#define appconfSSD1306_DISPLAY_ENABLED   1
+#endif
+
 #ifndef appconfI2S_ENABLED
 #define appconfI2S_ENABLED   0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
+#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD   0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_NS
+#define appconfAUDIO_PIPELINE_SKIP_NS   0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_AGC
+#define appconfAUDIO_PIPELINE_SKIP_AGC   0
 #endif
 
 #ifndef appconfI2S_AUDIO_SAMPLE_RATE
@@ -50,10 +83,14 @@
 #define appconfUSB_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
 #endif
 
+#ifndef appconfUSB_AUDIO_ENABLED
+#define appconfUSB_AUDIO_ENABLED 0
+#endif
+
 #define appconfUSB_AUDIO_RELEASE   0
 #define appconfUSB_AUDIO_TESTING   1
 #ifndef appconfUSB_AUDIO_MODE
-#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_TESTING
+#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_RELEASE
 #endif
 
 #define appconfMIC_SRC_MICS        0
@@ -91,6 +128,7 @@
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
+#define appconfLED_HEARTBEAT_TASK_PRIORITY          (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"
 

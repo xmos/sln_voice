@@ -13,6 +13,7 @@
 #define appconfSPI_AUDIO_PORT          5
 #define appconfWW_SAMPLES_PORT         6
 #define appconfAUDIOPIPELINE_PORT      7
+#define appconfI2S_OUTPUT_SLAVE_PORT   8
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
@@ -26,12 +27,6 @@
 #define appconfAUDIO_PIPELINE_CHANNELS          MIC_ARRAY_CONFIG_MIC_COUNT
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
-
-/**
- * A positive delay will delay mics
- * A negative delay will delay ref
- */
-#define appconfINPUT_SAMPLES_MIC_DELAY_MS        0
 
 #define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  0
 #define appconfAUDIO_PIPELINE_SKIP_AEC           0
@@ -81,11 +76,7 @@
 #endif
 
 #ifndef appconfEXTERNAL_MCLK
-#if XK_VOICE_L71 && appconfI2C_CTRL_ENABLED
-#define appconfEXTERNAL_MCLK       1
-#else
 #define appconfEXTERNAL_MCLK       0
-#endif
 #endif
 
 /*
@@ -147,10 +138,10 @@
 /* I/O and interrupt cores for Tile 1 */
 #define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off core 0 with the RTOS tick ISR */
 #define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
-#define appconfI2C_IO_CORE                      3 /* Must be kept off core 0 with the RTOS tick ISR */
+#define appconfI2C_IO_CORE                      5 /* Must be kept off core 0 with the RTOS tick ISR */
 #define appconfPDM_MIC_INTERRUPT_CORE           4 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 #define appconfI2S_INTERRUPT_CORE               5 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
-#define appconfI2C_INTERRUPT_CORE               0 /* Must be kept off I/O cores. */
+#define appconfI2C_INTERRUPT_CORE               4 /* Must be kept off I/O cores. */
 
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY              (configMAX_PRIORITIES/2 + 5)

@@ -206,14 +206,17 @@ static chanend_t sof_t1_isr_c;
 
 bool tud_xcore_sof_cb(uint8_t rhport)
 {
+#if !appconfEXTERNAL_MCLK
 #if XCOREAI_EXPLORER
     sof_cb();
 #else
     chanend_out_end_token(sof_t1_isr_c);
 #endif
-
     /* False tells TinyUSB to not send the SOF event to the stack */
     return false;
+#else
+    return true;
+#endif
 }
 
 DEFINE_RTOS_INTERRUPT_CALLBACK(sof_t1_isr, arg)

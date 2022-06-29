@@ -20,6 +20,7 @@ target_link_libraries(sln_avona_app_ffd_board_support_xcore_ai_explorer
         rtos::drivers::general
         rtos::drivers::audio
         rtos::drivers::usb
+        rtos::freertos_usb
         sln_avona::app::ffd::dac::aic3204
 )
 target_compile_options(sln_avona_app_ffd_board_support_xcore_ai_explorer

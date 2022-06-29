@@ -16,7 +16,7 @@
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
 #define I2C_TILE_NO        0
-#define I2C_CTRL_TILE_NO   1
+#define I2C_CTRL_TILE_NO   I2C_TILE_NO
 #define SPI_OUTPUT_TILE_NO 0
 #define MICARRAY_TILE_NO   1
 #define I2S_TILE_NO        1

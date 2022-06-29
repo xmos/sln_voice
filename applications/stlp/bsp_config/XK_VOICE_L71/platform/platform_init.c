@@ -17,7 +17,7 @@ static void mclk_init(chanend_t other_tile_c)
 #if !appconfEXTERNAL_MCLK && ON_TILE(1)
     app_pll_init();
 #endif
-#if appconfUSB_ENABLED
+#if appconfUSB_ENABLED && !appconfEXTERNAL_MCLK
     adaptive_rate_adjust_init(other_tile_c, MCLK_CLKBLK);
 #endif
 }
@@ -96,8 +96,8 @@ static void i2c_init(void)
 #if ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
-                        PORT_I2C_SLAVE_SCL,
-                        PORT_I2C_SLAVE_SDA,
+                        PORT_I2C_SCL,
+                        PORT_I2C_SDA,
                         appconf_CONTROL_I2C_DEVICE_ADDR);
 #endif
 #else
@@ -163,8 +163,11 @@ static void mics_init(void)
 static void i2s_init(void)
 {
 #if appconfI2S_ENABLED
+#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     static rtos_driver_rpc_t i2s_rpc_config;
+#endif
 #if ON_TILE(I2S_TILE_NO)
+#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     port_t p_i2s_dout[1] = {
             PORT_I2S_DAC_DATA
@@ -184,16 +187,37 @@ static void i2s_init(void)
             PORT_I2S_LRCLK,
             PORT_MCLK,
             I2S_CLKBLK);
+
     rtos_i2s_rpc_host_init(
             i2s_ctx,
             &i2s_rpc_config,
             client_intertile_ctx,
             1);
+#elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
+    port_t p_i2s_dout[1] = {
+            PORT_I2S_ADC_DATA
+    };
+    port_t p_i2s_din[1] = {
+            PORT_I2S_DAC_DATA
+    };
+    rtos_i2s_slave_init(
+            i2s_ctx,
+            (1 << appconfI2S_IO_CORE),
+            p_i2s_dout,
+            1,
+            p_i2s_din,
+            1,
+            PORT_I2S_BCLK,
+            PORT_I2S_LRCLK,
+            I2S_CLKBLK);
+#endif
 #else
+#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_i2s_rpc_client_init(
             i2s_ctx,
             &i2s_rpc_config,
             intertile_ctx);
+#endif
 #endif
 #endif
 }

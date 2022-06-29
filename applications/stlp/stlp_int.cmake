@@ -1,9 +1,12 @@
 
 set(STLP_INT_COMPILE_DEFINITIONS
     ${APP_COMPILE_DEFINITIONS}
+    appconfEXTERNAL_MCLK=1
     appconfI2S_ENABLED=1
     appconfUSB_ENABLED=0
     appconfAEC_REF_DEFAULT=appconfAEC_REF_I2S
+    appconfI2S_MODE=appconfI2S_MODE_SLAVE
+    appconfI2C_CTRL_ENABLED=1
 )
 
 foreach(STLP_AP ${STLP_PIPELINES})

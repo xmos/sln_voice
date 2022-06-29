@@ -1,6 +1,6 @@
-# Avona Voice Solution Repository
+# XCORE-VOICE Solution Repository
 
-TODO: Add introduction to Avona Voice Solution here.
+TODO: Add introduction to the XCORE-VOICE Solution here.
 
 ## Build Status
 

@@ -15,30 +15,24 @@
 
 /* Library headers */
 #include "rtos_printf.h"
-#include "src.h"
 
 /* App headers */
 #include "app_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
-#include "usb_support.h"
-#include "usb_audio.h"
 #include "audio_pipeline/audio_pipeline.h"
 #include "inference_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
+#include "leds.h"
 #include "rtos_swmem.h"
-#include "ssd1306_rtos_support.h"
 #include "xcore_device_memory.h"
+#include "ssd1306_rtos_support.h"
 
-volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
+extern void startup_task(void *arg);
+extern void tile_common_init(chanend_t c);
 
-void uart_write(char data) //API for Wanson's Debug
-{
-// char data_buf=data;
-// rtos_uart_write(uart_ctx, &data_buf,1);
-}
-
+__attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,
                           size_t ch_count,
@@ -46,22 +40,6 @@ void audio_pipeline_input(void *input_app_data,
 {
     (void) input_app_data;
 
-#if appconfUSB_ENABLED
-    int32_t **usb_mic_audio_frame = NULL;
-
-    if (mic_from_usb) {
-        usb_mic_audio_frame = input_audio_frames;
-        usb_audio_recv(intertile_ctx,
-                       frame_count,
-                       usb_mic_audio_frame,
-                       ch_count);
-    } else {
-        rtos_mic_array_rx(mic_array_ctx,
-                          input_audio_frames,
-                          frame_count,
-                          portMAX_DELAY);
-    }
-#else
     static int flushed;
     while (!flushed) {
         size_t received;
@@ -82,37 +60,15 @@ void audio_pipeline_input(void *input_app_data,
                       input_audio_frames,
                       frame_count,
                       portMAX_DELAY);
-#endif
 }
 
+__attribute__((weak))
 int audio_pipeline_output(void *output_app_data,
                           int32_t **output_audio_frames,
                           size_t ch_count,
                           size_t frame_count)
 {
     (void) output_app_data;
-
-#if appconfI2S_ENABLED
-    /* I2S expects sample channel format */
-    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
-    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
-        /* ASR output is first */
-        tmp[j][0] = output_audio_frames[j];
-        tmp[j][1] = output_audio_frames[j];
-    }
-
-    rtos_i2s_tx(i2s_ctx,
-                (int32_t*) tmp,
-                frame_count,
-                portMAX_DELAY);
-#endif
-
-#if appconfUSB_ENABLED
-    usb_audio_send(intertile_ctx,
-                frame_count,
-                output_audio_frames,
-                4);
-#endif
 
 #if appconfINFERENCE_ENABLED
     inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
@@ -128,14 +84,7 @@ void vApplicationMallocFailedHook(void)
     for(;;);
 }
 
-static void mem_analysis(void)
-{
-	for (;;) {
-		// rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-		vTaskDelay(pdMS_TO_TICKS(5000));
-	}
-}
-
+__attribute__((weak))
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
@@ -146,12 +95,10 @@ void startup_task(void *arg)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(FLASH_TILE_NO)
-    swmem_setup(qspi_flash_ctx, configMAX_PRIORITIES-1);
-#endif
-
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
+#if appconfSSD1306_DISPLAY_ENABLED
     ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
+#endif
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, NULL);
 #endif
 
@@ -166,10 +113,14 @@ void startup_task(void *arg)
     audio_pipeline_init(NULL, NULL);
 #endif
 
-    mem_analysis();
-    /*
-     * TODO: Watchdog?
-     */
+#if ON_TILE(0)
+    led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
+#endif
+
+	for (;;) {
+		// rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+		vTaskDelay(pdMS_TO_TICKS(5000));
+	}
 }
 
 void vApplicationMinimalIdleHook(void)
@@ -178,14 +129,11 @@ void vApplicationMinimalIdleHook(void)
     asm volatile("waiteu");
 }
 
-static void tile_common_init(chanend_t c)
+__attribute__((weak))
+void tile_common_init(chanend_t c)
 {
     platform_init(c);
     chanend_free(c);
-
-#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
-    usb_audio_init(intertile_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
-#endif
 
     xTaskCreate((TaskFunction_t) startup_task,
                 "startup_task",

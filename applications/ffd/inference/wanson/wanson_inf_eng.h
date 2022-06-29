@@ -17,4 +17,6 @@ void wanson_engine_samples_send_remote(
         size_t frame_count,
         int32_t *processed_audio_frame);
 
+void wanson_engine_proc_keyword_result(const char **text, int id);
+
 #endif /* WANSON_INF_ENG_H_ */

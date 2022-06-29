@@ -12,7 +12,7 @@ mkdir -p ${DIST_DIR}
 # setup configurations
 # row format is: "name make_target BOARD toolchain"
 examples=(
-    "keyword_spotter        example_keyword_spotter        XK_VOICE_L71       xmos_cmake_toolchain/xs3a.cmake"
+    "audio_mux              example_audio_mux              XCORE_AI_EXPLORER  xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds
