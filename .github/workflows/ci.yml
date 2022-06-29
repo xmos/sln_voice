@@ -43,7 +43,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_examples.sh
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_examples.sh
 
       - name: Save metadata
         run: |
@@ -52,7 +52,7 @@ jobs:
       - name: Save example app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sln_avona_example_apps
+          name: sln_voice_example_apps
           path: ./dist/*
 
   build_applications:
@@ -70,7 +70,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_applications.sh
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_applications.sh
 
       - name: Save metadata
         run: |
@@ -79,7 +79,7 @@ jobs:
       - name: Save reference app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sln_avona_reference_apps
+          name: sln_voice_reference_apps
           path: ./dist/*
 
   build_tests:
@@ -97,7 +97,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_avona -v ${{github.workspace}}:/sln_avona ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_tests.sh
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_tests.sh
 
       - name: Save metadata
         run: |
@@ -106,5 +106,5 @@ jobs:
       - name: Save reference app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sln_avona_test_apps
+          name: sln_voice_test_apps
           path: ./dist/*

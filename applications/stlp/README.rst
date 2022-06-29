@@ -1,8 +1,8 @@
 ============================
-Avona Voice Reference Design
+XCORE-VOICE Reference Design
 ============================
 
-This is the XMOS Avona voice reference design.
+This is the XCORE-VOICE reference design.
 
 ******************
 Supported Hardware

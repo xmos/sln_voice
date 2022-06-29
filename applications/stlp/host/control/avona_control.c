@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     if (help->count > 0) {
         printf("Usage: %s", argv[0]);
         arg_print_syntax(stdout, argtable, "\n");
-        printf("Control tool for Avona\n\n");
+        printf("Control tool for XCORE-VOICE\n\n");
         arg_print_glossary_gnu(stdout, argtable);
         printf("The following commands are supported:\n");
         command_list_print();

@@ -1,4 +1,4 @@
-# XCORE-VOICE Solution Repository
+# XCORE:registered:-VOICE Solution Repository
 
 TODO: Add introduction to the XCORE-VOICE Solution here.
 
@@ -6,26 +6,26 @@ TODO: Add introduction to the XCORE-VOICE Solution here.
 
 Build Type       |    Status     |
 -----------      | --------------|
-CI (Linux)       | ![CI](https://github.com/xmos/sln_avona/actions/workflows/ci.yml/badge.svg?branch=develop&event=push) |
-Docs             | ![CI](https://github.com/xmos/sln_avona/actions/workflows/docs.yml/badge.svg?branch=develop&event=push) |
+CI (Linux)       | ![CI](https://github.com/xmos/sln_voice/actions/workflows/ci.yml/badge.svg?branch=develop&event=push) |
+Docs             | ![CI](https://github.com/xmos/sln_voice/actions/workflows/docs.yml/badge.svg?branch=develop&event=push) |
 
 ## Cloning
 
 Some dependent components are included as git submodules. These can be obtained by cloning this repository with the following command:
 
-    $ git clone --recurse-submodules https://github.com/xmos/sln_avona.git
+    $ git clone --recurse-submodules https://github.com/xmos/sln_voice.git
 
 ## Documentation
 
 See the READMEs for the early applications:
 
-[FFD](https://github.com/xmos/sln_avona/blob/develop/applications/ffd/README.rst)
+[FFD](https://github.com/xmos/sln_voice/blob/develop/applications/ffd/README.rst)
 
-[STLP](https://github.com/xmos/sln_avona/blob/develop/applications/stlp/README.rst)
+[STLP](https://github.com/xmos/sln_voice/blob/develop/applications/stlp/README.rst)
 
 # Getting Help
 
-A [Github issue](https://github.com/xmos/sln_avona/issues/new/choose) should be the primary method of getting in touch with the XMOS development team.
+A [Github issue](https://github.com/xmos/sln_voice/issues/new/choose) should be the primary method of getting in touch with the XMOS development team.
 
 ## License
 
@@ -33,5 +33,5 @@ This Software is subject to the terms of the [XMOS Public Licence: Version 1](ht
 
 Additional third party copyrighted code is included under the following licenses:
 
-The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_avona/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md).
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md).
 

@@ -42,8 +42,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     target_link_libraries(${TARGET_NAME}
         PUBLIC
             ${APP_COMMON_LINK_LIBRARIES}
-            sln_avona::app::stlp::xcore_ai_explorer
-            sln_avona::app::stlp::ap::${STLP_AP}
+            sln_voice::app::stlp::xcore_ai_explorer
+            sln_voice::app::stlp::ap::${STLP_AP}
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)
@@ -61,8 +61,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     target_link_libraries(${TARGET_NAME}
         PUBLIC
             ${APP_COMMON_LINK_LIBRARIES}
-            sln_avona::app::stlp::xcore_ai_explorer
-            sln_avona::app::stlp::ap::${STLP_AP}
+            sln_voice::app::stlp::xcore_ai_explorer
+            sln_voice::app::stlp::ap::${STLP_AP}
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)
@@ -133,8 +133,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     target_link_libraries(${TARGET_NAME}
         PUBLIC
             ${APP_COMMON_LINK_LIBRARIES}
-            sln_avona::app::stlp::xcore_ai_explorer
-            sln_avona::app::stlp::ap::${STLP_AP}
+            sln_voice::app::stlp::xcore_ai_explorer
+            sln_voice::app::stlp::ap::${STLP_AP}
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)
@@ -152,8 +152,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     target_link_libraries(${TARGET_NAME}
         PUBLIC
             ${APP_COMMON_LINK_LIBRARIES}
-            sln_avona::app::stlp::xcore_ai_explorer
-            sln_avona::app::stlp::ap::${STLP_AP}
+            sln_voice::app::stlp::xcore_ai_explorer
+            sln_voice::app::stlp::ap::${STLP_AP}
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)

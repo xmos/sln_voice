@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-SLN_AVONA_ROOT=`git rev-parse --show-toplevel`
+SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 
-source ${SLN_AVONA_ROOT}/tools/ci/helper_functions.sh
+source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # setup distribution folder
-DIST_DIR=${SLN_AVONA_ROOT}/dist
+DIST_DIR=${SLN_VOICE_ROOT}/dist
 mkdir -p ${DIST_DIR}
 
 # setup configurations
@@ -27,8 +27,8 @@ for ((i = 0; i < ${#applications[@]}; i += 1)); do
     name="${FIELDS[0]}"
     make_target="${FIELDS[1]}"
     board="${FIELDS[2]}"
-    toolchain_file="${SLN_AVONA_ROOT}/${FIELDS[3]}"
-    path="${SLN_AVONA_ROOT}"
+    toolchain_file="${SLN_VOICE_ROOT}/${FIELDS[3]}"
+    path="${SLN_VOICE_ROOT}"
     echo '******************************************************'
     echo '* Building' ${name}, ${make_target} 'for' ${board}
     echo '******************************************************'

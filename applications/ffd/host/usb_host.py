@@ -18,7 +18,7 @@ def run(outfile):
     dev = usb.core.find(idVendor=0x20B1, idProduct=0x0020)
 
     if dev is None:
-        raise ValueError('Avona device not found')
+        raise ValueError('XCORE-VOICE device not found')
 
     if dev.is_kernel_driver_active(1):
         dev.detach_kernel_driver(1)
