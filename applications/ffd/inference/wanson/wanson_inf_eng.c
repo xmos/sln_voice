@@ -106,7 +106,7 @@ void wanson_engine_task(void *args)
         ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
         if (ret) {
-#if appconfINFERENCE_RAW_OUTPUT
+#if 1 //appconfINFERENCE_RAW_OUTPUT
             wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
 #else
             if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {

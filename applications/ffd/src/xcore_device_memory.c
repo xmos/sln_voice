@@ -1,10 +1,12 @@
-// Copyright 2021 XMOS LIMITED.
+// Copyright 2021-2022 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
-#include "xcore_device_memory.h"
 
+/* System headers */
 #include <xcore/assert.h>
 
+/* App headers */
 #include"platform/driver_instances.h"
+#include "xcore_device_memory.h"
 
 #define SWMEM_OFFSET 0x100000
 

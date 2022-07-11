@@ -40,7 +40,7 @@
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED   0
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED   1
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
@@ -51,12 +51,20 @@
 #define appconfINFERENCE_USB_OUTPUT_ENABLED   0
 #endif
 
+#ifndef appconfINFERENCE_UART_OUTPUT_ENABLED
+#define appconfINFERENCE_UART_OUTPUT_ENABLED   1
+#endif
+
+#ifndef appconfUART_BAUD_RATE
+#define appconfUART_BAUD_RATE       9600
+#endif
+
 #ifndef appconfSSD1306_DISPLAY_ENABLED
 #define appconfSSD1306_DISPLAY_ENABLED   1
 #endif
 
 #ifndef appconfI2S_ENABLED
-#define appconfI2S_ENABLED   0
+#define appconfI2S_ENABLED   1
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
@@ -98,7 +106,6 @@
 #ifndef appconfMIC_SRC_DEFAULT
 #define appconfMIC_SRC_DEFAULT     appconfMIC_SRC_MICS
 #endif
-
 
 /* I/O and interrupt cores for Tile 0 */
 /* Note, USB and SPI are mutually exclusive */

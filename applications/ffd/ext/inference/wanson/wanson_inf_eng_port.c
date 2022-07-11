@@ -73,4 +73,9 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
 #if appconfINFERENCE_USB_OUTPUT_ENABLED
     usb_keyword_update(id);
 #endif
+
+#if appconfINFERENCE_UART_OUTPUT_ENABLED && (UART_TILE_NO == INFERENCE_TILE_NO)
+    uint32_t buf_uart = id;
+    rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
+#endif
 }

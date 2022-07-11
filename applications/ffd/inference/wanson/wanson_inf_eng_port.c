@@ -70,6 +70,10 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
         rtos_printf("I2C inference output was not acknowledged\n\tSent %d bytes\n", sent);
     }
 #endif
+#if appconfINFERENCE_UART_OUTPUT_ENABLED && (UART_TILE_NO == INFERENCE_TILE_NO)
+    uint32_t buf_uart = id;
+    rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
+#endif
 }
 
 int32_t inference_engine_create(uint32_t priority, void *args)
