@@ -17,6 +17,7 @@
 #include "platform/driver_instances.h"
 #define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
 #define INFERENCE_TILE_NO       FLASH_TILE_NO
+#define FS_TILE_NO              FLASH_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ

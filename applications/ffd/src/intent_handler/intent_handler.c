@@ -9,13 +9,16 @@
 /* FreeRTOS headers */
 #include "FreeRTOS.h"
 #include "task.h"
-#include "stream_buffer.h"
 #include "queue.h"
 
 /* App headers */
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "intent_handler/intent_handler.h"
+#include "fs_support.h"
+#include "ff.h"
+
+#define AUDIO_FILEPATH		"wakeup.wav"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
@@ -35,8 +38,39 @@ static void proc_keyword_res(void *args) {
 
     rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
 
+        FIL test_file;
+        FRESULT result;
+        uint32_t wakeup_file_size = -1;
+        uint32_t bytes_read = 0;
+        uint8_t *file_contents_buf = NULL;
+
+        result = f_open(&test_file, AUDIO_FILEPATH, FA_READ);
+        if (result == FR_OK)
+        {
+            rtos_printf("Found file %s\n", AUDIO_FILEPATH);
+            wakeup_file_size = f_size(&test_file);
+
+            file_contents_buf = pvPortMalloc(sizeof(uint8_t)*wakeup_file_size);
+            configASSERT(file_contents_buf != NULL);
+
+            result = f_read(&test_file,
+                            (uint8_t*)file_contents_buf,
+                            wakeup_file_size,
+                            (unsigned int*)&bytes_read);
+            configASSERT(bytes_read == wakeup_file_size);
+        } else {
+            rtos_printf("file not found\n");
+        }
+        if (wakeup_file_size != -1)
+        {
+            rtos_printf("Loaded file %s\n", AUDIO_FILEPATH);
+            f_close(&test_file);
+        }
+
+
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
+            rtos_printf("Contents of %s are:\n%d bytes\n", AUDIO_FILEPATH, wakeup_file_size);
 
         host_status = rtos_gpio_port_in(gpio_ctx_t0, p_in_host_status);
 
