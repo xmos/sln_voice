@@ -74,7 +74,9 @@ static void mics_start(void)
 
 static void i2s_start(void)
 {
-#if appconfI2S_ENABLED && ON_TILE(I2S_TILE_NO)
+#if appconfI2S_ENABLED
+    rtos_i2s_rpc_config(i2s_ctx, appconfI2S_RPC_PORT, appconfI2S_RPC_PRIORITY);
+#if ON_TILE(I2S_TILE_NO)
 
     if (appconfI2S_AUDIO_SAMPLE_RATE == 3*appconfAUDIO_PIPELINE_SAMPLE_RATE) {
         i2s_rate_conversion_enable();
@@ -87,6 +89,7 @@ static void i2s_start(void)
             2.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
             1.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
             appconfI2S_INTERRUPT_CORE);
+#endif
 #endif
 }
 

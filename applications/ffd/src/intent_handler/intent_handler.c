@@ -18,10 +18,13 @@
 #include "fs_support.h"
 #include "ff.h"
 
-#define AUDIO_FILEPATH		"wakeup.wav"
+#define FILEPATH_WAKEUP		"wakeup.wav"
+#define FILEPATH_310		"310.wav"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
+
+#include "dr_wav_freertos_port.h"
 
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
@@ -38,39 +41,38 @@ static void proc_keyword_res(void *args) {
 
     rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
 
-        FIL test_file;
-        FRESULT result;
-        uint32_t wakeup_file_size = -1;
-        uint32_t bytes_read = 0;
-        uint8_t *file_contents_buf = NULL;
+    FIL file_wakeup;
+    FIL file_310;
+    FRESULT result;
+    drwav wav_wakeup;
+    drwav wav_310;
+    size_t framesRead = 0;
+    int32_t* file_audio = NULL;
+    int32_t* wakeup_audio = NULL;
 
-        result = f_open(&test_file, AUDIO_FILEPATH, FA_READ);
-        if (result == FR_OK)
-        {
-            rtos_printf("Found file %s\n", AUDIO_FILEPATH);
-            wakeup_file_size = f_size(&test_file);
+    result = f_open(&file_wakeup, FILEPATH_WAKEUP, FA_READ);
+    result |= f_open(&file_310, FILEPATH_310, FA_READ);
 
-            file_contents_buf = pvPortMalloc(sizeof(uint8_t)*wakeup_file_size);
-            configASSERT(file_contents_buf != NULL);
+    if (result == FR_OK) {
+        drwav_init(
+                &wav_wakeup,
+                drwav_read_proc_port,
+                drwav_seek_proc_port,
+                &file_wakeup,
+                &drwav_memory_cbs);
+        drwav_init(
+                &wav_310,
+                drwav_read_proc_port,
+                drwav_seek_proc_port,
+                &file_310,
+                &drwav_memory_cbs);
 
-            result = f_read(&test_file,
-                            (uint8_t*)file_contents_buf,
-                            wakeup_file_size,
-                            (unsigned int*)&bytes_read);
-            configASSERT(bytes_read == wakeup_file_size);
-        } else {
-            rtos_printf("file not found\n");
-        }
-        if (wakeup_file_size != -1)
-        {
-            rtos_printf("Loaded file %s\n", AUDIO_FILEPATH);
-            f_close(&test_file);
-        }
-
+        file_audio = pvPortMalloc(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
+        wakeup_audio = pvPortMalloc(2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t)));
+    }
 
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
-            rtos_printf("Contents of %s are:\n%d bytes\n", AUDIO_FILEPATH, wakeup_file_size);
 
         host_status = rtos_gpio_port_in(gpio_ctx_t0, p_in_host_status);
 
@@ -101,6 +103,32 @@ static void proc_keyword_res(void *args) {
         uint32_t buf_uart = id;
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
 #endif
+
+        if ((file_audio != NULL) && (wakeup_audio != NULL)) {
+
+            drwav wav = (id == 100) ? wav_wakeup : wav_310;
+            /* TODO this will be encapulated into a play function */
+            while(1) {
+                memset(file_audio, 0x00, appconfAUDIO_PIPELINE_FRAME_ADVANCE*sizeof(int32_t));
+                framesRead = drwav_read_pcm_frames(&wav, appconfAUDIO_PIPELINE_FRAME_ADVANCE, file_audio);
+                memset(wakeup_audio, 0x00, 2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE)*sizeof(int32_t));
+                for (int i=0; i<framesRead; i++) {
+                    wakeup_audio[(2*i)+0] = file_audio[i];
+                    wakeup_audio[(2*i)+1] = file_audio[i];
+                }
+
+                rtos_i2s_tx(i2s_ctx,
+                            (int32_t*) wakeup_audio,
+                            appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                            portMAX_DELAY);
+
+                if (framesRead != appconfAUDIO_PIPELINE_FRAME_ADVANCE) {
+                    drwav_seek_to_pcm_frame(&wav, 0);
+                    break;
+                }
+            }
+        }
+
     }
 }
 

@@ -4,6 +4,8 @@
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 set(APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306)
 
+list(APPEND APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response)
+
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/inference/inference.cmake)
 
@@ -98,7 +100,7 @@ if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
 else()
     add_custom_command(
         OUTPUT application_ffd.fs
-        COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && cp ./wakeup.wav $fat_mnt_dir/wakeup.wav && fatfs_mkimage --input=$tmp_dir --output=application_ffd.fs"
+        COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && cp ./wakeup.wav $fat_mnt_dir/wakeup.wav && cp ./310.wav $fat_mnt_dir/310.wav && fatfs_mkimage --input=$tmp_dir --output=application_ffd.fs"
         COMMAND ${CMAKE_COMMAND} -E copy application_ffd.fs ${CMAKE_CURRENT_BINARY_DIR}/application_ffd.fs
         DEPENDS application_ffd
         COMMENT
