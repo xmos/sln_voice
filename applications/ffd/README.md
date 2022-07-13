@@ -67,6 +67,54 @@ Supported Hardware
 
 This example is supported on the XK\_VOICE\_L71 board.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Results {.tabset}
+
+### Plots
+
+We show a scatter plot in this section.
+
+
+### Tables
+
+We show the data in this tab.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Building the Firmware
 ---------------------
 
