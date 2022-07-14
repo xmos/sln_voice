@@ -78,7 +78,6 @@
 #ifndef appconfEXTERNAL_MCLK
 #define appconfEXTERNAL_MCLK       0
 #endif
-#endif
 
 /*
  * This option sends all 6 16 KHz channels (two channels of processed audio,
