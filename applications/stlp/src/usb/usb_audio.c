@@ -535,7 +535,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
 
     if (xStreamBufferSpacesAvailable(rx_buffer) >= n_bytes_received)
     {
-        xStreamBufferSend(rx_buffer, rx_data, n_bytes_received);
+        xStreamBufferSend(rx_buffer, rx_data, n_bytes_received, 0);
     }
     else
     {
@@ -543,9 +543,9 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
         return false;
     }
     
-    if (xStreamBufferBytesAvailable(rx_data) >= sizeof(usb_audio_frames))
+    if (xStreamBufferBytesAvailable(rx_buffer) >= sizeof(usb_audio_frames))
     {
-        xStreamBufferReceive(rx_data, usb_audio_frames, sizeof(usb_audio_frames), 0);
+        xStreamBufferReceive(rx_buffer, usb_audio_frames, sizeof(usb_audio_frames), 0);
     }
     else
     {
