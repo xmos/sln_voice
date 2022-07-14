@@ -111,7 +111,7 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     {
         hold_average = false;
         first_timestamp[direction] = timestamp;
-        return previous_result;
+        return previous_result[direction];
     }
 
     if (first_time[direction])

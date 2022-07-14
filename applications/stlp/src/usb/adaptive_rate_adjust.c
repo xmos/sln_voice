@@ -76,7 +76,7 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
          */
 
         s *= 102400;
-        s -= (102251 << 31);
+        s -= ((uint64_t)102251 << 31);
         s >>= 30;
         s = (s % 2) ? (s >> 1) + 1 : s >> 1;
 
