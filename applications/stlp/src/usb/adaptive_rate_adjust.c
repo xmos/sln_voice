@@ -40,6 +40,7 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
     if (ep_num == USB_AUDIO_EP &&
         ep_dir == USB_DIR_OUT)
     {
+        static uint64_t prev_s;
         uint32_t data_rate = determine_USB_audio_rate(cur_time, xfer_len, ep_dir, true);
         uint64_t s = (uint64_t)data_rate; 
         /* The below manipulations calculate the required f value to scale the nominal app PLL (24.576MHz) by the data rate.
@@ -80,7 +81,13 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
         s >>= 30;
         s = (s % 2) ? (s >> 1) + 1 : s >> 1;
 
-        app_pll_set_numerator((int)s);
+        if (s != prev_s)
+        {
+            app_pll_set_numerator((int)s);
+            rtos_printf("New App PLL numerator: %d, data rate: %d\n", (int)s, data_rate);
+        }
+
+        prev_s = s;
     }
     return true;
 }
