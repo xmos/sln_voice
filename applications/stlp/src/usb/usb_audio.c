@@ -622,13 +622,13 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
      */
     if (host_streaming_out && 0 != prev_n_bytes_received)
     {
-        tx_size_bytes = prev_n_bytes_received * (CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX);
+        tx_size_bytes = prev_n_bytes_received * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX;
     }
     else
     {
-        tx_size_bytes = (AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
+        tx_size_bytes = sizeof(samp_t) * (AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
     }
-    tx_size_frames = tx_size_bytes / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
+    tx_size_frames = tx_size_bytes / (sizeof(samp_t) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
 
     (void) rhport;
     (void) itf;
