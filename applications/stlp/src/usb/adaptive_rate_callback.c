@@ -28,8 +28,8 @@
 #define NOMINAL_RATE (1 << 31)
 
 bool first_time[2] = {true, true};
-bool data_seen = false;
-bool hold_average = false;
+volatile static bool data_seen = false;
+volatile static bool hold_average = false;
 uint32_t expected[2] = {EXPECTED_OUT_BYTES_PER_SECOND, EXPECTED_IN_BYTES_PER_SECOND};
 
 #if __xcore__
@@ -105,12 +105,16 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     static uint32_t times_overflowed[2];
     static uint32_t previous_result[2];
 
-    data_seen = true;
+    if (data_seen == false)
+    {
+        data_seen = true;
+    }
 
     if (hold_average)
     {
         hold_average = false;
         first_timestamp[direction] = timestamp;
+        current_data_bucket_size[direction] = 0;
         return previous_result[direction];
     }
 
@@ -200,12 +204,19 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
 void sof_toggle()
 {
+    static uint32_t sof_count;
     if (data_seen)
     {
+        sof_count = 0;
         data_seen = false;
     }
     else
     {
-        hold_average = true;
+        sof_count++;
+        if (sof_count > 8 && !hold_average)
+        {
+            rtos_printf("holding...........................................\n");
+            hold_average = true;
+        }
     }
 }
