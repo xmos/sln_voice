@@ -24,7 +24,9 @@ static QueueHandle_t q_intent = 0;
 __attribute__((weak))
 void wanson_engine_proc_keyword_result(const char **text, int id)
 {
-    rtos_printf("%s 0x%x\n", (char*)*text, id);
+    if(text != NULL) {
+        rtos_printf("%s 0x%x\n", (char*)*text, id);
+    }
     if(q_intent != 0) {
         if(xQueueSend(q_intent, (void *)&id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost intent.  Queue was full.\n");
@@ -34,6 +36,10 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
 #if appconfSSD1306_DISPLAY_ENABLED
     // some temporary fixes to the strings returned
     switch (id) {
+        case 50:
+            // Clear the display
+            ssd1306_display_ascii_to_bitmap("\0");
+            break;
         case 200:
             // fix capital "On"
             ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
@@ -58,7 +64,9 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
             ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
             break;
         default:
-            ssd1306_display_ascii_to_bitmap((char *)*text);
+            if(text != NULL) {
+                ssd1306_display_ascii_to_bitmap((char *)*text);
+            }
     }
 #endif
 }

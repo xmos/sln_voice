@@ -100,7 +100,7 @@ if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
 else()
     add_custom_command(
         OUTPUT application_ffd.fs
-        COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && cp ./wakeup.wav $fat_mnt_dir/wakeup.wav && cp ./310.wav $fat_mnt_dir/310.wav && fatfs_mkimage --input=$tmp_dir --output=application_ffd.fs"
+        COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && cp ./100.wav $fat_mnt_dir/100.wav && cp ./50.wav $fat_mnt_dir/50.wav && cp ./200.wav $fat_mnt_dir/200.wav && cp ./210.wav $fat_mnt_dir/210.wav && cp ./220.wav $fat_mnt_dir/220.wav && cp ./230.wav $fat_mnt_dir/230.wav && cp ./240.wav $fat_mnt_dir/240.wav && cp ./250.wav $fat_mnt_dir/250.wav && cp ./300.wav $fat_mnt_dir/300.wav && cp ./310.wav $fat_mnt_dir/310.wav && cp ./320.wav $fat_mnt_dir/320.wav && cp ./330.wav $fat_mnt_dir/330.wav && cp ./400.wav $fat_mnt_dir/400.wav && cp ./410.wav $fat_mnt_dir/410.wav && cp ./420.wav $fat_mnt_dir/420.wav && cp ./430.wav $fat_mnt_dir/430.wav && cp ./440.wav $fat_mnt_dir/440.wav && cp ./450.wav $fat_mnt_dir/450.wav && fatfs_mkimage --input=$tmp_dir --output=application_ffd.fs --image_size=2097152"
         COMMAND ${CMAKE_COMMAND} -E copy application_ffd.fs ${CMAKE_CURRENT_BINARY_DIR}/application_ffd.fs
         DEPENDS application_ffd
         COMMENT

@@ -38,13 +38,18 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINFERENCE_RESET_DELAY_MS
-#define appconfINFERENCE_RESET_DELAY_MS         5000
+#define appconfINFERENCE_RESET_DELAY_MS         3000
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase
  * before a command phrase */
 #ifndef appconfINFERENCE_RAW_OUTPUT
 #define appconfINFERENCE_RAW_OUTPUT   0
+#endif
+
+/* Enable audio response output */
+#ifndef appconfAUDIO_PLAYBACK_ENABLED
+#define appconfAUDIO_PLAYBACK_ENABLED   1
 #endif
 
 /* Maximum number of detected intents to hold */

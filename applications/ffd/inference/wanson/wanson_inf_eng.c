@@ -34,9 +34,9 @@ static inference_state_t inference_state;
 
 void vDisplayClearCallback(TimerHandle_t pxTimer)
 {
-#if appconfSSD1306_DISPLAY_ENABLED
-    ssd1306_display_ascii_to_bitmap("\0");
-#endif
+    if ((inference_state == STATE_EXPECTING_COMMAND) || (inference_state == STATE_PROCESSING_COMMAND)) {
+        wanson_engine_proc_keyword_result(NULL, 50);    /* 50 is a special id that will play the no longer listening for command sound */
+    }
     inference_state = STATE_EXPECTING_WAKEWORD;
 }
 
@@ -106,7 +106,7 @@ void wanson_engine_task(void *args)
         ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
         if (ret) {
-#if 1 //appconfINFERENCE_RAW_OUTPUT
+#if appconfINFERENCE_RAW_OUTPUT
             wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
 #else
             if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {

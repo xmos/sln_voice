@@ -3004,7 +3004,8 @@ DRWAV_PRIVATE drwav_bool32 drwav_preinit(drwav* pWav, drwav_read_proc onRead, dr
 
     return DRWAV_TRUE;
 }
-#pragma stackfunction 2000
+
+#pragma stackfunction 200
 DRWAV_PRIVATE drwav_bool32 drwav_init__internal(drwav* pWav, drwav_chunk_proc onChunk, void* pChunkUserData, drwav_uint32 flags)
 {
     /* This function assumes drwav_preinit() has been called beforehand. */
@@ -5180,7 +5181,7 @@ DRWAV_API drwav_bool32 drwav_init_memory_write_sequential_pcm_frames(drwav* pWav
 }
 
 
-#pragma stackfunction 1000
+#pragma stackfunction 200
 DRWAV_API drwav_result drwav_uninit(drwav* pWav)
 {
     drwav_result result = DRWAV_SUCCESS;
@@ -5282,7 +5283,7 @@ DRWAV_API drwav_result drwav_uninit(drwav* pWav)
 }
 
 
-#pragma stackfunction 1200
+#pragma stackfunction 800
 DRWAV_API size_t drwav_read_raw(drwav* pWav, size_t bytesToRead, void* pBufferOut)
 {
     size_t bytesRead;
@@ -5439,7 +5440,7 @@ DRWAV_PRIVATE drwav_bool32 drwav_seek_to_first_pcm_frame(drwav* pWav)
     return DRWAV_TRUE;
 }
 
-#pragma stackfunction 1000
+#pragma stackfunction 1200
 DRWAV_API drwav_bool32 drwav_seek_to_pcm_frame(drwav* pWav, drwav_uint64 targetFrameIndex)
 {
     /* Seeking should be compatible with wave files > 2GB. */

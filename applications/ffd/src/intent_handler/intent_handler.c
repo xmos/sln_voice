@@ -17,14 +17,10 @@
 #include "intent_handler/intent_handler.h"
 #include "fs_support.h"
 #include "ff.h"
-
-#define FILEPATH_WAKEUP		"wakeup.wav"
-#define FILEPATH_310		"310.wav"
+#include "audio_response.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
-
-#include "dr_wav_freertos_port.h"
 
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
@@ -41,36 +37,9 @@ static void proc_keyword_res(void *args) {
 
     rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
 
-    FIL file_wakeup;
-    FIL file_310;
-    FRESULT result;
-    drwav wav_wakeup;
-    drwav wav_310;
-    size_t framesRead = 0;
-    int32_t* file_audio = NULL;
-    int32_t* wakeup_audio = NULL;
-
-    result = f_open(&file_wakeup, FILEPATH_WAKEUP, FA_READ);
-    result |= f_open(&file_310, FILEPATH_310, FA_READ);
-
-    if (result == FR_OK) {
-        drwav_init(
-                &wav_wakeup,
-                drwav_read_proc_port,
-                drwav_seek_proc_port,
-                &file_wakeup,
-                &drwav_memory_cbs);
-        drwav_init(
-                &wav_310,
-                drwav_read_proc_port,
-                drwav_seek_proc_port,
-                &file_310,
-                &drwav_memory_cbs);
-
-        file_audio = pvPortMalloc(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
-        wakeup_audio = pvPortMalloc(2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t)));
-    }
-
+#if appconfAUDIO_PLAYBACK_ENABLED
+    audio_response_init();
+#endif
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
 
@@ -103,32 +72,9 @@ static void proc_keyword_res(void *args) {
         uint32_t buf_uart = id;
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
 #endif
-
-        if ((file_audio != NULL) && (wakeup_audio != NULL)) {
-
-            drwav wav = (id == 100) ? wav_wakeup : wav_310;
-            /* TODO this will be encapulated into a play function */
-            while(1) {
-                memset(file_audio, 0x00, appconfAUDIO_PIPELINE_FRAME_ADVANCE*sizeof(int32_t));
-                framesRead = drwav_read_pcm_frames(&wav, appconfAUDIO_PIPELINE_FRAME_ADVANCE, file_audio);
-                memset(wakeup_audio, 0x00, 2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE)*sizeof(int32_t));
-                for (int i=0; i<framesRead; i++) {
-                    wakeup_audio[(2*i)+0] = file_audio[i];
-                    wakeup_audio[(2*i)+1] = file_audio[i];
-                }
-
-                rtos_i2s_tx(i2s_ctx,
-                            (int32_t*) wakeup_audio,
-                            appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                            portMAX_DELAY);
-
-                if (framesRead != appconfAUDIO_PIPELINE_FRAME_ADVANCE) {
-                    drwav_seek_to_pcm_frame(&wav, 0);
-                    break;
-                }
-            }
-        }
-
+#if appconfAUDIO_PLAYBACK_ENABLED
+        audio_response_play(id);
+#endif
     }
 }
 

@@ -43,17 +43,19 @@ drwav_allocation_callbacks drwav_memory_cbs = {
 
 void *dr_wav_malloc_port(size_t sz, void* pUserData) {
     (void) pUserData;
+    rtos_printf("**malloc was called\n");
     return pvPortMalloc(sz);
 }
 
 void *dr_wav_realloc_port(void* p, size_t sz, void* pUserData) {
-    rtos_printf("realloc was called\n");
+    rtos_printf("**realloc was called\n");
     xassert(0); /* Not implemented in FreeRTOS */
     return NULL;
 }
 
 void dr_wav_free_port(void* p, void* pUserData) {
     (void) pUserData;
+    rtos_printf("**free was called\n");
     vPortFree(p);
 }
 
@@ -78,7 +80,7 @@ size_t drwav_write_proc_port(void* pUserData, const void* pData, size_t bytesToW
 drwav_bool32 drwav_seek_proc_port(void* pUserData, int offset, drwav_seek_origin origin) {
     FIL *file = (FIL*)pUserData;
     FRESULT result;
-    
+
     result = f_lseek(file, offset);
 
     return (result == FR_OK) ? DRWAV_TRUE : DRWAV_FALSE;;
@@ -88,6 +90,5 @@ drwav_uint64 drwav_chunk_proc_port(void* pChunkUserData, drwav_read_proc onRead,
     rtos_printf("drwav_chunk_proc_port not implemented\n");
     return (drwav_uint64)-1;
 }
-
 
 #endif /* DR_WAV_FREERTOS_PORT_H_ */
