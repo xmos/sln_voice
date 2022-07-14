@@ -7,6 +7,9 @@
 #include <xcore/channel.h>
 #include <xcore/clock.h>
 
+#define USB_DIR_OUT 0
+#define USB_DIR_IN  1
+
 /* Add q formats as a hack to build */
 #define Q0(N) Q ## N
 #define Q(N) Q0(N)
@@ -39,5 +42,8 @@
 #define Q8(f)  (int)((signed long long)((f) * ((unsigned long long)1 << (8+20)) + (1<<19)) >> 20)
 
 void adaptive_rate_adjust_init(chanend_t other_tile_c, xclock_t mclk_clkblk);
+uint32_t determine_USB_audio_rate(uint32_t timestamp,
+                                        uint32_t data_length,
+                                        uint32_t direction);
 
 #endif /* ADAPTIVE_RATE_ADJUST_H_ */
