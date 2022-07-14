@@ -87,6 +87,7 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
 
 bool tud_xcore_sof_cb(uint8_t rhport)
 {
+#if !appconfEXTERNAL_MCLK
 #if XCOREAI_EXPLORER
     sof_toggle();
 #else
@@ -95,6 +96,9 @@ bool tud_xcore_sof_cb(uint8_t rhport)
 
     /* False tells TinyUSB to not send the SOF event to the stack */
     return false;
+#else
+    return true;
+#endif
 }
 
 DEFINE_RTOS_INTERRUPT_CALLBACK(sof_t1_isr, arg)
