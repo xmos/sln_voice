@@ -119,6 +119,62 @@ static void mics_init(void)
 #endif
 }
 
+static void i2s_init(void)
+{
+#if appconfI2S_ENABLED
+    static rtos_driver_rpc_t i2s_rpc_config;
+#if ON_TILE(I2S_TILE_NO)
+    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
+    port_t p_i2s_dout[1] = {
+            PORT_I2S_DAC_DATA
+    };
+    port_t p_i2s_din[1] = {
+            PORT_I2S_ADC_DATA
+    };
+
+    rtos_i2s_master_init(
+            i2s_ctx,
+            (1 << appconfI2S_IO_CORE),
+            p_i2s_dout,
+            1,
+            p_i2s_din,
+            1,
+            PORT_I2S_BCLK,
+            PORT_I2S_LRCLK,
+            PORT_MCLK,
+            I2S_CLKBLK);
+
+
+    rtos_i2s_rpc_host_init(
+            i2s_ctx,
+            &i2s_rpc_config,
+            client_intertile_ctx,
+            1);
+#else
+    rtos_i2s_rpc_client_init(
+            i2s_ctx,
+            &i2s_rpc_config,
+            intertile_ctx);
+#endif
+#endif
+}
+
+static void uart_init(void)
+{
+#if ON_TILE(UART_TILE_NO)
+    hwtimer_t tmr_tx = hwtimer_alloc();
+
+    rtos_uart_tx_init(
+            uart_tx_ctx,
+            XS1_PORT_1A,    /* J4:24*/
+            appconfUART_BAUD_RATE,
+            8,
+            UART_PARITY_NONE,
+            1,
+            tmr_tx);
+#endif
+}
+
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
@@ -128,4 +184,6 @@ void platform_init(chanend_t other_tile_c)
     flash_init();
     i2c_init();
     mics_init();
+    i2s_init();
+    uart_init();
 }

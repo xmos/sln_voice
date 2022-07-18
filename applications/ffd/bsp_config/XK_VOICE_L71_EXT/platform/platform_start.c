@@ -98,6 +98,13 @@ static void usb_start(void)
 #endif
 }
 
+static void uart_start(void)
+{
+#if ON_TILE(UART_TILE_NO)
+    rtos_uart_tx_start(uart_tx_ctx);
+#endif
+}
+
 void platform_start(void)
 {
     rtos_intertile_start(intertile_ctx);
@@ -109,4 +116,5 @@ void platform_start(void)
     mics_start();
     i2s_start();
     usb_start();
+    uart_start();
 }

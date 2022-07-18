@@ -185,6 +185,22 @@ static void usb_init(void)
 #endif
 }
 
+static void uart_init(void)
+{
+#if ON_TILE(UART_TILE_NO)
+    hwtimer_t tmr_tx = hwtimer_alloc();
+
+    rtos_uart_tx_init(
+            uart_tx_ctx,
+            XS1_PORT_1E,    /* X0D12 */
+            appconfUART_BAUD_RATE,
+            8,
+            UART_PARITY_NONE,
+            1,
+            tmr_tx);
+#endif
+}
+
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
@@ -196,4 +212,5 @@ void platform_init(chanend_t other_tile_c)
     mics_init();
     i2s_init();
     usb_init();
+    uart_init();
 }

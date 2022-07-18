@@ -7,6 +7,7 @@ target_sources(sln_voice_app_ffd_board_support_xk_voice_l71
         ${CMAKE_CURRENT_LIST_DIR}/platform/driver_instances.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
+        ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
 )
 target_include_directories(sln_voice_app_ffd_board_support_xk_voice_l71
     INTERFACE
@@ -18,6 +19,7 @@ target_link_libraries(sln_voice_app_ffd_board_support_xk_voice_l71
         rtos::freertos
         rtos::drivers::general
         rtos::drivers::audio
+        sln_voice::app::ffd::dac::dac3101
 )
 target_compile_options(sln_voice_app_ffd_board_support_xk_voice_l71
     INTERFACE

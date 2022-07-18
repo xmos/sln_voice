@@ -89,7 +89,6 @@ void wanson_engine_task_create(unsigned priority)
                 NULL);
 }
 
-#include "wanson_api.h"
 void wanson_engine_intertile_task_create(uint32_t priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(

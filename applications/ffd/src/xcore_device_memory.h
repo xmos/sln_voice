@@ -10,10 +10,10 @@
   (((uintptr_t)a >= XS1_SWMEM_BASE) && \
    (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
 
-// NOTE: Wanson ASR engine calls the swmem_load function.  
-//       However, this is confusing given swmem is not used.  
+// NOTE: Wanson ASR engine calls the swmem_load function.
+//       However, this is confusing given swmem is not used.
 //       We use the macro below as an attempt to mitigate this confusion.
-#define model_data_load(...) swmem_load(__VA_ARGS__) 
+#define model_data_load(...) swmem_load(__VA_ARGS__)
 
 /**
  * Load model data from flash.
