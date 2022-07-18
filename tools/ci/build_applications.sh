@@ -17,7 +17,6 @@ applications=(
     "stlp_ua_adec                 application_stlp_ua_adec                 XK_VOICE_L71       xmos_cmake_toolchain/xs3a.cmake"
     "stlp_ua_adec_altarch         application_stlp_ua_adec_altarch         XK_VOICE_L71       xmos_cmake_toolchain/xs3a.cmake"
     "ffd                          application_ffd                          XK_VOICE_L71       xmos_cmake_toolchain/xs3a.cmake"
-    "ffd_i2c_output               application_ffd_i2c                      XK_VOICE_L71       xmos_cmake_toolchain/xs3a.cmake"
     "ffd_usb_audio_test           application_ffd_usb_audio_test           XK_VOICE_L71       xmos_cmake_toolchain/xs3a.cmake"
 )
 

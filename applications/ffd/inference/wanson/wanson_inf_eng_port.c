@@ -10,6 +10,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "stream_buffer.h"
+#include "queue.h"
 
 /* App headers */
 #include "app_conf.h"
@@ -18,13 +19,27 @@
 #include "wanson_inf_eng.h"
 #include "ssd1306_rtos_support.h"
 
+static QueueHandle_t q_intent = 0;
+
 __attribute__((weak))
 void wanson_engine_proc_keyword_result(const char **text, int id)
 {
-    rtos_printf("%s %d\n", (char*)*text, id);
+    if(text != NULL) {
+        rtos_printf("%s 0x%x\n", (char*)*text, id);
+    }
+    if(q_intent != 0) {
+        if(xQueueSend(q_intent, (void *)&id, (TickType_t)0) != pdPASS) {
+            rtos_printf("Lost intent.  Queue was full.\n");
+        }
+    }
+
 #if appconfSSD1306_DISPLAY_ENABLED
     // some temporary fixes to the strings returned
     switch (id) {
+        case 50:
+            // Clear the display
+            ssd1306_display_ascii_to_bitmap("\0");
+            break;
         case 200:
             // fix capital "On"
             ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
@@ -49,32 +64,17 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
             ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
             break;
         default:
-            ssd1306_display_ascii_to_bitmap((char *)*text);
-    }
-#endif
-#if appconfINFERENCE_I2C_OUTPUT_ENABLED
-    i2c_res_t ret;
-    uint32_t buf = id;
-    size_t sent = 0;
-
-    ret = rtos_i2c_master_write(
-        i2c_master_ctx,
-        appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR,
-        (uint8_t*)&buf,
-        sizeof(uint32_t),
-        &sent,
-        1
-    );
-
-    if (ret != I2C_ACK) {
-        rtos_printf("I2C inference output was not acknowledged\n\tSent %d bytes\n", sent);
+            if(text != NULL) {
+                ssd1306_display_ascii_to_bitmap((char *)*text);
+            }
     }
 #endif
 }
 
 int32_t inference_engine_create(uint32_t priority, void *args)
 {
-    (void) args;
+    q_intent = (QueueHandle_t) args;
+
 #if appconfINFERENCE_ENABLED
 #if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
     wanson_engine_task_create(priority);

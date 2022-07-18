@@ -17,6 +17,7 @@
 #include "platform/driver_instances.h"
 #define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
 #define INFERENCE_TILE_NO       FLASH_TILE_NO
+#define FS_TILE_NO              FLASH_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
@@ -29,18 +30,45 @@
 /* Intent Engine Configuration */
 #define appconfINFERENCE_FRAME_BUFFER_MULT      8       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINFERENCE_FRAMES_PER_INFERENCE   240
-#define appconfINFERENCE_RESET_DELAY_MS         5000
 
+/* Enable inference engine */
 #ifndef appconfINFERENCE_ENABLED
 #define appconfINFERENCE_ENABLED   1
 #endif
 
+/* Maximum delay between a wake up phrase and command phrase */
+#ifndef appconfINFERENCE_RESET_DELAY_MS
+#define appconfINFERENCE_RESET_DELAY_MS         3000
+#endif
+
+/* Output raw inferences, if set to 0, a state machine requires a wake up phrase
+ * before a command phrase */
 #ifndef appconfINFERENCE_RAW_OUTPUT
 #define appconfINFERENCE_RAW_OUTPUT   0
 #endif
 
+/* Enable audio response output */
+#ifndef appconfAUDIO_PLAYBACK_ENABLED
+#define appconfAUDIO_PLAYBACK_ENABLED   1
+#endif
+
+/* Maximum number of detected intents to hold */
+#ifndef appconfINTENT_QUEUE_LEN
+#define appconfINTENT_QUEUE_LEN     10
+#endif
+
+/* External wakeup pin edge on intent found.  0 for rising edge, 1 for falling edge */
+#ifndef appconfINTENT_WAKEUP_EDGE_TYPE
+#define appconfINTENT_WAKEUP_EDGE_TYPE     0
+#endif
+
+/* Delay between external wakeup pin edge and intent output */
+#ifndef appconfINTENT_TRANSPORT_DELAY_MS
+#define appconfINTENT_TRANSPORT_DELAY_MS     50
+#endif
+
 #ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED   0
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED   1
 #endif
 
 #ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
@@ -51,12 +79,20 @@
 #define appconfINFERENCE_USB_OUTPUT_ENABLED   0
 #endif
 
+#ifndef appconfINFERENCE_UART_OUTPUT_ENABLED
+#define appconfINFERENCE_UART_OUTPUT_ENABLED   1
+#endif
+
+#ifndef appconfUART_BAUD_RATE
+#define appconfUART_BAUD_RATE       9600
+#endif
+
 #ifndef appconfSSD1306_DISPLAY_ENABLED
 #define appconfSSD1306_DISPLAY_ENABLED   1
 #endif
 
 #ifndef appconfI2S_ENABLED
-#define appconfI2S_ENABLED   0
+#define appconfI2S_ENABLED   1
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
@@ -98,7 +134,6 @@
 #ifndef appconfMIC_SRC_DEFAULT
 #define appconfMIC_SRC_DEFAULT     appconfMIC_SRC_MICS
 #endif
-
 
 /* I/O and interrupt cores for Tile 0 */
 /* Note, USB and SPI are mutually exclusive */
