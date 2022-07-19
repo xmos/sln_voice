@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE pipeline test"
    echo
-   echo "Syntax: check_pipeline.sh [-h] input_directory output_directory sensory_directory"
+   echo "Syntax: check_pipeline.sh [-h] input_directory output_directory amazon_wwe_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -24,24 +24,17 @@ do
 done
 
 # assign command line args
-# TODO: add parse to check for and add possible missing trailing / on dirs
 INPUT_DIR=${@:$OPTIND:1}
 OUTPUT_DIR=${@:$OPTIND+1:1}
-SENSORY_DIR=${@:$OPTIND+2:1}
+AMAZON_DIR=${@:$OPTIND+2:1}
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
-# sensory
-uname=`uname`
-if [[ "$uname" == 'Linux' ]]; then
-    SENSORY_EXE="${SENSORY_DIR}/spot_eval_exe/spot-eval_x86_64-pc-linux-gnu"
-elif [[ "$uname" == 'Darwin' ]]; then
-    SENSORY_EXE="${SENSORY_DIR}/spot_eval_exe/spot-eval_x86_64-apple-darwin"
-fi
-SENSORY_MODEL="${SENSORY_DIR}/model/spot-alexa-rpi-31000.snsr"
-SENSORY_KW="alexa"
+AMAZON_EXE="x86/amazon_ww_filesim"
+AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"
+AMAZON_WAV="amazon_ww_input.wav"
 
 # audio filenames, min instances, max instances
 QUICK_INPUT_FILES=(
@@ -57,6 +50,10 @@ mkdir -p ${OUTPUT_DIR}
 # fresh logs
 RESULTS="${OUTPUT_DIR}/results.csv"
 rm -rf ${RESULTS}
+
+# fresh list.txt for amazon_ww_filesim
+rm "${OUTPUT_DIR}/list.txt"
+(echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt")
 
 echo "***********************************"
 echo "Log file: ${RESULTS}"
@@ -81,15 +78,20 @@ for ((j = 0; j < ${#QUICK_INPUT_FILES[@]}; j += 1)); do
     # single out ASR channel
     (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
 
-    # use Sensory to generate logs of keyword detection
-    (${SENSORY_EXE} -t ${SENSORY_MODEL} -s operating-point=5 -v ${MONO_OUTPUT_WAV} 2>&1 | tee ${OUTPUT_LOG})
+    # use dockerized amazon_ww_filesim to generate logs of keyword detection
+    (cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV})
+    (docker run --rm -v ${AMAZON_DIR}:/ww -v ${OUTPUT_DIR}:/input debian:buster-slim ww/${AMAZON_EXE} -t 500 -m ww/${AMAZON_MODEL} input/list.txt 2>&1 | tee ${OUTPUT_LOG})
+    (rm ${OUTPUT_DIR}/${AMAZON_WAV})
 
     # count keyword occurrences in the log
-    DETECTIONS=$(grep -o -I ${SENSORY_KW} ${OUTPUT_LOG} | wc -l)
+    DETECTIONS=$(grep -o -I "'ALEXA' detected" ${OUTPUT_LOG} | wc -l)
     # trim whitespace
     DETECTIONS="${DETECTIONS//[[:space:]]/}"
     # log results
-    (echo "filename=${INPUT_WAV}, keyword=${SENSORY_KW}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS})
+    (echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS})
 done 
+
+# clean up
+rm "${OUTPUT_DIR}/list.txt"
 
 (cat ${RESULTS})
