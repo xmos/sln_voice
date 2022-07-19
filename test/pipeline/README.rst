@@ -11,25 +11,19 @@ This script runs checks for the following pipelines:
 Install Prerequisites
 *********************
 
-To install the Sensory SDK, run the following command:
+Install `Docker <https://www.docker.com/>`_.
+
+Pull the docker container:
 
 .. code-block:: console
 
-    git clone git@github.com:xmos/sensory_sdk.git
+    docker pull debian:buster-slim
 
-Make the Sensory program executable:
+To install the Amazon WWE, run the following command:
 
-.. tab:: Linux
+.. code-block:: console
 
-    .. code-block:: console
-
-        chmod a+x <path-to-sensory-sdk>/spot_eval_exe/spot-eval_x86_64-pc-linux-gnu
-
-.. tab:: Mac
-
-    .. code-block:: console
-
-        chmod a+x <path-to-sensory-sdk>/spot_eval_exe/spot-eval_x86_64-apple-darwin
+    git clone git@github.com:xmos/amazon_wwe.git
 
 ******************
 Building the Tests
@@ -57,4 +51,4 @@ Then, in a separate terminal, run the test with the following command from the t
 
 .. code-block:: console
 
-    bash test/pipeline/check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-sensory-sdk>
+    bash test/pipeline/check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-amazon-wwe>
