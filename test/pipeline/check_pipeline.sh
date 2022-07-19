@@ -52,7 +52,7 @@ RESULTS="${OUTPUT_DIR}/results.csv"
 rm -rf ${RESULTS}
 
 # fresh list.txt for amazon_ww_filesim
-rm "${OUTPUT_DIR}/list.txt"
+rm -f "${OUTPUT_DIR}/list.txt"
 (echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt")
 
 echo "***********************************"
