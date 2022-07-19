@@ -1,7 +1,7 @@
 .. _sln_voice_Wanson:
 
 #######################
-Wanson speach AI engine
+Wanson Speech AI Engine
 #######################
 
 .. include:: <isonum.txt>
@@ -98,7 +98,3 @@ Dictionary command table
    * - Switch off the fan
      - command
      - tbd
-
-
-
-
