@@ -14,6 +14,7 @@ Far-field Voice Local Control
    ffd_host_integration
    ffd_modifying_software
    ffd_pipeline
+   ffd_software_description
 
 
 Overview
@@ -217,6 +218,9 @@ Single Controller Solution
 --------------------------
 
 In depth information on the software implementation for users to familiarize themselves with the application before modifying it can be found here:
+:ref:`sln_voice_ffd_software_description`
+
+Additionally, information on how to replace major modules, such as the intent handling block, can be found here:
 :ref:`sln_voice_ffd_modifying_software`
 
 .. |ffd_direct_control_diagram_image| figure:: diagrams/ffd_direct_control_diagram.drawio.png
@@ -236,6 +240,9 @@ The application consists of a PDM microphone input, which is fed through the XMO
    :align: center
    :scale: 80 %
    :alt: ffd diagram
+
+In depth information on the software can be found here:
+:ref:`sln_voice_ffd_software_description`
 
 Audio Pipeline
 ==============
