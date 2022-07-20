@@ -11,15 +11,13 @@ This script runs checks for the following pipelines:
 Install Prerequisites
 *********************
 
-Install `Docker <https://www.docker.com/>`_.
-
-Pull the docker container:
+MacOS users need to install `Docker <https://www.docker.com/>`_.  Once Docker is installed, pull the required docker container:
 
 .. code-block:: console
 
     docker pull debian:buster-slim
 
-To install the Amazon WWE, run the following command:
+All users need to clone the Amazon WWE repository, run the following command:
 
 .. code-block:: console
 
