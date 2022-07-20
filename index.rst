@@ -10,14 +10,14 @@ XCORE |reg| VOICE Solutions
 .. toctree::
    :maxdepth: 3
    :hidden:
-   
+
    doc/ffd
    doc/stlp
    xcore_sdk/index
 
 
 
-XMOS Solutions are a combination of the XCORE_SDK and Reference Designs, ready to run on our development kits, and targetting a range of voice assistant and voice control applications.
+XMOS Solutions are a combination of the XCORE_SDK and Reference Designs, ready to run on our development kits, and targeting a range of voice assistant and voice control applications.
 
 
 On GitHub
@@ -39,8 +39,8 @@ Reference Designs
 
 .. table:: Voice Solutions - reference designs
    :align: center
-   :widths: 10 50 30 10 
-  
+   :widths: 10 50 30 10
+
    +-------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+---------------------------------------------------------------------------+
    | Title                   | Description                                                            | Development kit                                                                            | Go to the code                                                            |
    +=========================+========================================================================+============================================================================================+===========================================================================+
@@ -48,7 +48,7 @@ Reference Designs
    |                         | Audio pipeline includes interference cancelling and noise supression.  |                                                                                            |                                                                           |
    |                         | 25-phrase English language voice recognition.                          | |XK_VOICE_L71_image|                                                                       |                                                                           |
    +-------------------------+------------------------------------------------------------------------+--------------------------------------------------------------------------------------------+---------------------------------------------------------------------------+
-   | :ref:`sln_voice_STLP`   | 2-microphone Far-field voice assistant front-end.                      | `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_  | `ffd <https://github.com/xmos/sln_voice/tree/develop/applications/stlp>`_ |
+   | :ref:`sln_voice_STLP`   | 2-microphone Far-field voice assistant front-end.                      | `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_  | `stlp <https://github.com/xmos/sln_voice/tree/develop/applications/stlp>`_ |
    |                         | Audio pipeline includes echo cancelaation, interference cancelling and |                                                                                            |                                                                           |
    |                         | noise supression.                                                      | |XK_VOICE_L71_image|                                                                       |                                                                           |
    |                         | Stereo reference input and voice assitant output each supported        |                                                                                            |                                                                           |
@@ -81,4 +81,3 @@ This Software is subject to the terms of the `XMOS Public Licence: Version 1 <ht
 Additional third party copyrighted code is included under the following licenses:
 
 The Wanson speech recognition library is Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd ("WANSON") and is subject to the `Wanson Restrictive License <https://github.com/xmos/sln_voice/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md>`_
-
