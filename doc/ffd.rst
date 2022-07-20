@@ -11,6 +11,9 @@ Far-field Voice Local Control
    :hidden:
 
    wanson
+   ffd_host_integration
+   ffd_modifying_software
+   ffd_pipeline
 
 
 Overview
@@ -37,58 +40,25 @@ This reference application is supported on the `XK-VOICE-L71 <https://www.digike
 Setting up the Hardware
 -----------------------
 
+xTAG
+^^^^
+The xTAG is used to program and debug the device
+
+Connect the xTAG to the debug header, as shown below.
 TODO: Image of how to connect xtag
 
-Optional image of setting up SSD1306 display
+Speakers (OPTIONAL)
+^^^^^^^^^^^^^^^^^^^
+This reference application features audio playback responses.  Speakers can be connected, as shown below.
+TODO: Image of where to connect speakers
 
-Host Integration
-----------------
+SSD1306 Display (OPTIONAL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+Attach optional display daughter board, as shown below.
+TODO: Image of setting up daughter board
 
-This section describes the connections that would need to be made to an external host for plug and play integration with existing devices.
-
-UART
-^^^^
-.. list-table:: UART Connections
-   :widths: 50 50
-   :header-rows: 1
-   :align: left
-
-   * - FFD Connection
-     - Host Connection
-   * - J4:24
-     - UART RX
-   * - J4:20
-     - GND
-
-I2C
-^^^
-.. list-table:: I2C Connections
-   :widths: 50 50
-   :header-rows: 1
-   :align: left
-
-   * - FFD Connection
-     - Host Connection
-   * - J4:3
-     - SDA
-   * - J4:5
-     - SCL
-   * - J4:9
-     - GND
-
-GPIO
-^^^^
-.. list-table:: GPIO Connections
-   :widths: 50 50
-   :header-rows: 1
-   :align: left
-
-   * - FFD Connection
-     - Host Connection
-   * - J4:19
-     - Wake up input
-   * - J4:21
-     - Host Status output
+Attach the SSD1306 display to the daughter board, as shown below.
+TODO: Image of setting up SSD1306 display
 
 Building the Firmware
 ---------------------
@@ -110,7 +80,6 @@ Run the following commands in the root folder to build the firmware:
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
         nmake application_ffd
-
 
 Configuring the Firmware
 ------------------------
@@ -228,6 +197,34 @@ To debug with xgdb, from the build folder run:
         nmake debug_application_ffd
 
 
+Host Integration
+===================
+
+This reference application can be integrated with existing solutions or modified to be a single controller solution.
+
+Out of the Box Integration
+--------------------------
+
+In depth information on out of the box integration can be found here:
+:ref:`sln_voice_ffd_host_integration`
+
+.. |ffd_host_integration_diagram_image| figure:: diagrams/ffd_host_integration_diagram.drawio.png
+   :align: center
+   :scale: 80 %
+   :alt: ffd host integration diagram
+
+Single Controller Solution
+--------------------------
+
+In depth information on the software implementation for users to familiarize themselves with the application before modifying it can be found here:
+:ref:`sln_voice_ffd_modifying_software`
+
+.. |ffd_direct_control_diagram_image| figure:: diagrams/ffd_direct_control_diagram.drawio.png
+   :align: center
+   :scale: 80 %
+   :alt: ffd host direct control diagram
+
+
 Design Architecture
 ===================
 
@@ -240,13 +237,14 @@ The application consists of a PDM microphone input, which is fed through the XMO
    :scale: 80 %
    :alt: ffd diagram
 
-system diagram, with interfaces.  May need several versions to cover different interfaces
+Audio Pipeline
+==============
 
-Descriptin of the pipeline, with links to each "avona" module documentation
-Link to Wanson page
+Information on the audio pipeline used by this application can be found here:
+:ref:`sln_voice_ffd_ap`
 
+Speech Recognition
+==================
+
+Information on the speech recognition library used by this application can be found here:
 :ref:`sln_voice_Wanson`
-
-
-Software implementation
-=======================
