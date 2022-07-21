@@ -23,9 +23,33 @@ All users need to clone the Amazon WWE repository, run the following command:
 
     git clone git@github.com:xmos/amazon_wwe.git
 
+Note, the Amazon WWE requires a CPU with AVX2 support.  You can check for this with the following commands:
+
+On Linux:
+
+.. code-block:: console
+
+    grep avx2 /proc/cpuinfo
+
+On MacOS:
+
+.. code-block:: console
+
+    sysctl -a | grep machdep.cpu.leaf7_features | grep AVX2
+
+If these commands return nothing then your computer lacks AVX2 support.  
+
 ******************
 Building the Tests
 ******************
+
+Begin by ensuring the filesystem is flashed.  To do this run the following commands from the top of the repository:
+
+.. code-block:: console
+    
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cd build
+    make flash_fs_application_stlp_ua_adec -j
 
 To build the test application firmware, run the following command from the top of the repository: 
 

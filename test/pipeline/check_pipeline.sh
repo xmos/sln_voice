@@ -23,6 +23,8 @@ do
     esac
 done
 
+uname=`uname`
+
 # assign command line args
 INPUT_DIR=${@:$OPTIND:1}
 OUTPUT_DIR=${@:$OPTIND+1:1}
@@ -35,6 +37,7 @@ source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 AMAZON_EXE="x86/amazon_ww_filesim"
 AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"
 AMAZON_WAV="amazon_ww_input.wav"
+AMAZON_THRESH="500"
 
 # audio filenames, min instances, max instances
 QUICK_INPUT_FILES=(
@@ -78,9 +81,13 @@ for ((j = 0; j < ${#QUICK_INPUT_FILES[@]}; j += 1)); do
     # single out ASR channel
     (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
 
-    # use dockerized amazon_ww_filesim to generate logs of keyword detection
     (cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV})
-    (docker run --rm -v ${AMAZON_DIR}:/ww -v ${OUTPUT_DIR}:/input debian:buster-slim ww/${AMAZON_EXE} -t 500 -m ww/${AMAZON_MODEL} input/list.txt 2>&1 | tee ${OUTPUT_LOG})
+    if [ "$uname" == "Linux" ] ; then
+        (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
+    elif [ "$uname" == "Darwin" ] ; then
+        # use dockerized amazon_ww_filesim to generate logs of keyword detection
+        (docker run --rm -v ${AMAZON_DIR}:/ww -v ${OUTPUT_DIR}:/input debian:buster-slim ww/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ww/${AMAZON_MODEL} input/list.txt 2>&1 | tee ${OUTPUT_LOG})
+    fi    
     (rm ${OUTPUT_DIR}/${AMAZON_WAV})
 
     # count keyword occurrences in the log

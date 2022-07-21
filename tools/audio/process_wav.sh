@@ -30,7 +30,7 @@ OUTPUT_FILE=${@:$OPTIND+1:1}
 uname=`uname`
 if [[ "$uname" == 'Linux' ]]; then
     DEVICE_DRIVER="alsa"
-    DEVICE_NAME="hw:CARD=XCORE-VOICE,DEV=0"
+    DEVICE_NAME="hw:CARD=XCOREVOICE,DEV=0"
 elif [[ "$uname" == 'Darwin' ]]; then
     DEVICE_DRIVER="coreaudio"
     DEVICE_NAME="XCORE-VOICE"
