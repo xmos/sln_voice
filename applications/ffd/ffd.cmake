@@ -26,8 +26,6 @@ set(APP_COMPILE_DEFINITIONS
     DEBUG_PRINT_ENABLE=1
     PLATFORM_USES_TILE_0=1
     PLATFORM_USES_TILE_1=1
-
-    QSPI_FLASH_FILESYSTEM_START_ADDRESS=0x200000
 )
 
 set(APP_LINK_OPTIONS
@@ -81,51 +79,31 @@ create_flash_app_target(application_ffd)
 #**********************
 # Create filesystem support targets
 #**********************
-if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
-    add_custom_command(
-        OUTPUT application_ffd.fs
-        COMMAND
-        DEPENDS application_ffd
-        COMMENT
-            "Create filesystem"
-        WORKING_DIRECTORY
-            ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
-        VERBATIM
-    )
+add_custom_command(
+    OUTPUT application_ffd_model.bin
+    COMMAND xobjdump --strip application_ffd.xe
+    COMMAND xobjdump --split application_ffd.xb
+    COMMAND ${CMAKE_COMMAND} -E copy image_n0c0.swmem ${CMAKE_CURRENT_LIST_DIR}/filesystem/model.bin
+    DEPENDS application_ffd
+    COMMENT
+        "Extract swmem"
+    VERBATIM
+)
 
-    add_custom_command(
-        OUTPUT application_ffd_fs_and_swmem.bin
-    )
-    message(WARNING "FFD Filesystem not supported on Windows")
-else()
-    add_custom_command(
-        OUTPUT application_ffd.fs
-        COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && cp ./100.wav $fat_mnt_dir/100.wav && cp ./50.wav $fat_mnt_dir/50.wav && cp ./200.wav $fat_mnt_dir/200.wav && cp ./210.wav $fat_mnt_dir/210.wav && cp ./220.wav $fat_mnt_dir/220.wav && cp ./230.wav $fat_mnt_dir/230.wav && cp ./240.wav $fat_mnt_dir/240.wav && cp ./250.wav $fat_mnt_dir/250.wav && cp ./300.wav $fat_mnt_dir/300.wav && cp ./310.wav $fat_mnt_dir/310.wav && cp ./320.wav $fat_mnt_dir/320.wav && cp ./330.wav $fat_mnt_dir/330.wav && cp ./400.wav $fat_mnt_dir/400.wav && cp ./410.wav $fat_mnt_dir/410.wav && cp ./420.wav $fat_mnt_dir/420.wav && cp ./430.wav $fat_mnt_dir/430.wav && cp ./440.wav $fat_mnt_dir/440.wav && cp ./450.wav $fat_mnt_dir/450.wav && fatfs_mkimage --input=$tmp_dir --output=application_ffd.fs --image_size=2097152"
-        COMMAND ${CMAKE_COMMAND} -E copy application_ffd.fs ${CMAKE_CURRENT_BINARY_DIR}/application_ffd.fs
-        DEPENDS application_ffd
-        COMMENT
-            "Create filesystem"
-        WORKING_DIRECTORY
-            ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
-        VERBATIM
-    )
-
-    add_custom_command(
-        OUTPUT application_ffd_fs_and_swmem.bin
-        COMMAND xobjdump --strip application_ffd.xe
-        COMMAND xobjdump --split application_ffd.xb
-        COMMAND bash -c "cat application_ffd.fs | dd of=image_n0c0.swmem bs=1 seek=1048576 conv=notrunc"
-        COMMAND ${CMAKE_COMMAND} -E copy image_n0c0.swmem application_ffd_fs_and_swmem.bin
-        DEPENDS application_ffd.fs
-        COMMENT
-            "Extract swmem and combine with filesystem"
-        VERBATIM
-    )
-endif()
+add_custom_command(
+    OUTPUT application_ffd.fs
+    COMMAND fatfs_mkimage --input=${CMAKE_CURRENT_LIST_DIR}/filesystem --image_size=2097152 --output=${CMAKE_CURRENT_BINARY_DIR}/application_ffd.fs
+    DEPENDS application_ffd_model.bin
+    COMMENT
+        "Create filesystem"
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_LIST_DIR}/filesystem
+    VERBATIM
+)
 
 add_custom_target(flash_fs_application_ffd
-    COMMAND xflash --quad-spi-clock 50MHz --factory application_ffd.xe --boot-partition-size 0x100000 --data application_ffd_fs_and_swmem.bin
-    DEPENDS application_ffd_fs_and_swmem.bin
+    COMMAND xflash --quad-spi-clock 50MHz --factory application_ffd.xe --boot-partition-size 0x100000 --data application_ffd.fs
+    DEPENDS application_ffd.fs
     COMMENT
         "Flash filesystem"
     VERBATIM

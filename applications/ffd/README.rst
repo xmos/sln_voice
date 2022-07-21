@@ -79,7 +79,7 @@ Run the following commands in the root folder to build the firmware:
 Running the Firmware
 ********************
 
-Before the firmware is run, the swmem and filesystem must be loaded.  This application currently uses a nonstandard swmem access, so the steps to setup the flash are dictated below.
+Before the firmware is run, the filesystem must be loaded.  The steps to setup the flash and run the firmware are dictated below.
 
 Inside of the build folder root, after building the firmware:
 
