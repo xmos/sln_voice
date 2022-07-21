@@ -81,11 +81,11 @@ for ((j = 0; j < ${#QUICK_INPUT_FILES[@]}; j += 1)); do
     # single out ASR channel
     (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
 
-    # use dockerized amazon_ww_filesim to generate logs of keyword detection
     (cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV})
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
+        # use dockerized amazon_ww_filesim to generate logs of keyword detection
         (docker run --rm -v ${AMAZON_DIR}:/ww -v ${OUTPUT_DIR}:/input debian:buster-slim ww/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ww/${AMAZON_MODEL} input/list.txt 2>&1 | tee ${OUTPUT_LOG})
     fi    
     (rm ${OUTPUT_DIR}/${AMAZON_WAV})
