@@ -6,7 +6,45 @@ Software Description
 
 .. include:: <isonum.txt>
 
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
+   ffd_software/bsp_config
+   ffd_software/ext
+   ffd_software/filesystem_support
+   ffd_software/host
+   ffd_software/inference
+   ffd_software/src
 
 Overview
 ========
+
+The description of the software is split up by folder:
+
+.. list-table:: FFD Software Description
+   :widths: 30 100 30
+   :header-rows: 1
+   :align: left
+
+   * - Folder
+     - Description
+     - Link
+   * - bsp_config
+     - Board support configuration setting up software based IO peripherals
+     - :ref:`sln_voice_ffd_bsp_config`
+   * - ext
+     - Application extensions
+     - :ref:`sln_voice_ffd_ext`
+   * - filesystem_support
+     - Filesystem contents for application
+     - :ref:`sln_voice_ffd_filesystem_support`
+   * - host
+     - Host applications
+     - :ref:`sln_voice_ffd_host`
+   * - inference
+     - Inferencing engine integration
+     - :ref:`sln_voice_ffd_inference`
+   * - src
+     - Main application
+     - :ref:`sln_voice_ffd_src`
