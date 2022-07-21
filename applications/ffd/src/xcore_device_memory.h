@@ -16,7 +16,12 @@
 #define model_data_load(...) swmem_load(__VA_ARGS__)
 
 /**
- * Load model data from flash.
+ * Init model file.
+ */
+size_t model_file_init();
+
+/**
+ * Load model data.
  *
  * @param[out] dest Pointer to the memory location to copy to
  * @param[in]  src  Pointer to the memory location to copy from
