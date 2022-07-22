@@ -135,6 +135,10 @@
 #define appconfMIC_SRC_DEFAULT     appconfMIC_SRC_MICS
 #endif
 
+#ifndef appconfDEBUG_RESOURCES
+#define appconfDEBUG_RESOURCES 0
+#endif
+
 /* I/O and interrupt cores for Tile 0 */
 /* Note, USB and SPI are mutually exclusive */
 #define appconfXUD_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */
@@ -147,7 +151,7 @@
 #define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off core 0 with the RTOS tick ISR */
 #define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
 #define appconfPDM_MIC_INTERRUPT_CORE           4 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
-#define appconfI2S_INTERRUPT_CORE               5 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#define appconfI2S_INTERRUPT_CORE               3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 5)

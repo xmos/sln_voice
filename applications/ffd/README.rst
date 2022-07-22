@@ -79,13 +79,21 @@ Run the following commands in the root folder to build the firmware:
 Running the Firmware
 ********************
 
-Before the firmware is run, the swmem and filesystem must be loaded.  This application currently uses a nonstandard swmem access, so the steps to setup the flash are dictated below.
+Before the firmware is run, the filesystem must be loaded.  The steps to setup the flash and run the firmware are dictated below.
 
 Inside of the build folder root, after building the firmware:
 
-.. code-block:: console
+.. tab:: Linux and Mac
 
-    make flash_fs_application_ffd
+    .. code-block:: console
+
+        make flash_fs_application_ffd
+
+.. tab:: Windows
+
+    .. code-block:: console
+    
+        nmake flash_fs_application_ffd
 
 From the build folder run:
 

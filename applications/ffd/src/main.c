@@ -24,7 +24,7 @@
 #include "inference_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
-#include "leds.h"
+#include "gpio_ctrl/leds.h"
 #include "rtos_swmem.h"
 #include "xcore_device_memory.h"
 #include "ssd1306_rtos_support.h"
@@ -124,10 +124,20 @@ void startup_task(void *arg)
     led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
 #endif
 
+#if appconfDEBUG_RESOURCES
+#warning DEBUG_RESOURCES should not be set in final production applications!
+    char debug_string[2000];
 	for (;;) {
-		// rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-		vTaskDelay(pdMS_TO_TICKS(5000));
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        memset(debug_string, 0x00, 2000);
+        vTaskGetRunTimeStats(debug_string);
+        rtos_printf("Tile[%d]\n%s\n", THIS_XCORE_TILE, debug_string);
+		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
 	}
+#else
+    vTaskSuspend(NULL);
+    while(1){;} /* Trap */
+#endif
 }
 
 void vApplicationMinimalIdleHook(void)

@@ -12,7 +12,7 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "leds.h"
+#include "gpio_ctrl/leds.h"
 #include "platform/driver_instances.h"
 
 #define LED_BLINK_DELAY (500 / portTICK_PERIOD_MS)
