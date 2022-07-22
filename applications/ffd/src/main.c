@@ -24,7 +24,7 @@
 #include "inference_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
-#include "leds.h"
+#include "gpio_ctrl/leds.h"
 #include "rtos_swmem.h"
 #include "xcore_device_memory.h"
 #include "ssd1306_rtos_support.h"
