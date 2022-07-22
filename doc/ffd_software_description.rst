@@ -20,6 +20,26 @@ Software Description
 Overview
 ========
 
+The estimated power usage of the default reference application is TODO mW.  This will vary based on any user added code and/or user added compile options.
+
+.. list-table:: FFD Resources
+   :widths: 30 10 30
+   :header-rows: 1
+   :align: left
+
+   * - Resource
+     - Tile 0
+     - Tile 1
+   * - Unused CPU Time
+     - 69%
+     - 55 %
+   * - Total Memory Free
+     - 210k
+     - 273k
+   * - Runtime Heap Memory Free
+     - 18k
+     - 6k
+
 The description of the software is split up by folder:
 
 .. list-table:: FFD Software Description
