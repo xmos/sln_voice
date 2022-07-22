@@ -52,6 +52,13 @@ void wanson_engine_task(void *args)
     rtos_swmem_init(0);
 #endif
 
+    size_t model_file_size;
+    model_file_size = model_file_init();
+    if (model_file_size == 0) {
+        rtos_printf("Failed to load model file\n");
+        vTaskDelete(NULL);
+    }
+
     rtos_printf("Wanson init\n");
     Wanson_ASR_Init();
     rtos_printf("Wanson init done\n");
