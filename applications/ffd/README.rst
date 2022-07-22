@@ -83,9 +83,17 @@ Before the firmware is run, the filesystem must be loaded.  The steps to setup t
 
 Inside of the build folder root, after building the firmware:
 
-.. code-block:: console
+.. tab:: Linux and Mac
 
-    make flash_fs_application_ffd
+    .. code-block:: console
+
+        make flash_fs_application_ffd
+
+.. tab:: Windows
+
+    .. code-block:: console
+    
+        nmake flash_fs_application_ffd
 
 From the build folder run:
 
