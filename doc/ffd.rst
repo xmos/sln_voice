@@ -11,11 +11,11 @@ Far-field Voice Local Control
    :hidden:
 
    wanson
-   ffd_host_integration
-   ffd_modifying_software
-   ffd_pipeline
-   ffd_software_description
-   faq
+   ffd/host_integration
+   ffd/modifying_software
+   ffd/pipeline
+   ffd/software_description
+   ffd/faq
 
 
 Overview

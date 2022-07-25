@@ -10,12 +10,12 @@ Software Description
    :maxdepth: 1
    :hidden:
 
-   ffd_software/bsp_config
-   ffd_software/ext
-   ffd_software/filesystem_support
-   ffd_software/host
-   ffd_software/inference
-   ffd_software/src
+   software_desc/bsp_config
+   software_desc/ext
+   software_desc/filesystem_support
+   software_desc/host
+   software_desc/inference
+   software_desc/src
 
 Overview
 ========
