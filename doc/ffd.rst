@@ -15,6 +15,7 @@ Far-field Voice Local Control
    ffd_modifying_software
    ffd_pipeline
    ffd_software_description
+   faq
 
 
 Overview
