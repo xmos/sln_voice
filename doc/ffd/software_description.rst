@@ -20,7 +20,7 @@ Software Description
 Overview
 ========
 
-The estimated power usage of the default reference application is TODO mW.  This will vary based on any user added code and/or user added compile options.
+The estimated power usage of the default reference application is 114 mW.  This will vary based on component tolerances and any user added code and/or user added compile options.
 
 .. list-table:: FFD Resources
    :widths: 30 10 30
