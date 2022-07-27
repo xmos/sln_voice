@@ -11,10 +11,11 @@ Far-field Voice Local Control
    :hidden:
 
    wanson
-   ffd_host_integration
-   ffd_modifying_software
-   ffd_pipeline
-   ffd_software_description
+   ffd/host_integration
+   ffd/modifying_software
+   ffd/pipeline
+   ffd/software_description
+   ffd/faq
 
 
 Overview
@@ -41,25 +42,76 @@ This reference application is supported on the `XK-VOICE-L71 <https://www.digike
 Setting up the Hardware
 -----------------------
 
+This reference design requires an XTAG4 and XK-VOICE-L71 board.
+
+Optionally, an external microphone array board, LCD daugher board, and SSD1306 display can also be used.
+
+.. image:: images/ffd/all_components.jpg
+  :width: 800
+  :alt: all components
+
+
 xTAG
 ^^^^
 The xTAG is used to program and debug the device
 
 Connect the xTAG to the debug header, as shown below.
-TODO: Image of how to connect xtag
+
+.. image:: images/ffd/xtag_installation.jpg
+  :width: 800
+  :alt: xtag
+
+Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
+
+.. image:: images/ffd/host_setup.jpg
+  :width: 800
+  :alt: programming host setup
+
+External Microphone Array (OPTIONAL)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+An external microphone array can be used instead of the on board mics by connecting one, as shown below.
+
+Open the MIC EXP connector lock.
+
+.. image:: images/ffd/external_mic_installation1.jpg
+  :width: 800
+  :alt: external mic step 1
+
+Insert the external microphone ribbon cable, contacts facing away from the lock.
+
+.. image:: images/ffd/external_mic_installation2.jpg
+  :width: 800
+  :alt: external mic step 2
+
+Lock the MIC EXP connector.
+
+.. image:: images/ffd/external_mic_installation3.jpg
+  :width: 800
+  :alt: external mic step 3
 
 Speakers (OPTIONAL)
 ^^^^^^^^^^^^^^^^^^^
-This reference application features audio playback responses.  Speakers can be connected, as shown below.
-TODO: Image of where to connect speakers
+This reference application features audio playback responses.  Speakers can be connected to the LINE OUT on the XK-VOICE-L71.
 
 SSD1306 Display (OPTIONAL)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
-Attach optional display daughter board, as shown below.
-TODO: Image of setting up daughter board
+Solder header pins on TP5, TP6, J8, and J6.
 
-Attach the SSD1306 display to the daughter board, as shown below.
-TODO: Image of setting up SSD1306 display
+.. image:: images/ffd/lcd_installation1.jpg
+  :width: 800
+  :alt: lcd step 1
+
+Install the LCD daughter board by lining it up with TP5, TP6, J8, and J6.  Gently press down.
+
+.. image:: images/ffd/lcd_installation2.jpg
+  :width: 800
+  :alt: lcd step 2
+
+Attach the SSD1306 display to the daughter board.
+
+.. image:: images/ffd/lcd_installation3.jpg
+  :width: 800
+  :alt: lcd step 3
 
 Building the Firmware
 ---------------------

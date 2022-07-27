@@ -10,27 +10,22 @@ Wanson Speech AI Engine
 
 License
 =======
-Warning and link to license
+
+This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50.
+
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the `Wanson Restrictive License <https://github.com/xmos/sln_voice/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md>`__.
 
 
 Overview
 ========
 
-what is it
-how it is provided
-specs (memory, MIPS etc)
+The Wanson speech recognition engine runs proprietary models to identify keywords in an audio stream.
 
+The model used in FFD is approximately 185k.  The runtime and application supporting code consumes approximately 250k.
 
-Not sure if there is any info on how to include the wanson module in your design, but we should have that - and it ought to be a standard interface that makes it simple for someone to replace with their own.
+The Wanson engine requires at a core frequency of at least 400 MHz to keep up with real time.
 
-
-State machine
-=============
-commands vs keywords
-state machine diagram
-
-external signalling based on state
-
+To replace the Wanson engine with a different engine, refer to the FFD documentation on `replacing the Wanson keyword engine block. <ffd/modifying_software.html#replacing-wanson-keyword-engine-block>`__
 
 
 Dictionary command table
@@ -43,58 +38,81 @@ Dictionary command table
 
    * - Utterances
      - Type
-     - Return code
+     - Return code (decimal)
    * - Hello XMOS
      - keyword
-     - tbd
+     - 100
    * - Hello Wanson
      - keyword
-     - tbd
+     - 110
    * - Switch on the TV
      - command
-     - tbd
-   * - Channel up
-     - command
-     - tbd
-   * - Channel down
-     - command
-     - tbd
-   * - Volume up
-     - command
-     - tbd
-   * - Volume down
-     - command
-     - tbd
+     - 200
    * - Switch off the TV
      - command
-     - tbd
+     - 210
+   * - Channel up
+     - command
+     - 220
+   * - Channel down
+     - command
+     - 230
+   * - Volume up
+     - command
+     - 240
+   * - Volume down
+     - command
+     - 250
    * - Switch on the lights
      - command
-     - tbd
-   * - Brightness up
-     - command
-     - tbd
-   * - Brightness down
-     - command
-     - tbd
+     - 300
    * - Switch off the lights
      - command
-     - tbd
+     - 310
+   * - Brightness up
+     - command
+     - 320
+   * - Brightness down
+     - command
+     - 330
    * - Switch on the fan
      - command
-     - tbd
-   * - Speed up the fan
-     - command
-     - tbd
-   * - Slow down the fan
-     - command
-     - tbd
-   * - Set higher temperature
-     - command
-     - tbd
-   * - Set lower temperature
-     - command
-     - tbd
+     - 400
    * - Switch off the fan
      - command
-     - tbd
+     - 410
+   * - Speed up the fan
+     - command
+     - 420
+   * - Slow down the fan
+     - command
+     - 430
+   * - Set higher temperature
+     - command
+     - 440
+   * - Set lower temperature
+     - command
+     - 450
+
+
+State Machine
+=============
+
+An optional state machine is used to condition the raw output of the Wanson speech engine.
+
+When using the state machine, the application intent callback will only occur when a wake word and command have been detected within a time period.
+
+.. |wanson_speech_recognizer_state_machine| figure:: diagrams/speech-recognizer_state-machine.drawio.png
+   :align: center
+   :scale: 100 %
+   :alt: Wanson speech recognizer state machine diagram
+
+The state machine logic can be disabled by setting the compile time option appconfINFERENCE_RAW_OUTPUT, to 1.  The wake word to command timeout is compile time configurable via appconfINFERENCE_RESET_DELAY_MS.
+
+More information on these options can be found in the `FFD Configuring the Firmware <ffd.html#configuring-the-firmware>`__ section.
+
+Application Integration
+=======================
+
+In depth information on out of the box integration can be found here:
+:ref:`sln_voice_ffd_host_integration`
