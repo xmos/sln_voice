@@ -11,7 +11,7 @@ Overview
 
 The FFD reference design consists of three major software blocks, the audio pipeline, keyword spotter, and keyword handler.  This section will go into detail on how to replace each/all of these subsystems.
 
-.. |ffd_diagram_image| figure:: ../diagrams/ffd_diagram.drawio.png
+.. figure:: ../diagrams/ffd_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd diagram
@@ -204,7 +204,7 @@ The proc_keyword_res task can be modified as follows:
 
 This code example will receive the id of each intent, and can be populated by any user application logic.
 
-.. |ffd_direct_control_diagram_image| figure:: ../diagrams/ffd_direct_control_diagram.drawio.png
+.. figure:: ../diagrams/ffd_direct_control_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd host direct control diagram

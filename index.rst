@@ -57,6 +57,7 @@ Reference Designs
         - Stereo reference input and voice assistant output each supported as |I2C| or USB (UAC2.0)    
       - `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`__
       - `applications/stlp <https://github.com/xmos/sln_voice/tree/develop/applications/stlp>`__
+
 Development Tools
 -----------------
 

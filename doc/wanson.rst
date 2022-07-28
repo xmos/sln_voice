@@ -100,7 +100,7 @@ An optional state machine is used to condition the raw output of the Wanson spee
 
 When using the state machine, the application intent callback will only occur when a wake word and command have been detected within a time period.
 
-.. |wanson_speech_recognizer_state_machine| figure:: diagrams/speech-recognizer_state-machine.drawio.png
+.. figure:: diagrams/speech-recognizer_state-machine.drawio.png
    :align: center
    :scale: 100 %
    :alt: Wanson speech recognizer state machine diagram
