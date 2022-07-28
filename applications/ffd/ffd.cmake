@@ -2,9 +2,14 @@
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
-set(APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306)
-
-list(APPEND APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response)
+set(APP_INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306
+    ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response
+)
+set(RTOS_CONF_INCLUDES
+    ${CMAKE_CURRENT_LIST_DIR}/src/rtos_conf
+)
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/inference/inference.cmake)
@@ -47,7 +52,7 @@ set(APP_COMMON_LINK_LIBRARIES
 set(TARGET_NAME tile0_application_ffd)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
-target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
+target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=0)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
 target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::ffd::xk_voice_l71)
@@ -57,7 +62,7 @@ unset(TARGET_NAME)
 set(TARGET_NAME tile1_application_ffd)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
-target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
+target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=1)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
 target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::ffd::xk_voice_l71)
