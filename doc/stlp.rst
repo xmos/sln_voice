@@ -4,12 +4,12 @@
 Far-field Voice Assistant
 #########################
 
+.. note::
+
+    This document is a work in progress.  
+
 Overview
 ========
-what it does in a couple of paragraphs
-
-
-
 
 
 Try it

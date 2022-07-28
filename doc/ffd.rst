@@ -1,3 +1,5 @@
+.. include:: substitutions.rst
+
 .. _sln_voice_FFD:
 
 #############################
@@ -13,7 +15,7 @@ Far-field Voice Local Control
    wanson
    ffd/host_integration
    ffd/modifying_software
-   ffd/pipeline
+   ffd/audio_pipeline
    ffd/software_description
    ffd/faq
 
@@ -22,17 +24,14 @@ Overview
 ========
 This is the XMOS far-field local dictionary (FFD) reference design with Wanson speech recognition.
 
-When a wakeup phrase is followed by an intent phrase the application will output an audio response, i2c and uart discrete message, and display text on the optional SSD1306 daughter board.
+When a wakeup phrase is followed by an intent phrase the application will output an audio response, |I2C| and uart discrete message, and display text on the optional SSD1306 daughter board.
 
 This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50. You can reset the counter to 0 by restarting or rebooting the application.  The application can be rebooted by power cycling or pressing the SW2 button.
 
-More information on the Wanson speech recognition library can be found here:
-
-:ref:`sln_voice_Wanson`
-
+More information on the Wanson speech recognition library can be found here: :ref:`sln_voice_Wanson`
 
 Try it
-===============
+======
 
 Supported Hardware
 ------------------
@@ -134,6 +133,8 @@ Run the following commands in the root folder to build the firmware:
         cd build
         nmake application_ffd
 
+.. _sln_voice_FFD_configuring-the-firmware:
+
 Configuring the Firmware
 ------------------------
 
@@ -168,16 +169,16 @@ If options are changed, the application firmware must be rebuilt.
      - Enables/disables the SSD1306 daughter board display intent message
      - 1
    * - appconfINFERENCE_I2C_OUTPUT_ENABLED
-     - Enables/disables the I2C intent message
+     - Enables/disables the |I2C| intent message
      - 1
    * - appconfUART_BAUD_RATE
      - Sets the baud rate for the UART tx intent interface
      - 9600
    * - appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
-     - Sets the I2C slave address to transmit the intent to
+     - Sets the |I2C| slave address to transmit the intent to
      - 0x01
    * - appconfINTENT_TRANSPORT_DELAY_MS
-     - Sets the delay between host wake up requested and I2C and UART keyword code transmission
+     - Sets the delay between host wake up requested and |I2C| and UART keyword code transmission
      - 50
    * - appconfINTENT_QUEUE_LEN
      - Sets the maximum number of detected intents to hold while waiting for the host to wake up
@@ -258,10 +259,9 @@ This reference application can be integrated with existing solutions or modified
 Out of the Box Integration
 --------------------------
 
-In depth information on out of the box integration can be found here:
-:ref:`sln_voice_ffd_host_integration`
+In depth information on out of the box integration can be found here: :ref:`sln_voice_ffd_host_integration`
 
-.. |ffd_host_integration_diagram_image| figure:: diagrams/ffd_host_integration_diagram.drawio.png
+.. figure:: diagrams/ffd_host_integration_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd host integration diagram
@@ -272,10 +272,9 @@ Single Controller Solution
 In depth information on the software implementation for users to familiarize themselves with the application before modifying it can be found here:
 :ref:`sln_voice_ffd_software_description`
 
-Additionally, information on how to replace major modules, such as the intent handling block, can be found here:
-:ref:`sln_voice_ffd_modifying_software`
+Additionally, information on how to replace major modules, such as the intent handling block, can be found here: :ref:`sln_voice_ffd_modifying_software`
 
-.. |ffd_direct_control_diagram_image| figure:: diagrams/ffd_direct_control_diagram.drawio.png
+.. figure:: diagrams/ffd_direct_control_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd host direct control diagram
@@ -288,7 +287,7 @@ This application span both tiles, consuming x memory on tile 0, and x memory on 
 
 The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then sent to the Wanson keyword engine.  The intent result is then handled, with discrete messaging to various IO interfaces and audio playback.
 
-.. |ffd_diagram_image| figure:: diagrams/ffd_diagram.drawio.png
+.. figure:: diagrams/ffd_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd diagram

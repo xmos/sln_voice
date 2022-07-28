@@ -1,12 +1,10 @@
-.. _sln_voice_Wanson:
-
-#######################
-Wanson Speech AI Engine
-#######################
-
 .. include:: <isonum.txt>
 
+.. _sln_voice_Wanson:
 
+#########################
+Wanson Speech Recognition
+#########################
 
 License
 =======
@@ -25,7 +23,7 @@ The model used in FFD is approximately 185k.  The runtime and application suppor
 
 The Wanson engine requires at a core frequency of at least 400 MHz to keep up with real time.
 
-To replace the Wanson engine with a different engine, refer to the FFD documentation on `replacing the Wanson keyword engine block. <ffd/modifying_software.html#replacing-wanson-keyword-engine-block>`__
+To replace the Wanson engine with a different engine, refer to the FFD documentation on :ref:`sln_voice_FFD_replacing-wanson-keyword-engine-block`
 
 
 Dictionary command table
@@ -109,10 +107,9 @@ When using the state machine, the application intent callback will only occur wh
 
 The state machine logic can be disabled by setting the compile time option appconfINFERENCE_RAW_OUTPUT, to 1.  The wake word to command timeout is compile time configurable via appconfINFERENCE_RESET_DELAY_MS.
 
-More information on these options can be found in the `FFD Configuring the Firmware <ffd.html#configuring-the-firmware>`__ section.
+More information on these options can be found in the FFD :ref:`sln_voice_FFD_configuring-the-firmware` section.
 
 Application Integration
 =======================
 
-In depth information on out of the box integration can be found here:
-:ref:`sln_voice_ffd_host_integration`
+In depth information on out of the box integration can be found here: :ref:`sln_voice_ffd_host_integration`

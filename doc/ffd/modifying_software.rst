@@ -1,12 +1,10 @@
+.. include:: <isonum.txt>
+
 .. _sln_voice_ffd_modifying_software:
 
 ##############################
 Modifying the Reference Design
 ##############################
-
-.. include:: <isonum.txt>
-
-
 
 Overview
 ========
@@ -152,6 +150,8 @@ With:
 
 It is also possible to add or remove stages.  Refer to the XCORE-SDK documentation on the generic pipeline sw_service.
 
+
+.. _sln_voice_FFD_replacing-wanson-keyword-engine-block:
 
 Replacing Wanson Keyword Engine Block
 -------------------------------------
