@@ -1,11 +1,6 @@
-##############
-Check Pipeline
-##############
-
-This script runs checks for the following pipelines:
-
-- STLP-UA ADEC
-- STLP-UA ADEC AtlArch
+###################
+STLP Check Pipeline
+###################
 
 *********************
 Install Prerequisites
@@ -59,9 +54,9 @@ To build the test application firmware, run the following command from the top o
 
 The `build_test.sh` script will copy the test applications to the `dist` folder.  
 
-******************
-Running the Tests
-******************
+***************************
+Running STLP Pipeline Tests
+***************************
 
 First, run application firmware with the following command from the top of the repository:
 
@@ -73,4 +68,20 @@ Then, in a separate terminal, run the test with the following command from the t
 
 .. code-block:: console
 
-    bash test/pipeline/check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-amazon-wwe>
+    bash test/pipeline/stlp_check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-amazon-wwe>
+
+**************************
+Running FFD Pipeline Tests
+**************************
+
+First, run application firmware with the following command from the top of the repository:
+
+.. code-block:: console
+
+    xrun --xscope dist/<configuration>.xe
+
+Then, in a separate terminal, run the test with the following command from the top of the repository:
+
+.. code-block:: console
+
+    bash test/pipeline/ffd_check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-amazon-wwe>

@@ -3,9 +3,9 @@ set -e
 
 help()
 {
-   echo "XCORE-VOICE reference design wav file processor"
+   echo "XCORE-VOICE STLP wav file processor"
    echo
-   echo "Syntax: process_wav.sh [-c|h] to_device.wav from_device.wav"
+   echo "Syntax: stlp_process_wav.sh [-c|h] to_device.wav from_device.wav"
    echo "options:"
    echo "h     Print this Help."
    echo "c     Number of channels in input wav"
@@ -39,7 +39,7 @@ fi
 # determine input remix pattern
 #  the test vector input channel order is: Mic 1, Mic 0, Ref L, Ref R
 #  NOTE: 3x10 output channel order is: Ref L, Ref R, Mic 1, Mic 0, ASR, Comms
-#        Avona's output channel order is: ASR, Comms, Ref L, Ref R, Mic 0, Mic 1
+#        XCORE-VOICE's STLP output channel order is: ASR, Comms, Ref L, Ref R, Mic 0, Mic 1
 if [[ "$CHANNELS" == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
     #   need to insert 2 silent reference channels and repeat microphone channel
