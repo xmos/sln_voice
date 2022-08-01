@@ -41,11 +41,7 @@ AMAZON_THRESH="500"
 
 # audio filenames, min instances, max instances
 QUICK_INPUT_FILES=(
-    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Clean__Take1                          95      100" 
-    #"InHouse_XVF3510v080_v1.2_20190423_Loc1_Clean_XMOS_DUT1_80dB_Take1           24      24"
-    #"InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise1_65dB_XMOS_DUT1_80dB_Take1     22      24"
-    #"InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_70dB__Take1                   21      25"
-    #"InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1                   24      25"
+    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Clean__Take1                          20      21" 
 )
 
 # Create output folder

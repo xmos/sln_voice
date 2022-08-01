@@ -38,8 +38,10 @@ fi
 
 # determine input remix pattern
 #  the test vector input channel order is: Mic 1, Mic 0, Ref L, Ref R
-#  NOTE: 3x10 output channel order is: Ref L, Ref R, Mic 1, Mic 0, ASR, Comms
-#        XCORE-VOICE's FFD output channel order is: ASR, Comms, Mic 0, Mic 1
+#
+#  XCORE-VOICE's FFD input channel order is: Mic 0, Mic 1
+#  XCORE-VOICE's FFD output channel order is: ASR, Comms, Mic 0, Mic 1
+#  XVF3510 output channel order is: Ref L, Ref R, Mic 1, Mic 0, ASR, Comms
 if [[ "$CHANNELS" == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
     #   need to repeat microphone channel

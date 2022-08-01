@@ -110,6 +110,7 @@ void startup_task(void *arg)
 #endif
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if appconfINFERENCE_ENABLED
     // Wait until the Wanson engine is initialized before we start the
     // audio pipeline.
     {
@@ -117,6 +118,7 @@ void startup_task(void *arg)
         rtos_intertile_rx_len(intertile_ctx, appconfWANSON_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
+#endif
     audio_pipeline_init(NULL, NULL);
 #endif
 
