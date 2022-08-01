@@ -3,9 +3,9 @@ set -e
 
 help()
 {
-   echo "XCORE-VOICE reference design wav file processor"
+   echo "XCORE-VOICE FFD wav file processor"
    echo
-   echo "Syntax: process_wav.sh [-c|h] to_device.wav from_device.wav"
+   echo "Syntax: ffd_process_wav.sh [-c|h] to_device.wav from_device.wav"
    echo "options:"
    echo "h     Print this Help."
    echo "c     Number of channels in input wav"
@@ -38,20 +38,18 @@ fi
 
 # determine input remix pattern
 #  the test vector input channel order is: Mic 1, Mic 0, Ref L, Ref R
-#  NOTE: 3x10 output channel order is: Ref L, Ref R, Mic 1, Mic 0, ASR, Comms
-#        Avona's output channel order is: ASR, Comms, Ref L, Ref R, Mic 0, Mic 1
+#
+#  XCORE-VOICE's FFD input channel order is: Mic 0, Mic 1
+#  XCORE-VOICE's FFD output channel order is: ASR, Comms, Mic 0, Mic 1
+#  XVF3510 output channel order is: Ref L, Ref R, Mic 1, Mic 0, ASR, Comms
 if [[ "$CHANNELS" == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
-    #   need to insert 2 silent reference channels and repeat microphone channel
-    REMIX_PATTERN="remix 0 0 1 1"
-elif [[ "$CHANNELS" == 2 ]]; then # reference-less test vector
-    # file only has microphone channels
-    #   need to insert 2 silent reference channels
-    REMIX_PATTERN="remix 0 0 2 1"
-elif [[ "$CHANNELS" == 4 ]]; then # standard test vector
-    REMIX_PATTERN="remix 3 4 2 1"
+    #   need to repeat microphone channel
+    REMIX_PATTERN="remix 1 1"
+elif [[ "$CHANNELS" == 4 ]]; then # standard test vector, just include mic channels
+    REMIX_PATTERN="remix 2 1"
 elif [[ "$CHANNELS" == 6 ]]; then  # assuming test vector from Avona
-    REMIX_PATTERN="remix 3 4 5 6"
+    REMIX_PATTERN="remix 5 6"
 else
     REMIX_PATTERN=""
 fi

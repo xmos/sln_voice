@@ -6,9 +6,9 @@ set -e
 # help text
 help()
 {
-   echo "XCORE-VOICE pipeline test"
+   echo "XCORE-VOICE FFD pipeline test"
    echo
-   echo "Syntax: check_pipeline.sh [-h] input_directory output_directory amazon_wwe_directory"
+   echo "Syntax: ffd_check_pipeline.sh [-h] input_directory output_directory amazon_wwe_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -41,10 +41,7 @@ AMAZON_THRESH="500"
 
 # audio filenames, min instances, max instances
 QUICK_INPUT_FILES=(
-    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Clean_XMOS_DUT1_80dB_Take1           24      24"
-    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise1_65dB_XMOS_DUT1_80dB_Take1     22      24"
-    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_70dB__Take1                   21      25"
-    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1                   24      25"
+    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Clean__Take1                          20      21" 
 )
 
 # Create output folder
@@ -76,7 +73,7 @@ for ((j = 0; j < ${#QUICK_INPUT_FILES[@]}; j += 1)); do
     MONO_OUTPUT_WAV="${OUTPUT_DIR}/mono_${FILE_NAME}.wav"
 
     # process the wav
-    (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${INPUT_WAV} ${OUTPUT_WAV})
+    (bash ${SLN_VOICE_ROOT}/tools/audio/stlp_process_wav.sh -c4 ${INPUT_WAV} ${OUTPUT_WAV})
 
     # single out ASR channel
     (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
