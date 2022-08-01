@@ -41,8 +41,10 @@ AMAZON_THRESH="500"
 
 # audio filenames, min instances, max instances
 QUICK_INPUT_FILES=(
-    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Clean__Take1                          20      21" 
-)
+    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Clean__Take1                         20      21"
+    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_70dB__Take1                   21      25"
+    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1                   24      25"
+    )
 
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
