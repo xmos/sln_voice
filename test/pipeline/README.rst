@@ -54,9 +54,9 @@ To build the test application firmware, run the following command from the top o
 
 The `build_test.sh` script will copy the test applications to the `dist` folder.  
 
-***************************
-Running STLP Pipeline Tests
-***************************
+**********************
+Running Pipeline Tests
+**********************
 
 First, run application firmware with the following command from the top of the repository:
 
@@ -68,20 +68,10 @@ Then, in a separate terminal, run the test with the following command from the t
 
 .. code-block:: console
 
-    bash test/pipeline/stlp_check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-amazon-wwe>
+    bash test/pipeline/check_pipeline.sh <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe>
 
-**************************
-Running FFD Pipeline Tests
-**************************
+The <path-to-input-list> file is a text file listing wav files that must exist in <path-to-input-dir>.  The format of the file is:
 
-First, run application firmware with the following command from the top of the repository:
+    filename    AEC    min_instances    max_instances 
 
-.. code-block:: console
-
-    xrun --xscope dist/<configuration>.xe
-
-Then, in a separate terminal, run the test with the following command from the top of the repository:
-
-.. code-block:: console
-
-    bash test/pipeline/ffd_check_pipeline.sh <path-to-input-dir> <path-to-output-dir> <path-to-amazon-wwe>
+The filename must not include the ".wav" extension, values for AEC must be "Y" or "N".  

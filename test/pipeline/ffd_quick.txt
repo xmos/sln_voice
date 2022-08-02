@@ -1,0 +1,4 @@
+# filename, AEC, min instances, max instances
+InHouse_XVF3510v080_v1.2_20190423_Loc2_Clean__Take1                  N       20      21
+InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_70dB__Take1            N       23      25
+InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1            N       24      25

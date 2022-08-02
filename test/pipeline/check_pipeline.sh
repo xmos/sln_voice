@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE STLP pipeline test"
    echo
-   echo "Syntax: stlp_check_pipeline.sh [-h] input_directory output_directory amazon_wwe_directory"
+   echo "Syntax: stlp_check_pipeline.sh [-h] input_directory input_list output_directory amazon_wwe_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -27,8 +27,23 @@ uname=`uname`
 
 # assign command line args
 INPUT_DIR=${@:$OPTIND:1}
-OUTPUT_DIR=${@:$OPTIND+1:1}
-AMAZON_DIR=${@:$OPTIND+2:1}
+INPUT_LIST=${@:$OPTIND+1:1}
+OUTPUT_DIR=${@:$OPTIND+2:1}
+AMAZON_DIR=${@:$OPTIND+3:1}
+
+# read input list
+INPUT_ARRAY=()
+while IFS= read -r line || [[ "$line" ]]; do
+    if [[ ${line:0:1} != "#" ]]; then
+        INPUT_ARRAY+=("$line")
+    fi
+done < ${INPUT_LIST}
+
+for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
+    read -ra FIELDS <<< ${INPUT_ARRAY[j]}
+    echo ${FIELDS[0]}
+done 
+exit
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
@@ -38,14 +53,6 @@ AMAZON_EXE="x86/amazon_ww_filesim"
 AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"
 AMAZON_WAV="amazon_ww_input.wav"
 AMAZON_THRESH="500"
-
-# audio filenames, min instances, max instances
-QUICK_INPUT_FILES=(
-    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Clean_XMOS_DUT1_80dB_Take1           24      24"
-    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise1_65dB_XMOS_DUT1_80dB_Take1     22      24"
-    "InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_70dB__Take1                   21      25"
-    "InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1                   24      25"
-)
 
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
@@ -62,33 +69,38 @@ echo "***********************************"
 echo "Log file: ${RESULTS}"
 echo "***********************************"
 
-for ((j = 0; j < ${#QUICK_INPUT_FILES[@]}; j += 1)); do
-    read -ra FIELDS <<< ${QUICK_INPUT_FILES[j]}
+for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
+    read -ra FIELDS <<< ${INPUT_ARRAY[j]}
     FILE_NAME=${FIELDS[0]}
-    MIN=${FIELDS[1]}
-    MAX=${FIELDS[2]}
+    AEC=${FIELDS[1]}
+    MIN=${FIELDS[2]}
+    MAX=${FIELDS[3]}
+
+    # determing AEC flag
+    if [ "${AEC}" == "Y" ] ; then
+        AEC_FLAG="-a"
+    else
+        AEC_FLAG=""
+    fi
 
     OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}.log"
-    
-    # process .wavs with Sox
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
     MONO_OUTPUT_WAV="${OUTPUT_DIR}/mono_${FILE_NAME}.wav"
-
-    # process the wav
-    (bash ${SLN_VOICE_ROOT}/tools/audio/stlp_process_wav.sh -c4 ${INPUT_WAV} ${OUTPUT_WAV})
-
+    
+    # process the input wav
+    (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
     # single out ASR channel
     (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
 
+    # check wakeword detections
     (cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV})
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
         # use dockerized amazon_ww_filesim to generate logs of keyword detection
-        (docker run --rm -v ${AMAZON_DIR}:/ww -v ${OUTPUT_DIR}:/input debian:buster-slim ww/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ww/${AMAZON_MODEL} input/list.txt 2>&1 | tee ${OUTPUT_LOG})
+        (docker run --rm -v ${AMAZON_DIR}:/ww -v ${OUTPUT_DIR}:/input -w /input debian:buster-slim /ww/${AMAZON_EXE} -t ${AMAZON_THRESH} -m /ww/${AMAZON_MODEL} list.txt 2>&1 | tee ${OUTPUT_LOG})
     fi    
-    (rm ${OUTPUT_DIR}/${AMAZON_WAV})
 
     # count keyword occurrences in the log
     DETECTIONS=$(grep -o -I "'ALEXA' detected" ${OUTPUT_LOG} | wc -l)
@@ -99,6 +111,8 @@ for ((j = 0; j < ${#QUICK_INPUT_FILES[@]}; j += 1)); do
 done 
 
 # clean up
-rm "${OUTPUT_DIR}/list.txt"
+(rm "${OUTPUT_DIR}/list.txt")
+(rm "${OUTPUT_DIR}/${AMAZON_WAV}")
 
+# print results
 (cat ${RESULTS})
