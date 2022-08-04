@@ -40,7 +40,7 @@ void vDisplayClearCallback(TimerHandle_t pxTimer)
     inference_state = STATE_EXPECTING_WAKEWORD;
 }
 
-#pragma stackfunction 1200
+#pragma stackfunction 1500
 void wanson_engine_task(void *args)
 {
     inference_state = STATE_EXPECTING_WAKEWORD;
@@ -104,9 +104,8 @@ void wanson_engine_task(void *args)
             buf_ptr += bytes_rxed;
         } while(buf_len > 0);
 
-        /* Set second half of frame, as first contains last sample, also downshift for model format */
         for (int i=0; i<appconfINFERENCE_FRAMES_PER_INFERENCE; i++) {
-            buf_short[i + appconfINFERENCE_FRAMES_PER_INFERENCE] = buf[i] >> 16;
+            buf_short[i] = buf[i] >> 16;
         }
 
         /* Perform inference here */
@@ -140,9 +139,5 @@ void wanson_engine_task(void *args)
 #endif
         }
 
-        /* Push back history */
-        for (int i=0; i<appconfINFERENCE_FRAMES_PER_INFERENCE; i++) {
-            buf_short[i] = buf_short[i + appconfINFERENCE_FRAMES_PER_INFERENCE];
-        }
     }
 }
