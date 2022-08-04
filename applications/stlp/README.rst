@@ -110,9 +110,9 @@ From the build folder run one of:
         nmake debug_application_stlp_ua_adec_altarch
 
 
-********************
+***********************************
 Running the Firmware With WAV Files
-********************
+***********************************
 
 This application supports USB audio input and output debug configuration.
 
