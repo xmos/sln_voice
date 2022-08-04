@@ -55,7 +55,7 @@ void wanson_engine_task(void *args)
     size_t model_file_size;
     model_file_size = model_file_init();
     if (model_file_size == 0) {
-        rtos_printf("Failed to load model file\n");
+        rtos_printf("ERROR: Failed to load model file\n");
         vTaskDelete(NULL);
     }
 
