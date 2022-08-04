@@ -283,8 +283,6 @@ Additionally, information on how to replace major modules, such as the intent ha
 Design Architecture
 ===================
 
-This application span both tiles, consuming x memory on tile 0, and x memory on tile 1.
-
 The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then sent to the Wanson keyword engine.  The intent result is then handled, with discrete messaging to various IO interfaces and audio playback.
 
 .. figure:: diagrams/ffd_diagram.drawio.png
