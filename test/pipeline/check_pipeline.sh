@@ -39,12 +39,6 @@ while IFS= read -r line || [[ "$line" ]]; do
     fi
 done < ${INPUT_LIST}
 
-for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
-    read -ra FIELDS <<< ${INPUT_ARRAY[j]}
-    echo ${FIELDS[0]}
-done 
-exit
-
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh

@@ -28,7 +28,6 @@
 
 #include "usb_descriptors.h"
 #include "tusb.h"
-#include "device_control_usb.h"
 
 #define XMOS_VID        0x20B1
 #define XCORE_VOICE_PID 0x0020
@@ -116,7 +115,7 @@ const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
         uac2_total_descriptors_length
 };
 
-#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * uac2_total_descriptors_length + TUD_XMOS_DEVICE_CONTROL_DESC_LEN)
+#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * uac2_total_descriptors_length)
 #define EPNUM_AUDIO   0x01
 
 
@@ -197,8 +196,7 @@ uint8_t const desc_configuration[] = {
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
 
-    // Interface number, string index
-    TUD_XMOS_DEVICE_CONTROL_DESCRIPTOR(ITF_NUM_XMOS_DEV_CTRL, 5)};
+    }; // desc_configuration
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor
@@ -218,8 +216,7 @@ char const *string_desc_arr[] = {(const char[]) {0x09, 0x04}, // 0: is supported
         "XMOS",                     // 1: Manufacturer
         XCORE_VOICE_PRODUCT_STR,          // 2: Product
         "123456",                   // 3: Serials, should use chip ID
-        XCORE_VOICE_PRODUCT_STR,          // 4: Audio Interface
-        "Device Control Interface"  // 5: Vendor Interface
+        XCORE_VOICE_PRODUCT_STR          // 4: Audio Interface
         };
 
 static uint16_t _desc_str[32];

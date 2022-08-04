@@ -41,7 +41,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    rtos::usb_device_control
+    rtos::freertos_usb
     sdk::lib_src
 )
 

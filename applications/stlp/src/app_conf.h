@@ -51,21 +51,6 @@
 //#define appconfUSB_AUDIO_SAMPLE_RATE 48000
 #endif
 
-#ifndef appconfI2C_CTRL_ENABLED
-// #if XCOREAI_EXPLORER
-// /*
-//  * When this is enabled on the XK_VOICE_L71 board, the board
-//  * cannot function as an I2C master and will not configure the
-//  * DAC. In this case the DAC should be configured externally.
-//  * MCLK will also default to be external if this is set on
-//  * the XK_VOICE_L71 board.
-//  */
-// #define appconfI2C_CTRL_ENABLED    1
-// #else
-#define appconfI2C_CTRL_ENABLED    0
-// #endif
-#endif
-
 #ifndef appconfSPI_OUTPUT_ENABLED
 #define appconfSPI_OUTPUT_ENABLED  0
 #endif
@@ -120,10 +105,6 @@
 
 #include "app_conf_check.h"
 
-/* Application control Config */
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#define appconf_CONTROL_SERVICER_COUNT  4
-
 /* WW Config */
 #define appconfWW_FRAMES_PER_INFERENCE          (160)
 
@@ -149,8 +130,6 @@
 #define appconfGPIO_RPC_HOST_PRIORITY             (configMAX_PRIORITIES/2 + 2)
 #define appconfGPIO_TASK_PRIORITY                 (configMAX_PRIORITIES/2 + 2)
 #define appconfI2C_TASK_PRIORITY                  (configMAX_PRIORITIES/2 + 2)
-#define appconfDEVICE_CONTROL_USB_CLIENT_PRIORITY (configMAX_PRIORITIES/2 + 2)
-#define appconfDEVICE_CONTROL_I2C_CLIENT_PRIORITY (configMAX_PRIORITIES/2 + 2)
 #define appconfUSB_MGR_TASK_PRIORITY              (configMAX_PRIORITIES/2 + 1)
 #define appconfUSB_AUDIO_TASK_PRIORITY            (configMAX_PRIORITIES/2 + 1)
 #define appconfSPI_TASK_PRIORITY                  (configMAX_PRIORITIES/2 + 1)

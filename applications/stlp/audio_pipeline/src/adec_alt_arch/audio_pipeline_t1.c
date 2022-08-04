@@ -19,7 +19,6 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "app_control/app_control.h"
 #include "audio_pipeline.h"
 #include "audio_pipeline_dsp.h"
 #include "stage_1.h"
@@ -116,8 +115,6 @@ void audio_pipeline_init(
     };
 
     initialize_pipeline_stages();
-
-    app_control_aec_servicer_register();
 
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,
