@@ -1,4 +1,5 @@
 .. include:: substitutions.rst
+.. include:: <isonum.txt>
 
 .. _sln_voice_STLP:
 
@@ -6,38 +7,39 @@
 Far-field Voice Assistant
 #########################
 
-.. include:: <isonum.txt>
-
 .. toctree::
    :maxdepth: 1
    :hidden:
 
-   stlp/host_integration
-   stlp/modifying_software
    stlp/audio_pipeline
-   stlp/software_description
 
+========
 Overview
 ========
-This is the XMOS far-field voice assistant reference design.
+
+This is the XCORE-VOICE far-field voice assistant reference design.
 
 This application can be used out of the box as a voice processor solution, or expanded to run local wakeword engines.
 
-This application features a full duplex acoustic echo cancellation stage, which can be provided reference audio via I2S or USB audio.  An audio output ASR stream is also available via I2S or USB audio.
+This application features a full duplex acoustic echo cancellation stage, which can be provided reference audio via |I2S| or USB audio.  An audio output ASR stream is also available via |I2S| or USB audio.
 
+======
 Try it
-===============
+======
 
+------------------
 Supported Hardware
 ------------------
 
 This reference application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
 
+-----------------------
 Setting up the Hardware
 -----------------------
 
 This reference design requires an XTAG4 and XK-VOICE-L71 board.
 
+^^^^
 xTAG
 ^^^^
 The xTAG is used to program and debug the device
@@ -54,11 +56,11 @@ Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
     :width: 800
     :alt: programming host setup
 
-
+---------------------
 Building the Firmware
 ---------------------
 
-Run the following commands in the root folder to build the I2S firmware:
+Run the following commands in the root folder to build the |I2S| firmware:
 
 .. tab:: Linux and Mac
 
@@ -95,7 +97,7 @@ Run the following commands in the root folder to build the USB firmware:
         cd build
         nmake application_stlp_ua_adec
 
-
+--------------------
 Running the Firmware
 --------------------
 
@@ -137,7 +139,7 @@ From the build folder run:
         nmake run_application_stlp_int_adec
         nmake run_application_stlp_ua_adec
 
-
+----------------------
 Debugging the Firmware
 ----------------------
 
@@ -157,22 +159,23 @@ To debug with xgdb, from the build folder run:
         nmake debug_application_int_adec
         nmake debug_application_ua_adec
 
-
+================
 Host Integration
-===================
+================
 
 This reference application can be integrated with existing solutions or modified to be a single controller solution.
 
+--------------------------
 Out of the Box Integration
 --------------------------
 
 Out of the box integration varies cased on configuration.
 
-INT requires I2S connections to the host.  Refer to the schematic, connecting the host reference audio playback to the ADC I2S and the host input audio to the DAC I2S.
+INT requires |I2S| connections to the host.  Refer to the schematic, connecting the host reference audio playback to the ADC I2S and the host input audio to the DAC |I2S|.
 
 UA requires a USB connection to the host.
 
-
+--------------------------
 Single Controller Solution
 --------------------------
 
@@ -214,19 +217,18 @@ Populate:
         }
     }
 
-
-
+===================
 Design Architecture
 ===================
 
-The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over I2S or USB.
+The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over |I2S| or USB.
 
 .. figure:: diagrams/stlp_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd diagram
 
-
+==============
 Audio Pipeline
 ==============
 

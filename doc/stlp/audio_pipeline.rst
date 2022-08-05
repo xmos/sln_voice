@@ -1,13 +1,12 @@
 .. _sln_voice_stlp_ap:
 
+.. include:: <isonum.txt>
+
 ##############
 Audio Pipeline
 ##############
 
-.. include:: <isonum.txt>
-
-
-
+========
 Overview
 ========
 
@@ -41,4 +40,4 @@ The audio pipeline consists of 4 stages.
      - 1
      - 1
 
-TODO: link to XCORE-VOICE documentation
+TODO: link to XCORE SDK voice framework documentation
