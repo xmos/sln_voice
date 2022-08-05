@@ -199,7 +199,7 @@ If options are changed, the application firmware must be rebuilt.
 Running the Firmware
 --------------------
 
-Before the firmware is run, the swmem and filesystem must be loaded.
+Before the firmware is run, the filesystem must be loaded.
 
 Inside of the build folder root, after building the firmware:
 
@@ -217,7 +217,7 @@ Inside of the build folder root, after building the firmware:
 
 Once flashed, the application will run.
 
-After the filesystem and swmem have been flashed once, the application can be run without flashing.  If changes are made to the swmem or filesystem image, the application must be reflashed.
+After the filesystem has been flashed once, the application can be run without flashing.  If changes are made to the filesystem image, the application must be reflashed.
 
 From the build folder run:
 
