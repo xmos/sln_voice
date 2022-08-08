@@ -135,10 +135,6 @@
 #define appconfMIC_SRC_DEFAULT     appconfMIC_SRC_MICS
 #endif
 
-#ifndef appconfDEBUG_RESOURCES
-#define appconfDEBUG_RESOURCES 0
-#endif
-
 /* I/O and interrupt cores for Tile 0 */
 /* Note, USB and SPI are mutually exclusive */
 #define appconfXUD_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */

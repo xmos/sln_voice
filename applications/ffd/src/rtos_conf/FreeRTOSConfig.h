@@ -61,13 +61,8 @@ your application. */
 #define configUSE_CORE_INIT_HOOK                0
 
 /* Run time and task stats gathering related definitions. */
-#if appconfDEBUG_RESOURCES
-#define configGENERATE_RUN_TIME_STATS           1
-#define configUSE_TRACE_FACILITY                1
-#else
 #define configGENERATE_RUN_TIME_STATS           0
 #define configUSE_TRACE_FACILITY                0
-#endif
 #define configUSE_STATS_FORMATTING_FUNCTIONS    2 /* Setting to 2 does not include <stdio.h> in tasks.c */
 
 /* Co-routine related definitions. */
