@@ -28,8 +28,8 @@
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
 /* Intent Engine Configuration */
-#define appconfINFERENCE_FRAME_BUFFER_MULT      8       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
-#define appconfINFERENCE_FRAMES_PER_INFERENCE   480
+#define appconfINFERENCE_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
+#define appconfINFERENCE_SAMPLE_BLOCK_LENGTH    240
 
 /* Enable inference engine */
 #ifndef appconfINFERENCE_ENABLED
@@ -133,10 +133,6 @@
 #define appconfMIC_SRC_USB         1
 #ifndef appconfMIC_SRC_DEFAULT
 #define appconfMIC_SRC_DEFAULT     appconfMIC_SRC_MICS
-#endif
-
-#ifndef appconfDEBUG_RESOURCES
-#define appconfDEBUG_RESOURCES 0
 #endif
 
 /* I/O and interrupt cores for Tile 0 */
