@@ -28,8 +28,8 @@
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
 /* Intent Engine Configuration */
-#define appconfINFERENCE_FRAME_BUFFER_MULT      8       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
-#define appconfINFERENCE_FRAMES_PER_INFERENCE   480
+#define appconfINFERENCE_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
+#define appconfINFERENCE_SAMPLE_BLOCK_LENGTH    240
 
 /* Enable inference engine */
 #ifndef appconfINFERENCE_ENABLED
