@@ -11,6 +11,7 @@ Far-field Voice Assistant
    :maxdepth: 1
    :hidden:
 
+   extending
    stlp/audio_pipeline
 
 ========
