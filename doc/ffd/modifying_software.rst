@@ -20,6 +20,8 @@ The FFD reference design consists of three major software blocks, the audio pipe
 It is highly recommended to be familiar with the application as a whole before attempting replacing these functional units.  This information can be found here:
 :ref:`sln_voice_ffd_software_description`
 
+See :ref:`sln_voice_memory_cpu` for more details on the memory footprint and CPU usage of the major software components.
+
 Replacing XCORE-VOICE DSP Block
 -------------------------------
 

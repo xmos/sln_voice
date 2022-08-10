@@ -1,6 +1,6 @@
-.. _sln_voice_stlp_ap:
-
 .. include:: <isonum.txt>
+
+.. _sln_voice_stlp_ap:
 
 ##############
 Audio Pipeline
