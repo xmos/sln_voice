@@ -13,6 +13,7 @@ Far-field Voice Assistant
 
    extending
    stlp/audio_pipeline
+   stlp/getting_started
 
 ========
 Overview
