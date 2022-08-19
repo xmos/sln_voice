@@ -48,6 +48,6 @@ jobs:
       - name: Save documentation artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sln_avona_docs
+          name: sln_voice_docs
           path: doc/_build
           if-no-files-found: error # 'warn' or 'ignore' are also available, defaults to `warn` 

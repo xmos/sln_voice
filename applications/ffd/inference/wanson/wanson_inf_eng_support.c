@@ -78,8 +78,8 @@ void wanson_engine_samples_send_local(
 void wanson_engine_task_create(unsigned priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(
-                                           2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                                           appconfINFERENCE_FRAMES_PER_INFERENCE);
+                                           appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                                           appconfINFERENCE_SAMPLE_BLOCK_LENGTH);
 
     xTaskCreate((TaskFunction_t)wanson_engine_task,
                 "wanson_eng",
@@ -89,12 +89,11 @@ void wanson_engine_task_create(unsigned priority)
                 NULL);
 }
 
-#include "wanson_api.h"
 void wanson_engine_intertile_task_create(uint32_t priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(
                                            appconfINFERENCE_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                                           appconfINFERENCE_FRAMES_PER_INFERENCE);
+                                           appconfINFERENCE_SAMPLE_BLOCK_LENGTH);
 
     xTaskCreate((TaskFunction_t)wanson_engine_intertile_samples_in_task,
                 "inf_intertile_rx",

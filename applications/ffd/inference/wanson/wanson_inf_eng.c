@@ -24,6 +24,8 @@
 #define IS_WAKEWORD(id)   (id < 200)
 #define IS_COMMAND(id)    (id >= 200)
 
+#define WANSON_SAMPLES_PER_INFERENCE    (2 * appconfINFERENCE_SAMPLE_BLOCK_LENGTH) 
+
 typedef enum inference_state {
     STATE_EXPECTING_WAKEWORD,
     STATE_EXPECTING_COMMAND,
@@ -34,23 +36,32 @@ static inference_state_t inference_state;
 
 void vDisplayClearCallback(TimerHandle_t pxTimer)
 {
-#if appconfSSD1306_DISPLAY_ENABLED
-    ssd1306_display_ascii_to_bitmap("\0");
-#endif
+    if ((inference_state == STATE_EXPECTING_COMMAND) || (inference_state == STATE_PROCESSING_COMMAND)) {
+        wanson_engine_proc_keyword_result(NULL, 50);    /* 50 is a special id that will play the no longer listening for command sound */
+    }
     inference_state = STATE_EXPECTING_WAKEWORD;
 }
 
-#pragma stackfunction 1200
+#pragma stackfunction 1500
 void wanson_engine_task(void *args)
 {
+    assert(WANSON_SAMPLES_PER_INFERENCE == 480); // Wanson ASR engine expects 480 samples per inference
+
     inference_state = STATE_EXPECTING_WAKEWORD;
 
 #if ON_TILE(0)
     // NOTE: The Wanson model uses the .SwMem_data attribute but no SwMem event handling code is required.
-    //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol. 
+    //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol.
     //       To work around this, we simply need to init the swmem.
     rtos_swmem_init(0);
 #endif
+
+    size_t model_file_size;
+    model_file_size = model_file_init();
+    if (model_file_size == 0) {
+        rtos_printf("ERROR: Failed to load model file\n");
+        vTaskDelete(NULL);
+    }
 
     rtos_printf("Wanson init\n");
     Wanson_ASR_Init();
@@ -60,12 +71,12 @@ void wanson_engine_task(void *args)
     TimerHandle_t display_clear_timer = xTimerCreate(
         "disp_clr",
         pdMS_TO_TICKS(appconfINFERENCE_RESET_DELAY_MS),
-        pdFALSE, 
-        NULL, 
+        pdFALSE,
+        NULL,
         vDisplayClearCallback);
 
-    int32_t buf[appconfINFERENCE_FRAMES_PER_INFERENCE] = {0};
-    int16_t buf_short[2 * appconfINFERENCE_FRAMES_PER_INFERENCE] = {0};
+    int32_t buf[appconfINFERENCE_SAMPLE_BLOCK_LENGTH] = {0};
+    int16_t buf_short[WANSON_SAMPLES_PER_INFERENCE] = {0};
 
     /* Perform any initialization here */
 #if 1   // domain doesn't do anything right now, 0 is both wakeup and asr
@@ -83,11 +94,14 @@ void wanson_engine_task(void *args)
 
     char *text_ptr = NULL;
     int id = 0;
+    size_t buf_short_index = 0;
+
     while (1)
     {
         /* Receive audio frames */
         uint8_t *buf_ptr = (uint8_t*)buf;
-        size_t buf_len = appconfINFERENCE_FRAMES_PER_INFERENCE * sizeof(int32_t);
+        size_t buf_len = appconfINFERENCE_SAMPLE_BLOCK_LENGTH * sizeof(int32_t);
+
         do {
             size_t bytes_rxed = xStreamBufferReceive(input_queue,
                                                      buf_ptr,
@@ -97,41 +111,46 @@ void wanson_engine_task(void *args)
             buf_ptr += bytes_rxed;
         } while(buf_len > 0);
 
-        /* Set second half of frame, as first contains last sample, also downshift for model format */
-        for (int i=0; i<appconfINFERENCE_FRAMES_PER_INFERENCE; i++) {
-            buf_short[i + appconfINFERENCE_FRAMES_PER_INFERENCE] = buf[i] >> 16;
+        for (int i=0; i<appconfINFERENCE_SAMPLE_BLOCK_LENGTH; i++) {
+            buf_short[buf_short_index++] = buf[i] >> 16;
         }
 
-        /* Perform inference here */
-        ret = Wanson_ASR_Recog(buf_short, appconfINFERENCE_FRAMES_PER_INFERENCE, (const char **)&text_ptr, &id);
+        if (buf_short_index >= WANSON_SAMPLES_PER_INFERENCE)
+        {
+            /* Perform inference here */
+            ret = Wanson_ASR_Recog(buf_short, WANSON_SAMPLES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
-        if (ret) {
-            if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {
-                xTimerReset(display_clear_timer, 0);
+            if (ret) {
+    #if appconfINFERENCE_RAW_OUTPUT
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
-                inference_state = STATE_EXPECTING_COMMAND;
-            } else if (inference_state == STATE_EXPECTING_COMMAND && IS_COMMAND(id)) {
-                xTimerReset(display_clear_timer, 0);
-                wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
-                inference_state = STATE_PROCESSING_COMMAND;
-            } else if (inference_state == STATE_EXPECTING_COMMAND && IS_WAKEWORD(id)) {
-                xTimerReset(display_clear_timer, 0);
-                wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
-                // remain in STATE_EXPECTING_COMMAND state
-            } else if (inference_state == STATE_PROCESSING_COMMAND && IS_WAKEWORD(id)) {
-                xTimerReset(display_clear_timer, 0);
-                wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
-                inference_state = STATE_EXPECTING_COMMAND;
-            } else if (inference_state == STATE_PROCESSING_COMMAND && IS_COMMAND(id)) {
-                xTimerReset(display_clear_timer, 0);
-                wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
-                // remain in STATE_PROCESSING_COMMAND state
+    #else
+                if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {
+                    xTimerReset(display_clear_timer, 0);
+                    wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                    inference_state = STATE_EXPECTING_COMMAND;
+                } else if (inference_state == STATE_EXPECTING_COMMAND && IS_COMMAND(id)) {
+                    xTimerReset(display_clear_timer, 0);
+                    wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                    inference_state = STATE_PROCESSING_COMMAND;
+                } else if (inference_state == STATE_EXPECTING_COMMAND && IS_WAKEWORD(id)) {
+                    xTimerReset(display_clear_timer, 0);
+                    wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                    // remain in STATE_EXPECTING_COMMAND state
+                } else if (inference_state == STATE_PROCESSING_COMMAND && IS_WAKEWORD(id)) {
+                    xTimerReset(display_clear_timer, 0);
+                    wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                    inference_state = STATE_EXPECTING_COMMAND;
+                } else if (inference_state == STATE_PROCESSING_COMMAND && IS_COMMAND(id)) {
+                    xTimerReset(display_clear_timer, 0);
+                    wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+                    // remain in STATE_PROCESSING_COMMAND state
+                }
+    #endif
             }
-        }
-
-        /* Push back history */
-        for (int i=0; i<appconfINFERENCE_FRAMES_PER_INFERENCE; i++) {
-            buf_short[i] = buf_short[i + appconfINFERENCE_FRAMES_PER_INFERENCE];
+    
+            buf_short_index = 0; // reset the offest into the buffer of int16s.  
+                                 // Note, we do not need to overlap the window of samples.
+                                 // This is handled in the Wanson ASR engine.
         }
     }
 }

@@ -96,8 +96,8 @@ static void i2c_init(void)
 #if ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
-                        PORT_I2C_SLAVE_SCL,
-                        PORT_I2C_SLAVE_SDA,
+                        PORT_I2C_SCL,
+                        PORT_I2C_SDA,
                         appconf_CONTROL_I2C_DEVICE_ADDR);
 #endif
 #else

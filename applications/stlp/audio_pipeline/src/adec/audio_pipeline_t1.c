@@ -19,7 +19,6 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "app_control/app_control.h"
 #include "audio_pipeline.h"
 #include "audio_pipeline_dsp.h"
 #include "stage_1.h"
@@ -68,7 +67,7 @@ static void stage_aec(frame_data_t *frame_data)
 {
 #if appconfAUDIO_PIPELINE_SKIP_AEC
 #else
-    int32_t stage_1_out[AEC_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    int32_t DWORD_ALIGNED stage_1_out[AEC_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
     stage_1_process_frame(&stage_1_state,
                           &stage_1_out[0],
@@ -116,8 +115,6 @@ void audio_pipeline_init(
     };
 
     initialize_pipeline_stages();
-
-    app_control_aec_servicer_register();
 
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,

@@ -1,7 +1,7 @@
 
 ## Create custom board targets for application
-add_library(sln_avona_app_ffd_board_support_xcore_ai_explorer INTERFACE)
-target_sources(sln_avona_app_ffd_board_support_xcore_ai_explorer
+add_library(sln_voice_app_ffd_board_support_xcore_ai_explorer INTERFACE)
+target_sources(sln_voice_app_ffd_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -9,11 +9,11 @@ target_sources(sln_avona_app_ffd_board_support_xcore_ai_explorer
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
 )
-target_include_directories(sln_avona_app_ffd_board_support_xcore_ai_explorer
+target_include_directories(sln_voice_app_ffd_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(sln_avona_app_ffd_board_support_xcore_ai_explorer
+target_link_libraries(sln_voice_app_ffd_board_support_xcore_ai_explorer
     INTERFACE
         core::general
         rtos::freertos
@@ -21,17 +21,17 @@ target_link_libraries(sln_avona_app_ffd_board_support_xcore_ai_explorer
         rtos::drivers::audio
         rtos::drivers::usb
         rtos::freertos_usb
-        sln_avona::app::ffd::dac::aic3204
+        sln_voice::app::ffd::dac::aic3204
 )
-target_compile_options(sln_avona_app_ffd_board_support_xcore_ai_explorer
+target_compile_options(sln_voice_app_ffd_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn
 )
-target_link_options(sln_avona_app_ffd_board_support_xcore_ai_explorer
+target_link_options(sln_voice_app_ffd_board_support_xcore_ai_explorer
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn
 )
-target_compile_definitions(sln_avona_app_ffd_board_support_xcore_ai_explorer
+target_compile_definitions(sln_voice_app_ffd_board_support_xcore_ai_explorer
     INTERFACE
         XCOREAI_EXPLORER=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -53,4 +53,4 @@ target_compile_definitions(sln_avona_app_ffd_board_support_xcore_ai_explorer
 )
 
 ## Create an alias
-add_library(sln_avona::app::ffd::xcore_ai_explorer ALIAS sln_avona_app_ffd_board_support_xcore_ai_explorer)
+add_library(sln_voice::app::ffd::xcore_ai_explorer ALIAS sln_voice_app_ffd_board_support_xcore_ai_explorer)

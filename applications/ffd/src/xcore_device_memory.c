@@ -1,30 +1,34 @@
-// Copyright 2021 XMOS LIMITED.
+// Copyright 2021-2022 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
-#include "xcore_device_memory.h"
 
+/* System headers */
 #include <xcore/assert.h>
 
-#include"platform/driver_instances.h"
+/* App headers */
+#include "ff.h"
+#include "xcore_device_memory.h"
 
-#define SWMEM_OFFSET 0x100000
+static FIL model_file;
+
+size_t model_file_init() 
+{
+    FRESULT result;
+    
+    result = f_open(&model_file, "model.bin", FA_READ);
+    if (result == FR_OK) {
+        return f_size(&model_file);
+    }
+    return 0;
+}
 
 size_t model_data_load(void *dest, const void *src, size_t size)
 {
     xassert(IS_SWMEM(src));
+    
+    size_t bytes_read;
 
-    rtos_qspi_flash_lock(qspi_flash_ctx);
-    if(size == 1)
-    {
-        uint8_t temp_dest[2];
-        rtos_qspi_flash_read(qspi_flash_ctx, temp_dest,
-                                (unsigned)(src + SWMEM_OFFSET - XS1_SWMEM_BASE), 2);
-        *(uint8_t *)dest=temp_dest[0];
-    }
-    else{
-    rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)dest,
-                            (unsigned)(src + SWMEM_OFFSET - XS1_SWMEM_BASE), size);
-    }
-
-    rtos_qspi_flash_unlock(qspi_flash_ctx);
-    return size;
+    f_lseek(&model_file, (FSIZE_t)src - (FSIZE_t)XS1_SWMEM_BASE);
+    f_read(&model_file, dest, size, &bytes_read);
+    
+    return bytes_read;
 }

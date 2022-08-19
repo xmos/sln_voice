@@ -35,6 +35,14 @@
 #define appconfGPIO_RPC_PRIORITY (configMAX_PRIORITIES/2)
 #endif /* appconfGPIO_RPC_PRIORITY */
 
+#ifndef appconfI2S_RPC_PORT
+#define appconfI2S_RPC_PORT 13
+#endif /* appconfI2S_RPC_PORT */
+
+#ifndef appconfI2S_RPC_PRIORITY
+#define appconfI2S_RPC_PRIORITY (configMAX_PRIORITIES/2)
+#endif /* appconfI2S_RPC_PRIORITY */
+
 /*****************************************/
 /*  I/O and interrupt cores for Tile 1   */
 /*****************************************/
@@ -42,9 +50,17 @@
 #define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off I/O cores. Must be kept off core 0 with the RTOS tick ISR */
 #endif /* appconfPDM_MIC_IO_CORE */
 
+#ifndef appconfI2S_IO_CORE
+#define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
+#endif /* appconfI2S_IO_CORE */
+
 #ifndef appconfPDM_MIC_INTERRUPT_CORE
 #define appconfPDM_MIC_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 #endif /* appconfPDM_MIC_INTERRUPT_CORE */
+
+#ifndef appconfI2S_INTERRUPT_CORE
+#define appconfI2S_INTERRUPT_CORE               4 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#endif /* appconfI2S_INTERRUPT_CORE */
 
 /*****************************************/
 /*  I/O and interrupt cores for Tile 1   */

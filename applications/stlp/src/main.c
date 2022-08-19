@@ -13,14 +13,12 @@
 
 /* Library headers */
 #include "rtos_printf.h"
-#include "device_control.h"
 #include "src.h"
 
 /* App headers */
 #include "app_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
-#include "app_control/app_control.h"
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
@@ -84,8 +82,6 @@ void audio_pipeline_input(void *input_app_data,
             flushed = 1;
         }
     }
-
-    app_control_ap_handler(NULL, 0);
 
     /*
      * NOTE: ALWAYS receive the next frame from the PDM mics,
@@ -340,9 +336,6 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(1)
-    app_control_ap_servicer_register();
-#endif
     audio_pipeline_init(NULL, NULL);
 
 #if ON_TILE(FS_TILE_NO)
@@ -367,13 +360,8 @@ void vApplicationMinimalIdleHook(void)
 
 static void tile_common_init(chanend_t c)
 {
-    control_ret_t ctrl_ret;
-
     platform_init(c);
     chanend_free(c);
-
-    ctrl_ret = app_control_init();
-    xassert(ctrl_ret == CONTROL_SUCCESS);
 
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
     usb_audio_init(intertile_ctx, appconfUSB_AUDIO_TASK_PRIORITY);

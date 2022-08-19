@@ -1,7 +1,7 @@
 # This file provides overrides to the Doxyfile configuration
 
-PROJECT_NAME = Avona Reference Design
-PROJECT_BRIEF = "Avona Reference Design User Guide"
+PROJECT_NAME = XCORE-VOICE
+PROJECT_BRIEF = "XCORE-VOICE User Guide"
 
 PREDEFINED = __DOXYGEN__=1 
 PREDEFINED += DWORD_ALIGNED=

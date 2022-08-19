@@ -6,6 +6,7 @@ set(STLP_INT_COMPILE_DEFINITIONS
     appconfUSB_ENABLED=0
     appconfAEC_REF_DEFAULT=appconfAEC_REF_I2S
     appconfI2S_MODE=appconfI2S_MODE_SLAVE
+    appconfI2S_AUDIO_SAMPLE_RATE=48000
 )
 
 foreach(STLP_AP ${STLP_PIPELINES})
@@ -25,8 +26,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     target_link_libraries(${TARGET_NAME}
         PUBLIC
             ${APP_COMMON_LINK_LIBRARIES}
-            sln_avona::app::stlp::xk_voice_l71
-            sln_avona::app::stlp::ap::${STLP_AP}
+            sln_voice::app::stlp::xk_voice_l71
+            sln_voice::app::stlp::ap::${STLP_AP}
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)
@@ -44,8 +45,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     target_link_libraries(${TARGET_NAME}
         PUBLIC
             ${APP_COMMON_LINK_LIBRARIES}
-            sln_avona::app::stlp::xk_voice_l71
-            sln_avona::app::stlp::ap::${STLP_AP}
+            sln_voice::app::stlp::xk_voice_l71
+            sln_voice::app::stlp::ap::${STLP_AP}
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)

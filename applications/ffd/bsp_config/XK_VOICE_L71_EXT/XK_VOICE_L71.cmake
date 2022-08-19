@@ -1,7 +1,7 @@
 
 ## Create custom board targets for application
-add_library(sln_avona_app_ffd_board_support_xk_voice_l71_ext INTERFACE)
-target_sources(sln_avona_app_ffd_board_support_xk_voice_l71_ext
+add_library(sln_voice_app_ffd_board_support_xk_voice_l71_ext INTERFACE)
+target_sources(sln_voice_app_ffd_board_support_xk_voice_l71_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -9,11 +9,11 @@ target_sources(sln_avona_app_ffd_board_support_xk_voice_l71_ext
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
 )
-target_include_directories(sln_avona_app_ffd_board_support_xk_voice_l71_ext
+target_include_directories(sln_voice_app_ffd_board_support_xk_voice_l71_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(sln_avona_app_ffd_board_support_xk_voice_l71_ext
+target_link_libraries(sln_voice_app_ffd_board_support_xk_voice_l71_ext
     INTERFACE
         core::general
         rtos::freertos
@@ -21,17 +21,17 @@ target_link_libraries(sln_avona_app_ffd_board_support_xk_voice_l71_ext
         rtos::drivers::audio
         rtos::drivers::usb
         rtos::freertos_usb
-        sln_avona::app::ffd::dac::dac3101
+        sln_voice::app::ffd::dac::dac3101
 )
-target_compile_options(sln_avona_app_ffd_board_support_xk_voice_l71_ext
+target_compile_options(sln_voice_app_ffd_board_support_xk_voice_l71_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_link_options(sln_avona_app_ffd_board_support_xk_voice_l71_ext
+target_link_options(sln_voice_app_ffd_board_support_xk_voice_l71_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_compile_definitions(sln_avona_app_ffd_board_support_xk_voice_l71_ext
+target_compile_definitions(sln_voice_app_ffd_board_support_xk_voice_l71_ext
     INTERFACE
         XK_VOICE_L71=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -53,4 +53,4 @@ target_compile_definitions(sln_avona_app_ffd_board_support_xk_voice_l71_ext
 )
 
 ## Create an alias
-add_library(sln_avona::app::ffd::xk_voice_l71_ext ALIAS sln_avona_app_ffd_board_support_xk_voice_l71_ext)
+add_library(sln_voice::app::ffd::xk_voice_l71_ext ALIAS sln_voice_app_ffd_board_support_xk_voice_l71_ext)

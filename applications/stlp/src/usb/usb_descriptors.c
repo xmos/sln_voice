@@ -28,11 +28,10 @@
 
 #include "usb_descriptors.h"
 #include "tusb.h"
-#include "device_control_usb.h"
 
-#define XMOS_VID    0x20B1
-#define AVONA_PID   0x0020
-#define AVONA_PRODUCT_STR "Avona Voice Reference Design"
+#define XMOS_VID        0x20B1
+#define XCORE_VOICE_PID 0x0020
+#define XCORE_VOICE_PRODUCT_STR "XCORE-VOICE"
 
 //--------------------------------------------------------------------+
 // Device Descriptors
@@ -48,7 +47,7 @@ tusb_desc_device_t const desc_device = {
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
     .idVendor           = XMOS_VID,
-    .idProduct          = AVONA_PID,
+    .idProduct          = XCORE_VOICE_PID,
     .bcdDevice          = 0x0001,
 
     .iManufacturer      = 0x01,
@@ -116,7 +115,7 @@ const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
         uac2_total_descriptors_length
 };
 
-#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * uac2_total_descriptors_length + TUD_XMOS_DEVICE_CONTROL_DESC_LEN)
+#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * uac2_total_descriptors_length)
 #define EPNUM_AUDIO   0x01
 
 
@@ -175,7 +174,7 @@ uint8_t const desc_configuration[] = {
     /* Type I Format Type Descriptor(2.3.1.6 - Audio Formats) */
     TUD_AUDIO_DESC_TYPE_I_FORMAT(CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX*8),
     /* Standard AS Isochronous Audio Data Endpoint Descriptor(4.10.1.1) */
-    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_SYNCHRONOUS | /*TUSB_ISO_EP_ATT_IMPLICIT_FB |*/ TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
+    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_ADAPTIVE | TUSB_ISO_EP_ATT_IMPLICIT_FB /*| TUSB_ISO_EP_ATT_DATA*/), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
     /* Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) */
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
@@ -192,13 +191,12 @@ uint8_t const desc_configuration[] = {
     /* Type I Format Type Descriptor(2.3.1.6 - Audio Formats) */
     TUD_AUDIO_DESC_TYPE_I_FORMAT(CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX*8),
     /* Standard AS Isochronous Audio Data Endpoint Descriptor(4.10.1.1) */
-    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ 0x80 | EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_SYNCHRONOUS | /*TUSB_ISO_EP_ATT_IMPLICIT_FB |*/ TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
+    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ 0x80 | EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_ADAPTIVE /*| TUSB_ISO_EP_ATT_IMPLICIT_FB */ | TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
     /* Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) */
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
 
-    // Interface number, string index
-    TUD_XMOS_DEVICE_CONTROL_DESCRIPTOR(ITF_NUM_XMOS_DEV_CTRL, 5)};
+    }; // desc_configuration
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor
@@ -216,10 +214,9 @@ uint8_t const* tud_descriptor_configuration_cb(uint8_t index)
 // array of pointer to string descriptors
 char const *string_desc_arr[] = {(const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
         "XMOS",                     // 1: Manufacturer
-        AVONA_PRODUCT_STR,          // 2: Product
+        XCORE_VOICE_PRODUCT_STR,          // 2: Product
         "123456",                   // 3: Serials, should use chip ID
-        AVONA_PRODUCT_STR,          // 4: Audio Interface
-        "Device Control Interface"  // 5: Vendor Interface
+        XCORE_VOICE_PRODUCT_STR          // 4: Audio Interface
         };
 
 static uint16_t _desc_str[32];

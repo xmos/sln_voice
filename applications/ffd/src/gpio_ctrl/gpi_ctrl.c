@@ -1,7 +1,8 @@
-// Copyright 2021 XMOS LIMITED.
+// Copyright 2021-2022 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #include <platform.h>
+#include <xs1.h>
 
 #include "FreeRTOS.h"
 
@@ -12,6 +13,13 @@ __attribute__((weak))
 void gpio_gpi_toggled_cb(uint32_t gpio_val)
 {
     // rtos_printf("A GPI toggled\n");
+    if ((gpio_val & BUTTON_BTN_BITMASK) == 0) {
+        rtos_printf("Reboot Button Pressed\n");
+        /* Force full chip reboot via the WD */
+        write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 0x10000);
+        write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
+        while(1) {;}
+    }
 }
 
 RTOS_GPIO_ISR_CALLBACK_ATTR
