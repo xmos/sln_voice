@@ -202,7 +202,7 @@ Connect the XV-VOICE-L71 to the Raspberry Pi ensuring that the connector fully l
 Prepare the Raspberry Pi System
 -------------------------------
 
-Prepare the Raspberry Pi System image on the SD card as described on `github <https://github.com/xmos/vocalfusion-avs-setup>`_
+Prepare the Raspberry Pi System image on the SD card by following the instructions for XVF3610-INT as described on `github <https://github.com/xmos/vocalfusion-avs-setup>`_
 
 ---------------------
 Connect the System
