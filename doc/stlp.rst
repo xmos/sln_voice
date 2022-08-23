@@ -11,9 +11,9 @@ Far-field Voice Assistant
    :maxdepth: 1
    :hidden:
 
+   stlp/getting_started
    extending
    stlp/audio_pipeline
-   stlp/getting_started
 
 ========
 Overview
