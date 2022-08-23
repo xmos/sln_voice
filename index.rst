@@ -14,7 +14,6 @@ XCORE |reg| -VOICE Solutions
    doc/ffd
    doc/stlp
    doc/copyright
-   doc/stlp/getting_started
 
 
 XMOS Solutions are a combination of the XCORE SDK and Reference Designs, ready to run on our development kits, and targeting a range of voice assistant and voice control applications.
