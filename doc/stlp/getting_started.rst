@@ -65,8 +65,8 @@ Run the following commands to build the firmware. Both -UA and -INT configuratio
         cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
 
-        make application_stlp_int_adec
-        make application_stlp_ua_adec
+        make example_stlp_int_adec
+        make example_stlp_ua_adec
 
 .. tab:: Windows
 
@@ -75,8 +75,8 @@ Run the following commands to build the firmware. Both -UA and -INT configuratio
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
 
-        nmake application_stlp_int_adec
-        nmake application_stlp_ua_adec
+        nmake example_stlp_int_adec
+        nmake example_stlp_ua_adec
 
 From the build folder, create the filesystem and flash the device with the appropriate command to the desired configuration:
 
@@ -84,15 +84,15 @@ From the build folder, create the filesystem and flash the device with the appro
 
     .. code-block:: console
 
-        make flash_fs_application_stlp_int_adec
-        make flash_fs_application_stlp_ua_adec
+        make flash_fs_example_stlp_int_adec
+        make flash_fs_example_stlp_ua_adec
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake flash_fs_application_stlp_int_adec
-        nmake flash_fs_application_stlp_ua_adec
+        nmake flash_fs_example_stlp_int_adec
+        nmake flash_fs_example_stlp_ua_adec
 
 ===========================
 Standalone UA Demonstration
@@ -202,6 +202,8 @@ Connect the XV-VOICE-L71 to the Raspberry Pi ensuring that the connector fully l
 Prepare the Raspberry Pi System
 -------------------------------
 
+.. note:: The STLP-INT firmware is compatible with XVF3610-INT software, therefore instructions for installing the XVF3610-INT pi software can be followed for this AVS demo. The "Firmware Upgrade" section may be dismissed, as your STLP-INT firmware is already updated per the above section of this guide.
+
 Prepare the Raspberry Pi System image on the SD card by following the instructions for XVF3610-INT as described on `github <https://github.com/xmos/vocalfusion-avs-setup>`_
 
 ---------------------
@@ -217,8 +219,6 @@ Connect the speakers (into the XV-VOICE-71), HDMI monitor cable, and mouse as sh
 ---------------------
 Install and Configure
 ---------------------
-
-Note: *The STLP-INT firmware is compatible with XVF3610-INT software, therefore instructions for installing the XVF3610-INT pi software can be followed for this AVS demo. The "Firmware Upgrade" section may be dismissed, as your STLP-INT firmware is already updated per the above section of this guide.*
 
 Install the Amazon Alexa SDK and configure the Raspberry Pi Audio by following the instructions here:
 

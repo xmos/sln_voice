@@ -49,7 +49,7 @@ set(APP_COMMON_LINK_LIBRARIES
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_application_ffd)
+set(TARGET_NAME tile0_example_ffd)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
@@ -59,7 +59,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voi
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd)
+set(TARGET_NAME tile1_example_ffd)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
@@ -72,33 +72,33 @@ unset(TARGET_NAME)
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(application_ffd tile0_application_ffd tile1_application_ffd 1)
+merge_binaries(example_ffd tile0_example_ffd tile1_example_ffd 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(application_ffd)
-create_debug_target(application_ffd)
-create_flash_app_target(application_ffd)
+create_run_target(example_ffd)
+create_debug_target(example_ffd)
+create_flash_app_target(example_ffd)
 
 #**********************
 # Create filesystem support targets
 #**********************
 add_custom_command(
-    OUTPUT application_ffd_model.bin
-    COMMAND xobjdump --strip application_ffd.xe
-    COMMAND xobjdump --split application_ffd.xb
+    OUTPUT example_ffd_model.bin
+    COMMAND xobjdump --strip example_ffd.xe
+    COMMAND xobjdump --split example_ffd.xb
     COMMAND ${CMAKE_COMMAND} -E copy image_n0c0.swmem ${CMAKE_CURRENT_LIST_DIR}/filesystem/model.bin
-    DEPENDS application_ffd
+    DEPENDS example_ffd
     COMMENT
         "Extract swmem"
     VERBATIM
 )
 
 add_custom_command(
-    OUTPUT application_ffd.fs
-    COMMAND fatfs_mkimage --input=${CMAKE_CURRENT_LIST_DIR}/filesystem --image_size=2097152 --output=${CMAKE_CURRENT_BINARY_DIR}/application_ffd.fs
-    DEPENDS application_ffd_model.bin
+    OUTPUT example_ffd.fs
+    COMMAND fatfs_mkimage --input=${CMAKE_CURRENT_LIST_DIR}/filesystem --image_size=2097152 --output=${CMAKE_CURRENT_BINARY_DIR}/example_ffd.fs
+    DEPENDS example_ffd_model.bin
     COMMENT
         "Create filesystem"
     WORKING_DIRECTORY
@@ -106,9 +106,9 @@ add_custom_command(
     VERBATIM
 )
 
-add_custom_target(flash_fs_application_ffd
-    COMMAND xflash --quad-spi-clock 50MHz --factory application_ffd.xe --boot-partition-size 0x100000 --data application_ffd.fs
-    DEPENDS application_ffd.fs
+add_custom_target(flash_fs_example_ffd
+    COMMAND xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd.fs
+    DEPENDS example_ffd.fs
     COMMENT
         "Flash filesystem"
     VERBATIM

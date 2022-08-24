@@ -123,7 +123,7 @@ Run the following commands in the root folder to build the firmware:
 
         cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        make application_ffd
+        make example_ffd
 
 .. tab:: Windows
 
@@ -131,14 +131,14 @@ Run the following commands in the root folder to build the firmware:
 
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        nmake application_ffd
+        nmake example_ffd
 
 .. _sln_voice_FFD_configuring-the-firmware:
 
 Configuring the Firmware
 ------------------------
 
-The default application performs as described in the Overview. There are numerous compile time options that can be added to change the reference design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/applications/ffd/ffd.cmake>`_.
+The default application performs as described in the Overview. There are numerous compile time options that can be added to change the reference design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/ffd.cmake>`_.
 
 If options are changed, the application firmware must be rebuilt.
 
@@ -207,13 +207,13 @@ Inside of the build folder root, after building the firmware:
 
     .. code-block:: console
 
-        make flash_fs_application_ffd
+        make flash_fs_example_ffd
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake flash_fs_application_ffd
+        nmake flash_fs_example_ffd
 
 Once flashed, the application will run.
 
@@ -225,13 +225,13 @@ From the build folder run:
 
     .. code-block:: console
 
-        make run_application_ffd
+        make run_example_ffd
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake run_application_ffd
+        nmake run_example_ffd
 
 Debugging the Firmware
 ----------------------
@@ -242,13 +242,13 @@ To debug with xgdb, from the build folder run:
 
     .. code-block:: console
 
-        make debug_application_ffd
+        make debug_example_ffd
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake debug_application_ffd
+        nmake debug_example_ffd
 
 
 Host Integration
