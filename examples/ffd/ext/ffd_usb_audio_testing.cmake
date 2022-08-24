@@ -17,7 +17,7 @@ set(BYPASS_AUDIOPIPELINE_DEFINITIONS
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_application_ffd_usb_audio_test)
+set(TARGET_NAME tile0_example_ffd_usb_audio_test)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -27,7 +27,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd_usb_audio_test)
+set(TARGET_NAME tile1_example_ffd_usb_audio_test)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -37,7 +37,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile0_application_ffd_usb_audio_test_dev)
+set(TARGET_NAME tile0_example_ffd_usb_audio_test_dev)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -47,7 +47,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd_usb_audio_test_dev)
+set(TARGET_NAME tile1_example_ffd_usb_audio_test_dev)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -57,7 +57,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile0_application_ffd_usb_audio_test_bypass_ap)
+set(TARGET_NAME tile0_example_ffd_usb_audio_test_bypass_ap)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -67,7 +67,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd_usb_audio_test_bypass_ap)
+set(TARGET_NAME tile1_example_ffd_usb_audio_test_bypass_ap)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -77,7 +77,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile0_application_ffd_usb_audio_test_bypass_ap_dev)
+set(TARGET_NAME tile0_example_ffd_usb_audio_test_bypass_ap_dev)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -87,7 +87,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd_usb_audio_test_bypass_ap_dev)
+set(TARGET_NAME tile1_example_ffd_usb_audio_test_bypass_ap_dev)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -100,23 +100,23 @@ unset(TARGET_NAME)
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(application_ffd_usb_audio_test tile0_application_ffd_usb_audio_test tile1_application_ffd_usb_audio_test 1)
-merge_binaries(application_ffd_usb_audio_test_dev tile0_application_ffd_usb_audio_test_dev tile1_application_ffd_usb_audio_test_dev 1)
+merge_binaries(example_ffd_usb_audio_test tile0_example_ffd_usb_audio_test tile1_example_ffd_usb_audio_test 1)
+merge_binaries(example_ffd_usb_audio_test_dev tile0_example_ffd_usb_audio_test_dev tile1_example_ffd_usb_audio_test_dev 1)
 
-merge_binaries(application_ffd_usb_audio_test_bypass_ap tile0_application_ffd_usb_audio_test_bypass_ap tile1_application_ffd_usb_audio_test_bypass_ap 1)
-merge_binaries(application_ffd_usb_audio_test_bypass_ap_dev tile0_application_ffd_usb_audio_test_bypass_ap_dev tile1_application_ffd_usb_audio_test_bypass_ap_dev 1)
+merge_binaries(example_ffd_usb_audio_test_bypass_ap tile0_example_ffd_usb_audio_test_bypass_ap tile1_example_ffd_usb_audio_test_bypass_ap 1)
+merge_binaries(example_ffd_usb_audio_test_bypass_ap_dev tile0_example_ffd_usb_audio_test_bypass_ap_dev tile1_example_ffd_usb_audio_test_bypass_ap_dev 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(application_ffd_usb_audio_test)
-create_debug_target(application_ffd_usb_audio_test)
+create_run_target(example_ffd_usb_audio_test)
+create_debug_target(example_ffd_usb_audio_test)
 
-create_run_target(application_ffd_usb_audio_test_dev)
-create_debug_target(application_ffd_usb_audio_test_dev)
+create_run_target(example_ffd_usb_audio_test_dev)
+create_debug_target(example_ffd_usb_audio_test_dev)
 
-create_run_target(application_ffd_usb_audio_test_bypass_ap)
-create_debug_target(application_ffd_usb_audio_test_bypass_ap)
+create_run_target(example_ffd_usb_audio_test_bypass_ap)
+create_debug_target(example_ffd_usb_audio_test_bypass_ap)
 
-create_run_target(application_ffd_usb_audio_test_bypass_ap_dev)
-create_debug_target(application_ffd_usb_audio_test_bypass_ap_dev)
+create_run_target(example_ffd_usb_audio_test_bypass_ap_dev)
+create_debug_target(example_ffd_usb_audio_test_bypass_ap_dev)

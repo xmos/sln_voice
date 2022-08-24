@@ -44,7 +44,7 @@ Begin by ensuring the filesystem is flashed.  To do this run the following comma
     
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    make flash_fs_application_stlp_ua_adec -j
+    make flash_fs_example_stlp_ua_adec -j
 
 To build the test application firmware, run the following command from the top of the repository: 
 

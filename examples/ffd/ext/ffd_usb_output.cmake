@@ -7,7 +7,7 @@ set(KEYWORD_USB_VENDOR_OUTPUT
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_application_ffd_usb)
+set(TARGET_NAME tile0_example_ffd_usb)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -17,7 +17,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd_usb)
+set(TARGET_NAME tile1_example_ffd_usb)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -27,7 +27,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile0_application_ffd_usb_dev)
+set(TARGET_NAME tile0_example_ffd_usb_dev)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -37,7 +37,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} ${APP_E
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_application_ffd_usb_dev)
+set(TARGET_NAME tile1_example_ffd_usb_dev)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${APP_EXT_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${APP_EXT_INCLUDES})
@@ -50,16 +50,16 @@ unset(TARGET_NAME)
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(application_ffd_usb tile0_application_ffd_usb tile1_application_ffd_usb 1)
-merge_binaries(application_ffd_usb_dev tile0_application_ffd_usb_dev tile1_application_ffd_usb_dev 1)
+merge_binaries(example_ffd_usb tile0_example_ffd_usb tile1_example_ffd_usb 1)
+merge_binaries(example_ffd_usb_dev tile0_example_ffd_usb_dev tile1_example_ffd_usb_dev 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(application_ffd_usb)
-create_debug_target(application_ffd_usb)
-create_flash_app_target(application_ffd_usb)
+create_run_target(example_ffd_usb)
+create_debug_target(example_ffd_usb)
+create_flash_app_target(example_ffd_usb)
 
-create_run_target(application_ffd_usb_dev)
-create_debug_target(application_ffd_usb_dev)
-create_flash_app_target(application_ffd_usb_dev)
+create_run_target(example_ffd_usb_dev)
+create_debug_target(example_ffd_usb_dev)
+create_flash_app_target(example_ffd_usb_dev)

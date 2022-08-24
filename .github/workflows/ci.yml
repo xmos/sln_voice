@@ -55,33 +55,6 @@ jobs:
           name: sln_voice_example_apps
           path: ./dist/*
 
-  build_applications:
-    name: Build reference applications
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout SDK
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Pull SDK builder image
-        run: |
-          docker pull ${SDK_BUILDER_IMAGE}
-
-      - name: Build
-        run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_applications.sh
-
-      - name: Save metadata
-        run: |
-          bash tools/ci/log_metadata.sh ./dist/applications_metadata.json
-
-      - name: Save reference app firmware artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: sln_voice_reference_apps
-          path: ./dist/*
-
   build_tests:
     name: Build tests and test applications
     runs-on: ubuntu-latest

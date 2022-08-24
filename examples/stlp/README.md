@@ -15,36 +15,36 @@ On Linux and Mac run:
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    make application_stlp_int_adec
-    make application_stlp_int_adec_altarch
-    make application_stlp_ua_adec
-    make application_stlp_ua_adec_altarch
+    make example_stlp_int_adec
+    make example_stlp_int_adec_altarch
+    make example_stlp_ua_adec
+    make example_stlp_ua_adec_altarch
 
 On Windows run:
 
     cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    nmake application_stlp_int_adec
-    nmake application_stlp_int_adec_altarch
-    nmake application_stlp_ua_adec
-    nmake application_stlp_ua_adec_altarch
+    nmake example_stlp_int_adec
+    nmake example_stlp_int_adec_altarch
+    nmake example_stlp_ua_adec
+    nmake example_stlp_ua_adec_altarch
 
 From the build folder, create the filesystem and flash the device with the appropriate command to the desired configuration:
 
 On Linux and Mac run:
 
-    make flash_fs_application_stlp_int_adec
-    make flash_fs_application_stlp_int_adec_altarch
-    make flash_fs_application_stlp_ua_adec
-    make flash_fs_application_stlp_ua_adec_altarch
+    make flash_fs_example_stlp_int_adec
+    make flash_fs_example_stlp_int_adec_altarch
+    make flash_fs_example_stlp_ua_adec
+    make flash_fs_example_stlp_ua_adec_altarch
 
 On Windows run:
 
-    nmake flash_fs_application_stlp_int_adec
-    nmake flash_fs_application_stlp_int_adec_altarch
-    nmake flash_fs_application_stlp_ua_adec
-    nmake flash_fs_application_stlp_ua_adec_altarch
+    nmake flash_fs_example_stlp_int_adec
+    nmake flash_fs_example_stlp_int_adec_altarch
+    nmake flash_fs_example_stlp_ua_adec
+    nmake flash_fs_example_stlp_ua_adec_altarch
 
 ## Running the Firmware
 
@@ -52,17 +52,17 @@ Run the following commands in the build folder.
 
 On Linux and Mac run:
 
-    make run_application_stlp_int_adec
-    make run_application_stlp_int_adec_altarch
-    make run_application_stlp_ua_adec
-    make run_application_stlp_ua_adec_altarch
+    make run_example_stlp_int_adec
+    make run_example_stlp_int_adec_altarch
+    make run_example_stlp_ua_adec
+    make run_example_stlp_ua_adec_altarch
 
 On Windows run:
 
-    nmake run_application_stlp_int_adec
-    nmake run_application_stlp_int_adec_altarch
-    nmake run_application_stlp_ua_adec
-    nmake run_application_stlp_ua_adec_altarch
+    nmake run_example_stlp_int_adec
+    nmake run_example_stlp_int_adec_altarch
+    nmake run_example_stlp_ua_adec
+    nmake run_example_stlp_ua_adec_altarch
 
 ## Debugging the firmware with `xgdb`
 
@@ -70,17 +70,17 @@ Run the following commands in the build folder.
 
 On Linux and Mac run:
 
-    make debug_application_stlp_int_adec
-    make debug_application_stlp_int_adec_altarch
-    make debug_application_stlp_ua_adec
-    make debug_application_stlp_ua_adec_altarch
+    make debug_example_stlp_int_adec
+    make debug_example_stlp_int_adec_altarch
+    make debug_example_stlp_ua_adec
+    make debug_example_stlp_ua_adec_altarch
 
 On Windows run:
 
-    nmake debug_application_stlp_int_adec
-    nmake debug_application_stlp_int_adec_altarch
-    nmake debug_application_stlp_ua_adec
-    nmake debug_application_stlp_ua_adec_altarch
+    nmake debug_example_stlp_int_adec
+    nmake debug_example_stlp_int_adec_altarch
+    nmake debug_example_stlp_ua_adec
+    nmake debug_example_stlp_ua_adec_altarch
 
 ## Running the Firmware With WAV Files
 
@@ -95,16 +95,16 @@ On Linux and Mac run:
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake -DDEBUG_STLP_USB_MIC_INPUT=1
     cd build
 
-    make application_stlp_ua_adec
-    make application_stlp_ua_adec_altarch
+    make example_stlp_ua_adec
+    make example_stlp_ua_adec_altarch
 
 On Windows run:
 
     cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake -DDEBUG_STLP_USB_MIC_INPUT=1
     cd build
 
-    nmake application_stlp_ua_adec
-    nmake application_stlp_ua_adec_altarch
+    nmake example_stlp_ua_adec
+    nmake example_stlp_ua_adec_altarch
 
 After rebuilding the firmware, run the application.
 

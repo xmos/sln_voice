@@ -50,13 +50,13 @@ Reference Designs
         - Audio pipeline includes interference cancelling and noise supression 
         - 25-phrase English language voice recognition
       - `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`__
-      - `applications/ffd <https://github.com/xmos/sln_voice/tree/develop/applications/ffd>`__
+      - `examples/ffd <https://github.com/xmos/sln_voice/tree/develop/examples/ffd>`__
     * - :ref:`sln_voice_STLP`
       - - 2-microphone far-field voice assistant front-end
         - Audio pipeline includes echo cancelation, interference cancelling and noise suppression
         - Stereo reference input and voice assistant output each supported as |I2C| or USB (UAC2.0)    
       - `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`__
-      - `applications/stlp <https://github.com/xmos/sln_voice/tree/develop/applications/stlp>`__
+      - `examples/stlp <https://github.com/xmos/sln_voice/tree/develop/examples/stlp>`__
 
 Development Tools
 -----------------

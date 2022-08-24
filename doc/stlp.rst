@@ -70,7 +70,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
         cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        make application_stlp_int_adec
+        make example_stlp_int_adec
 
 .. tab:: Windows
 
@@ -78,7 +78,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        nmake application_stlp_int_adec
+        nmake example_stlp_int_adec
 
 
 Run the following commands in the root folder to build the USB firmware:
@@ -89,7 +89,7 @@ Run the following commands in the root folder to build the USB firmware:
 
         cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        make application_stlp_ua_adec
+        make example_stlp_ua_adec
 
 .. tab:: Windows
 
@@ -97,7 +97,7 @@ Run the following commands in the root folder to build the USB firmware:
 
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        nmake application_stlp_ua_adec
+        nmake example_stlp_ua_adec
 
 --------------------
 Running the Firmware
@@ -111,15 +111,15 @@ Inside of the build folder root, after building the firmware, run one of:
 
     .. code-block:: console
 
-        make flash_fs_application_stlp_int_adec
-        make flash_fs_application_stlp_ua_adec
+        make flash_fs_example_stlp_int_adec
+        make flash_fs_example_stlp_ua_adec
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake flash_fs_application_stlp_int_adec
-        nmake flash_fs_application_stlp_ua_adec
+        nmake flash_fs_example_stlp_int_adec
+        nmake flash_fs_example_stlp_ua_adec
 
 Once flashed, the application will run.
 
@@ -131,15 +131,15 @@ From the build folder run:
 
     .. code-block:: console
 
-        make run_application_stlp_int_adec
-        make run_application_stlp_ua_adec
+        make run_example_stlp_int_adec
+        make run_example_stlp_ua_adec
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake run_application_stlp_int_adec
-        nmake run_application_stlp_ua_adec
+        nmake run_example_stlp_int_adec
+        nmake run_example_stlp_ua_adec
 
 ----------------------
 Debugging the Firmware
@@ -151,15 +151,15 @@ To debug with xgdb, from the build folder run:
 
     .. code-block:: console
 
-        make debug_application_int_adec
-        make debug_application_ua_adec
+        make debug_example_int_adec
+        make debug_example_ua_adec
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake debug_application_int_adec
-        nmake debug_application_ua_adec
+        nmake debug_example_int_adec
+        nmake debug_example_ua_adec
 
 ================
 Host Integration
