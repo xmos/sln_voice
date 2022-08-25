@@ -19,9 +19,9 @@ Some dependent components are included as git submodules. These can be obtained 
 
 See the READMEs for the early example applications:
 
-[FFD](https://github.com/xmos/sln_voice/blob/develop/examples/ffd/README.rst)
+[FFD](https://github.com/xmos/sln_voice/blob/develop/examples/ffd/README.md)
 
-[STLP](https://github.com/xmos/sln_voice/blob/develop/examples/stlp/README.rst)
+[STLP](https://github.com/xmos/sln_voice/blob/develop/examples/stlp/README.md)
 
 # Getting Help
 
