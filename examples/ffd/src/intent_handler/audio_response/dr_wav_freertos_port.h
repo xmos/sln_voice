@@ -18,7 +18,7 @@
 #include "ff.h"
 
 /* dr_wav Options */
-#define DR_WAV_NO_CONVERSION_API
+#undef DR_WAV_NO_CONVERSION_API
 #define DR_WAV_NO_STDIO
 
 /* dr_wav STD lib port */
