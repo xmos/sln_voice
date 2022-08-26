@@ -42,7 +42,7 @@ static const char *audio_files_en[] = {
 
 #define NUM_FILES (sizeof(audio_files_en) / sizeof(audio_files_en[0]))
 
-static int32_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t)];
+static int16_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int16_t)];
 static int32_t i2s_audio[2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t))];
 static drwav *wav_files = NULL;
 
@@ -72,6 +72,7 @@ int32_t audio_response_init(void) {
     return 0;
 }
 
+#pragma stackfunction 3000
 void audio_response_play(int32_t id) {
     drwav tmp;
     size_t framesRead = 0;
@@ -140,11 +141,12 @@ void audio_response_play(int32_t id) {
 
         while(1) {
             memset(file_audio, 0x00, sizeof(file_audio));
-            framesRead = drwav_read_pcm_frames(&tmp, appconfAUDIO_PIPELINE_FRAME_ADVANCE, file_audio);
+            framesRead = drwav_read_pcm_frames_s16(&tmp, appconfAUDIO_PIPELINE_FRAME_ADVANCE, file_audio);
             memset(i2s_audio, 0x00, sizeof(i2s_audio));
             for (int i=0; i<framesRead; i++) {
-                i2s_audio[(2*i)+0] = file_audio[i];
-                i2s_audio[(2*i)+1] = file_audio[i];
+                i2s_audio[(2*i)+0] = (int32_t) file_audio[i] << 16;
+                //printf("%d    %d\n", file_audio[i], i2s_audio[(2*i)+0]);
+                i2s_audio[(2*i)+1] = (int32_t) file_audio[i] << 16;
             }
 
             rtos_i2s_tx(i2s_ctx,
