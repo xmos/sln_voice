@@ -79,6 +79,7 @@ merge_binaries(example_ffd tile0_example_ffd tile1_example_ffd 1)
 #**********************
 create_run_target(example_ffd)
 create_debug_target(example_ffd)
+create_filesystem_target(example_ffd)
 create_flash_app_target(example_ffd)
 
 #**********************
@@ -88,7 +89,7 @@ add_custom_command(
     OUTPUT example_ffd_model.bin
     COMMAND xobjdump --strip example_ffd.xe
     COMMAND xobjdump --split example_ffd.xb
-    COMMAND ${CMAKE_COMMAND} -E copy image_n0c0.swmem ${CMAKE_CURRENT_LIST_DIR}/filesystem/model.bin
+    COMMAND ${CMAKE_COMMAND} -E copy image_n0c0.swmem ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/model.bin
     DEPENDS example_ffd
     COMMENT
         "Extract swmem"
@@ -96,19 +97,20 @@ add_custom_command(
 )
 
 add_custom_command(
-    OUTPUT example_ffd.fs
-    COMMAND fatfs_mkimage --input=${CMAKE_CURRENT_LIST_DIR}/filesystem --image_size=2097152 --output=${CMAKE_CURRENT_BINARY_DIR}/example_ffd.fs
+    OUTPUT example_ffd_fat.fs
+    COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_ffd_fat.fs
+    COMMAND fatfs_mkimage --input=${CMAKE_CURRENT_LIST_DIR}/filesystem_support --image_size=2097152 --output=example_ffd_fat.fs
     DEPENDS example_ffd_model.bin
     COMMENT
         "Create filesystem"
     WORKING_DIRECTORY
-        ${CMAKE_CURRENT_LIST_DIR}/filesystem
+        ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
     VERBATIM
 )
 
 add_custom_target(flash_fs_example_ffd
-    COMMAND xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd.fs
-    DEPENDS example_ffd.fs
+    COMMAND xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd_fat.fs
+    DEPENDS example_ffd_fat.fs
     COMMENT
         "Flash filesystem"
     VERBATIM

@@ -68,17 +68,19 @@ foreach(STLP_AP ${STLP_PIPELINES})
     #**********************
     create_run_target(example_stlp_ua_${STLP_AP})
     create_debug_target(example_stlp_ua_${STLP_AP})
+    create_filesystem_target(example_stlp_ua_${STLP_AP})
     create_flash_app_target(example_stlp_ua_${STLP_AP})
 
     #**********************
     # Filesystem support targets
     #**********************
+    
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
         add_custom_command(
-            OUTPUT example_stlp_fat_ua_${STLP_AP}.fs
+            OUTPUT example_stlp_ua_${STLP_AP}_fat.fs
             COMMAND ${CMAKE_COMMAND} -E make_directory %temp%/fatmktmp/fs
             COMMAND ${CMAKE_COMMAND} -E copy demo.txt %temp%/fatmktmp/fs/demo.txt
-            COMMAND fatfs_mkimage --input=%temp%/fatmktmp --output=example_stlp_fat_ua_${STLP_AP}.fs
+            COMMAND fatfs_mkimage --input=%temp%/fatmktmp --output=example_stlp_ua_${STLP_AP}_fat.fs
             BYPRODUCTS %temp%/fatmktmp
             DEPENDS example_stlp_ua_${STLP_AP}
             COMMENT
@@ -89,8 +91,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
         )
     else()
         add_custom_command(
-            OUTPUT example_stlp_fat_ua_${STLP_AP}.fs
-            COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && mkdir $fat_mnt_dir/fs && cp ./demo.txt $fat_mnt_dir/fs/demo.txt && fatfs_mkimage --input=$tmp_dir --output=example_stlp_fat_ua_${STLP_AP}.fs"
+            OUTPUT example_stlp_ua_${STLP_AP}_fat.fs
+            COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && mkdir $fat_mnt_dir/fs && cp ./demo.txt $fat_mnt_dir/fs/demo.txt && fatfs_mkimage --input=$tmp_dir --output=example_stlp_ua_${STLP_AP}_fat.fs"
             DEPENDS example_stlp_ua_${STLP_AP}
             COMMENT
                 "Create filesystem"
@@ -101,8 +103,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     endif()
 
     add_custom_target(flash_fs_example_stlp_ua_${STLP_AP}
-        COMMAND xflash --quad-spi-clock 50MHz --factory example_stlp_ua_${STLP_AP}.xe --boot-partition-size 0x100000 --data ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_stlp_fat_ua_${STLP_AP}.fs
-        DEPENDS example_stlp_fat_ua_${STLP_AP}.fs
+        COMMAND xflash --quad-spi-clock 50MHz --factory example_stlp_ua_${STLP_AP}.xe --boot-partition-size 0x100000 --data ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_stlp_ua_${STLP_AP}_fat.fs
+        DEPENDS example_stlp_ua_${STLP_AP}_fat.fs
         COMMENT
             "Flash filesystem"
         VERBATIM
