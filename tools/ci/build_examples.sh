@@ -25,9 +25,9 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     read -ra FIELDS <<< ${examples[i]}
     name="${FIELDS[0]}"
     app_target="${FIELDS[1]}"
-    run_fs_target="${FIELDS[1]}"
-    board="${FIELDS[2]}"
-    toolchain_file="${SLN_VOICE_ROOT}/${FIELDS[3]}"
+    run_fs_target="${FIELDS[2]}"
+    board="${FIELDS[3]}"
+    toolchain_file="${SLN_VOICE_ROOT}/${FIELDS[4]}"
     path="${SLN_VOICE_ROOT}"
     echo '******************************************************'
     echo '* Building' ${name}, ${app_target} 'for' ${board}
