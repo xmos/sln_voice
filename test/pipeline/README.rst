@@ -1,6 +1,6 @@
-###################
-STLP Check Pipeline
-###################
+##############
+Check Pipeline
+##############
 
 *********************
 Install Prerequisites
