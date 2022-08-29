@@ -13,9 +13,9 @@ mkdir -p ${DIST_DIR}
 # row format is: "name app_target run_fs_target BOARD toolchain"
 examples=(
     "audio_mux               example_audio_mux               No  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_int_adec           example_stlp_int_adec           Yes XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "stlp_int_adec           example_stlp_int_adec           No XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "stlp_int_adec_altarch   example_stlp_int_adec_altarch   No  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_ua_adec            example_stlp_ua_adec            No  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "stlp_ua_adec            example_stlp_ua_adec            Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "stlp_ua_adec_altarch    example_stlp_ua_adec_altarch    No  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "ffd                     example_ffd                     Yes XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
 )
