@@ -98,7 +98,7 @@ add_custom_command(
 
 add_custom_command(
     OUTPUT example_ffd_fat.fs
-    COMMAND ${CMAKE_COMMAND} -E rm ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_ffd_fat.fs
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_ffd_fat.fs
     COMMAND fatfs_mkimage --input=${CMAKE_CURRENT_LIST_DIR}/filesystem_support --image_size=2097152 --output=example_ffd_fat.fs
     DEPENDS example_ffd_model.bin
     COMMENT
