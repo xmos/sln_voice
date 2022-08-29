@@ -53,7 +53,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_example_apps
-          path: ./dist/*
+          path: 
+            ./dist/*.xe
+            ./dist/*.fs
 
   build_tests:
     name: Build tests and test applications
@@ -80,4 +82,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_test_apps
-          path: ./dist/*
+          path:
+            ./dist/*.xe
