@@ -65,6 +65,12 @@ jobs:
         run: |
           docker pull ${SDK_BUILDER_IMAGE}
 
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: host_apps
+          path: ./dist_host
+          
       - name: Build
         run: |
           docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_examples.sh
