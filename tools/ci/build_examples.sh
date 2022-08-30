@@ -7,7 +7,7 @@ source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # setup distribution folder
 DIST_DIR=${XCORE_VOICE_ROOT}/dist
-DIST_HOST_DIR=${XCORE_SDK_ROOT}/dist_host
+DIST_HOST_DIR=${XCORE_VOICE_ROOT}/dist_host
 mkdir -p ${DIST_DIR}
 
 if [ -d "${DIST_HOST_DIR}" ]; then

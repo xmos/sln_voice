@@ -109,7 +109,7 @@ add_custom_command(
 )
 
 add_custom_target(flash_fs_example_ffd
-    COMMAND xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd_fat.fs
+    COMMAND xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_ffd_fat.fs
     DEPENDS example_ffd_fat.fs
     COMMENT
         "Flash filesystem"
