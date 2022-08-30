@@ -1,13 +1,21 @@
 #!/bin/bash
 set -e
 
-SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
+XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
 
-source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
+source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # setup distribution folder
-DIST_DIR=${SLN_VOICE_ROOT}/dist
+DIST_DIR=${XCORE_VOICE_ROOT}/dist
+DIST_HOST_DIR=${XCORE_SDK_ROOT}/dist_host
 mkdir -p ${DIST_DIR}
+
+if [ -d "${DIST_HOST_DIR}" ]; then
+    # add DIST_HOST_DIR to path.
+    #   This is used in CI for fatfs_mkimage
+    PATH="${DIST_HOST_DIR}":$PATH
+    find ${DIST_HOST_DIR} -type f -exec chmod a+x {} +
+fi
 
 # setup configurations
 # row format is: "name app_target run_fs_target BOARD toolchain"
@@ -27,8 +35,8 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     app_target="${FIELDS[1]}"
     run_fs_target="${FIELDS[2]}"
     board="${FIELDS[3]}"
-    toolchain_file="${SLN_VOICE_ROOT}/${FIELDS[4]}"
-    path="${SLN_VOICE_ROOT}"
+    toolchain_file="${XCORE_VOICE_ROOT}/${FIELDS[4]}"
+    path="${XCORE_VOICE_ROOT}"
     echo '******************************************************'
     echo '* Building' ${name}, ${app_target} 'for' ${board}
     echo '******************************************************'

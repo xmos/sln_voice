@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
+XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
 
-source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
+source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # setup distribution folder
-DIST_DIR=${SLN_VOICE_ROOT}/dist
+DIST_DIR=${XCORE_VOICE_ROOT}/dist
 mkdir -p ${DIST_DIR}
 
 # setup configurations
@@ -24,8 +24,8 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     make_target="${FIELDS[1]}"
     flag="${FIELDS[2]}"
     board="${FIELDS[3]}"
-    toolchain_file="${SLN_VOICE_ROOT}/${FIELDS[4]}"
-    path="${SLN_VOICE_ROOT}"
+    toolchain_file="${XCORE_VOICE_ROOT}/${FIELDS[4]}"
+    path="${XCORE_VOICE_ROOT}"
     echo '******************************************************'
     echo '* Building' ${name}, ${make_target} 'for' ${board}
     echo '******************************************************'

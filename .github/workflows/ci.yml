@@ -28,9 +28,33 @@ env:
   SDK_BUILDER_IMAGE: 'ghcr.io/xmos/sdk_app_builder:develop'
 
 jobs:
+  build_host_apps:
+    name: Build host applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Pull SDK builder
+        run: |
+          docker pull ${SDK_BUILDER_IMAGE}
+
+      - name: Build
+        run: |
+          docker run --rm -w /xcore_sdk -v ${{github.workspace}}:/xcore_sdk ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_host_apps.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: host_apps
+          path: ./dist_host
+
   build_examples:
     name: Build example applications
     runs-on: ubuntu-latest
+    needs: build_host_apps
     steps:
       - name: Checkout SDK
         uses: actions/checkout@v2
