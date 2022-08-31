@@ -1,5 +1,5 @@
 .. include:: <isonum.txt>
-.. include:: ../substitutions.rst
+.. include:: ../../substitutions.rst
 
 .. _sln_voice_ffd_host_integration:
 
@@ -16,7 +16,7 @@ When an intent is found, the XCORE device will check if the host is awake, by ch
 
 If the host is not awake, the XCORE device will trigger a transition of the Wakeup GPIO pin.  This can be configured to be a rising or falling edge. The XCORE device will then wait a compile time set delay before transmitting the intent over the |I2C| and/or UART interface.
 
-.. figure:: ../diagrams/ffd_host_integration_diagram.drawio.png
+.. figure:: diagrams/ffd_host_integration_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd host integration diagram

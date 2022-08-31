@@ -11,8 +11,8 @@ XCORE |reg| -VOICE Solutions
    :maxdepth: 3
    :hidden:
 
-   doc/ffd
-   doc/stlp
+   doc/description
+   doc/user_guide/user_guide
    doc/copyright
 
 
@@ -79,9 +79,3 @@ Licensing
 ---------
 
 This Software is subject to the terms of the `XMOS Public Licence: Version 1 <https://github.com/xmos/sln_voice/blob/develop/LICENSE.rst>`_. Copyrights and licenses for third party components can be found in `Copyrights and Licenses <https://github.com/xmos/sln_voice/blob/develop/doc/copyright.rst>`_.
-
-
-Getting Started Quick Setup Guide
----------------------------------
-
-:ref:`sln_voice_getting_started`

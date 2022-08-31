@@ -1,4 +1,4 @@
-.. include:: substitutions.rst
+.. include:: ../../substitutions.rst
 
 .. _sln_voice_FFD:
 
@@ -13,11 +13,11 @@ Far-field Voice Local Control
    :hidden:
 
    wanson
-   ffd/host_integration
-   ffd/modifying_software
-   ffd/audio_pipeline
-   ffd/software_description
-   ffd/faq
+   host_integration
+   modifying_software
+   audio_pipeline
+   software_description
+   faq
 
 
 Overview
@@ -45,7 +45,7 @@ This reference design requires an XTAG4 and XK-VOICE-L71 board.
 
 Optionally, an external microphone array board, LCD daugher board, and SSD1306 display can also be used.
 
-.. image:: images/ffd/all_components.jpg
+.. image:: images/all_components.jpg
   :width: 800
   :alt: all components
 
@@ -56,13 +56,13 @@ The xTAG is used to program and debug the device
 
 Connect the xTAG to the debug header, as shown below.
 
-.. image:: images/ffd/xtag_installation.jpg
+.. image:: ../images/xtag_installation.jpg
   :width: 800
   :alt: xtag
 
 Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
 
-.. image:: images/ffd/host_setup.jpg
+.. image:: ../images/host_setup.jpg
   :width: 800
   :alt: programming host setup
 
@@ -72,19 +72,19 @@ An external microphone array can be used instead of the on board mics by connect
 
 Open the MIC EXP connector lock.
 
-.. image:: images/ffd/external_mic_installation1.jpg
+.. image:: images/external_mic_installation1.jpg
   :width: 800
   :alt: external mic step 1
 
 Insert the external microphone ribbon cable, contacts facing away from the lock.
 
-.. image:: images/ffd/external_mic_installation2.jpg
+.. image:: images/external_mic_installation2.jpg
   :width: 800
   :alt: external mic step 2
 
 Lock the MIC EXP connector.
 
-.. image:: images/ffd/external_mic_installation3.jpg
+.. image:: images/external_mic_installation3.jpg
   :width: 800
   :alt: external mic step 3
 
@@ -96,19 +96,19 @@ SSD1306 Display (OPTIONAL)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 Solder header pins on TP5, TP6, J8, and J6.
 
-.. image:: images/ffd/lcd_installation1.jpg
+.. image:: images/lcd_installation1.jpg
   :width: 800
   :alt: lcd step 1
 
 Install the LCD daughter board by lining it up with TP5, TP6, J8, and J6.  Gently press down.
 
-.. image:: images/ffd/lcd_installation2.jpg
+.. image:: images/lcd_installation2.jpg
   :width: 800
   :alt: lcd step 2
 
 Attach the SSD1306 display to the daughter board.
 
-.. image:: images/ffd/lcd_installation3.jpg
+.. image:: images/lcd_installation3.jpg
   :width: 800
   :alt: lcd step 3
 
