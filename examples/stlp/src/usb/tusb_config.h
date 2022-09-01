@@ -92,13 +92,15 @@ extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 // EP and buffer sizes
 #define AUDIO_FRAMES_PER_USB_FRAME                   (appconfUSB_AUDIO_SAMPLE_RATE / 1000)
 
+// To support USB Adaptive/Asynchronous, maximum packet size must be large enough to accommodate an extra set of samples per frame.
+// Adding 1 to AUDIO_SAMPLES_PER_USB_FRAME allows this.
 #define CFG_TUD_AUDIO_ENABLE_EP_IN                  1
-#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ               (AUDIO_FRAMES_PER_USB_FRAME * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
+#define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ               ((AUDIO_FRAMES_PER_USB_FRAME + 1) * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX           (CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ)    // Maximum EP IN size for all AS alternate settings used
 #define CFG_TUD_AUDIO_FUNC_1_EP_IN_SW_BUF_SZ        CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ
 
 #define CFG_TUD_AUDIO_ENABLE_EP_OUT                 1
-#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ              (AUDIO_FRAMES_PER_USB_FRAME * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX)
+#define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ              ((AUDIO_FRAMES_PER_USB_FRAME + 1) * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX)
 #define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ_MAX          (CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ + 2)   // Maximum EP OUT size for all AS alternate settings used. Plus 2 for CRC
 #define CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ       CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ*3
 
