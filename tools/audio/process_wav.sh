@@ -5,7 +5,7 @@ help()
 {
    echo "XCORE-VOICE wav file processor"
    echo
-   echo "Syntax: ffd_process_wav.sh [-c|h] to_device.wav from_device.wav"
+   echo "Syntax: process_wav.sh [-c|h] to_device.wav from_device.wav"
    echo "options:"
    echo "h     Print this Help."
    echo "c     Number of channels in input wav"
