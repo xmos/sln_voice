@@ -12,9 +12,10 @@ mkdir -p ${DIST_DIR}
 # setup configurations
 # row format is: "name make_target flag BOARD toolchain"
 examples=(
-    "ffd_usb_audio          example_ffd_usb_audio_test     KEYWORD_USB_TESTING        XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_ua_adec           example_stlp_ua_adec           DEBUG_STLP_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_ua_adec_altarch   example_stlp_ua_adec_altarch   DEBUG_STLP_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
+    "ffd_usb_audio          example_ffd_usb_audio_test    KEYWORD_USB_TESTING             XK_VOICE_L71  xmos_cmake_toolchain/xs3a.cmake"
+    "stlp_ua_adec           example_stlp_ua_adec          DEBUG_STLP_USB_MIC_INPUT        XK_VOICE_L71  xmos_cmake_toolchain/xs3a.cmake"
+    "stlp_ua_adec_altarch   example_stlp_ua_adec_altarch  DEBUG_STLP_USB_MIC_INPUT        XK_VOICE_L71  xmos_cmake_toolchain/xs3a.cmake"
+    "stlp_sample_rate_conv  example_stlp_ua_adec          DEBUG_STLP_USB_MIC_NO_PIPELINE  XK_VOICE_L71  xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds
