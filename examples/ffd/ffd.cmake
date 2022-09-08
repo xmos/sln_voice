@@ -39,6 +39,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
+    sln_voice::inferencing::lib_tflite_micro
     sln_voice::app::ffd::inference_engine::wanson
     avona::agc
     avona::ic
