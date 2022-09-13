@@ -6,9 +6,9 @@ set -e
 # help text
 help()
 {
-   echo "XCORE-VOICE STLP pipeline test"
+   echo "XCORE-VOICE pipeline test"
    echo
-   echo "Syntax: stlp_check_pipeline.sh [-h] input_directory input_list output_directory amazon_wwe_directory"
+   echo "Syntax: check_pipeline.sh [-h] input_directory input_list output_directory amazon_wwe_directory"
    echo
    echo "options:"
    echo "h     Print this Help."

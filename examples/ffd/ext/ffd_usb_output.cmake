@@ -1,7 +1,6 @@
 set(KEYWORD_USB_VENDOR_OUTPUT
     appconfINFERENCE_I2C_OUTPUT_ENABLED=0
     appconfUSB_ENABLED=1
-    appconfINFERENCE_USB_OUTPUT_ENABLED=1
 )
 
 #**********************

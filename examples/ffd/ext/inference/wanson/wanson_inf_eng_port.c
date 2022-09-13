@@ -17,7 +17,6 @@
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
 #include "ssd1306_rtos_support.h"
-#include "usb_keyword_device.h"
 
 void wanson_engine_proc_keyword_result(const char **text, int id)
 {
@@ -70,10 +69,6 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
         rtos_printf("I2C inference output was not acknowledged\n\tSent %d bytes\n", sent);
     }
 #endif
-#if appconfINFERENCE_USB_OUTPUT_ENABLED
-    usb_keyword_update(id);
-#endif
-
 #if appconfINFERENCE_UART_OUTPUT_ENABLED && (UART_TILE_NO == INFERENCE_TILE_NO)
     uint32_t buf_uart = id;
     rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));

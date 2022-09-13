@@ -69,11 +69,7 @@
 #else
 #define CFG_TUD_AUDIO             0
 #endif
-#if appconfINFERENCE_USB_OUTPUT_ENABLED
-#define CFG_TUD_VENDOR            1
-#else
 #define CFG_TUD_VENDOR            0
-#endif
 
 #if appconfINFERENCE_USB_OUTPUT_ENABLED
 #define CFG_TUD_VENDOR_TX_BUFSIZE   64

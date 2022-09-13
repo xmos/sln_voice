@@ -47,11 +47,11 @@ fi
 if [[ $CHANNELS == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
     if [[ $AEC == true ]]; then
-        #   need to insert 2 silent reference channels and repeat microphone channel
+        # need to insert 2 silent reference channels and repeat microphone channel
         REMIX_PATTERN="remix 0 0 1 1"
     else
-        #   need to repeat microphone channel
-        REMIX_PATTERN="remix 1 1"
+        # append a silent microphone channel
+        REMIX_PATTERN="remix 1 0"
     fi
 elif [[ "$CHANNELS" == 2 ]]; then # reference-less test vector
     # file only has microphone channels
@@ -86,7 +86,7 @@ SOX_PLAY_OPTS="--buffer=65536 --rate=16000 --bits=16 --encoding=signed-integer -
 SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=16000 --bits=16 --encoding=signed-integer --endian=little --no-dither"
 
 # start recording
-sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &
+#sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &
 
 # play input
 sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE_DRIVER "$DEVICE_NAME"
