@@ -215,7 +215,7 @@ void sof_toggle()
         sof_count++;
         if (sof_count > 8 && !hold_average)
         {
-            rtos_printf("holding...........................................\n");
+            //rtos_printf("holding...........................................\n");
             hold_average = true;
         }
     }

@@ -86,7 +86,7 @@ SOX_PLAY_OPTS="--buffer=65536 --rate=16000 --bits=16 --encoding=signed-integer -
 SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=16000 --bits=16 --encoding=signed-integer --endian=little --no-dither"
 
 # start recording
-#sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &
+sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &
 
 # play input
 sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE_DRIVER "$DEVICE_NAME"

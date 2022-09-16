@@ -20,7 +20,7 @@
 
 void wanson_engine_proc_keyword_result(const char **text, int id)
 {
-    rtos_printf("%s %d\n", (char*)*text, id);
+    rtos_printf("KEYWORD: 0x%x, %s\n", id, (char*)*text);
 #if appconfSSD1306_DISPLAY_ENABLED
     // some temporary fixes to the strings returned
     switch (id) {

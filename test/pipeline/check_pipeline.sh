@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE pipeline test"
    echo
-   echo "Syntax: check_pipeline.sh [-h] input_directory input_list output_directory amazon_wwe_directory"
+   echo "Syntax: check_pipeline.sh [-h] firmware input_directory input_list output_directory amazon_wwe_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -26,10 +26,11 @@ done
 uname=`uname`
 
 # assign command line args
-INPUT_DIR=${@:$OPTIND:1}
-INPUT_LIST=${@:$OPTIND+1:1}
-OUTPUT_DIR=${@:$OPTIND+2:1}
-AMAZON_DIR=${@:$OPTIND+3:1}
+FIRMWARE=${@:$OPTIND:1}
+INPUT_DIR=${@:$OPTIND+1:1}
+INPUT_LIST=${@:$OPTIND+2:1}
+OUTPUT_DIR=${@:$OPTIND+3:1}
+AMAZON_DIR=${@:$OPTIND+4:1}
 
 # read input list
 INPUT_ARRAY=()
@@ -58,6 +59,13 @@ rm -rf ${RESULTS}
 # fresh list.txt for amazon_ww_filesim
 rm -f "${OUTPUT_DIR}/list.txt"
 (echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt")
+
+# call xrun (in background)
+xrun --xscope ${FIRMWARE} &
+XRUN_PID=$!
+
+# wait for app to load
+(sleep 10)
 
 echo "***********************************"
 echo "Log file: ${RESULTS}"
@@ -103,6 +111,9 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     (echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS})
 done 
+
+# kill xrun
+pkill -P ${XRUN_PID}
 
 # clean up
 (rm "${OUTPUT_DIR}/list.txt")

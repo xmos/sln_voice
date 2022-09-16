@@ -99,7 +99,7 @@ foreach(STLP_AP ${STLP_PIPELINES})
 
     add_custom_target(flash_fs_example_stlp_int_${STLP_AP}
         COMMAND xflash --quad-spi-clock 50MHz --factory example_stlp_int_${STLP_AP}.xe --boot-partition-size 0x100000 --data ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_stlp_int_${STLP_AP}_fat.fs
-        DEPENDS example_stlp_fat_int_${STLP_AP}_fat.fs
+        DEPENDS example_stlp_int_${STLP_AP}_fat.fs
         COMMENT
             "Flash filesystem"
         VERBATIM
