@@ -7,6 +7,9 @@
 #include <xcore/channel.h>
 #include <xcore/clock.h>
 
+#define USB_DIR_OUT 0
+#define USB_DIR_IN  1
+
 /* Add q formats as a hack to build */
 #define Q0(N) Q ## N
 #define Q(N) Q0(N)
