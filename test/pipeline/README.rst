@@ -2,6 +2,8 @@
 Check Pipeline
 ##############
 
+This test is a verification of the FFD or STLP audio pipelines.  
+
 *********************
 Install Prerequisites
 *********************
@@ -68,17 +70,13 @@ The `build_test.sh` script will copy the test applications to the `dist` folder.
 Running Pipeline Tests
 **********************
 
-First, run application firmware with the following command from the top of the repository:
+Run the test with the following command from the top of the repository:
 
 .. code-block:: console
 
-    xrun --xscope dist/<configuration>.xe
+    bash test/pipeline/check_pipeline.sh <firmware> <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe>
 
-Then, in a separate terminal, run the test with the following command from the top of the repository:
-
-.. code-block:: console
-
-    bash test/pipeline/check_pipeline.sh <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe>
+All paths must be absolute.  Relative paths will cause errors.  
 
 The <path-to-input-list> file is a text file listing wav files that must exist in <path-to-input-dir>.  The format of the file is:
 

@@ -32,9 +32,6 @@ enum {
     ITF_NUM_AUDIO_STREAMING_MIC,
 #endif
 #endif
-#if appconfINFERENCE_USB_OUTPUT_ENABLED
-    ITF_NUM_KEYWORD,
-#endif
     ITF_NUM_TOTAL
 };
 
