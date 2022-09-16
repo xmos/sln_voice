@@ -21,9 +21,6 @@
 #include "wanson_api.h"
 #include "xcore_device_memory.h"
 
-#define IS_WAKEWORD(id)   (id < 200)
-#define IS_COMMAND(id)    (id >= 200)
-
 #define WANSON_SAMPLES_PER_INFERENCE    (2 * appconfINFERENCE_SAMPLE_BLOCK_LENGTH) 
 
 typedef enum inference_state {
