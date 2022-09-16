@@ -78,7 +78,7 @@ void wanson_engine_samples_send_local(
 void wanson_engine_task_create(unsigned priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(
-                                           appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                                           appconfINFERENCE_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                                            appconfINFERENCE_SAMPLE_BLOCK_LENGTH);
 
     xTaskCreate((TaskFunction_t)wanson_engine_task,

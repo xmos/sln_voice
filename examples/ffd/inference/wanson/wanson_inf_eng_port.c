@@ -25,7 +25,7 @@ __attribute__((weak))
 void wanson_engine_proc_keyword_result(const char **text, int id)
 {
     if(text != NULL) {
-        rtos_printf("%s 0x%x\n", (char*)*text, id);
+        rtos_printf("KEYWORD: 0x%x, %s\n", id, (char*)*text);
     }
     if(q_intent != 0) {
         if(xQueueSend(q_intent, (void *)&id, (TickType_t)0) != pdPASS) {
