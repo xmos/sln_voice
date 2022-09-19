@@ -5,7 +5,7 @@ help()
 {
    echo "XCORE-VOICE wav file processor"
    echo
-   echo "Syntax: ffd_process_wav.sh [-c|h] to_device.wav from_device.wav"
+   echo "Syntax: process_wav.sh [-c|h] to_device.wav from_device.wav"
    echo "options:"
    echo "h     Print this Help."
    echo "c     Number of channels in input wav"
@@ -47,11 +47,11 @@ fi
 if [[ $CHANNELS == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
     if [[ $AEC == true ]]; then
-        #   need to insert 2 silent reference channels and repeat microphone channel
+        # need to insert 2 silent reference channels and repeat microphone channel
         REMIX_PATTERN="remix 0 0 1 1"
     else
-        #   need to repeat microphone channel
-        REMIX_PATTERN="remix 1 1"
+        # append a silent microphone channel
+        REMIX_PATTERN="remix 1 0"
     fi
 elif [[ "$CHANNELS" == 2 ]]; then # reference-less test vector
     # file only has microphone channels

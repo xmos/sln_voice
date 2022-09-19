@@ -117,25 +117,17 @@ const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
 };
 #endif /* appconfUSB_AUDIO_ENABLED */
 
-#if appconfINFERENCE_USB_OUTPUT_ENABLED
-#define VENDOR_SIZE     TUD_VENDOR_DESC_LEN
-#else
-#define VENDOR_SIZE     0
-#endif
-
 #if appconfUSB_AUDIO_ENABLED
 #define AUDIO_SIZE      (CFG_TUD_AUDIO * uac2_total_descriptors_length)
 #else
 #define AUDIO_SIZE      0
 #endif
 
-#define CONFIG_TOTAL_LEN    TUD_CONFIG_DESC_LEN + VENDOR_SIZE + AUDIO_SIZE
+#define CONFIG_TOTAL_LEN    TUD_CONFIG_DESC_LEN + AUDIO_SIZE
 
 #define EPNUM_AUDIO   0x01
-#define EPNUM_KEYWORD 0x02
 
 #define AUDIO_INTERFACE_STRING_INDEX 4
-#define KEYWORD_INTERFACE_STRING_INDEX 4
 
 uint8_t const desc_configuration[] = {
     // Interface count, string index, total length, attribute, power in mA
@@ -191,7 +183,7 @@ uint8_t const desc_configuration[] = {
     /* Type I Format Type Descriptor(2.3.1.6 - Audio Formats) */
     TUD_AUDIO_DESC_TYPE_I_FORMAT(CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX*8),
     /* Standard AS Isochronous Audio Data Endpoint Descriptor(4.10.1.1) */
-    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_SYNCHRONOUS | /*TUSB_ISO_EP_ATT_IMPLICIT_FB |*/ TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
+    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_ADAPTIVE | TUSB_ISO_EP_ATT_IMPLICIT_FB /*| TUSB_ISO_EP_ATT_DATA*/), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_OUT_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
     /* Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) */
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
@@ -208,15 +200,11 @@ uint8_t const desc_configuration[] = {
     /* Type I Format Type Descriptor(2.3.1.6 - Audio Formats) */
     TUD_AUDIO_DESC_TYPE_I_FORMAT(CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX, CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX*8),
     /* Standard AS Isochronous Audio Data Endpoint Descriptor(4.10.1.1) */
-    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ 0x80 | EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_SYNCHRONOUS | /*TUSB_ISO_EP_ATT_IMPLICIT_FB |*/ TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
+    TUD_AUDIO_DESC_STD_AS_ISO_EP(/*_ep*/ 0x80 | EPNUM_AUDIO, /*_attr*/ (TUSB_XFER_ISOCHRONOUS | TUSB_ISO_EP_ATT_ADAPTIVE /*| TUSB_ISO_EP_ATT_IMPLICIT_FB */ | TUSB_ISO_EP_ATT_DATA), /*_maxEPsize*/ CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ, /*_interval*/ (CFG_TUSB_RHPORT0_MODE & OPT_MODE_HIGH_SPEED) ? 0x04 : 0x01),
     /* Class-Specific AS Isochronous Audio Data Endpoint Descriptor(4.10.1.2) */
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
 
-#if appconfINFERENCE_USB_OUTPUT_ENABLED
-    // Interface number, string index, EP Out & IN address, EP size
-    TUD_VENDOR_DESCRIPTOR(ITF_NUM_KEYWORD, KEYWORD_INTERFACE_STRING_INDEX, EPNUM_KEYWORD, 0x80 | EPNUM_KEYWORD, VENDOR_EP_SIZE)
-#endif
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -238,9 +226,6 @@ char const *string_desc_arr[] = {(const char[]) {0x09, 0x04}, // 0: is supported
         XCORE_VOICE_PRODUCT_STR,          // 2: Product
         "123456",                   // 3: Serials, should use chip ID
         XCORE_VOICE_PRODUCT_STR,          // 4: Audio Interface
-#if appconfINFERENCE_USB_OUTPUT_ENABLED
-        "FFD Keyword",              // 5: Keyword Interface
-#endif
         };
 
 static uint16_t _desc_str[32];

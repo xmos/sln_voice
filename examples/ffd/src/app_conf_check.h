@@ -4,8 +4,4 @@
 #ifndef APP_CONF_CHECK_H_
 #define APP_CONF_CHECK_H_
 
-#if (appconfUSB_ENABLED == 0) && (appconfINFERENCE_USB_OUTPUT_ENABLED == 1)
-#error Inference output over USB is enabled but USB is not enabled
-#endif
-
 #endif /* APP_CONF_CHECK_H_ */
