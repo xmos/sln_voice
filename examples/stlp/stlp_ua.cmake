@@ -1,6 +1,6 @@
 
 option(DEBUG_STLP_USB_MIC_INPUT        "Enable stlp usb mic input"  OFF)
-option(DEBUG_STLP_USB_MIC_NO_PIPELINE  "Enable stlp usb mic input"  OFF)
+option(DEBUG_STLP_USB_MIC_INPUT_PIPELINE_BYPASS  "Enable stlp usb mic input and audio pipeline bypass"  OFF)
 
 set(STLP_UA_COMPILE_DEFINITIONS
     ${APP_COMPILE_DEFINITIONS}
