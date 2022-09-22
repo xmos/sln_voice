@@ -1,0 +1,7 @@
+git+https://github.com/xmos/audio_test_tools@999bb4d#egg=audio_test_tools
+matplotlib==3.3.1
+numpy==1.18.5
+pylint==2.5.3
+pytest==6.0.0
+pytest-xdist==1.34.0
+scipy==1.4.1

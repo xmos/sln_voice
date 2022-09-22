@@ -17,8 +17,8 @@ static void mclk_init(chanend_t other_tile_c)
 #if !appconfEXTERNAL_MCLK && ON_TILE(1)
     app_pll_init();
 #endif
-#if appconfUSB_ENABLED && !appconfEXTERNAL_MCLK
-    adaptive_rate_adjust_init(other_tile_c, MCLK_CLKBLK);
+#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
+    adaptive_rate_adjust_init(other_tile_c);
 #endif
 }
 
