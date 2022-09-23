@@ -70,8 +70,3 @@ rm ${TMP_CH2_WAV}
 #TODO:
 # check output file for correct frequency
 #   needs pytest so need install of python environment and instructions
-
-
-
-
-        

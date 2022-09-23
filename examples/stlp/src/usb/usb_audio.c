@@ -505,10 +505,6 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
     samp_t usb_audio_frames[AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
     const size_t stream_buffer_send_byte_count = sizeof(usb_audio_frames) / RATE_MULTIPLIER;
 
-    rtos_printf("KAM START tud_audio_rx_done_post_read_cb\n");
-    rtos_printf("KAM n_bytes_received=%d\n", n_bytes_received);
-    rtos_printf("KAM ep_out=%d\n", ep_out);
-
     host_streaming_out = true;
     prev_n_bytes_received = n_bytes_received;
   
@@ -599,8 +595,6 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
         rtos_printf("lost USB output samples\n");
     }
   
-    rtos_printf("KAM END tud_audio_rx_done_post_read_cb\n");
-
     return true;
 }
 
@@ -619,7 +613,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
      */
     samp_t stream_buffer_audio_frames[2 * AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
-    rtos_printf("KAM START tud_audio_tx_done_pre_load_cb\n");
     /*
      * Copying XUA_lite logic basically verbatim - if the host is streaming out, 
      * then we send back the number of samples per channel that we last received.
@@ -631,20 +624,13 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
      */
     if (host_streaming_out && (0 != prev_n_bytes_received))
     {
-        //KAM 192 = 48*2bytes*2chans
-        //KAM   will want to send *48* frames (aka samples)
         tx_size_bytes = (prev_n_bytes_received / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
-        rtos_printf("  KAM tud_audio_tx_done_pre_load_cb host_streaming_out=TRUE tx_size_bytes=%d\n", tx_size_bytes);
     }
     else
     {
-        //KAM 64 = when host_streaming_out is false 
-        //KAM   will want to send 16 frames (aka samples)
         tx_size_bytes = sizeof(samp_t) * (AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
-        rtos_printf("  KAM tud_audio_tx_done_pre_load_cb host_streaming_out=FALSE tx_size_bytes=%d\n", tx_size_bytes);
     }
     tx_size_frames = tx_size_bytes / (sizeof(samp_t) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
-    rtos_printf("  KAM tud_audio_tx_done_pre_load_cb tx_size_frames=%d\n", tx_size_frames); // 16 or *48*
 
     (void) rhport;
     (void) itf;
@@ -680,50 +666,29 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         }
 
         if (!ready) {
-            rtos_printf("  KAM oops not ready\n");
             return true;
         }
     }
 
-    //size_t scale_factor = RATE_MULTIPLIER * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
-    rtos_printf("  KAM tud_audio_tx_done_pre_load_cb bytes_available=%d\n", bytes_available);
-
-    if (bytes_available >= tx_size_bytes/RATE_MULTIPLIER) {
-        size_t KAM_foo = xStreamBufferReceive(samples_to_host_stream_buf, stream_buffer_audio_frames, tx_size_bytes/RATE_MULTIPLIER, 0);
-        rtos_printf("  KAM tud_audio_tx_done_pre_load_cb KAM_foo=%d\n", KAM_foo);
-        // KAM_foo = tx_size_bytes = 192     (96 frames, 48 per chan)
+    size_t tx_size_bytes_rate_adjusted = tx_size_bytes / RATE_MULTIPLIER;
+    size_t tx_size_frames_rate_adjusted = tx_size_frames / RATE_MULTIPLIER;
+    
+    if (bytes_available >= tx_size_bytes_rate_adjusted) {
+        xStreamBufferReceive(samples_to_host_stream_buf, stream_buffer_audio_frames, tx_size_bytes_rate_adjusted, 0);
 
         if (RATE_MULTIPLIER == 3) {
             static int32_t __attribute__((aligned (8))) src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX][SRC_FF3V_FIR_TAPS_PER_PHASE];
             /* Again, this buffer has to be large enough to contain any size transaction */
-            //KAM TODO: Is this buffer's first dimension big enough to hold tx_size_frames??????
-            //KAM TODO: how/where do host_streaming_out and prev_n_bytes_received get reset
             samp_t usb_audio_frames[RATE_MULTIPLIER*AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
-            //memset(usb_audio_frames, 0, sizeof(usb_audio_frames));
-            //       KAM  usb_audio_frames should be RATE_MULTIPLIER (3) * 48 * 2 chans = 288
-            // rtos_printf("  KAM tud_audio_tx_done_pre_load_cb sizeof(usb_audio_frames)=%d\n", sizeof(usb_audio_frames));
-            // rtos_printf("  KAM tud_audio_tx_done_pre_load_cb sizeof(src_data)=%d\n", sizeof(src_data));
-            // rtos_printf("  KAM tud_audio_tx_done_pre_load_cb tx_size_bytes=%d\n", tx_size_bytes);
-            // rtos_printf("  KAM tud_audio_tx_done_pre_load_cb tx_size_frames=%d\n", tx_size_frames);
-            // rtos_printf("  KAM tud_audio_tx_done_pre_load_cb CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX=%d\n", CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
-            // rtos_printf("  KAM tud_audio_tx_done_pre_load_cb CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX*tx_size_frames=%d\n", CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX*tx_size_frames);
 
-            // for (int i = 0; i < tx_size_frames ; i++) {
-            for (int i = 0; i < KAM_foo/sizeof(samp_t) ; i++) {
+            for (int i = 0; i < tx_size_frames_rate_adjusted ; i++) {
                 for (int j = 0; j < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX; j++) {
                     usb_audio_frames[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)stream_buffer_audio_frames[i][j]);
                     usb_audio_frames[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
                     usb_audio_frames[3*i + 2][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[0]);
-                    // usb_audio_frames[3*i + 0][j] = stream_buffer_audio_frames[i][j];
-                    // usb_audio_frames[3*i + 1][j] = stream_buffer_audio_frames[i][j];
-                    // usb_audio_frames[3*i + 2][j] = stream_buffer_audio_frames[i][j];
                 }
-                //rtos_printf("    KAM tud_audio_tx_done_pre_load_cb i=%d, [3*i + 2][1]=%d, [3*i + 2][2]=%d\n", i, (3*i + 2)*1, (3*i + 2)*2);
             }
-            rtos_printf("  KAM tud_audio_tx_done_pre_load_cb tud_audio_write returned %d\n", tud_audio_write(usb_audio_frames, tx_size_bytes));
-            //KAM TODO: why is this tx_size_frames?
-            //  KAM tud_audio_write returns 48 
-            //tud_audio_write(usb_audio_frames, tx_size_frames)
+            tud_audio_write(usb_audio_frames, tx_size_bytes);
         } else {
             tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
         }
@@ -731,7 +696,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         rtos_printf("Oops buffer is empty!\n");
     }
 
-    rtos_printf("KAM END tud_audio_tx_done_pre_load_cb\n");
     return true;
 }
 

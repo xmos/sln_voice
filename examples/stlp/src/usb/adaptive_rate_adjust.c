@@ -93,7 +93,7 @@ static void usb_adaptive_clk_manager(void *args) {
         if (s != prev_s)
         {
             app_pll_set_numerator((int)s);
-            rtos_printf("New App PLL numerator: %d, data rate: %u\n", (int)s, data_rate);
+            //rtos_printf("New App PLL numerator: %d, data rate: %u\n", (int)s, data_rate);
         }
 
         prev_s = s;
