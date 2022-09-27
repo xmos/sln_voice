@@ -15,7 +15,7 @@ target_include_directories(sln_voice_app_ffd_inference_engine_wanson
 target_link_libraries(sln_voice_app_ffd_inference_engine_wanson
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/wanson/lib/libasrengine_20220607.a
-        ${CMAKE_CURRENT_LIST_DIR}/wanson/lib/libmodel_en_20220607.a
+        ${CMAKE_CURRENT_LIST_DIR}/wanson/lib/libmodel_en_20220923.a
 )
 target_compile_definitions(sln_voice_app_ffd_inference_engine_wanson
     INTERFACE

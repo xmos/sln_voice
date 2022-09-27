@@ -82,56 +82,56 @@ void audio_response_play(int32_t id) {
             case 50: /* sleep */
                 tmp = wav_files[0];
                 break;
-            case 100: /* wakeup */
-            case 110: /* wakeup */
+            case 1: /* wakeup */
+            case 2: /* wakeup */
                 tmp = wav_files[1];
                 break;
-            case 200: /* tv_on */
+            case 3: /* tv_on */
                 tmp = wav_files[2];
                 break;
-            case 210: /* tv_off */
+            case 4: /* tv_off */
                 tmp = wav_files[3];
                 break;
-            case 220: /* ch_up */
+            case 5: /* ch_up */
                 tmp = wav_files[4];
                 break;
-            case 230: /* ch_down */
+            case 6: /* ch_down */
                 tmp = wav_files[5];
                 break;
-            case 240: /* vol_up */
+            case 7: /* vol_up */
                 tmp = wav_files[6];
                 break;
-            case 250: /* vol_down */
+            case 8: /* vol_down */
                 tmp = wav_files[7];
                 break;
-            case 300: /* lights_on */
+            case 9: /* lights_on */
                 tmp = wav_files[8];
                 break;
-            case 310: /* lights_off */
+            case 10: /* lights_off */
                 tmp = wav_files[9];
                 break;
-            case 320: /* lights_up */
+            case 11: /* lights_up */
                 tmp = wav_files[10];
                 break;
-            case 330: /* lights_down */
+            case 12: /* lights_down */
                 tmp = wav_files[11];
                 break;
-            case 400: /* fan_on */
+            case 13: /* fan_on */
                 tmp = wav_files[12];
                 break;
-            case 410: /* fan_off */
+            case 14: /* fan_off */
                 tmp = wav_files[13];
                 break;
-            case 420: /* fan_up */
+            case 15: /* fan_up */
                 tmp = wav_files[14];
                 break;
-            case 430: /* fan_down */
+            case 16: /* fan_down */
                 tmp = wav_files[15];
                 break;
-            case 440: /* temp_up */
+            case 17: /* temp_up */
                 tmp = wav_files[16];
                 break;
-            case 450: /* temp_down */
+            case 18: /* temp_down */
                 tmp = wav_files[17];
                 break;
             default:
