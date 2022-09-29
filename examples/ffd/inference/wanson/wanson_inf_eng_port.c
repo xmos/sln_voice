@@ -40,25 +40,25 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
             // Clear the display
             ssd1306_display_ascii_to_bitmap("\0");
             break;
-        case 200:
+        case 3:
             // fix capital "On"
             ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
             break;
-        case 420:
+        case 15:
             // fix lower case "speed"
             // fix word wrapping
             ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
             break;
-        case 430:
+        case 16:
             // fix lower case "slow"
             ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
             break;
-        case 440:
+        case 17:
             // fix lower case "set"
             // fix word wrapping
             ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
             break;
-        case 450:
+        case 18:
             // fix lower case "set"
             // fix word wrapping
             ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
