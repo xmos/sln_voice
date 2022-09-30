@@ -21,26 +21,26 @@
 
 static const char *audio_files_en[] = {
     "50.wav",   /* sleep */
-    "100.wav",  /* wakeup */
-    "200.wav",  /* tv_on */
-    "210.wav",  /* tv_off */
-    "220.wav",  /* ch_up */
-    "230.wav",  /* ch_down */
-    "240.wav",  /* vol_up */
-    "250.wav",  /* vol_down */
-    "300.wav",  /* lights_on */
-    "310.wav",  /* lights_off */
-    "320.wav",  /* lights_up*/
-    "330.wav",  /* lights_down */
-    "400.wav",  /* fan_on */
-    "410.wav",  /* fan_off */
-    "420.wav",  /* fan_up */
-    "430.wav",  /* fan_down */
-    "440.wav",  /* temp_up */
-    "450.wav",  /* temp_down */
+    "1.wav",  /* wakeup */
+    "3.wav",  /* tv_on */
+    "4.wav",  /* tv_off */
+    "5.wav",  /* ch_up */
+    "6.wav",  /* ch_down */
+    "7.wav",  /* vol_up */
+    "8.wav",  /* vol_down */
+    "9.wav",  /* lights_on */
+    "10.wav",  /* lights_off */
+    "11.wav",  /* lights_up*/
+    "12.wav",  /* lights_down */
+    "13.wav",  /* fan_on */
+    "14.wav",  /* fan_off */
+    "15.wav",  /* fan_up */
+    "16.wav",  /* fan_down */
+    "17.wav",  /* temp_up */
+    "18.wav",  /* temp_down */
 };
 
-#define NUM_FILES (sizeof(audio_files_en) / sizeof(audio_files_en[0]))
+#define NUM_FILES (sizeof(audio_files_en) / sizeof(char *))
 
 static int16_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int16_t)];
 static int32_t i2s_audio[2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t))];
@@ -78,65 +78,11 @@ void audio_response_play(int32_t id) {
     size_t framesRead = 0;
 
     if (wav_files != NULL) {
-        switch(id) {
-            case 50: /* sleep */
-                tmp = wav_files[0];
-                break;
-            case 1: /* wakeup */
-            case 2: /* wakeup */
-                tmp = wav_files[1];
-                break;
-            case 3: /* tv_on */
-                tmp = wav_files[2];
-                break;
-            case 4: /* tv_off */
-                tmp = wav_files[3];
-                break;
-            case 5: /* ch_up */
-                tmp = wav_files[4];
-                break;
-            case 6: /* ch_down */
-                tmp = wav_files[5];
-                break;
-            case 7: /* vol_up */
-                tmp = wav_files[6];
-                break;
-            case 8: /* vol_down */
-                tmp = wav_files[7];
-                break;
-            case 9: /* lights_on */
-                tmp = wav_files[8];
-                break;
-            case 10: /* lights_off */
-                tmp = wav_files[9];
-                break;
-            case 11: /* lights_up */
-                tmp = wav_files[10];
-                break;
-            case 12: /* lights_down */
-                tmp = wav_files[11];
-                break;
-            case 13: /* fan_on */
-                tmp = wav_files[12];
-                break;
-            case 14: /* fan_off */
-                tmp = wav_files[13];
-                break;
-            case 15: /* fan_up */
-                tmp = wav_files[14];
-                break;
-            case 16: /* fan_down */
-                tmp = wav_files[15];
-                break;
-            case 17: /* temp_up */
-                tmp = wav_files[16];
-                break;
-            case 18: /* temp_down */
-                tmp = wav_files[17];
-                break;
-            default:
-                rtos_printf("No audio response for id %d\n", id);
-                break;
+        if(id< NUM_FILES){  //max id should be (NUM_FILES - 1)
+            tmp = wav_files[id];
+        }
+        else{
+            rtos_printf("No audio response for id %d\n", id);
         }
 
         while(1) {
