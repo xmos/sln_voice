@@ -169,7 +169,7 @@ void usb_audio_recv(rtos_intertile_t *intertile_ctx,
     bytes_received = rtos_intertile_rx_len(
             intertile_ctx,
             appconfUSB_AUDIO_PORT,
-            portMAX_DELAY);
+            USB_AUDIO_RECV_DELAY);
 
     if (bytes_received > 0) {
         xassert(bytes_received == sizeof(usb_audio_out_frame));
