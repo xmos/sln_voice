@@ -1,9 +1,9 @@
 
-##############
-Check Commands
-##############
+############################
+Check Sample Rate Conversion
+############################
 
-This test is a verification of the FFD ASR command recognition.  
+This test is a verification of the STLP sample rate conversion feature.  
 
 ******************
 Building the Tests
@@ -29,16 +29,15 @@ The `build_test.sh` script will copy the test applications to the `dist` folder.
 Running Tests
 *************
 
+.. note::
+
+    The Python environment is required to run this test.  See the Requirements section of test/README.rst
+
 Run the test with the following command from the top of the repository:
 
 .. code-block:: console
 
-    bash test/commands/check_commands.sh <firmware> <path-to-input-dir> <path-to-input-list> <path-to-output-dir>
+    bash test/commands/check_sample_rate_conversion.sh <firmware> <path-to-output-dir>
 
 All paths must be absolute.  Relative paths may cause errors.  
 
-The <path-to-input-list> file is a text file listing wav files that must exist in <path-to-input-dir>.  The format of the file is:
-
-    filename    min_instances    max_instances 
-
-Note, max_instances should be 50 or less because the firmware will not recognize more than 50 commands.

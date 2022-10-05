@@ -58,7 +58,7 @@ rm -rf ${RESULTS}
 
 # fresh list.txt for amazon_ww_filesim
 rm -f "${OUTPUT_DIR}/list.txt"
-(echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt")
+echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt"
 
 # call xrun (in background)
 xrun --xscope ${FIRMWARE} &
@@ -93,10 +93,10 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
     # single out ASR channel
-    (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
+    sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
 
     # check wakeword detections
-    (cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV})
+    cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV}
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
@@ -109,15 +109,15 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # trim whitespace
     DETECTIONS="${DETECTIONS//[[:space:]]/}"
     # log results
-    (echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS})
+    echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 done 
 
 # kill xrun
 pkill -P ${XRUN_PID}
 
 # clean up
-(rm "${OUTPUT_DIR}/list.txt")
-(rm "${OUTPUT_DIR}/${AMAZON_WAV}")
+rm "${OUTPUT_DIR}/list.txt"
+rm "${OUTPUT_DIR}/${AMAZON_WAV}"
 
 # print results
-(cat ${RESULTS})
+cat ${RESULTS}

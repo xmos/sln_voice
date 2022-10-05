@@ -22,7 +22,7 @@
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
 #define appconfPDM_CLOCK_FREQUENCY              MIC_ARRAY_CONFIG_PDM_FREQ
-#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000
+#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 4800 is not supported in FFD ext
 #define appconfAUDIO_PIPELINE_CHANNELS          MIC_ARRAY_CONFIG_MIC_COUNT
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME

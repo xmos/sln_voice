@@ -9,15 +9,18 @@ help()
    echo "options:"
    echo "h     Print this Help."
    echo "c     Number of channels in input wav"
-   echo "a     Audio pipeline includes AEC"
+   echo "r     Sample rate (defaut=16000)"
+   echo "a     Audio pipeline includes AEC (defaut=true)"
    echo
 }
 
 # flag arguments
-while getopts c:ah option
+SAMPLE_RATE="16000"
+while getopts c:r:ah option
 do
     case "${option}" in
         c) CHANNELS=${OPTARG};;
+        r) SAMPLE_RATE=${OPTARG};;
         a) AEC='true';;
         h) help
            exit;;
@@ -82,8 +85,8 @@ else
 fi
 
 # call sox pipelines
-SOX_PLAY_OPTS="--buffer=65536 --rate=16000 --bits=16 --encoding=signed-integer --endian=little --no-dither"
-SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=16000 --bits=16 --encoding=signed-integer --endian=little --no-dither"
+SOX_PLAY_OPTS="--buffer=65536 --rate=${SAMPLE_RATE} --bits=16 --encoding=signed-integer --endian=little --no-dither"
+SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=${SAMPLE_RATE} --bits=16 --encoding=signed-integer --endian=little --no-dither"
 
 # start recording
 sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &

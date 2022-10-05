@@ -39,58 +39,58 @@ Dictionary command table
      - Return code (decimal)
    * - Hello XMOS
      - keyword
-     - 100
+     - 1
    * - Hello Wanson
      - keyword
-     - 110
+     - 2
    * - Switch on the TV
      - command
-     - 200
+     - 3
    * - Switch off the TV
      - command
-     - 210
+     - 4
    * - Channel up
      - command
-     - 220
+     - 5
    * - Channel down
      - command
-     - 230
+     - 6
    * - Volume up
      - command
-     - 240
+     - 7
    * - Volume down
      - command
-     - 250
+     - 8
    * - Switch on the lights
      - command
-     - 300
+     - 9
    * - Switch off the lights
      - command
-     - 310
+     - 10
    * - Brightness up
      - command
-     - 320
+     - 11
    * - Brightness down
      - command
-     - 330
+     - 12
    * - Switch on the fan
      - command
-     - 400
+     - 13
    * - Switch off the fan
      - command
-     - 410
+     - 14
    * - Speed up the fan
      - command
-     - 420
+     - 15
    * - Slow down the fan
      - command
-     - 430
+     - 16
    * - Set higher temperature
      - command
-     - 440
+     - 17
    * - Set lower temperature
      - command
-     - 450
+     - 18
 
 
 State Machine

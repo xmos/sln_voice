@@ -15,7 +15,6 @@
 
 /* Library headers */
 #include "rtos_printf.h"
-#include "src.h"
 
 /* App headers */
 #include "app_conf.h"
