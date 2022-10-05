@@ -13,7 +13,6 @@ set(APP_EXT_COMPILE_DEFINITIONS
     CFG_TUSB_DEBUG=0
 )
 set(APP_EXT_COMMON_LINK_LIBRARIES
-    sdk::lib_src
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/ffd_usb_audio_testing.cmake)
