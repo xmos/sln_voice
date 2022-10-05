@@ -28,11 +28,25 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
+#ifndef appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY
 #define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_AEC
 #define appconfAUDIO_PIPELINE_SKIP_AEC           0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD    0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_NS
 #define appconfAUDIO_PIPELINE_SKIP_NS            0
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_AGC
 #define appconfAUDIO_PIPELINE_SKIP_AGC           0
+#endif
 
 #ifndef appconfI2S_ENABLED
 #define appconfI2S_ENABLED         1

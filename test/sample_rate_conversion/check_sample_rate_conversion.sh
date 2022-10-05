@@ -6,9 +6,9 @@ set -e
 # help text
 help()
 {
-   echo "XCORE-VOICE Sample Rate COnversion test"
+   echo "XCORE-VOICE Sample Rate Conversion test"
    echo
-   echo "Syntax: check_commands.sh [-h] firmware output_directory"
+   echo "Syntax: check_sample_rate_conversion.sh [-h] firmware output_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -67,6 +67,5 @@ pkill -P ${XRUN_PID}
 rm ${TMP_CH1_WAV}
 rm ${TMP_CH2_WAV}
 
-#TODO:
 # check output file for correct frequency
-#   needs pytest so need install of python environment and instructions
+pytest ${SLN_VOICE_ROOT}/test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file ${OUTPUT_WAV} --wav_duration ${LENGTH}

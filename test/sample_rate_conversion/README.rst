@@ -29,6 +29,10 @@ The `build_test.sh` script will copy the test applications to the `dist` folder.
 Running Tests
 *************
 
+.. note::
+
+    The Python environment is required to run this test.  See the Requirements section of test/README.rst
+
 Run the test with the following command from the top of the repository:
 
 .. code-block:: console
