@@ -10,27 +10,31 @@
 #if __xcore__
 #include "tusb_config.h"
 #include "app_conf.h"
-#define EXPECTED_OUT_BYTES_PER_SECOND (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * \
+#define EXPECTED_OUT_BYTES_PER_TRANSACTION (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * \
                                        CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX * \
-                                       appconfAUDIO_PIPELINE_SAMPLE_RATE / 1000)
-#define EXPECTED_IN_BYTES_PER_SECOND  (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * \
+                                       appconfUSB_AUDIO_SAMPLE_RATE / 1000)
+#define EXPECTED_IN_BYTES_PER_TRANSACTION  (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * \
                                        CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX * \
-                                       appconfAUDIO_PIPELINE_SAMPLE_RATE / 1000)
+                                       appconfUSB_AUDIO_SAMPLE_RATE / 1000)
 #else //__xcore__
 // If we're compiling this for x86 we're probably testing it - just assume some values
-#define EXPECTED_OUT_BYTES_PER_SECOND  128 //16kbps * 16-bit * 4ch
-#define EXPECTED_IN_BYTES_PER_SECOND   192 //16kbps * 16-bit * 6ch
+#define EXPECTED_OUT_BYTES_PER_TRANSACTION  128 //16kbps * 16-bit * 4ch
+#define EXPECTED_IN_BYTES_PER_TRANSACTION   192 //16kbps * 16-bit * 6ch
 #endif //__xcore__
 
 #define TOTAL_STORED (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)
-#define REF_CLOCK_TICKS_PER_STORED_AVG (REF_CLOCK_TICKS_PER_SECOND / STORED_PER_SECOND)
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
+#define REF_CLOCK_TICKS_PER_STORED_AVG (REF_CLOCK_TICKS_PER_SECOND / STORED_PER_SECOND)
 #define NOMINAL_RATE (1 << 31)
+
+#define EXPECTED_OUT_BYTES_PER_BUCKET ((EXPECTED_OUT_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
+#define EXPECTED_IN_BYTES_PER_BUCKET ((EXPECTED_IN_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 
 bool first_time[2] = {true, true};
 volatile static bool data_seen = false;
 volatile static bool hold_average = false;
-uint32_t expected[2] = {EXPECTED_OUT_BYTES_PER_SECOND, EXPECTED_IN_BYTES_PER_SECOND};
+uint32_t expected[2] = {EXPECTED_OUT_BYTES_PER_TRANSACTION, EXPECTED_IN_BYTES_PER_TRANSACTION};
+uint32_t bucket_expected[2] = {EXPECTED_OUT_BYTES_PER_BUCKET, EXPECTED_IN_BYTES_PER_BUCKET};
 
 #if __xcore__
 uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format )
@@ -103,7 +107,7 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     static uint32_t first_timestamp[2];
     static bool buckets_full[2];
     static uint32_t times_overflowed[2];
-    static uint32_t previous_result[2];
+    static uint32_t previous_result[2] = {NOMINAL_RATE, NOMINAL_RATE};
 
     if (data_seen == false)
     {
@@ -129,10 +133,16 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
         times_overflowed[direction] = 0;
         buckets_full[direction] = false;
 
-        for (int i = 0; i < TOTAL_STORED; i++)
+        for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
         {
             data_lengths[direction][i] = 0;
             time_buckets[direction][i] = 0;
+        }
+        // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
+        for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
+        {
+            data_lengths[direction][i] = bucket_expected[direction];
+            time_buckets[direction][i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
 
         return NOMINAL_RATE;

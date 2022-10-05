@@ -69,7 +69,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     XRUN_PID=$!
 
     # wait for app to load
-    (sleep 10)
+    sleep 10
 
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
@@ -82,9 +82,9 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # trim whitespace
     DETECTIONS="${DETECTIONS//[[:space:]]/}"
     # log results
-    (echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS})
+    echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 
 done 
 
 # print results
-(cat ${RESULTS})
+cat ${RESULTS}
