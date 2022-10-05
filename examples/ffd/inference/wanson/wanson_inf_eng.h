@@ -4,8 +4,8 @@
 #ifndef WANSON_INF_ENG_H_
 #define WANSON_INF_ENG_H_
 
-#define IS_WAKEWORD(id)   (id < 200)
-#define IS_COMMAND(id)    (id >= 200)
+#define IS_WAKEWORD(id)   (id <= 2)
+#define IS_COMMAND(id)    (id > 2)
 
 void wanson_engine_task(void *args);
 
