@@ -165,17 +165,10 @@ void usb_audio_recv(rtos_intertile_t *intertile_ctx,
 
     xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-#if appconfUSB_AUDIO_MODE == appconfUSB_AUDIO_RELEASE
     bytes_received = rtos_intertile_rx_len(
             intertile_ctx,
             appconfUSB_AUDIO_PORT,
-            0);
-#else
-    bytes_received = rtos_intertile_rx_len(
-            intertile_ctx,
-            appconfUSB_AUDIO_PORT,
-            portMAX_DELAY);
-#endif
+            USB_AUDIO_RECV_DELAY);
 
     if (bytes_received > 0) {
         xassert(bytes_received == sizeof(usb_audio_out_frame));
@@ -225,7 +218,9 @@ void usb_audio_in_task(void *arg)
                 frame_length);
 
         if (mic_interface_open) {
-            if (xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, sizeof(usb_audio_in_frame), 0) != sizeof(usb_audio_in_frame)) {
+            if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= sizeof(usb_audio_in_frame)) {
+                xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, sizeof(usb_audio_in_frame), 0);
+            } else {
                 rtos_printf("lost VFE output samples\n");
             }
         }
@@ -585,7 +580,11 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
     
     if (xStreamBufferBytesAvailable(rx_buffer) >= sizeof(usb_audio_frames))
     {
-        xStreamBufferReceive(rx_buffer, usb_audio_frames, sizeof(usb_audio_frames), 0);
+        size_t num_rx_total = 0;
+        while(num_rx_total < sizeof(usb_audio_frames)){
+            size_t num_rx = xStreamBufferReceive(rx_buffer, usb_audio_frames, sizeof(usb_audio_frames)-num_rx_total, 0);
+            num_rx_total += num_rx;
+        }          
     }
     else
     {
@@ -707,7 +706,12 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
 
     if (bytes_available >= tx_size_bytes) {
-        xStreamBufferReceive(samples_to_host_stream_buf, stream_buffer_audio_frames, tx_size_bytes, 0);
+
+        size_t num_rx_total = 0;
+        while(num_rx_total < tx_size_bytes){
+            size_t num_rx =  xStreamBufferReceive(samples_to_host_stream_buf, stream_buffer_audio_frames, tx_size_bytes-num_rx_total, 0);
+            num_rx_total += num_rx;
+        }
 
         if (RATE_MULTIPLIER == 3) {
             static int32_t src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX][SRC_FF3V_FIR_TAPS_PER_PHASE] __attribute__((aligned (8)));
