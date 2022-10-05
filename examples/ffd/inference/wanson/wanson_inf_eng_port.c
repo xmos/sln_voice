@@ -51,7 +51,6 @@ enum WAV_FILES {
 static int wanson_id_intent_id[TOTAL_WAV_NUM][2] = {
     {50,SLEEP_WAV},
     {1,WAKEUP_WAV},
-    {2,WAKEUP_WAV},
     {3,TVON_WAV},
     {4,TVOFF_WAV},
     {5,CHUP_WAV},
