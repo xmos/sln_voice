@@ -17,7 +17,7 @@ message(STATUS "Fetching dependency lib_tflite_micro")
 FetchContent_Declare(
     lib_tflite_micro
     GIT_REPOSITORY https://github.com/xmos/lib_tflite_micro.git
-    GIT_TAG        a2dccc68bdef57a3b0ed326ea4d815a475feb39e
+    GIT_TAG        c59ee18f013f159abaa10ef0faf70b18f80f0315
     GIT_SHALLOW    TRUE
     GIT_SUBMODULES_RECURSE TRUE
     SOURCE_DIR     ${CMAKE_BINARY_DIR}/dependencies/lib_tflite_micro
