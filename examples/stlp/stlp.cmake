@@ -41,7 +41,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::inferencing::lib_tflite_micro
+    core::lib_tflite_micro
     rtos::freertos_usb
     sdk::lib_src
 )
