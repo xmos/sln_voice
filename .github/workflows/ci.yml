@@ -114,3 +114,4 @@ jobs:
           name: sln_voice_test_apps
           path:
             ./dist/*.xe
+            ./dist/*.json
