@@ -83,7 +83,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_example_apps
-          path: 
+          path: |
             ./dist/*.xe
             ./dist/*.fs
 
