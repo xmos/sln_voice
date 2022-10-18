@@ -82,6 +82,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # trim whitespace
     DETECTIONS="${DETECTIONS//[[:space:]]/}"
     # log results
+    echo "${INPUT_WAV}: ${DETECTIONS} detections"
     echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 
 done 

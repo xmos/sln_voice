@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -57,7 +57,7 @@ jobs:
     needs: build_host_apps
     steps:
       - name: Checkout SDK
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -83,16 +83,17 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_example_apps
-          path: 
+          path: |
             ./dist/*.xe
             ./dist/*.fs
+            ./dist/*.json
 
   build_tests:
     name: Build tests and test applications
     runs-on: ubuntu-latest
     steps:
       - name: Checkout SDK
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -112,5 +113,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_test_apps
-          path:
+          path: |
             ./dist/*.xe
+            ./dist/*.json
