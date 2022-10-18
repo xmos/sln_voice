@@ -21,12 +21,13 @@ target_link_libraries(sln_voice_app_stlp_audio_pipeline_adec_aec_2x_2y_no_comms
         core::general
         rtos::freertos
         rtos::sw_services::generic_pipeline
-        avona::adec
-        avona::aec
-        avona::agc
-        avona::ic
-        avona::ns
-        avona::vad
+        fwk_voice::adec
+        fwk_voice::aec
+        fwk_voice::agc
+        fwk_voice::ic
+        fwk_voice::ns
+        fwk_voice::vnr::features
+        fwk_voice::vnr::inference
 )
 
 ## Create an alias
@@ -57,12 +58,13 @@ target_link_libraries(sln_voice_app_stlp_audio_pipeline_adec_aec_2x_2y_no_comms_
         core::general
         rtos::freertos
         rtos::sw_services::generic_pipeline
-        avona::adec
-        avona::aec
-        avona::agc
-        avona::ic
-        avona::ns
-        avona::vad
+        fwk_voice::adec
+        fwk_voice::aec
+        fwk_voice::agc
+        fwk_voice::ic
+        fwk_voice::ns
+        fwk_voice::vnr::features
+        fwk_voice::vnr::inference
 )
 
 ## Create an alias

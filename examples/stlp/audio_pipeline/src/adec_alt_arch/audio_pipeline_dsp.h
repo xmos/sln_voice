@@ -28,7 +28,8 @@
 #include "agc_api.h"
 #include "ic_api.h"
 #include "ns_api.h"
-#include "vad_api.h"
+#include "vnr_features_api.h"
+#include "vnr_inference_api.h"
 #include "adec_api.h"
 
 /* Note: Changing the order here will effect the channel order for
@@ -40,7 +41,7 @@ typedef struct {
     int32_t mic_samples_passthrough[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
     /* Below is additional context needed by other stages on a per frame basis */
-    uint8_t vad;
+    int32_t vnr_pred_flag;
     float_s32_t max_ref_energy;
     float_s32_t aec_corr_factor;
     int32_t ref_active_flag;
@@ -58,9 +59,9 @@ typedef struct ic_stage_ctx {
     ic_state_t DWORD_ALIGNED state;
 } ic_stage_ctx_t;
 
-typedef struct vad_stage_ctx {
-    vad_state_t DWORD_ALIGNED state;
-} vad_stage_ctx_t;
+typedef struct vnr_pred_stage_ctx {
+    vnr_pred_state_t vnr_pred_state; 
+} vnr_pred_stage_ctx_t;
 
 typedef struct ns_stage_ctx {
     ns_state_t DWORD_ALIGNED state;

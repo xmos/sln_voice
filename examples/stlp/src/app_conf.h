@@ -36,8 +36,8 @@
 #define appconfAUDIO_PIPELINE_SKIP_AEC           0
 #endif
 
-#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
-#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD    0
+#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
+#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR    0
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_NS
