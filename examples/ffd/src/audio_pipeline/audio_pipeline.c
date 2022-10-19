@@ -17,7 +17,8 @@
 #include "agc_api.h"
 #include "ic_api.h"
 #include "ns_api.h"
-#include "vad_api.h"
+#include "vnr_features_api.h"
+#include "vnr_inference_api.h"
 
 /* App headers */
 #include "app_conf.h"
@@ -29,21 +30,22 @@
 typedef struct {
     int32_t samples[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     int32_t mic_samples_passthrough[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
-
-    uint8_t vad;
+    int32_t vnr_pred_flag;
 } frame_data_t;
 
 #if appconfAUDIO_PIPELINE_FRAME_ADVANCE != 240
 #error This pipeline is only configured for 240 frame advance
 #endif
 
+#define VNR_AGC_THRESHOLD (0.5)
+
 typedef struct ic_stage_ctx {
     ic_state_t state;
 } ic_stage_ctx_t;
 
-typedef struct vad_stage_ctx {
-    vad_state_t state;
-} vad_stage_ctx_t;
+typedef struct vnr_pred_stage_ctx {
+    vnr_pred_state_t vnr_pred_state; 
+} vnr_pred_stage_ctx_t;
 
 typedef struct ns_stage_ctx {
     ns_state_t state;
@@ -55,7 +57,7 @@ typedef struct agc_stage_ctx {
 } agc_stage_ctx_t;
 
 static ic_stage_ctx_t DWORD_ALIGNED ic_stage_state = {};
-static vad_stage_ctx_t DWORD_ALIGNED vad_stage_state = {};
+static vnr_pred_stage_ctx_t DWORD_ALIGNED vnr_pred_stage_state = {};
 static ns_stage_ctx_t DWORD_ALIGNED ns_stage_state = {};
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
@@ -69,7 +71,7 @@ static void *audio_pipeline_input_i(void *input_app_data)
                        (int32_t **)frame_data->samples,
                        2,
                        appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-    frame_data->vad = 0;
+    frame_data->vnr_pred_flag = 0;
 
     memcpy(frame_data->mic_samples_passthrough, frame_data->samples, sizeof(frame_data->mic_samples_passthrough));
 
@@ -85,9 +87,9 @@ static int audio_pipeline_output_i(frame_data_t *frame_data,
                                appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 }
 
-static void stage_vad_and_ic(frame_data_t *frame_data)
+static void stage_vnr_and_ic(frame_data_t *frame_data)
 {
-#if appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
+#if appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
     (void) frame_data;
 #else
     int32_t DWORD_ALIGNED ic_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
@@ -96,9 +98,33 @@ static void stage_vad_and_ic(frame_data_t *frame_data)
               frame_data->samples[0],
               frame_data->samples[1],
               ic_output);
-    uint8_t vad = vad_probability_voice(ic_output, &vad_stage_state.state);
-    ic_adapt(&ic_stage_state.state, vad, ic_output);
-    frame_data->vad = vad;
+
+    // VNR
+    bfp_s32_t feature_patch;
+    int32_t feature_patch_data[VNR_PATCH_WIDTH * VNR_MEL_FILTERS];
+    float_s32_t ie_output;
+    vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
+
+    vnr_extract_features(&vnr_pred_state->feature_state[0], &feature_patch, 
+                         feature_patch_data, &ic_stage_state.state.Y_bfp[0]);
+    vnr_inference(&ie_output, &feature_patch);
+    vnr_pred_state->input_vnr_pred = float_s32_ema(vnr_pred_state->input_vnr_pred, ie_output, vnr_pred_state->pred_alpha_q30); 
+    
+    vnr_extract_features(&vnr_pred_state->feature_state[1], &feature_patch,
+                         feature_patch_data, &ic_stage_state.state.Error_bfp[0]);
+    vnr_inference(&ie_output, &feature_patch);
+    vnr_pred_state->output_vnr_pred = float_s32_ema(vnr_pred_state->output_vnr_pred, ie_output, vnr_pred_state->pred_alpha_q30);
+
+#if 0
+    rtos_printf("VNR OUTPUT PRED: %ld %d\n", vnr_pred_stage_state.vnr_pred_state.output_vnr_pred.mant, vnr_pred_stage_state.vnr_pred_state.output_vnr_pred.exp);
+    rtos_printf("VNR INPUT PRED: %ld %d\n", vnr_pred_stage_state.vnr_pred_state.input_vnr_pred.mant, vnr_pred_stage_state.vnr_pred_state.input_vnr_pred.exp);
+#endif
+
+    float_s32_t agc_vnr_threshold = float_to_float_s32(VNR_AGC_THRESHOLD);
+    frame_data->vnr_pred_flag = float_s32_gt(vnr_pred_stage_state.vnr_pred_state.output_vnr_pred, agc_vnr_threshold);
+
+    ic_adapt(&ic_stage_state.state, vnr_pred_stage_state.vnr_pred_state.input_vnr_pred);
+
     memcpy(frame_data->samples, ic_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
 }
@@ -126,7 +152,7 @@ static void stage_agc(frame_data_t *frame_data)
     int32_t DWORD_ALIGNED agc_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     configASSERT(AGC_FRAME_ADVANCE == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    agc_stage_state.md.vad_flag = (frame_data->vad > AGC_VAD_THRESHOLD);
+    agc_stage_state.md.vnr_flag = frame_data->vnr_pred_flag;
 
     agc_process_frame(
             &agc_stage_state.state,
@@ -139,10 +165,18 @@ static void stage_agc(frame_data_t *frame_data)
 
 static void initialize_pipeline_stages(void) {
     ic_init(&ic_stage_state.state);
-    vad_init(&vad_stage_state.state);
+
+    vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
+    vnr_feature_state_init(&vnr_pred_state->feature_state[0]);
+    vnr_feature_state_init(&vnr_pred_state->feature_state[1]);
+    vnr_inference_init();
+    vnr_pred_state->pred_alpha_q30 = Q30(0.97);
+    vnr_pred_state->input_vnr_pred = float_to_float_s32(0.5);
+    vnr_pred_state->output_vnr_pred = float_to_float_s32(0.5); 
+
     ns_init(&ns_stage_state.state);
+    
     agc_init(&agc_stage_state.state, &AGC_PROFILE_ASR);
-    agc_stage_state.md.vad_flag = AGC_META_DATA_NO_VAD;
     agc_stage_state.md.aec_ref_power = AGC_META_DATA_NO_AEC;
     agc_stage_state.md.aec_corr_factor = AGC_META_DATA_NO_AEC;
 }
@@ -154,13 +188,13 @@ void audio_pipeline_init(
     const int stage_count = 3;
 
     const pipeline_stage_t stages[] = {
-        (pipeline_stage_t)stage_vad_and_ic,
+        (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_ns,
         (pipeline_stage_t)stage_agc,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vad_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vnr_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ns),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };

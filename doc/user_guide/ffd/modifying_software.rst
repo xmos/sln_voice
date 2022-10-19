@@ -122,13 +122,13 @@ Replace:
     :caption: XMOS NS (audio_pipeline.c)
 
     const pipeline_stage_t stages[] = {
-        (pipeline_stage_t)stage_vad_and_ic,
+        (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_ns,
         (pipeline_stage_t)stage_agc,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vad_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vnr_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ns),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
@@ -139,13 +139,13 @@ With:
     :caption: Foo (audio_pipeline.c)
 
     const pipeline_stage_t stages[] = {
-        (pipeline_stage_t)stage_vad_and_ic,
+        (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_foo,
         (pipeline_stage_t)stage_agc,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vad_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vnr_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_foo),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };

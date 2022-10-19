@@ -19,7 +19,7 @@ static void mclk_init(chanend_t other_tile_c)
 #endif
 #if ON_TILE(0)
 #if appconfUSB_ENABLED
-    adaptive_rate_adjust_init(other_tile_c, MCLK_CLKBLK);
+    adaptive_rate_adjust_init(other_tile_c);
 #endif
 #endif
 }

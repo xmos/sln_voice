@@ -93,16 +93,12 @@ extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 #if appconfUSB_AUDIO_MODE == appconfUSB_AUDIO_RELEASE
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                  1
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX                  2
-// In appconfMIC_SRC_MICS (or any other) mode, we do not wait for AEC reference channels.
-//  The reference will be all zeros while we wait.
-#define USB_AUDIO_RECV_DELAY                                0
 #else
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                  4
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX                  2
-// In appconfMIC_SRC_USB mode, we wait forever so mic and AEC reference channels 
-// will be syncronized
-#define USB_AUDIO_RECV_DELAY                                portMAX_DELAY
 #endif
+
+#define USB_AUDIO_RECV_DELAY                                0
 
 // EP and buffer sizes
 #define AUDIO_FRAMES_PER_USB_FRAME                   (appconfUSB_AUDIO_SAMPLE_RATE / 1000)

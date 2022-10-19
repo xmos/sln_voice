@@ -46,7 +46,7 @@ static void *audio_pipeline_input_i(void *input_app_data)
                        4,
                        appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    frame_data->vad = 0;
+    frame_data->vnr_pred_flag = 0;
 
     memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
 

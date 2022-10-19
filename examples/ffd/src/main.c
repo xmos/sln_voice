@@ -33,6 +33,8 @@
 extern void startup_task(void *arg);
 extern void tile_common_init(chanend_t c);
 
+//void uart_write(char data) {} //API for Wanson's Debug
+
 __attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,

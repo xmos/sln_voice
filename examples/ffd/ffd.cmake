@@ -40,10 +40,11 @@ set(APP_LINK_OPTIONS
 
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::inference_engine::wanson
-    avona::agc
-    avona::ic
-    avona::ns
-    avona::vad
+    fwk_voice::agc
+    fwk_voice::ic
+    fwk_voice::ns
+    fwk_voice::vnr::features
+    fwk_voice::vnr::inference
 )
 
 #**********************

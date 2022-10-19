@@ -186,8 +186,8 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_WAKEUP_EDGE_TYPE
      - Sets the host wake up pin GPIO edge type.  0 for rising edge, 1 for falling edge
      - 0
-   * - appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
-     - Enables/disables the IC and VAD
+   * - appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
+     - Enables/disables the IC and VNR
      - 0
    * - appconfAUDIO_PIPELINE_SKIP_NS
      - Enables/disables the NS

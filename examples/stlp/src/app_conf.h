@@ -28,6 +28,14 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
+#ifdef appconfPIPELINE_BYPASS
+#define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  1
+#define appconfAUDIO_PIPELINE_SKIP_AEC           1
+#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR    1
+#define appconfAUDIO_PIPELINE_SKIP_NS            1
+#define appconfAUDIO_PIPELINE_SKIP_AGC           1
+#endif
+
 #ifndef appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY
 #define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  0
 #endif
@@ -36,8 +44,8 @@
 #define appconfAUDIO_PIPELINE_SKIP_AEC           0
 #endif
 
-#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
-#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD    0
+#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
+#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR    0
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_NS
@@ -62,7 +70,6 @@
 
 #ifndef appconfUSB_AUDIO_SAMPLE_RATE
 #define appconfUSB_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
-//#define appconfUSB_AUDIO_SAMPLE_RATE 48000
 #endif
 
 #ifndef appconfSPI_OUTPUT_ENABLED
@@ -71,7 +78,6 @@
 
 #ifndef appconfI2S_AUDIO_SAMPLE_RATE
 #define appconfI2S_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
-//#define appconfI2S_AUDIO_SAMPLE_RATE 48000
 #endif
 
 #ifndef appconfEXTERNAL_MCLK
@@ -116,6 +122,7 @@
 #ifndef appconfSPI_AUDIO_MODE
 #define appconfSPI_AUDIO_MODE      appconfSPI_AUDIO_TESTING
 #endif
+
 
 #include "app_conf_check.h"
 

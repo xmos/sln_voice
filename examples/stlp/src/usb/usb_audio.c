@@ -550,7 +550,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
     {
         size_t num_rx_total = 0;
         while(num_rx_total < sizeof(usb_audio_frames)){
-            size_t num_rx = xStreamBufferReceive(rx_buffer, usb_audio_frames, sizeof(usb_audio_frames)-num_rx_total, 0);
+            size_t num_rx = xStreamBufferReceive(rx_buffer, &usb_audio_frames[num_rx_total], sizeof(usb_audio_frames)-num_rx_total, 0);
             num_rx_total += num_rx;
         }        
     }
@@ -681,7 +681,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
         size_t num_rx_total = 0;
         while(num_rx_total < tx_size_bytes_rate_adjusted){
-            size_t num_rx =  xStreamBufferReceive(samples_to_host_stream_buf, stream_buffer_audio_frames, tx_size_bytes_rate_adjusted-num_rx_total, 0);
+            size_t num_rx =  xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], tx_size_bytes_rate_adjusted-num_rx_total, 0);
             num_rx_total += num_rx;
         }        
 

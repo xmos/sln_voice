@@ -41,6 +41,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
+    core::lib_tflite_micro
     rtos::freertos_usb
     sdk::lib_src
 )
