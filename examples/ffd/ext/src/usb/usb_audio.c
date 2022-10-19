@@ -680,6 +680,10 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
 
     if (!ready) {
+        // we need to send something despite not being fully ready
+        //  so, send all zeros
+        memset(stream_buffer_audio_frames, 0, tx_size_bytes);
+        tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
         return true;
     }
 
