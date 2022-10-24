@@ -52,7 +52,7 @@ set(STLP_PIPELINES
 )
 
 #**********************
-# XMOS Reference Design Targets
+# XMOS Example Design Targets
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/stlp_int.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/stlp_ua.cmake)

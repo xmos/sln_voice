@@ -19,7 +19,7 @@ Far-field Voice Assistant
 Overview
 ========
 
-This is the XCORE-VOICE far-field voice assistant reference design.
+This is the XCORE-VOICE far-field voice assistant example design.
 
 This application can be used out of the box as a voice processor solution, or expanded to run local wakeword engines.
 
@@ -33,13 +33,13 @@ Try it
 Supported Hardware
 ------------------
 
-This reference application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
+This example application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
 
 -----------------------
 Setting up the Hardware
 -----------------------
 
-This reference design requires an XTAG4 and XK-VOICE-L71 board.
+This example design requires an XTAG4 and XK-VOICE-L71 board.
 
 ^^^^
 xTAG
@@ -165,7 +165,7 @@ To debug with xgdb, from the build folder run:
 Host Integration
 ================
 
-This reference application can be integrated with existing solutions or modified to be a single controller solution.
+This example application can be integrated with existing solutions or modified to be a single controller solution.
 
 --------------------------
 Out of the Box Integration
