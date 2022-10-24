@@ -16,7 +16,7 @@ XCORE |reg| -VOICE Solutions
    doc/copyright
 
 
-XMOS Solutions are a combination of the XCORE SDK and Reference Designs, ready to run on our development kits, and targeting a range of voice assistant and voice control applications.
+XMOS Solutions are a combination of the XCORE SDK and Example Designs, ready to run on our development kits, and targeting a range of voice assistant and voice control applications.
 
 
 On GitHub
@@ -29,14 +29,14 @@ Follow the **README** how to clone this repo.
 Checkout the tagged versions for the latest stable release.
 
 
-Reference Designs
------------------
+Example Designs
+---------------
 
 .. image:: doc/images/XK_VOICE_L71.jpg
   :width: 300
   :alt: XK_VOICE_L71
 
-.. list-table:: Voice Solutions - reference designs
+.. list-table:: Voice Solutions - example designs
     :widths: 50 100 100 100
     :header-rows: 1
     :align: left
