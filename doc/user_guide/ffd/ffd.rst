@@ -129,7 +129,7 @@ Run the following commands in the root folder to build the firmware:
 
     .. code-block:: console
 
-        cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+        cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
         nmake example_ffd
 
