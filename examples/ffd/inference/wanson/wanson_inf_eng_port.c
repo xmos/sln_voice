@@ -96,42 +96,42 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
         }
     }
 
-#if appconfSSD1306_DISPLAY_ENABLED
-    // some temporary fixes to the strings returned
-    switch (id) {
-        case 50:
-            // Clear the display
-            ssd1306_display_ascii_to_bitmap("\0");
-            break;
-        case 3:
-            // fix capital "On"
-            ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
-            break;
-        case 15:
-            // fix lower case "speed"
-            // fix word wrapping
-            ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
-            break;
-        case 16:
-            // fix lower case "slow"
-            ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
-            break;
-        case 17:
-            // fix lower case "set"
-            // fix word wrapping
-            ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
-            break;
-        case 18:
-            // fix lower case "set"
-            // fix word wrapping
-            ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
-            break;
-        default:
-            if(text != NULL) {
-                ssd1306_display_ascii_to_bitmap((char *)*text);
-            }
-    }
-#endif
+// #if appconfSSD1306_DISPLAY_ENABLED
+//     // some temporary fixes to the strings returned
+//     switch (id) {
+//         case 50:
+//             // Clear the display
+//             ssd1306_display_ascii_to_bitmap("\0");
+//             break;
+//         case 3:
+//             // fix capital "On"
+//             ssd1306_display_ascii_to_bitmap("Switch on the TV\0");
+//             break;
+//         case 15:
+//             // fix lower case "speed"
+//             // fix word wrapping
+//             ssd1306_display_ascii_to_bitmap("Speed up the   fan\0");
+//             break;
+//         case 16:
+//             // fix lower case "slow"
+//             ssd1306_display_ascii_to_bitmap("Slow down the fan\0");
+//             break;
+//         case 17:
+//             // fix lower case "set"
+//             // fix word wrapping
+//             ssd1306_display_ascii_to_bitmap("Set higher    temperature\0");
+//             break;
+//         case 18:
+//             // fix lower case "set"
+//             // fix word wrapping
+//             ssd1306_display_ascii_to_bitmap("Set lower     temperature\0");
+//             break;
+//         default:
+//             if(text != NULL) {
+//                 ssd1306_display_ascii_to_bitmap((char *)*text);
+//             }
+//     }
+// #endif
 }
 
 int32_t inference_engine_create(uint32_t priority, void *args)
