@@ -179,6 +179,14 @@ static void stage_agc(frame_data_t *frame_data)
    frame_data->ema_energy = float_to_float_s32(0.0);;
 #endif
 
+    // rtos_printf("ENERGIES: %d, %d; %d, %d; %d, %d; %d, %d; %d, %d\n", 
+    //     frame_data->ema_energy.mant, frame_data->ema_energy.exp,
+    //     agc_stage_state.state.lc_near_power_est.mant, agc_stage_state.state.lc_near_power_est.exp,
+    //     agc_stage_state.state.lc_far_power_est.mant, agc_stage_state.state.lc_far_power_est.exp,
+    //     agc_stage_state.state.lc_near_bg_power_est.mant, agc_stage_state.state.lc_near_bg_power_est.exp,
+    //     agc_stage_state.state.lc_far_bg_power_est.mant, agc_stage_state.state.lc_far_bg_power_est.exp
+    //     );
+
 }
 
 static void initialize_pipeline_stages(void) {

@@ -106,8 +106,8 @@
 #endif
 
 #define appconfPOWER_VNR_THRESHOLD           (0.5)
-#define appconfPOWER_LOW_ENERGY_THRESHOLD    (0.2 / 100.0)
-#define appconfPOWER_HIGH_ENERGY_THRESHOLD   (2.0 / 100.0)
+#define appconfPOWER_LOW_ENERGY_THRESHOLD    (0.2)
+#define appconfPOWER_HIGH_ENERGY_THRESHOLD   (4.0)
 #define appconfPOWER_FULL_HOLD_DURATION      (3000)   // milliseconds
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_NS
