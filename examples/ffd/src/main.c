@@ -144,7 +144,7 @@ void startup_task(void *arg)
 #endif
 
 #if ON_TILE(0)
-    led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
 #if appconfLOWPOWER_ENABLED
     power_status_create(appconfPOWER_STATUS_PRIORITY, NULL);
 #endif

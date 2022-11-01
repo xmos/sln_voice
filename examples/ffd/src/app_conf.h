@@ -174,7 +174,7 @@
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
-#define appconfLED_HEARTBEAT_TASK_PRIORITY          (configMAX_PRIORITIES / 2 - 1)
+#define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
 #define appconfPOWER_STATUS_PRIORITY    	        (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"

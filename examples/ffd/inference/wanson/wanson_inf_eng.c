@@ -20,6 +20,7 @@
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
 #include "xcore_device_memory.h"
+#include "gpio_ctrl/leds.h"
 
 #define WANSON_SAMPLES_PER_INFERENCE    (2 * appconfINFERENCE_SAMPLE_BLOCK_LENGTH) 
 
@@ -35,6 +36,7 @@ void vDisplayClearCallback(TimerHandle_t pxTimer)
 {
     if ((inference_state == STATE_EXPECTING_COMMAND) || (inference_state == STATE_PROCESSING_COMMAND)) {
         wanson_engine_proc_keyword_result(NULL, 50);    /* 50 is a special id that will play the no longer listening for command sound */
+        led_indicate_waiting();
     }
     inference_state = STATE_EXPECTING_WAKEWORD;
 }
@@ -122,6 +124,7 @@ void wanson_engine_task(void *args)
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
     #else
                 if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {
+                    led_indicate_listening();
                     xTimerReset(display_clear_timer, 0);
                     wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
                     inference_state = STATE_EXPECTING_COMMAND;
