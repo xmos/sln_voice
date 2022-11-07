@@ -96,7 +96,6 @@ void audio_pipeline_input(void *input_app_data,
 
 #if appconfUSB_ENABLED
     int32_t **usb_mic_audio_frame = NULL;
-    size_t ch_cnt = 2;  /* ref frames */
 
     if (aec_ref_source == appconfAEC_REF_USB) {
         usb_mic_audio_frame = input_audio_frames;
