@@ -1,10 +1,14 @@
-Copyrights and Licenses
-=======================
+.. _sln_voice_copyright:
 
+#####################
+COPYRIGHTS & LICENSES
+#####################
+
+*******************
 Software Copyrights
--------------------
+*******************
 
-All original source code in this repository is Copyright (C) 2019-2022 XMOS Ltd and is licensed under the `XMOS License <../LICENSE.rst>`_.
+All original source code in this repository is Copyright (C) 2019-2022 XMOS Ltd and is licensed under the `XMOS License <https://github.com/xmos/sln_voice/blob/develop/LICENSE.rst>`_.
 
 Additional third party code is included under the following copyrights and licenses:
 
