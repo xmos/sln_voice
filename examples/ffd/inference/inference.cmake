@@ -2,6 +2,7 @@
 add_library(sln_voice_app_ffd_inference_engine_wanson INTERFACE)
 target_sources(sln_voice_app_ffd_inference_engine_wanson
     INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/wanson/lib_xcore_math_compat.c
         ${CMAKE_CURRENT_LIST_DIR}/wanson/wanson_inf_eng.c
         ${CMAKE_CURRENT_LIST_DIR}/wanson/wanson_inf_eng_port.c
         ${CMAKE_CURRENT_LIST_DIR}/wanson/wanson_inf_eng_support.c

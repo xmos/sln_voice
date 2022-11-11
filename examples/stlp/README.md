@@ -1,6 +1,6 @@
 # Far-field Voice Assistant
 
-This is the far-field voice assistant reference design firmware.  See the full documentation for more information on configuring, modifying, building, and running the firmware.
+This is the far-field voice assistant example design firmware.  See the full documentation for more information on configuring, modifying, building, and running the firmware.
 
 ## Supported Hardware
 

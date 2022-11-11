@@ -106,7 +106,7 @@ static void stage_vnr_and_ic(frame_data_t *frame_data)
     vnr_inference(&ie_output, &feature_patch);
     vnr_pred_state->output_vnr_pred = float_s32_ema(vnr_pred_state->output_vnr_pred, ie_output, vnr_pred_state->pred_alpha_q30);
 
-    float_s32_t agc_vnr_threshold = float_to_float_s32(VNR_AGC_THRESHOLD);
+    float_s32_t agc_vnr_threshold = f32_to_float_s32(VNR_AGC_THRESHOLD);
     frame_data->vnr_pred_flag = float_s32_gt(vnr_pred_stage_state.vnr_pred_state.output_vnr_pred, agc_vnr_threshold);
 
     ic_adapt(&ic_stage_state.state, vnr_pred_stage_state.vnr_pred_state.input_vnr_pred);
@@ -159,8 +159,8 @@ static void initialize_pipeline_stages(void)
     vnr_feature_state_init(&vnr_pred_state->feature_state[1]);
     vnr_inference_init();
     vnr_pred_state->pred_alpha_q30 = Q30(0.97);
-    vnr_pred_state->input_vnr_pred = float_to_float_s32(0.5);
-    vnr_pred_state->output_vnr_pred = float_to_float_s32(0.5); 
+    vnr_pred_state->input_vnr_pred = f32_to_float_s32(0.5);
+    vnr_pred_state->output_vnr_pred = f32_to_float_s32(0.5); 
 
     ns_init(&ns_stage_state.state);
 

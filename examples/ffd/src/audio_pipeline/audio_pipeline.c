@@ -150,6 +150,16 @@ static void stage_ns(frame_data_t *frame_data)
                 frame_data->samples[0]);
     memcpy(frame_data->samples, ns_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
+
+#if appconfLOWPOWER_ENABLED
+    // Compute exponential moving average of frame energy
+    bfp_s32_t B;
+    bfp_s32_init(&B, &frame_data->samples[0][0], -31, appconfAUDIO_PIPELINE_FRAME_ADVANCE, 1);
+    float_s32_t energy = float_s64_to_float_s32(bfp_s32_energy(&B));
+    frame_data->ema_energy = float_s32_ema(frame_data->ema_energy, energy, ema_energy_alpha_q30);
+#else
+   frame_data->ema_energy = float_to_float_s32(0.0);;
+#endif
 }
 
 static void stage_agc(frame_data_t *frame_data)
@@ -162,6 +172,8 @@ static void stage_agc(frame_data_t *frame_data)
 
     agc_stage_state.md.vnr_flag = float_s32_gt(frame_data->vnr_pred, float_to_float_s32(VNR_AGC_THRESHOLD));
 
+
+
     agc_process_frame(
             &agc_stage_state.state,
             agc_output,
@@ -169,24 +181,6 @@ static void stage_agc(frame_data_t *frame_data)
             &agc_stage_state.md);
     memcpy(frame_data->samples, agc_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
-#if appconfLOWPOWER_ENABLED
-    // Compute exponential moving average of frame energy
-    bfp_s32_t B;
-    bfp_s32_init(&B, &frame_data->samples[0][0], -31, appconfAUDIO_PIPELINE_FRAME_ADVANCE, 1);
-    float_s32_t energy = float_s64_to_float_s32(bfp_s32_energy(&B));
-    frame_data->ema_energy = float_s32_ema(frame_data->ema_energy, energy, ema_energy_alpha_q30);
-#else
-   frame_data->ema_energy = float_to_float_s32(0.0);;
-#endif
-
-    // rtos_printf("ENERGIES: %d, %d; %d, %d; %d, %d; %d, %d; %d, %d\n", 
-    //     frame_data->ema_energy.mant, frame_data->ema_energy.exp,
-    //     agc_stage_state.state.lc_near_power_est.mant, agc_stage_state.state.lc_near_power_est.exp,
-    //     agc_stage_state.state.lc_far_power_est.mant, agc_stage_state.state.lc_far_power_est.exp,
-    //     agc_stage_state.state.lc_near_bg_power_est.mant, agc_stage_state.state.lc_near_bg_power_est.exp,
-    //     agc_stage_state.state.lc_far_bg_power_est.mant, agc_stage_state.state.lc_far_bg_power_est.exp
-    //     );
-
 }
 
 static void initialize_pipeline_stages(void) {
@@ -197,8 +191,8 @@ static void initialize_pipeline_stages(void) {
     vnr_feature_state_init(&vnr_pred_state->feature_state[1]);
     vnr_inference_init();
     vnr_pred_state->pred_alpha_q30 = Q30(0.97);
-    vnr_pred_state->input_vnr_pred = float_to_float_s32(0.5);
-    vnr_pred_state->output_vnr_pred = float_to_float_s32(0.5); 
+    vnr_pred_state->input_vnr_pred = f32_to_float_s32(0.5);
+    vnr_pred_state->output_vnr_pred = f32_to_float_s32(0.5); 
 
     ns_init(&ns_stage_state.state);
     

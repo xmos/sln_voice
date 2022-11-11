@@ -2,14 +2,14 @@
 
 .. _sln_voice_ffd_modifying_software:
 
-##############################
-Modifying the Reference Design
-##############################
+############################
+Modifying the Example Design
+############################
 
 Overview
 ========
 
-The FFD reference design consists of three major software blocks, the audio pipeline, keyword spotter, and keyword handler.  This section will go into detail on how to replace each/all of these subsystems.
+The FFD example design consists of three major software blocks, the audio pipeline, keyword spotter, and keyword handler.  This section will go into detail on how to replace each/all of these subsystems.
 
 .. figure:: diagrams/ffd_diagram.drawio.png
    :align: center
@@ -172,8 +172,8 @@ The generic inference engine API only requires two functions be declared:
 Refer to the existing Wanson model implementation for details on how the output handler is set up, how the audio is conditioned to the expected model format, and how it receives frames from the audio pipeline.
 
 
-Replacing Reference Design Interfaces
--------------------------------------
+Replacing Example Design Interfaces
+-----------------------------------
 
 It may be desired to have a different output interface to talk to a host, or not have a host at all and handle the intent local to the XCORE device.
 
