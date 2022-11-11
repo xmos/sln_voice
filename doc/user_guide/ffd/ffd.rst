@@ -36,12 +36,12 @@ Try it
 Supported Hardware
 ------------------
 
-This reference application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
+This example application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
 
 Setting up the Hardware
 -----------------------
 
-This reference design requires an XTAG4 and XK-VOICE-L71 board.
+This example design requires an XTAG4 and XK-VOICE-L71 board.
 
 Optionally, an external microphone array board, LCD daugher board, and SSD1306 display can also be used.
 
@@ -90,7 +90,7 @@ Lock the MIC EXP connector.
 
 Speakers (OPTIONAL)
 ^^^^^^^^^^^^^^^^^^^
-This reference application features audio playback responses.  Speakers can be connected to the LINE OUT on the XK-VOICE-L71.
+This example application features audio playback responses.  Speakers can be connected to the LINE OUT on the XK-VOICE-L71.
 
 SSD1306 Display (OPTIONAL)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -138,7 +138,7 @@ Run the following commands in the root folder to build the firmware:
 Configuring the Firmware
 ------------------------
 
-The default application performs as described in the Overview. There are numerous compile time options that can be added to change the reference design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/ffd.cmake>`_.
+The default application performs as described in the Overview. There are numerous compile time options that can be added to change the example design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/ffd.cmake>`_.
 
 If options are changed, the application firmware must be rebuilt.
 
@@ -186,8 +186,8 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_WAKEUP_EDGE_TYPE
      - Sets the host wake up pin GPIO edge type.  0 for rising edge, 1 for falling edge
      - 0
-   * - appconfAUDIO_PIPELINE_SKIP_IC_AND_VAD
-     - Enables/disables the IC and VAD
+   * - appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
+     - Enables/disables the IC and VNR
      - 0
    * - appconfAUDIO_PIPELINE_SKIP_NS
      - Enables/disables the NS
@@ -254,7 +254,7 @@ To debug with xgdb, from the build folder run:
 Host Integration
 ===================
 
-This reference application can be integrated with existing solutions or modified to be a single controller solution.
+This example application can be integrated with existing solutions or modified to be a single controller solution.
 
 Out of the Box Integration
 --------------------------

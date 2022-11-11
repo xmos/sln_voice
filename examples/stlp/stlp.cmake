@@ -41,6 +41,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
+    core::lib_tflite_micro
     rtos::freertos_usb
     sdk::lib_src
 )
@@ -51,7 +52,7 @@ set(STLP_PIPELINES
 )
 
 #**********************
-# XMOS Reference Design Targets
+# XMOS Example Design Targets
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/stlp_int.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/stlp_ua.cmake)

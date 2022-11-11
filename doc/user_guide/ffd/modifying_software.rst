@@ -2,14 +2,14 @@
 
 .. _sln_voice_ffd_modifying_software:
 
-##############################
-Modifying the Reference Design
-##############################
+############################
+Modifying the Example Design
+############################
 
 Overview
 ========
 
-The FFD reference design consists of three major software blocks, the audio pipeline, keyword spotter, and keyword handler.  This section will go into detail on how to replace each/all of these subsystems.
+The FFD example design consists of three major software blocks, the audio pipeline, keyword spotter, and keyword handler.  This section will go into detail on how to replace each/all of these subsystems.
 
 .. figure:: diagrams/ffd_diagram.drawio.png
    :align: center
@@ -122,13 +122,13 @@ Replace:
     :caption: XMOS NS (audio_pipeline.c)
 
     const pipeline_stage_t stages[] = {
-        (pipeline_stage_t)stage_vad_and_ic,
+        (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_ns,
         (pipeline_stage_t)stage_agc,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vad_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vnr_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ns),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
@@ -139,13 +139,13 @@ With:
     :caption: Foo (audio_pipeline.c)
 
     const pipeline_stage_t stages[] = {
-        (pipeline_stage_t)stage_vad_and_ic,
+        (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_foo,
         (pipeline_stage_t)stage_agc,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vad_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vnr_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_foo),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
@@ -172,8 +172,8 @@ The generic inference engine API only requires two functions be declared:
 Refer to the existing Wanson model implementation for details on how the output handler is set up, how the audio is conditioned to the expected model format, and how it receives frames from the audio pipeline.
 
 
-Replacing Reference Design Interfaces
--------------------------------------
+Replacing Example Design Interfaces
+-----------------------------------
 
 It may be desired to have a different output interface to talk to a host, or not have a host at all and handle the intent local to the XCORE device.
 

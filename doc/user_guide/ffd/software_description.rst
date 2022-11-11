@@ -20,7 +20,7 @@ Software Description
 Overview
 ========
 
-The estimated power usage of the reference application varies from 100-141 mW.  This will vary based on component tolerances and any user added code and/or user added compile options.
+The estimated power usage of the example application varies from 100-141 mW.  This will vary based on component tolerances and any user added code and/or user added compile options.
 
 By default, the application will consume around 141 mW, with a system frequency of 600 MHz.  By changing the system frequency to 400 MHz, the application will consume around 110 mW.  By changing tile 0 to 400 MHz and tile 1 to 200 MHz, the application will consume 100 mW.  Tile frequencies lower than these may lead to application instability.
 
