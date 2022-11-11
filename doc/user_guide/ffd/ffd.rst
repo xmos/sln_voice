@@ -22,7 +22,7 @@ Far-field Voice Local Control
 
 Overview
 ========
-This is the XMOS far-field local dictionary (FFD) example design with Wanson speech recognition.
+This is the XMOS far-field voice local command (FFD) reference design with Wanson speech recognition and local dictionary.
 
 When a wakeup phrase is followed by an intent phrase the application will output an audio response, |I2C| and uart discrete message, and display text on the optional SSD1306 daughter board.
 
