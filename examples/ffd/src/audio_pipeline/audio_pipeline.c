@@ -64,7 +64,7 @@ static vnr_pred_stage_ctx_t DWORD_ALIGNED vnr_pred_stage_state = {};
 static ns_stage_ctx_t DWORD_ALIGNED ns_stage_state = {};
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
-static fixed_s32_t ema_energy_alpha_q30 = Q30(EMA_ENERGY_ALPHA); 
+static uq2_30 ema_energy_alpha_q30 = Q30(EMA_ENERGY_ALPHA); 
 
 static power_data_t* power_app_data = 0; 
 
@@ -78,8 +78,8 @@ static void *audio_pipeline_input_i(void *input_app_data)
                        (int32_t **)frame_data->samples,
                        2,
                        appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-    frame_data->vnr_pred = float_to_float_s32(0.0);
-    frame_data->ema_energy = float_to_float_s32(0.0);
+    frame_data->vnr_pred = f32_to_float_s32(0.0);
+    frame_data->ema_energy = f32_to_float_s32(0.0);
 
     memcpy(frame_data->mic_samples_passthrough, frame_data->samples, sizeof(frame_data->mic_samples_passthrough));
 
@@ -158,7 +158,7 @@ static void stage_ns(frame_data_t *frame_data)
     float_s32_t energy = float_s64_to_float_s32(bfp_s32_energy(&B));
     frame_data->ema_energy = float_s32_ema(frame_data->ema_energy, energy, ema_energy_alpha_q30);
 #else
-   frame_data->ema_energy = float_to_float_s32(0.0);;
+   frame_data->ema_energy = f32_to_float_s32(0.0);;
 #endif
 }
 
@@ -170,7 +170,7 @@ static void stage_agc(frame_data_t *frame_data)
     int32_t DWORD_ALIGNED agc_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     configASSERT(AGC_FRAME_ADVANCE == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    agc_stage_state.md.vnr_flag = float_s32_gt(frame_data->vnr_pred, float_to_float_s32(VNR_AGC_THRESHOLD));
+    agc_stage_state.md.vnr_flag = float_s32_gt(frame_data->vnr_pred, f32_to_float_s32(VNR_AGC_THRESHOLD));
 
 
 
