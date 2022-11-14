@@ -25,6 +25,7 @@ if(DEBUG_STLP_USB_MIC_INPUT_PIPELINE_BYPASS)
     list(APPEND STLP_UA_COMPILE_DEFINITIONS appconfUSB_AUDIO_SAMPLE_RATE=48000)
 endif()
 
+query_tools_version()
 foreach(STLP_AP ${STLP_PIPELINES})
     #**********************
     # Tile Targets
@@ -79,7 +80,8 @@ foreach(STLP_AP ${STLP_PIPELINES})
     create_debug_target(example_stlp_ua_${STLP_AP})
     create_filesystem_target(example_stlp_ua_${STLP_AP})
     create_flash_app_target(example_stlp_ua_${STLP_AP})
-
+    create_upgrade_img_target(example_stlp_ua_${STLP_AP} ${XTC_VERSION_MAJOR} ${XTC_VERSION_MINOR})
+    
     #**********************
     # Filesystem support targets
     #**********************
@@ -111,6 +113,7 @@ foreach(STLP_AP ${STLP_PIPELINES})
         )
     endif()
 
+    ## Note this takes place of create_flash_app_dfu_target() as there is a filesystem here
     add_custom_target(flash_fs_example_stlp_ua_${STLP_AP}
         COMMAND xflash --quad-spi-clock 50MHz --factory example_stlp_ua_${STLP_AP}.xe --boot-partition-size 0x100000 --data ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_stlp_ua_${STLP_AP}_fat.fs
         DEPENDS example_stlp_ua_${STLP_AP}_fat.fs

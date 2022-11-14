@@ -20,6 +20,7 @@ target_link_libraries(sln_voice_app_stlp_board_support_xk_voice_l71
         rtos::drivers::general
         rtos::drivers::audio
         rtos::drivers::usb
+        rtos::drivers::dfu_image
         sln_voice::app::stlp::dac::dac3101
 )
 target_compile_options(sln_voice_app_stlp_board_support_xk_voice_l71
@@ -39,8 +40,6 @@ target_compile_definitions(sln_voice_app_stlp_board_support_xk_voice_l71
         PLATFORM_SUPPORTS_TILE_3=0
         USB_TILE_NO=0
         USB_TILE=tile[USB_TILE_NO]
-        # MIC_ARRAY_CONFIG_MCLK_FREQ=24576000
-        # MIC_ARRAY_CONFIG_MCLK_FREQ=12288000
         MIC_ARRAY_CONFIG_PDM_FREQ=3072000
         MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME=240
         MIC_ARRAY_CONFIG_MIC_COUNT=2
