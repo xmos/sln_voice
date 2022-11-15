@@ -4,8 +4,11 @@
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
-    ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306
+    ${CMAKE_CURRENT_LIST_DIR}/src/audio_pipeline
+    ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
+    ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response
+    ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306
 )
 set(RTOS_CONF_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/rtos_conf
