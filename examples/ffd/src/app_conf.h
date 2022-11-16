@@ -10,8 +10,10 @@
 #define appconfGPIO_T1_RPC_PORT                   2
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
+#define appconfCLOCK_CONTROL_PORT                 14
+#define appconfPOWER_CONTROL_PORT                 15
 
-#define appconfPOWER_STATE_PORT                  12
+#define appconfPOWER_STATE_PORT                   12
 #define appconfWANSON_READY_SYNC_PORT             16
 
 /* Application tile specifiers */
@@ -101,14 +103,22 @@
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
 #endif
 
-#ifndef appconfLOWPOWER_ENABLED
-#define appconfLOWPOWER_ENABLED   1
+#ifndef appconfLOW_POWER_ENABLED
+#define appconfLOW_POWER_ENABLED   1
 #endif
 
-#define appconfPOWER_VNR_THRESHOLD           (0.5)
-#define appconfPOWER_LOW_ENERGY_THRESHOLD    (0.2)
-#define appconfPOWER_HIGH_ENERGY_THRESHOLD   (4.0)
-#define appconfPOWER_FULL_HOLD_DURATION      (3000)   // milliseconds
+#ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
+#define appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE  1
+#endif
+
+#define appconfLOW_POWER_SWITCH_CLK_DIV         30  // Resulting clock freq >= 20MHz.
+#define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
+#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
+
+#define appconfPOWER_VNR_THRESHOLD              (0.03f)
+#define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
+#define appconfPOWER_HIGH_ENERGY_THRESHOLD      (0.045f)
+#define appconfPOWER_FULL_HOLD_DURATION         (appconfINFERENCE_RESET_DELAY_MS + 3000) // milliseconds
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_NS
 #define appconfAUDIO_PIPELINE_SKIP_NS   0
@@ -166,6 +176,8 @@
 #define appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY (configMAX_PRIORITIES - 2)
 #define appconfINFERENCE_HMI_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
 #define appconfGPIO_RPC_PRIORITY                    (configMAX_PRIORITIES / 2)
+#define appconfCLOCK_CONTROL_RPC_HOST_PRIORITY      (configMAX_PRIORITIES / 2)
+#define appconfPOWER_CONTROL_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
 #define appconfGPIO_TASK_PRIORITY                   (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_MASTER_RPC_PRIORITY              (configMAX_PRIORITIES / 2)
@@ -175,7 +187,6 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
-#define appconfPOWER_STATUS_PRIORITY    	        (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"
 

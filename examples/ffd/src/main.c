@@ -18,6 +18,7 @@
 
 /* App headers */
 #include "app_conf.h"
+#include "platform/platform_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
 #include "audio_pipeline/audio_pipeline.h"
@@ -31,11 +32,14 @@
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
 #include "power/power_status.h"
+#include "power/power_control.h"
 
 extern void startup_task(void *arg);
 extern void tile_common_init(chanend_t c);
 
-static power_data_t wakeup_app_data = {};
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+static power_data_t wakeup_app_data;
+#endif
 
 //void uart_write(char data) {} //API for Wanson's Debug
 
@@ -76,7 +80,7 @@ int audio_pipeline_output(void *output_app_data,
                           size_t frame_count)
 {
     power_state_t power_state = POWER_STATE_FULL;
-#if appconfLOWPOWER_ENABLED
+#if appconfLOW_POWER_ENABLED
     power_state = power_state_data_add((power_data_t *)output_app_data);
 #endif
 #if appconfINFERENCE_ENABLED
@@ -127,6 +131,14 @@ void startup_task(void *arg)
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
+#if ON_TILE(0)
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
+#endif
+
+#if appconfLOW_POWER_ENABLED
+    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
+#endif
+
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 #if appconfINFERENCE_ENABLED
     // Wait until the Wanson engine is initialized before we start the
@@ -138,16 +150,15 @@ void startup_task(void *arg)
     }
 #endif
     audio_pipeline_init(NULL, &wakeup_app_data);
-#if appconfLOWPOWER_ENABLED
+#if appconfLOW_POWER_ENABLED
     power_state_init();
 #endif
 #endif
 
-#if ON_TILE(0)
-    led_task_create(appconfLED_TASK_PRIORITY, NULL);
-#if appconfLOWPOWER_ENABLED
-    power_status_create(appconfPOWER_STATUS_PRIORITY, NULL);
-#endif
+#if appconfLOW_POWER_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    set_local_tile_processor_clk_div(1);
+    enable_local_tile_processor_clock_divider();
+    set_local_tile_processor_clk_div(appconfLOW_POWER_CONTROL_TILE_CLK_DIV);
 #endif
 
     //mem_analysis();

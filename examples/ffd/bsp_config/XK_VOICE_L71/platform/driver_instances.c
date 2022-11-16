@@ -6,6 +6,9 @@
 static rtos_intertile_t intertile_ctx_s;
 rtos_intertile_t *intertile_ctx = &intertile_ctx_s;
 
+static rtos_clock_control_t cc_ctx_t0_s;
+rtos_clock_control_t *cc_ctx_t0 = &cc_ctx_t0_s;
+
 static rtos_qspi_flash_t qspi_flash_ctx_s;
 rtos_qspi_flash_t *qspi_flash_ctx = &qspi_flash_ctx_s;
 

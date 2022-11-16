@@ -8,6 +8,7 @@ set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response
+    ${CMAKE_CURRENT_LIST_DIR}/src/power
     ${CMAKE_CURRENT_LIST_DIR}/src/ssd1306
 )
 set(RTOS_CONF_INCLUDES
@@ -48,6 +49,7 @@ set(APP_COMMON_LINK_LIBRARIES
     fwk_voice::ns
     fwk_voice::vnr::features
     fwk_voice::vnr::inference
+    rtos::drivers::clock_control
 )
 
 #**********************
