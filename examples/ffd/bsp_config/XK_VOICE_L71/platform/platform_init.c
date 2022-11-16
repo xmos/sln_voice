@@ -17,6 +17,28 @@ static void mclk_init(chanend_t other_tile_c)
 #endif
 }
 
+static void clock_control_init(void)
+{
+    static rtos_driver_rpc_t clock_control_rpc_config_t0;
+
+#if ON_TILE(0)
+    rtos_intertile_t *client_intertile_ctx[] = {intertile_ctx};
+
+    rtos_clock_control_init(cc_ctx_t0);
+
+    rtos_clock_control_rpc_host_init(
+        cc_ctx_t0,
+        &clock_control_rpc_config_t0,
+        client_intertile_ctx,
+        sizeof(client_intertile_ctx) / sizeof(rtos_intertile_t *));
+#else
+    rtos_clock_control_rpc_client_init(
+            cc_ctx_t0,
+            &clock_control_rpc_config_t0,
+            intertile_ctx);
+#endif
+}
+
 static void flash_init(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
@@ -180,6 +202,7 @@ void platform_init(chanend_t other_tile_c)
     rtos_intertile_init(intertile_ctx, other_tile_c);
 
     mclk_init(other_tile_c);
+    clock_control_init();
     gpio_init();
     flash_init();
     i2c_init();

@@ -13,6 +13,9 @@
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "power/power_state.h"
+#include "power/power_control.h"
+
+#if ON_TILE(POWER_CONTROL_TILE_NO)
 
 static TimerHandle_t power_state_timer;
 static power_state_t power_state = POWER_STATE_FULL;
@@ -26,7 +29,11 @@ void vWakeupStateCallback(TimerHandle_t pxTimer)
 void power_state_set(power_state_t state) {
     if (state != power_state) {
         power_state = state;
-        rtos_intertile_tx(intertile_ctx, appconfPOWER_STATE_PORT, &power_state, sizeof(power_state));
+
+        if (power_state == POWER_STATE_FULL)
+            power_control_exit_low_power();
+        else
+            power_control_enter_low_power();
     }
 }
 
@@ -38,7 +45,7 @@ void power_state_init() {
         NULL,
         vWakeupStateCallback);
 
-    power_state_set(POWER_STATE_LOW);
+    xTimerStart(power_state_timer, 0);
 }
 
 power_state_t power_state_data_add(power_data_t *data) {
@@ -48,6 +55,8 @@ power_state_t power_state_data_add(power_data_t *data) {
             power_state_set(POWER_STATE_FULL);
             xTimerReset(power_state_timer, 0);
     }
-    
+
     return power_state;
 }
+
+#endif // ON_TILE(POWER_CONTROL_TILE_NO)
