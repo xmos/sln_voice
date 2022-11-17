@@ -1,6 +1,8 @@
-###################
-STLP Check Pipeline
-###################
+##############
+Check Pipeline
+##############
+
+This test is a verification of the FFD or STLP audio pipelines.  
 
 *********************
 Install Prerequisites
@@ -40,11 +42,21 @@ Building the Tests
 
 Begin by ensuring the filesystem is flashed.  To do this run the following commands from the top of the repository:
 
+If testing the STLP pipeline run:
+
 .. code-block:: console
     
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    make flash_fs_application_stlp_ua_adec -j
+    make flash_fs_example_stlp_ua_adec -j
+
+If testing the FFD pipeline run:
+
+.. code-block:: console
+    
+    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cd build
+    make flash_fs_example_ffd -j
 
 To build the test application firmware, run the following command from the top of the repository: 
 
@@ -54,21 +66,17 @@ To build the test application firmware, run the following command from the top o
 
 The `build_test.sh` script will copy the test applications to the `dist` folder.  
 
-**********************
-Running Pipeline Tests
-**********************
+*************
+Running Tests
+*************
 
-First, run application firmware with the following command from the top of the repository:
-
-.. code-block:: console
-
-    xrun --xscope dist/<configuration>.xe
-
-Then, in a separate terminal, run the test with the following command from the top of the repository:
+Run the test with the following command from the top of the repository:
 
 .. code-block:: console
 
-    bash test/pipeline/check_pipeline.sh <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe>
+    bash test/pipeline/check_pipeline.sh <firmware> <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe>
+
+All paths must be absolute.  Relative paths may cause errors.  
 
 The <path-to-input-list> file is a text file listing wav files that must exist in <path-to-input-dir>.  The format of the file is:
 

@@ -6,9 +6,9 @@ set -e
 # help text
 help()
 {
-   echo "XCORE-VOICE STLP pipeline test"
+   echo "XCORE-VOICE pipeline test"
    echo
-   echo "Syntax: stlp_check_pipeline.sh [-h] input_directory input_list output_directory amazon_wwe_directory"
+   echo "Syntax: check_pipeline.sh [-h] firmware input_directory input_list output_directory amazon_wwe_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -26,10 +26,11 @@ done
 uname=`uname`
 
 # assign command line args
-INPUT_DIR=${@:$OPTIND:1}
-INPUT_LIST=${@:$OPTIND+1:1}
-OUTPUT_DIR=${@:$OPTIND+2:1}
-AMAZON_DIR=${@:$OPTIND+3:1}
+FIRMWARE=${@:$OPTIND:1}
+INPUT_DIR=${@:$OPTIND+1:1}
+INPUT_LIST=${@:$OPTIND+2:1}
+OUTPUT_DIR=${@:$OPTIND+3:1}
+AMAZON_DIR=${@:$OPTIND+4:1}
 
 # read input list
 INPUT_ARRAY=()
@@ -57,7 +58,14 @@ rm -rf ${RESULTS}
 
 # fresh list.txt for amazon_ww_filesim
 rm -f "${OUTPUT_DIR}/list.txt"
-(echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt")
+echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt"
+
+# call xrun (in background)
+xrun --xscope ${FIRMWARE} &
+XRUN_PID=$!
+
+# wait for app to load
+(sleep 10)
 
 echo "***********************************"
 echo "Log file: ${RESULTS}"
@@ -85,10 +93,10 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
     # single out ASR channel
-    (sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1)
+    sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
 
     # check wakeword detections
-    (cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV})
+    cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV}
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
@@ -101,12 +109,15 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # trim whitespace
     DETECTIONS="${DETECTIONS//[[:space:]]/}"
     # log results
-    (echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS})
+    echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 done 
 
+# kill xrun
+pkill -P ${XRUN_PID}
+
 # clean up
-(rm "${OUTPUT_DIR}/list.txt")
-(rm "${OUTPUT_DIR}/${AMAZON_WAV}")
+rm "${OUTPUT_DIR}/list.txt"
+rm "${OUTPUT_DIR}/${AMAZON_WAV}"
 
 # print results
-(cat ${RESULTS})
+cat ${RESULTS}

@@ -5,19 +5,22 @@ help()
 {
    echo "XCORE-VOICE wav file processor"
    echo
-   echo "Syntax: ffd_process_wav.sh [-c|h] to_device.wav from_device.wav"
+   echo "Syntax: process_wav.sh [-c|h] to_device.wav from_device.wav"
    echo "options:"
    echo "h     Print this Help."
    echo "c     Number of channels in input wav"
-   echo "a     Audio pipeline includes AEC"
+   echo "r     Sample rate (defaut=16000)"
+   echo "a     Audio pipeline includes AEC (defaut=true)"
    echo
 }
 
 # flag arguments
-while getopts c:ah option
+SAMPLE_RATE="16000"
+while getopts c:r:ah option
 do
     case "${option}" in
         c) CHANNELS=${OPTARG};;
+        r) SAMPLE_RATE=${OPTARG};;
         a) AEC='true';;
         h) help
            exit;;
@@ -47,11 +50,11 @@ fi
 if [[ $CHANNELS == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
     if [[ $AEC == true ]]; then
-        #   need to insert 2 silent reference channels and repeat microphone channel
+        # need to insert 2 silent reference channels and repeat microphone channel
         REMIX_PATTERN="remix 0 0 1 1"
     else
-        #   need to repeat microphone channel
-        REMIX_PATTERN="remix 1 1"
+        # append a silent microphone channel
+        REMIX_PATTERN="remix 1 0"
     fi
 elif [[ "$CHANNELS" == 2 ]]; then # reference-less test vector
     # file only has microphone channels
@@ -82,8 +85,8 @@ else
 fi
 
 # call sox pipelines
-SOX_PLAY_OPTS="--buffer=65536 --rate=16000 --bits=16 --encoding=signed-integer --endian=little --no-dither"
-SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=16000 --bits=16 --encoding=signed-integer --endian=little --no-dither"
+SOX_PLAY_OPTS="--buffer=65536 --rate=${SAMPLE_RATE} --bits=16 --encoding=signed-integer --endian=little --no-dither"
+SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=${SAMPLE_RATE} --bits=16 --encoding=signed-integer --endian=little --no-dither"
 
 # start recording
 sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &

@@ -17,11 +17,11 @@ Some dependent components are included as git submodules. These can be obtained 
 
 ## Documentation
 
-See the READMEs for the early applications:
+See the READMEs for the early example applications:
 
-[FFD](https://github.com/xmos/sln_voice/blob/develop/applications/ffd/README.rst)
+[FFD](https://github.com/xmos/sln_voice/blob/develop/examples/ffd/README.md)
 
-[STLP](https://github.com/xmos/sln_voice/blob/develop/applications/stlp/README.rst)
+[STLP](https://github.com/xmos/sln_voice/blob/develop/examples/stlp/README.md)
 
 # Getting Help
 
@@ -33,5 +33,5 @@ This Software is subject to the terms of the [XMOS Public Licence: Version 1](ht
 
 Additional third party copyrighted code is included under the following licenses:
 
-The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/tree/develop/applications/ffd/inference/wanson/lib/LICENSE.md).
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/tree/develop/examples/ffd/inference/wanson/lib/LICENSE.md).
 

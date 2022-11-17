@@ -28,12 +28,36 @@ env:
   SDK_BUILDER_IMAGE: 'ghcr.io/xmos/sdk_app_builder:develop'
 
 jobs:
+  build_host_apps:
+    name: Build host applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Pull SDK builder
+        run: |
+          docker pull ${SDK_BUILDER_IMAGE}
+
+      - name: Build
+        run: |
+          docker run --rm -w /xcore_sdk -v ${{github.workspace}}:/xcore_sdk ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_host_apps.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: host_apps
+          path: ./dist_host
+
   build_examples:
     name: Build example applications
     runs-on: ubuntu-latest
+    needs: build_host_apps
     steps:
       - name: Checkout SDK
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -41,6 +65,12 @@ jobs:
         run: |
           docker pull ${SDK_BUILDER_IMAGE}
 
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: host_apps
+          path: ./dist_host
+          
       - name: Build
         run: |
           docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_examples.sh
@@ -53,41 +83,17 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_example_apps
-          path: ./dist/*
-
-  build_applications:
-    name: Build reference applications
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout SDK
-        uses: actions/checkout@v2
-        with:
-          submodules: recursive
-
-      - name: Pull SDK builder image
-        run: |
-          docker pull ${SDK_BUILDER_IMAGE}
-
-      - name: Build
-        run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_applications.sh
-
-      - name: Save metadata
-        run: |
-          bash tools/ci/log_metadata.sh ./dist/applications_metadata.json
-
-      - name: Save reference app firmware artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: sln_voice_reference_apps
-          path: ./dist/*
+          path: |
+            ./dist/*.xe
+            ./dist/*.fs
+            ./dist/*.json
 
   build_tests:
     name: Build tests and test applications
     runs-on: ubuntu-latest
     steps:
       - name: Checkout SDK
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
@@ -103,8 +109,10 @@ jobs:
         run: |
           bash tools/ci/log_metadata.sh ./dist/tests_metadata.json
 
-      - name: Save reference app firmware artifacts
+      - name: Save example application firmware artifacts
         uses: actions/upload-artifact@v3
         with:
           name: sln_voice_test_apps
-          path: ./dist/*
+          path: |
+            ./dist/*.xe
+            ./dist/*.json

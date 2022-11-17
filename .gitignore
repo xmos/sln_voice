@@ -22,6 +22,8 @@
 *.xmt
 **/_build/
 **/build_*/
+**/dist*/
+**/dist_host*/
 !doc/tutorials/build_system/
 **/run_*.log
 **/_doxygen/*
