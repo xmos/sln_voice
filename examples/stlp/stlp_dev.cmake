@@ -1,5 +1,6 @@
 
 set(STLP_DEV_PIPELINES
+    fixed_delay
     adec
     adec_altarch
 )

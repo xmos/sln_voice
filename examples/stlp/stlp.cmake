@@ -47,6 +47,7 @@ set(APP_COMMON_LINK_LIBRARIES
 )
 
 set(STLP_PIPELINES
+    fixed_delay
     adec
     adec_altarch
 )
