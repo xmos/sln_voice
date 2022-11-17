@@ -25,7 +25,7 @@ if(DEBUG_STLP_USB_MIC_INPUT_PIPELINE_BYPASS)
     list(APPEND STLP_UA_COMPILE_DEFINITIONS appconfUSB_AUDIO_SAMPLE_RATE=48000)
 endif()
 
-foreach(STLP_AP ${STLP_PIPELINES})
+foreach(STLP_AP ${STLP_PIPELINES_UA})
     #**********************
     # Tile Targets
     #**********************
