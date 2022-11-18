@@ -11,6 +11,7 @@
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
 
+#define appconfPOWER_STATE_PORT                  12
 #define appconfWANSON_READY_SYNC_PORT             16
 
 /* Application tile specifiers */
@@ -57,6 +58,11 @@
 #define appconfINTENT_QUEUE_LEN     10
 #endif
 
+/* Maximum number of detected intents to hold */
+#ifndef appconfWAKEUP_TRIGGER_LEN
+#define appconfWAKEUP_TRIGGER_LEN     1
+#endif
+
 /* External wakeup pin edge on intent found.  0 for rising edge, 1 for falling edge */
 #ifndef appconfINTENT_WAKEUP_EDGE_TYPE
 #define appconfINTENT_WAKEUP_EDGE_TYPE     0
@@ -94,6 +100,15 @@
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
 #endif
+
+#ifndef appconfLOWPOWER_ENABLED
+#define appconfLOWPOWER_ENABLED   1
+#endif
+
+#define appconfPOWER_VNR_THRESHOLD           (0.5)
+#define appconfPOWER_LOW_ENERGY_THRESHOLD    (0.2)
+#define appconfPOWER_HIGH_ENERGY_THRESHOLD   (4.0)
+#define appconfPOWER_FULL_HOLD_DURATION      (3000)   // milliseconds
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_NS
 #define appconfAUDIO_PIPELINE_SKIP_NS   0
@@ -160,6 +175,7 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
 #define appconfLED_HEARTBEAT_TASK_PRIORITY          (configMAX_PRIORITIES / 2 - 1)
+#define appconfPOWER_STATUS_PRIORITY    	        (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"
 

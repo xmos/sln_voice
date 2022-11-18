@@ -29,9 +29,13 @@
 #include "xcore_device_memory.h"
 #include "ssd1306_rtos_support.h"
 #include "intent_handler/intent_handler.h"
+#include "power/power_state.h"
+#include "power/power_status.h"
 
 extern void startup_task(void *arg);
 extern void tile_common_init(chanend_t c);
+
+static power_data_t wakeup_app_data = {};
 
 //void uart_write(char data) {} //API for Wanson's Debug
 
@@ -71,10 +75,14 @@ int audio_pipeline_output(void *output_app_data,
                           size_t ch_count,
                           size_t frame_count)
 {
-    (void) output_app_data;
-
+    power_state_t power_state = POWER_STATE_FULL;
+#if appconfLOWPOWER_ENABLED
+    power_state = power_state_data_add((power_data_t *)output_app_data);
+#endif
 #if appconfINFERENCE_ENABLED
-    inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+    if (power_state == POWER_STATE_FULL) {
+        inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+    }
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
@@ -86,6 +94,14 @@ void vApplicationMallocFailedHook(void)
     xassert(0);
     for(;;);
 }
+
+// static void mem_analysis(void)
+// {
+// 	for (;;) {
+// 		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+// 		vTaskDelay(pdMS_TO_TICKS(5000));
+// 	}
+// }
 
 __attribute__((weak))
 void startup_task(void *arg)
@@ -121,13 +137,20 @@ void startup_task(void *arg)
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
 #endif
-    audio_pipeline_init(NULL, NULL);
+    audio_pipeline_init(NULL, &wakeup_app_data);
+#if appconfLOWPOWER_ENABLED
+    power_state_init();
+#endif
 #endif
 
 #if ON_TILE(0)
     led_heartbeat_create(appconfLED_HEARTBEAT_TASK_PRIORITY, NULL);
+#if appconfLOWPOWER_ENABLED
+    power_status_create(appconfPOWER_STATUS_PRIORITY, NULL);
+#endif
 #endif
 
+    //mem_analysis();
     vTaskSuspend(NULL);
     while(1){;} /* Trap */
 }

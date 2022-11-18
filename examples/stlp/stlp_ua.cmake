@@ -26,7 +26,7 @@ if(DEBUG_STLP_USB_MIC_INPUT_PIPELINE_BYPASS)
 endif()
 
 query_tools_version()
-foreach(STLP_AP ${STLP_PIPELINES})
+foreach(STLP_AP ${STLP_PIPELINES_UA})
     #**********************
     # Tile Targets
     #**********************
