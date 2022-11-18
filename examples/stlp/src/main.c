@@ -103,7 +103,7 @@ void audio_pipeline_input(void *input_app_data,
     }
 
     if (mic_from_usb) {
-        ch_count += 2;  /* mic frames */
+        ch_cnt += 2;  /* mic frames */
     }
 
     /*
@@ -113,7 +113,7 @@ void audio_pipeline_input(void *input_app_data,
     usb_audio_recv(intertile_ctx,
                    frame_count,
                    usb_mic_audio_frame,
-                   ch_count);
+                   ch_cnt);
 #endif
 
 #if appconfI2S_ENABLED
