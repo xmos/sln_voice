@@ -11,6 +11,7 @@
 #include "rtos_i2s.h"
 #include "rtos_mic_array.h"
 #include "rtos_qspi_flash.h"
+#include "rtos_dfu_image.h"
 #include "rtos_spi_slave.h"
 
 /* Tile specifiers */
@@ -56,5 +57,6 @@ extern rtos_i2c_master_t *i2c_master_ctx;
 extern rtos_i2c_slave_t *i2c_slave_ctx;
 extern rtos_spi_slave_t *spi_slave_ctx;
 extern rtos_i2s_t *i2s_ctx;
+extern rtos_dfu_image_t *dfu_image_ctx;
 
 #endif /* DRIVER_INSTANCES_H_ */

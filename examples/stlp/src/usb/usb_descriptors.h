@@ -25,8 +25,14 @@ enum {
 #if AUDIO_INPUT_ENABLED
     ITF_NUM_AUDIO_STREAMING_MIC,
 #endif
+    ITF_NUM_DFU_MODE,
     ITF_NUM_TOTAL
 };
+
+// Number of DFU alt interfaces
+#define DFU_ALT_COUNT                   3
+// DFU functional attributes
+#define DFU_FUNC_ATTRS (DFU_ATTR_CAN_UPLOAD | DFU_ATTR_CAN_DOWNLOAD | DFU_ATTR_WILL_DETACH | DFU_ATTR_MANIFESTATION_TOLERANT)
 
 // Unit numbers are arbitrary selected
 #define UAC2_ENTITY_CLOCK               0x01

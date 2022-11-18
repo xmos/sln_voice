@@ -115,11 +115,11 @@ const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
         uac2_total_descriptors_length
 };
 
-#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + CFG_TUD_AUDIO * uac2_total_descriptors_length)
+#define CONFIG_TOTAL_LEN        (TUD_CONFIG_DESC_LEN + (CFG_TUD_AUDIO * uac2_total_descriptors_length) + TUD_DFU_DESC_LEN(DFU_ALT_COUNT))
 #define EPNUM_AUDIO   0x01
 
-
 #define AUDIO_INTERFACE_STRING_INDEX 4
+#define DFU_INTERFACE_STRING_INDEX   5
 
 uint8_t const desc_configuration[] = {
     // Interface count, string index, total length, attribute, power in mA
@@ -196,6 +196,9 @@ uint8_t const desc_configuration[] = {
     TUD_AUDIO_DESC_CS_AS_ISO_EP(/*_attr*/ AUDIO_CS_AS_ISO_DATA_EP_ATT_NON_MAX_PACKETS_OK, /*_ctrl*/ AUDIO_CTRL_NONE, /*_lockdelayunit*/ AUDIO_CS_AS_ISO_DATA_EP_LOCK_DELAY_UNIT_MILLISEC, /*_lockdelay*/ 0x0003),
 #endif
 
+    // Interface number, Alternate count, starting string index, attributes, detach timeout, transfer size
+    TUD_DFU_DESCRIPTOR(ITF_NUM_DFU_MODE, DFU_ALT_COUNT, DFU_INTERFACE_STRING_INDEX, DFU_FUNC_ATTRS, 1000, CFG_TUD_DFU_XFER_BUFSIZE),
+
     }; // desc_configuration
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -213,10 +216,13 @@ uint8_t const* tud_descriptor_configuration_cb(uint8_t index)
 
 // array of pointer to string descriptors
 char const *string_desc_arr[] = {(const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
-        "XMOS",                     // 1: Manufacturer
-        XCORE_VOICE_PRODUCT_STR,          // 2: Product
-        "123456",                   // 3: Serials, should use chip ID
-        XCORE_VOICE_PRODUCT_STR          // 4: Audio Interface
+        "XMOS",                      // 1: Manufacturer
+        XCORE_VOICE_PRODUCT_STR,     // 2: Product
+        "123456",                    // 3: Serials, should use chip ID
+        XCORE_VOICE_PRODUCT_STR,     // 4: Audio Interface
+        "DFU FACTORY",               // 5: DFU device
+        "DFU UPGRADE",               // 6: DFU device
+        "DFU DATAPARTITION",         // 7: DFU device
         };
 
 static uint16_t _desc_str[32];

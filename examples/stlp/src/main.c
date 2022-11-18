@@ -340,6 +340,7 @@ void startup_task(void *arg)
 
 #if ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
+    rtos_dfu_image_print_debug(dfu_image_ctx);
 #endif
 
 #if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
