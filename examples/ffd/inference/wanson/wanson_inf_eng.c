@@ -36,7 +36,9 @@ void vDisplayClearCallback(TimerHandle_t pxTimer)
 {
     if ((inference_state == STATE_EXPECTING_COMMAND) || (inference_state == STATE_PROCESSING_COMMAND)) {
         wanson_engine_proc_keyword_result(NULL, 50);    /* 50 is a special id that will play the no longer listening for command sound */
+#if ON_TILE(0)
         led_indicate_waiting();
+#endif
     }
     inference_state = STATE_EXPECTING_WAKEWORD;
 }
@@ -124,7 +126,9 @@ void wanson_engine_task(void *args)
                 wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
     #else
                 if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {
+#if ON_TILE(0)
                     led_indicate_listening();
+#endif
                     xTimerReset(display_clear_timer, 0);
                     wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
                     inference_state = STATE_EXPECTING_COMMAND;
