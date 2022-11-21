@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #include "rtos_intertile.h"
+#include "rtos_clock_control.h"
 #include "rtos_qspi_flash.h"
 #include "rtos_gpio.h"
 #include "rtos_i2c_master.h"
@@ -46,6 +47,7 @@ extern "C" {
 #define PORT_I2S_ADC_DATA   I2S_MIC_DATA
 
 extern rtos_intertile_t *intertile_ctx;
+extern rtos_clock_control_t *cc_ctx_t0;
 extern rtos_qspi_flash_t *qspi_flash_ctx;
 extern rtos_gpio_t *gpio_ctx_t0;
 extern rtos_gpio_t *gpio_ctx_t1;

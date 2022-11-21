@@ -150,16 +150,6 @@ static void stage_ns(frame_data_t *frame_data)
                 frame_data->samples[0]);
     memcpy(frame_data->samples, ns_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
-
-#if appconfLOWPOWER_ENABLED
-    // Compute exponential moving average of frame energy
-    bfp_s32_t B;
-    bfp_s32_init(&B, &frame_data->samples[0][0], -31, appconfAUDIO_PIPELINE_FRAME_ADVANCE, 1);
-    float_s32_t energy = float_s64_to_float_s32(bfp_s32_energy(&B));
-    frame_data->ema_energy = float_s32_ema(frame_data->ema_energy, energy, ema_energy_alpha_q30);
-#else
-   frame_data->ema_energy = f32_to_float_s32(0.0);;
-#endif
 }
 
 static void stage_agc(frame_data_t *frame_data)
@@ -180,6 +170,15 @@ static void stage_agc(frame_data_t *frame_data)
             frame_data->samples[0],
             &agc_stage_state.md);
     memcpy(frame_data->samples, agc_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
+#endif
+#if appconfLOW_POWER_ENABLED
+    // Compute exponential moving average of frame energy
+    bfp_s32_t B;
+    bfp_s32_init(&B, &frame_data->samples[0][0], -31, appconfAUDIO_PIPELINE_FRAME_ADVANCE, 1);
+    float_s32_t energy = float_s64_to_float_s32(bfp_s32_energy(&B));
+    frame_data->ema_energy = float_s32_ema(frame_data->ema_energy, energy, ema_energy_alpha_q30);
+#else
+    frame_data->ema_energy = f32_to_float_s32(0.0);
 #endif
 }
 

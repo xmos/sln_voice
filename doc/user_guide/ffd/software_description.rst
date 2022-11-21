@@ -15,14 +15,24 @@ Software Description
    software_desc/filesystem_support
    software_desc/host
    software_desc/inference
+   software_desc/power
    software_desc/src
 
 Overview
 ========
 
-The estimated power usage of the example application varies from 100-141 mW.  This will vary based on component tolerances and any user added code and/or user added compile options.
+The estimated power usage of the example application, while in
+`POWER_STATE_FULL`, varies from 100-141 mW. This will vary based on component
+tolerances and any user added code and/or user added compile options.
 
-By default, the application will consume around 141 mW, with a system frequency of 600 MHz.  By changing the system frequency to 400 MHz, the application will consume around 110 mW.  By changing tile 0 to 400 MHz and tile 1 to 200 MHz, the application will consume 100 mW.  Tile frequencies lower than these may lead to application instability.
+By default, the application will startup using a system frequency of 600 MHz
+which will consume around 141 mW. After startup, `tile[1]` clock divider is
+enabled and set to 3 bringing the tile's frequency down to 200 MHz, where it
+will consumer around 113 mW. Tile frequencies lower than this may lead to
+application instability. When the application enters `POWER_STATE_LOW`,
+the `tile[0]` clock frequency will be divided by 600 and the switch clock
+frequency by 30 bringing the frequencies to 1 MHz and 20 MHz, respectively. This
+low power state consumes around 50 mW.
 
 .. list-table:: FFD Resources
    :widths: 30 10 30
@@ -67,6 +77,9 @@ The description of the software is split up by folder:
    * - inference
      - Inferencing engine integration
      - :ref:`sln_voice_ffd_inference`
+   * - power
+     - Low power state and control
+     - :ref:`sln_voice_ffd_power`
    * - src
      - Main application
      - :ref:`sln_voice_ffd_src`
