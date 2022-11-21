@@ -81,7 +81,7 @@ int audio_pipeline_output(void *output_app_data,
                           size_t frame_count)
 {
     power_state_t power_state = POWER_STATE_FULL;
-#if appconfLOW_POWER_ENABLED
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfLOW_POWER_ENABLED
     power_state = power_state_data_add((power_data_t *)output_app_data);
 #endif
 #if appconfINFERENCE_ENABLED
