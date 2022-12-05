@@ -29,6 +29,7 @@ static TaskHandle_t ctx_power_control_task = NULL;
 
 #if ON_TILE(POWER_CONTROL_TILE_NO)
 
+static power_state_t power_state = POWER_STATE_FULL;
 static unsigned tile0_div;
 static unsigned switch_div;
 
@@ -111,6 +112,7 @@ static void power_control_task(void *arg)
                 continue;
 
             requested_power_state = POWER_STATE_LOW;
+            power_state = requested_power_state;
         }
 
         // Send the requested power state to the other tile.
@@ -130,6 +132,8 @@ static void power_control_task(void *arg)
             driver_control_lock();
             low_power_clocks_enable();
             debug_printf("Entered low power.\n");
+        } else if (requested_power_state == POWER_STATE_FULL) {
+            power_state = requested_power_state;
         }
 #else
         // Wait for other tile to send the requested power state.
@@ -188,6 +192,11 @@ void power_control_enter_low_power(void)
 void power_control_exit_low_power(void)
 {
     xTaskNotify(ctx_power_control_task, TASK_NOTIF_MASK_LP_EXIT, eSetBits);
+}
+
+power_state_t power_control_state_get(void)
+{
+    return power_state;
 }
 
 #else
