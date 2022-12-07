@@ -78,7 +78,7 @@ static void low_power_clocks_disable(void)
     set_tile_processor_clk_div(TILE_ID(0), tile0_div);
 }
 
-#endif /* ON_TILE(1) */
+#endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
 
 static void power_control_task(void *arg)
 {
@@ -163,7 +163,7 @@ static void power_control_task(void *arg)
                           appconfPOWER_CONTROL_PORT,
                           &requested_power_state,
                           sizeof(requested_power_state));
-#endif
+#endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
     }
 }
 
@@ -194,4 +194,4 @@ void power_control_req_complete(void)
     xTaskNotify(ctx_power_control_task, TASK_NOTIF_MASK_LP_IND_COMPLETE, eSetBits);
 }
 
-#endif
+#endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
