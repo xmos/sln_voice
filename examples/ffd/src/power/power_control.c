@@ -19,6 +19,7 @@
 #include "gpio_ctrl/leds.h"
 #include "power/power_state.h"
 #include "power/power_control.h"
+#include "wanson_inf_eng.h"
 
 #define TASK_NOTIF_MASK_LP_ENTER         1  // Used by tile: POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_EXIT          2  // Used by tile: POWER_CONTROL_TILE_NO
@@ -157,6 +158,8 @@ static void power_control_task(void *arg)
                             &notif_value,
                             portMAX_DELAY);
             driver_control_lock();
+
+            wanson_engine_stream_buf_reset();
         }
 
         rtos_intertile_tx(intertile_ctx,

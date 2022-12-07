@@ -10,6 +10,7 @@
 void wanson_engine_task(void *args);
 
 void wanson_engine_task_create(unsigned priority);
+void wanson_engine_stream_buf_reset(void);
 void wanson_engine_samples_send_local(
         size_t frame_count,
         int32_t *processed_audio_frame);
