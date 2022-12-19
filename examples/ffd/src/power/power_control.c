@@ -19,6 +19,7 @@
 #include "gpio_ctrl/leds.h"
 #include "power/power_state.h"
 #include "power/power_control.h"
+#include "wanson_inf_eng.h"
 
 #define TASK_NOTIF_MASK_LP_ENTER         1  // Used by tile: POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_EXIT          2  // Used by tile: POWER_CONTROL_TILE_NO
@@ -28,6 +29,7 @@ static TaskHandle_t ctx_power_control_task = NULL;
 
 #if ON_TILE(POWER_CONTROL_TILE_NO)
 
+static power_state_t power_state = POWER_STATE_FULL;
 static unsigned tile0_div;
 static unsigned switch_div;
 
@@ -78,7 +80,7 @@ static void low_power_clocks_disable(void)
     set_tile_processor_clk_div(TILE_ID(0), tile0_div);
 }
 
-#endif /* ON_TILE(1) */
+#endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
 
 static void power_control_task(void *arg)
 {
@@ -110,6 +112,7 @@ static void power_control_task(void *arg)
                 continue;
 
             requested_power_state = POWER_STATE_LOW;
+            power_state = requested_power_state;
         }
 
         // Send the requested power state to the other tile.
@@ -129,6 +132,8 @@ static void power_control_task(void *arg)
             driver_control_lock();
             low_power_clocks_enable();
             debug_printf("Entered low power.\n");
+        } else if (requested_power_state == POWER_STATE_FULL) {
+            power_state = requested_power_state;
         }
 #else
         // Wait for other tile to send the requested power state.
@@ -157,13 +162,15 @@ static void power_control_task(void *arg)
                             &notif_value,
                             portMAX_DELAY);
             driver_control_lock();
+
+            wanson_engine_stream_buf_reset();
         }
 
         rtos_intertile_tx(intertile_ctx,
                           appconfPOWER_CONTROL_PORT,
                           &requested_power_state,
                           sizeof(requested_power_state));
-#endif
+#endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
     }
 }
 
@@ -187,6 +194,11 @@ void power_control_exit_low_power(void)
     xTaskNotify(ctx_power_control_task, TASK_NOTIF_MASK_LP_EXIT, eSetBits);
 }
 
+power_state_t power_control_state_get(void)
+{
+    return power_state;
+}
+
 #else
 
 void power_control_req_complete(void)
@@ -194,4 +206,4 @@ void power_control_req_complete(void)
     xTaskNotify(ctx_power_control_task, TASK_NOTIF_MASK_LP_IND_COMPLETE, eSetBits);
 }
 
-#endif
+#endif /* ON_TILE(POWER_CONTROL_TILE_NO) */

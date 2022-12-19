@@ -99,12 +99,8 @@
 #define appconfI2S_ENABLED   1
 #endif
 
-#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
-#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
-#endif
-
 #ifndef appconfLOW_POWER_ENABLED
-#define appconfLOW_POWER_ENABLED   1
+#define appconfLOW_POWER_ENABLED                1
 #endif
 
 #ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
@@ -115,10 +111,28 @@
 #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
 #define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
 
-#define appconfPOWER_VNR_THRESHOLD              (0.03f)
+#define appconfPOWER_VNR_THRESHOLD              (0.3f)
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
-#define appconfPOWER_HIGH_ENERGY_THRESHOLD      (0.045f)
+#define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
 #define appconfPOWER_FULL_HOLD_DURATION         (appconfINFERENCE_RESET_DELAY_MS + 3000) // milliseconds
+
+/* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
+ * samples while in low power mode. */
+#ifndef appconfAUDIO_PIPELINE_BUFFER_ENABLED
+#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
+#endif
+
+/* The number of frames (appconfAUDIO_PIPELINE_FRAME_ADVANCE) to store in a ring
+ * buffer while in low power mode. This may be tuned to ensure that unvoiced
+ * speech that is a pre-cursor to voiced speech in a wake-word such as "he" part
+ * of "hello" is captured and relayed to the inference engine. */
+#ifndef appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
+#define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES 32
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
+#define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
+#endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_NS
 #define appconfAUDIO_PIPELINE_SKIP_NS   0

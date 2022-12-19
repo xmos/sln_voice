@@ -167,7 +167,7 @@ The generic inference engine API only requires two functions be declared:
 
     /* Generic interface for inference engines */
     int32_t inference_engine_create(uint32_t priority, void *args);
-    int32_t inference_engine_sample_push(int32_t *buf, size_t bytes);
+    int32_t inference_engine_sample_push(int32_t *buf, size_t frames);
 
 Refer to the existing Wanson model implementation for details on how the output handler is set up, how the audio is conditioned to the expected model format, and how it receives frames from the audio pipeline.
 

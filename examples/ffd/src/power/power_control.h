@@ -5,6 +5,7 @@
 #define POWER_CONTROL_H_
 
 #include "app_conf.h"
+#include "power_state.h"
 
 // Specifies the tile that is controlling the low power mode.
 #define POWER_CONTROL_TILE_NO        AUDIO_PIPELINE_TILE_NO
@@ -28,6 +29,13 @@ void power_control_enter_low_power(void);
  * @brief Notify that the power control task should exit the low power state.
  */
 void power_control_exit_low_power(void);
+
+/**
+ * @brief Get the power control state.
+ *
+ * @returns The applied power state.
+ */
+power_state_t power_control_state_get(void);
 
 #else
 
