@@ -141,9 +141,9 @@ From the build folder run:
         nmake run_example_stlp_int_adec
         nmake run_example_stlp_ua_adec
 
---------------------
+----------------------
 Upgrading the Firmware
---------------------
+----------------------
 
 The UA variants of this application contain DFU over the USB DFU Class V1.1 transport method.
 
