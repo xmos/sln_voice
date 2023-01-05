@@ -19,8 +19,8 @@ pipeline {
         timestamps()
         // on develop discard builds after a certain number else keep forever
         buildDiscarder(logRotator(
-            numToKeepStr:         env.BRANCH_NAME ==~ /release/v0.21.0-beta.0/ ? '25' : '',
-            artifactNumToKeepStr: env.BRANCH_NAME ==~ /release/v0.21.0-beta.0/ ? '25' : ''
+            numToKeepStr:         env.BRANCH_NAME ==~ /origin/release/v0.21.0-beta.0/ ? '25' : '',
+            artifactNumToKeepStr: env.BRANCH_NAME ==~ /origin/release/v0.21.0-beta.0/ ? '25' : ''
         ))
     }    
     parameters {
