@@ -34,10 +34,10 @@ pipeline {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         DOWNLOAD_DIRNAME = "dist"
-        FIRMWARE = "example_stlp_sample_rate_conv_test.xe"
+        FIRMWARE = "$DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe"
         TEST_DIRNAME = "test/sample_rate_conversion"
-        TEST_SCRIPT = "check_sample_rate_conversion.sh"
-        OUTPUT_DIRNAME = "test_output"
+        TEST_SCRIPT = "$TEST_DIRNAME/check_sample_rate_conversion.sh"
+        OUTPUT_DIRNAME = "$TEST_DIRNAME/test_output"
         VRD_TEST_RIG_TARGET = "xcore_voice_test_rig"
     }    
     stages {
@@ -86,8 +86,8 @@ pipeline {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/$FIRMWARE")) {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                    // $TEST_DIRNAME + $TEST_SCRIPT + " " + $FIRMWARE + " " + $TEST_DIRNAME + $OUTPUT_DIRNAME + adapterIDs[0]
-                                    sh "$TEST_DIRNAME/$TEST_SCRIPT " + "$DOWNLOAD_DIRNAME/$FIRMWARE " + "$TEST_DIRNAME/$OUTPUT_DIRNAME"
+                                    // $TEST_SCRIPT + " " + $FIRMWARE + " " + $OUTPUT_DIRNAME + adapterIDs[0]
+                                    sh "test/sample_rate_conversion/check_sample_rate_conversion.sh " + "dist/example_stlp_sample_rate_conv_test.xe " + "test/sample_rate_conversion/test_output"
                                 }
                             } else {
                                 echo 'SKIPPED: example_stlp_sample_rate_conv_test'
