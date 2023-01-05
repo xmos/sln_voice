@@ -19,8 +19,8 @@ pipeline {
         timestamps()
         // on develop discard builds after a certain number else keep forever
         buildDiscarder(logRotator(
-            numToKeepStr:         env.BRANCH_NAME ==~ refs/heads/release/v0.21.0-beta.0/ ? '25' : '',
-            artifactNumToKeepStr: env.BRANCH_NAME ==~ refs/heads/release/v0.21.0-beta.0/ ? '25' : ''
+            numToKeepStr:         env.BRANCH_NAME ==~ /develop/ ? '25' : '',
+            artifactNumToKeepStr: env.BRANCH_NAME ==~ /develop/ ? '25' : ''
         ))
     }    
     parameters {
@@ -34,6 +34,10 @@ pipeline {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         DOWNLOAD_DIRNAME = "dist"
+        FIRMWARE = "example_stlp_sample_rate_conv_test.xe"
+        TEST_DIRNAME = "test/sample_rate_conversion/"
+        TEST_SCRIPT = "check_sample_rate_conversion.sh"
+        OUTPUT_DIRNAME = "test_output"
         VRD_TEST_RIG_TARGET = "xcore_voice_test_rig"
     }    
     stages {
@@ -59,7 +63,7 @@ pipeline {
                 sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
                 // Install dependencies
                 withVenv() {
-                    // sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
+                    sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
                     sh "pip install -r sln_voice/test/requirements.txt"
                 }
             }
@@ -80,9 +84,10 @@ pipeline {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
                         script {
-                            if (fileExists("$DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe")) {
+                            if (fileExists("$DOWNLOAD_DIRNAME/$FIRMWARE")) {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                    sh "test/sample_rate_conversion/check_sample_rate_conversion.sh " + adapterIDs[0]
+                                    // $TEST_DIRNAME + $TEST_SCRIPT + " " + $FIRMWARE + " " + $TEST_DIRNAME + $OUTPUT_DIRNAME + adapterIDs[0]
+                                    sh $TEST_DIRNAME + $TEST_SCRIPT + " " + $FIRMWARE + " " + $TEST_DIRNAME + $OUTPUT_DIRNAME
                                 }
                             } else {
                                 echo 'SKIPPED: example_stlp_sample_rate_conv_test'
