@@ -11,7 +11,7 @@ getApproval()
 
 pipeline {
     agent {
-        label 'vrd'
+        label 'vrd-us'
     }
     options {
         disableConcurrentBuilds()
