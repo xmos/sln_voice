@@ -79,15 +79,15 @@ pipeline {
                 sh "rm -f ~/.xtag/status.lock ~/.xtag/acquired"
             }
         }
-        stage('Run tests') {
+        stage('Run Sample_Rate_Conversion test') {
             steps {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe")) {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                    // $TEST_SCRIPT + " " + $FIRMWARE + " " + $OUTPUT_DIRNAME + adapterIDs[0]
-                                    sh "test/sample_rate_conversion/check_sample_rate_conversion.sh " + "dist/example_stlp_sample_rate_conv_test.xe " + "test/sample_rate_conversion/test_output"
+                                    // sh "$TEST_SCRIPT $FIRMWARE $OUTPUT_DIRNAME "+ adapterIDs[0]
+                                    sh "test/sample_rate_conversion/check_sample_rate_conversion.sh dist/example_stlp_sample_rate_conv_test.xe test/sample_rate_conversion/test_output"
                                 }
                             } else {
                                 echo 'SKIPPED: example_stlp_sample_rate_conv_test'
