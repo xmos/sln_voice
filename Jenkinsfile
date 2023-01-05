@@ -87,7 +87,7 @@ pipeline {
                             if (fileExists("$DOWNLOAD_DIRNAME/$FIRMWARE")) {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                     // $TEST_DIRNAME + $TEST_SCRIPT + " " + $FIRMWARE + " " + $TEST_DIRNAME + $OUTPUT_DIRNAME + adapterIDs[0]
-                                    sh "$TEST_DIRNAME/$TEST_SCRIPT" + " " + "$DOWNLOAD_DIRNAME/$FIRMWARE" + " " + "$TEST_DIRNAME/$OUTPUT_DIRNAME"
+                                    sh "$TEST_DIRNAME/$TEST_SCRIPT " + "$DOWNLOAD_DIRNAME/$FIRMWARE " + "$TEST_DIRNAME/$OUTPUT_DIRNAME"
                                 }
                             } else {
                                 echo 'SKIPPED: example_stlp_sample_rate_conv_test'
