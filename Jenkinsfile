@@ -86,7 +86,6 @@ pipeline {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe")) {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                    // sh "$TEST_SCRIPT $FIRMWARE $OUTPUT_DIRNAME "+ adapterIDs[0]
                                     sh "test/sample_rate_conversion/check_sample_rate_conversion.sh dist/example_stlp_sample_rate_conv_test.xe test/sample_rate_conversion/test_output"
                                 }
                             } else {
