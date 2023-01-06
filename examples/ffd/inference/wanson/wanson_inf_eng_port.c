@@ -18,8 +18,10 @@
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
 #include "ssd1306_rtos_support.h"
+#include "power/power_state.h"
 
 static QueueHandle_t q_intent = 0;
+static uint8_t keyword_proc_busy = 0;
 
 
 // This enum table should match audio_files_en[] array in audio_response.c
@@ -73,7 +75,7 @@ static int wanson_id_intent_id[TOTAL_WAV_NUM][2] = {
 int wanson_id_intent_id_conv(int wan_id)
 {
     uint16_t i;
-    
+
     for(i=0;i<sizeof(wanson_id_intent_id)/2;i++){
         if(wanson_id_intent_id[i][0] == wan_id){
             return wanson_id_intent_id[i][1];
@@ -90,9 +92,11 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
     }
     if(q_intent != 0) {
         int wav_id = 0;
+        keyword_proc_busy = 1;
         wav_id = wanson_id_intent_id_conv(id);
         if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost intent.  Queue was full.\n");
+            keyword_proc_busy = 0;
         }
     }
 
@@ -133,6 +137,39 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
 //     }
 // #endif
 }
+
+#if appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO)
+void inference_engine_full_power_request(void)
+{
+    wanson_engine_full_power_request();
+}
+
+void inference_engine_low_power_accept(void)
+{
+    wanson_engine_low_power_accept();
+}
+
+uint8_t inference_engine_low_power_ready(void)
+{
+    return (keyword_proc_busy == 0);
+}
+
+void inference_engine_low_power_reset(void)
+{
+    wanson_engine_stream_buf_reset();
+    xQueueReset(q_intent);
+}
+
+int32_t inference_engine_keyword_queue_count(void)
+{
+    return (q_intent != NULL) ? (int32_t)uxQueueMessagesWaiting(q_intent) : 0;
+}
+
+void inference_engine_keyword_queue_complete(void)
+{
+    keyword_proc_busy = 0;
+}
+#endif /* appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO) */
 
 int32_t inference_engine_create(uint32_t priority, void *args)
 {

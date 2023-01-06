@@ -19,10 +19,11 @@
 
 static TimerHandle_t power_state_timer;
 static power_state_t power_state = POWER_STATE_FULL;
+static uint8_t power_state_time_expired = 1;
 
-void vWakeupStateCallback(TimerHandle_t pxTimer)
+void vPowerStateTimerCallback(TimerHandle_t pxTimer)
 {
-    power_state_set(POWER_STATE_LOW);
+    power_state_time_expired = 1;
     xTimerStop(power_state_timer, 0);
 }
 
@@ -32,19 +33,18 @@ void power_state_set(power_state_t state) {
 
         if (power_state == POWER_STATE_FULL)
             power_control_exit_low_power();
-        else
-            power_control_enter_low_power();
     }
 }
 
 void power_state_init() {
     power_state_timer = xTimerCreate(
-        "disp_reset",
+        "pwr_state_tmr",
         pdMS_TO_TICKS(appconfPOWER_FULL_HOLD_DURATION),
         pdFALSE,
         NULL,
-        vWakeupStateCallback);
+        vPowerStateTimerCallback);
 
+    power_state_time_expired = 0;
     xTimerStart(power_state_timer, 0);
 }
 
@@ -53,10 +53,16 @@ power_state_t power_state_data_add(power_data_t *data) {
         ((data->ema_energy >= appconfPOWER_LOW_ENERGY_THRESHOLD) &&
          (data->vnr_pred >= appconfPOWER_VNR_THRESHOLD))) {
             power_state_set(POWER_STATE_FULL);
+            power_state_time_expired = 0;
             xTimerReset(power_state_timer, 0);
     }
 
     return power_state;
+}
+
+uint8_t power_state_timer_expired_get(void)
+{
+    return power_state_time_expired;
 }
 
 #endif // ON_TILE(POWER_CONTROL_TILE_NO)

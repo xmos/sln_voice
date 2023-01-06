@@ -4,6 +4,9 @@
 #ifndef WANSON_INF_ENG_H_
 #define WANSON_INF_ENG_H_
 
+#include <stdint.h>
+#include "rtos_intertile.h"
+
 #define IS_WAKEWORD(id)   (id <= 2)
 #define IS_COMMAND(id)    (id > 2)
 
@@ -22,5 +25,8 @@ void wanson_engine_samples_send_remote(
         int32_t *processed_audio_frame);
 
 void wanson_engine_proc_keyword_result(const char **text, int id);
+
+void wanson_engine_full_power_request(void);
+void wanson_engine_low_power_accept(void);
 
 #endif /* WANSON_INF_ENG_H_ */

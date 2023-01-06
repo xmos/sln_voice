@@ -23,7 +23,8 @@ static StreamBufferHandle_t samples_to_engine_stream_buf = 0;
 void wanson_engine_stream_buf_reset(void)
 {
     if (samples_to_engine_stream_buf)
-        xStreamBufferReset(samples_to_engine_stream_buf);
+        while (xStreamBufferReset(samples_to_engine_stream_buf) == pdFAIL)
+            vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 void wanson_engine_samples_send_remote(
