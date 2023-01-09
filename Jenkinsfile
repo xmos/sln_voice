@@ -34,8 +34,6 @@ pipeline {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         DOWNLOAD_DIRNAME = "dist"
-        // sample_rate_conversion test vars
-        FIRMWARE_SRCT = "$DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe"
         VRD_TEST_RIG_TARGET = "xcore_voice_test_rig"
     }    
     stages {
