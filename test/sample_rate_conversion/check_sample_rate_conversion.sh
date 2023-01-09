@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE Sample Rate Conversion test"
    echo
-   echo "Syntax: check_sample_rate_conversion.sh [-h] firmware output_directory adapterID_optional"
+   echo "Syntax: check_sample_rate_conversion.sh [-h] firmware output_directory"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -28,9 +28,9 @@ uname=`uname`
 # assign command line args
 FIRMWARE=${@:$OPTIND:1}
 OUTPUT_DIR=${@:$OPTIND+1:1}
-if [ ! -z "$3" ]
+if [ ! -z "${@:$OPTIND+2:1}" ]
 then
-    ADAPTER_ID="--adapter-id $3"
+    ADAPTER_ID="--adapter-id ${@:$OPTIND+2:1}"
 fi
 
 # discern repository root
@@ -52,17 +52,8 @@ sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH1_WAV} synth ${L
 sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH2_WAV} synth ${LENGTH} sine 2000 vol ${VOLUME}
 sox --combine merge ${TMP_CH1_WAV} ${TMP_CH2_WAV} ${INPUT_WAV}
 
-# flash the filesystem
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-cd build
-make flash_fs_example_ffd -j
-cd ..
-
-# build the tests
-bash tools/ci/build_tests.sh
-
 # call xrun (in background)
-xrun --xscope ${FIRMWARE} &
+xrun --xscope ${ADAPTER_ID} ${FIRMWARE} &
 XRUN_PID=$!
 
 # wait for app to load
