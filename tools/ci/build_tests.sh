@@ -7,7 +7,15 @@ source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # setup distribution folder
 DIST_DIR=${XCORE_VOICE_ROOT}/dist
+DIST_HOST_DIR=${XCORE_VOICE_ROOT}/dist_host
 mkdir -p ${DIST_DIR}
+
+if [ -d "${DIST_HOST_DIR}" ]; then
+    # add DIST_HOST_DIR to path.
+    #   This is used in CI for fatfs_mkimage
+    PATH="${DIST_HOST_DIR}":$PATH
+    find ${DIST_HOST_DIR} -type f -exec chmod a+x {} +
+fi
 
 # setup configurations
 # row format is: "name app_target fs_target flag BOARD toolchain"
