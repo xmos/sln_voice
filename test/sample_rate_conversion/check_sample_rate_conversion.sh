@@ -74,7 +74,6 @@ sleep 10
 
 # process sine wave input file
 OUTPUT_WAV=${OUTPUT_DIR}/"sample_rate_conversion_output.wav"
-
 (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -a -c2 -r${SAMPLE_RATE} ${INPUT_WAV} ${OUTPUT_WAV})
 
 # kill xrun
