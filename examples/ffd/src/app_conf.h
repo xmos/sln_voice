@@ -30,6 +30,11 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
+/* Enable audio response output */
+#ifndef appconfAUDIO_PLAYBACK_ENABLED
+#define appconfAUDIO_PLAYBACK_ENABLED           1
+#endif
+
 /* Intent Engine Configuration */
 #define appconfINFERENCE_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINFERENCE_SAMPLE_BLOCK_LENGTH    240
@@ -41,18 +46,17 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINFERENCE_RESET_DELAY_MS
-#define appconfINFERENCE_RESET_DELAY_MS         3000
+#if appconfAUDIO_PLAYBACK_ENABLED
+#define appconfINFERENCE_RESET_DELAY_MS         5000
+#else
+#define appconfINFERENCE_RESET_DELAY_MS         4000
+#endif
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase
  * before a command phrase */
 #ifndef appconfINFERENCE_RAW_OUTPUT
 #define appconfINFERENCE_RAW_OUTPUT   0
-#endif
-
-/* Enable audio response output */
-#ifndef appconfAUDIO_PLAYBACK_ENABLED
-#define appconfAUDIO_PLAYBACK_ENABLED   1
 #endif
 
 /* Maximum number of detected intents to hold */
