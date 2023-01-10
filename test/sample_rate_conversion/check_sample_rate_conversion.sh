@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE Sample Rate Conversion test"
    echo
-   echo "Syntax: check_sample_rate_conversion.sh [-h] firmware output_directory"
+   echo "Syntax: check_sample_rate_conversion.sh [-h] firmware output_directory adapterID_optional"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -26,11 +26,18 @@ done
 uname=`uname`
 
 # assign command line args
-FIRMWARE=${@:$OPTIND:1}
-OUTPUT_DIR=${@:$OPTIND+1:1}
+if [ ! -z "${@:$OPTIND:1}" ] && [ "${@:$OPTIND+1:1}" ]
+then
+    FIRMWARE=${@:$OPTIND:1}
+    OUTPUT_DIR=${@:$OPTIND+1:1}
+else
+    echo "Error: Expected firmware and output_dir arguments"
+fi
 if [ ! -z "${@:$OPTIND+2:1}" ]
 then
     ADAPTER_ID="--adapter-id ${@:$OPTIND+2:1}"
+else
+    echo "Warning: No optional adapter ID provided by user."
 fi
 
 # discern repository root
@@ -51,6 +58,12 @@ VOLUME="0.5"
 sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH1_WAV} synth ${LENGTH} sine 1000 vol ${VOLUME}
 sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH2_WAV} synth ${LENGTH} sine 2000 vol ${VOLUME}
 sox --combine merge ${TMP_CH1_WAV} ${TMP_CH2_WAV} ${INPUT_WAV}
+
+# flash the filesystem
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_stlp_sample_rate_conv_test.xe --boot-partition-size 0x100000 --data dist/example_stlp_ua_adec_fat.fs
+
+# not sleeping here defeats the pkill somehow
+sleep 3
 
 # call xrun (in background)
 xrun --xscope ${ADAPTER_ID} ${FIRMWARE} &
