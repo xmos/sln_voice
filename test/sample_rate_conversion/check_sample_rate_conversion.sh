@@ -70,7 +70,7 @@ xrun --xscope ${ADAPTER_ID} ${FIRMWARE} &
 XRUN_PID=$!
 
 # wait for app to load
-sleep 10
+sleep 15
 
 # process sine wave input file
 OUTPUT_WAV=${OUTPUT_DIR}/"sample_rate_conversion_output.wav"
