@@ -21,6 +21,8 @@
 #include "power/power_control.h"
 #include "inference_engine.h"
 
+#if appconfLOW_POWER_ENABLED
+
 #define TASK_NOTIF_MASK_LP_ENTER         1  // Used by tile: !POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_EXIT          2  // Used by tile: POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_IND_COMPLETE  4  // Used by tile: !POWER_CONTROL_TILE_NO
@@ -362,3 +364,4 @@ void power_control_ind_complete(void)
 }
 
 #endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
+#endif /* appconfLOW_POWER_ENABLED */

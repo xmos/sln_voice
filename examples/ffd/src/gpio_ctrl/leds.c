@@ -218,10 +218,12 @@ static void led_task(void *args)
             }
         }
 
+#if appconfLOW_POWER_ENABLED
         if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
             (notif_value & TASK_NOTIF_MASK_ASLEEP)) {
             power_control_ind_complete();
         }
+#endif
     }
 }
 

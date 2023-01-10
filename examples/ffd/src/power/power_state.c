@@ -31,8 +31,10 @@ void power_state_set(power_state_t state) {
     if (state != power_state) {
         power_state = state;
 
+#if appconfLOW_POWER_ENABLED
         if (power_state == POWER_STATE_FULL)
             power_control_exit_low_power();
+#endif
     }
 }
 

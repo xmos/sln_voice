@@ -171,23 +171,23 @@ void inference_engine_keyword_queue_complete(void)
 }
 #endif /* appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO) */
 
+#if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
 int32_t inference_engine_create(uint32_t priority, void *args)
 {
     q_intent = (QueueHandle_t) args;
 
-#if appconfINFERENCE_ENABLED
 #if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
     wanson_engine_task_create(priority);
 #else
     wanson_engine_intertile_task_create(priority);
 #endif
-#endif
     return 0;
 }
+#endif /* appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO) */
 
 int32_t inference_engine_sample_push(int32_t *buf, size_t frames)
 {
-#if appconfINFERENCE_ENABLED
+#if appconfINFERENCE_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
 #if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
     wanson_engine_samples_send_local(
             frames,

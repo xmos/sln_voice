@@ -64,9 +64,11 @@ static vnr_pred_stage_ctx_t DWORD_ALIGNED vnr_pred_stage_state = {};
 static ns_stage_ctx_t DWORD_ALIGNED ns_stage_state = {};
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
-static uq2_30 ema_energy_alpha_q30 = Q30(EMA_ENERGY_ALPHA); 
+#if appconfLOW_POWER_ENABLED
+static uq2_30 ema_energy_alpha_q30 = Q30(EMA_ENERGY_ALPHA);
+#endif
 
-static power_data_t* power_app_data = 0; 
+static power_data_t* power_app_data = 0;
 
 static void *audio_pipeline_input_i(void *input_app_data)
 {
