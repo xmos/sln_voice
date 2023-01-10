@@ -5,7 +5,7 @@ def artifactUrls = getGithubArtifactUrls([
     "host_apps",
     "sln_voice_example_apps",
     "sln_voice_test_apps"
-])
+], 60)
 
 getApproval()
 
@@ -82,7 +82,7 @@ pipeline {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe")) {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                    sh "test/sample_rate_conversion/check_sample_rate_conversion.sh $DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe test/sample_rate_conversion/test_output" + adapterIDs[0]
+                                    sh "test/sample_rate_conversion/check_sample_rate_conversion.sh $DOWNLOAD_DIRNAME/example_stlp_sample_rate_conv_test.xe test/sample_rate_conversion/test_output " + adapterIDs[0]
                                 }
                             } else {
                                 echo 'SKIPPED: ${TEST_SCRIPT_SRCT}'
