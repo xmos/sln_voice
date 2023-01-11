@@ -95,5 +95,5 @@ sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &
 sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE_DRIVER "$DEVICE_NAME"
 
 # kill recording
-pkill -P $$
+pkill -TERM -P $$
 wait #ing around to die
