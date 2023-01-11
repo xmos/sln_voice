@@ -61,13 +61,13 @@ sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH2_WAV} synth ${L
 sox --combine merge ${TMP_CH1_WAV} ${TMP_CH2_WAV} ${INPUT_WAV}
 
 # flash the filesystem
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_stlp_sample_rate_conv_test.xe --boot-partition-size 0x100000 --data dist/example_stlp_ua_adec_fat.fs
+(xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_stlp_sample_rate_conv_test.xe --boot-partition-size 0x100000 --data dist/example_stlp_ua_adec_fat.fs)
 
 # not sleeping here defeats the pkill somehow
 sleep 3
 
 # call xrun (in background)
-xrun --xscope ${ADAPTER_ID} ${FIRMWARE} &
+(xrun --xscope ${ADAPTER_ID} ${FIRMWARE}) &
 XRUN_PID=$!
 
 # wait for app to load
