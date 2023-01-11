@@ -77,12 +77,12 @@ jobs:
 
       - name: Save metadata
         run: |
-          bash tools/ci/log_metadata.sh ./dist/examples_metadata.json
+          bash tools/ci/log_metadata.sh ./dist/main_examples_metadata.json
 
       - name: Save example app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sln_voice_example_apps
+          name: sln_voice_main+example_apps
           path: |
             ./dist/*.xe
             ./dist/*.fs
@@ -114,12 +114,12 @@ jobs:
 
       - name: Save metadata
         run: |
-          bash tools/ci/log_metadata.sh ./dist/examples_metadata.json
+          bash tools/ci/log_metadata.sh ./dist/misc_examples_metadata.json
 
       - name: Save example app firmware artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: sln_voice_example_apps
+          name: sln_voice_misc_example_apps
           path: |
             ./dist/*.xe
             ./dist/*.fs

@@ -3,7 +3,7 @@
 // Wait here until specified artifacts appear
 def artifactUrls = getGithubArtifactUrls([
     "host_apps",
-    "sln_voice_example_apps",
+    "sln_voice_main_example_apps",
     "sln_voice_test_apps"
 ], 60)
 

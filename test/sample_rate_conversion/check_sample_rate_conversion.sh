@@ -2,6 +2,7 @@
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
 
 set -e
+set -x #echo on
 
 # help text
 help()
