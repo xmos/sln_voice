@@ -1,8 +1,7 @@
 #!/bin/bash
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
-
-set -e
-set -x #echo on
+set -e # exit on first error
+set -x # echo on
 
 # help text
 help()
@@ -76,6 +75,9 @@ sleep 10
 # process sine wave input file
 OUTPUT_WAV=${OUTPUT_DIR}/"sample_rate_conversion_output.wav"
 bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -a -c2 -r${SAMPLE_RATE} ${INPUT_WAV} ${OUTPUT_WAV}
+
+# wait for process_wav.sh to fully die
+sleep 1
 
 # kill xrun
 kill -INT ${XRUN_PID}

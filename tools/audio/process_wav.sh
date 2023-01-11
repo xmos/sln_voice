@@ -1,6 +1,7 @@
 #!/bin/bash
-set -e
-set -x #echo on
+# Copyright (c) 2022, XMOS Ltd, All rights reserved
+set -e # exit on first error
+set -x # echo on
 
 help()
 {
@@ -91,10 +92,10 @@ SOX_REC_OPTS="--buffer=65536 --channels=6 --rate=${SAMPLE_RATE} --bits=16 --enco
 
 # start recording
 sox -t $DEVICE_DRIVER "$DEVICE_NAME" $SOX_REC_OPTS -t wav $OUTPUT_FILE &
+SOX_RECORDING_PID=$!
 
 # play input
 sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE_DRIVER "$DEVICE_NAME"
 
 # kill recording
-pkill -TERM -P $$
-wait #ing around to die
+kill -TERM ${SOX_RECORDING_PID}
