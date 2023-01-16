@@ -78,47 +78,35 @@ foreach(STLP_AP ${STLP_PIPELINES_UA})
     #**********************
     create_run_target(example_stlp_ua_${STLP_AP})
     create_debug_target(example_stlp_ua_${STLP_AP})
-    create_filesystem_target(example_stlp_ua_${STLP_AP})
-    create_flash_app_target(example_stlp_ua_${STLP_AP})
     create_upgrade_img_target(example_stlp_ua_${STLP_AP} ${XTC_VERSION_MAJOR} ${XTC_VERSION_MINOR})
-    
+
     #**********************
     # Filesystem support targets
     #**********************
-    
-    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL Windows)
-        add_custom_command(
-            OUTPUT example_stlp_ua_${STLP_AP}_fat.fs
-            COMMAND ${CMAKE_COMMAND} -E make_directory %temp%/fatmktmp/fs
-            COMMAND ${CMAKE_COMMAND} -E copy demo.txt %temp%/fatmktmp/fs/demo.txt
-            COMMAND fatfs_mkimage --input=%temp%/fatmktmp --output=example_stlp_ua_${STLP_AP}_fat.fs
-            BYPRODUCTS %temp%/fatmktmp
-            DEPENDS example_stlp_ua_${STLP_AP}
-            COMMENT
-                "Create filesystem"
-            WORKING_DIRECTORY
-                ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
-            VERBATIM
-        )
-    else()
-        add_custom_command(
-            OUTPUT example_stlp_ua_${STLP_AP}_fat.fs
-            COMMAND bash -c "tmp_dir=$(mktemp -d) && fat_mnt_dir=$tmp_dir && mkdir -p $fat_mnt_dir && mkdir $fat_mnt_dir/fs && cp ./demo.txt $fat_mnt_dir/fs/demo.txt && fatfs_mkimage --input=$tmp_dir --output=example_stlp_ua_${STLP_AP}_fat.fs"
-            DEPENDS example_stlp_ua_${STLP_AP}
-            COMMENT
-                "Create filesystem"
-            WORKING_DIRECTORY
-                ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
-            VERBATIM
-        )
-    endif()
 
-    ## Note this takes place of create_flash_app_dfu_target() as there is a filesystem here
-    add_custom_target(flash_fs_example_stlp_ua_${STLP_AP}
-        COMMAND xflash --quad-spi-clock 50MHz --factory example_stlp_ua_${STLP_AP}.xe --boot-partition-size 0x100000 --data ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_stlp_ua_${STLP_AP}_fat.fs
-        DEPENDS example_stlp_ua_${STLP_AP}_fat.fs
+    set(FATFS_CONTENTS_DIR ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/fatmktmp)
+    set(FATFS_FILE ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_stlp_ua_${STLP_AP}_fat.fs)
+    add_custom_target(
+        example_stlp_ua_${STLP_AP}_fat.fs ALL
+        COMMAND ${CMAKE_COMMAND} -E copy demo.txt ${FATFS_CONTENTS_DIR}/fs/demo.txt
+        COMMAND fatfs_mkimage --input=${FATFS_CONTENTS_DIR} --output=${FATFS_FILE}
         COMMENT
-            "Flash filesystem"
+            "Create filesystem"
+        WORKING_DIRECTORY
+            ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
         VERBATIM
     )
+
+    set_target_properties(example_stlp_ua_${STLP_AP}_fat.fs PROPERTIES
+        ADDITIONAL_CLEAN_FILES "${FATFS_CONTENTS_DIR};${FATFS_FILE}"
+    )
+
+    create_filesystem_target(example_stlp_ua_${STLP_AP})
+    create_flash_app_target(
+        #[[ Target ]]                  example_stlp_ua_${STLP_AP}
+        #[[ Boot Partition Size ]]     0x100000
+        #[[ Data Partition Contents ]] ${FATFS_FILE}
+        #[[ Dependencies ]]            make_fs_example_stlp_ua_${STLP_AP}
+    )
+
 endforeach()
