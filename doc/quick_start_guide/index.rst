@@ -9,10 +9,9 @@ QUICK START GUIDE
 
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 4
 
    ../shared/introduction
-   ffd
-   ffva
+   example_designs
    ../shared/copyright
 

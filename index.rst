@@ -15,8 +15,7 @@ XCORE |reg| -VOICE Solutions
   :maxdepth: 1
 
   doc/quick_start_guide/index
-  doc/introduction/index
-  doc/user_guide/index
+  doc/programming_guide/index
 
 *********
 Licensing
