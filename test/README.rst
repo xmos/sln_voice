@@ -37,7 +37,7 @@ Run the following command to deactivate the Conda environment:
 Install Python Packages
 =======================
 
-Install development packages:
+Install development packages with the Python virtual environment activated:
 
 .. code-block:: console
 
@@ -52,6 +52,5 @@ Functional tests exists for the following:
 - Audio processing pipelines
 - Speech recognition command dictionaries
 - Sample rate conversion
-- Example applications
 
 To run tests, see the README files located in the directories containing the tests.
