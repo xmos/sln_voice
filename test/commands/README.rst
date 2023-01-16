@@ -9,21 +9,19 @@ This test is a verification of the FFD ASR command recognition.
 Building the Tests
 ******************
 
-Begin by ensuring the filesystem is flashed.  To do this run the following commands from the top of the repository:
-
-.. code-block:: console
-    
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-    cd build
-    make flash_fs_example_ffd -j
-
-To build the test application firmware, run the following command from the top of the repository: 
+To build the test application firmware and filesystem files, run the following command from the top of the repository: 
 
 .. code-block:: console
 
     bash tools/ci/build_tests.sh
 
-The `build_test.sh` script will copy the test applications to the `dist` folder.  
+The `build_test.sh` script will copy the test applications and filesystem files to the `dist` folder.  
+
+Next, flash the filesystem.  To do this run the following commands from the top of the repository:
+
+.. code-block:: console
+    
+    xflash --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_fat.fs
 
 *************
 Running Tests
