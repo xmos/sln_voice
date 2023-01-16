@@ -175,7 +175,7 @@
     0x9F,                   /* QSPI_RDID */ \
     0,                      /* id dummy bytes */ \
     3,                      /* id size in bytes */ \
-    0,                      /* device id */ \
+    0xEF6017,               /* device id (determined from xflash --spi-read-id 0x9F)*/ \
     0x20,                   /* QSPI_SE */ \
     4096,                   /* Sector erase is always 4KB */ \
     0x06,                   /* QSPI_WREN */ \
@@ -195,8 +195,8 @@
 #ifndef BOARD_QSPI_SPEC
 /* Set up a default SPI spec if the app has not provided
  * one explicitly.
- * Note: The version checks only work in XTC Tools >15.3.0 
- *       By default FL_QUADDEVICE_AT25FF321A is used 
+ * Note: The version checks only work in XTC Tools >15.2.0 
+ *       By default FL_QUADDEVICE_W25Q64JW is used 
  */
 #ifdef __XMOS_XTC_VERSION_MAJOR__
 #if (__XMOS_XTC_VERSION_MAJOR__ == 15)      \

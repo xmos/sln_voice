@@ -91,12 +91,14 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
-    power_app_data->vnr_pred =  float_s32_to_float(frame_data->vnr_pred);
-    power_app_data->ema_energy =  float_s32_to_float(frame_data->ema_energy);
+    if (power_app_data) {
+        //NOTE: passing power_app_data to callback instead of output_app_data.
+        //       They should be the same pointer.
+        assert(power_app_data == output_app_data);
+        power_app_data->vnr_pred =  float_s32_to_float(frame_data->vnr_pred);
+        power_app_data->ema_energy =  float_s32_to_float(frame_data->ema_energy);
+    }
 
-    //NOTE: passing power_app_data to callback instead of output_app_data.
-    //       They should be the same pointer.
-    assert(power_app_data == output_app_data);
     return audio_pipeline_output(power_app_data,
                                (int32_t **)frame_data->samples,
                                4,

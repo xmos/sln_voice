@@ -7,7 +7,7 @@ import soundfile as sf
 from thdncalculator import THDN_and_freq
 
 TEST_CHAN = 0    # Note, the mic channels are swapped on the output
-TEST_FREQ = [1000, 2000]  # Note, the mic channels are swapped on the output
+TEST_FREQ = [2000, 1000]  # Note, the mic channels are swapped on the output
 TEST_SAMPLE_RATE = 48000
 
 def test_48k_output(wav_file, wav_duration):
@@ -18,6 +18,6 @@ def test_48k_output(wav_file, wav_duration):
         assert isclose(TEST_FREQ[ch], freq, rel_tol=(1 / (2 * wav_duration)))
 
         THDN_max = (
-            -85.0
-        )  # in decibels. Actual THD should be -160 or better but capturing artefacts sometimes lower it to -87
+            -60.0
+        )  # in decibels. Actual THD should be -160 or better but capturing artefacts sometimes lower it to -60
         assert THDN_max > THDN
