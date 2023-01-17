@@ -45,6 +45,7 @@ static const char *audio_files_en[] = {
 static int16_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int16_t)];
 static int32_t i2s_audio[2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t))];
 static drwav *wav_files = NULL;
+rtos_osal_mutex_t aud_rsp_lock;
 
 int32_t audio_response_init(void) {
     FRESULT result = 0;
@@ -69,6 +70,9 @@ int32_t audio_response_init(void) {
             configASSERT(0);
         }
     }
+
+    rtos_osal_mutex_create(&aud_rsp_lock, "aud_rsp_lock", RTOS_OSAL_NOT_RECURSIVE);
+
     return 0;
 }
 
@@ -84,8 +88,10 @@ void audio_response_play(int32_t id) {
         }
         else{
             rtos_printf("No audio response for id %d\n", id);
+            return;
         }
 
+        rtos_osal_mutex_get(&aud_rsp_lock, RTOS_OSAL_PORT_WAIT_FOREVER);
         while(1) {
             memset(file_audio, 0x00, sizeof(file_audio));
             framesRead = drwav_read_pcm_frames_s16(&tmp, appconfAUDIO_PIPELINE_FRAME_ADVANCE, file_audio);
@@ -105,6 +111,7 @@ void audio_response_play(int32_t id) {
                 break;
             }
         }
+        rtos_osal_mutex_put(&aud_rsp_lock);
     } else {
         rtos_printf("wav files not initialized\n");
     }

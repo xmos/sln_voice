@@ -31,6 +31,11 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
+/* Enable audio response output */
+#ifndef appconfAUDIO_PLAYBACK_ENABLED
+#define appconfAUDIO_PLAYBACK_ENABLED           1
+#endif
+
 /* Intent Engine Configuration */
 #define appconfINFERENCE_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINFERENCE_SAMPLE_BLOCK_LENGTH    240
@@ -42,18 +47,17 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINFERENCE_RESET_DELAY_MS
+#if appconfAUDIO_PLAYBACK_ENABLED
+#define appconfINFERENCE_RESET_DELAY_MS         5000
+#else
 #define appconfINFERENCE_RESET_DELAY_MS         4000
+#endif
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase
  * before a command phrase */
 #ifndef appconfINFERENCE_RAW_OUTPUT
 #define appconfINFERENCE_RAW_OUTPUT   0
-#endif
-
-/* Enable audio response output */
-#ifndef appconfAUDIO_PLAYBACK_ENABLED
-#define appconfAUDIO_PLAYBACK_ENABLED   1
 #endif
 
 /* Maximum number of detected intents to hold */
@@ -115,7 +119,7 @@
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
 #define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
-#define appconfPOWER_FULL_HOLD_DURATION         (appconfINFERENCE_RESET_DELAY_MS + 3000) // milliseconds
+#define appconfPOWER_FULL_HOLD_DURATION         (1000) // milliseconds
 
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */
