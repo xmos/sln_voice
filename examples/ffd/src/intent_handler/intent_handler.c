@@ -18,9 +18,12 @@
 #include "fs_support.h"
 #include "ff.h"
 #include "audio_response.h"
+#include "inference_engine.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
+
+#if ON_TILE(INFERENCE_TILE_NO)
 
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
@@ -75,6 +78,11 @@ static void proc_keyword_res(void *args) {
 #if appconfAUDIO_PLAYBACK_ENABLED
         audio_response_play(id);
 #endif
+#if appconfLOW_POWER_ENABLED
+        if (inference_engine_keyword_queue_count() == 0) {
+            inference_engine_keyword_queue_complete();
+        }
+#endif
     }
 }
 
@@ -89,3 +97,5 @@ int32_t intent_handler_create(uint32_t priority, void *args)
 
     return 0;
 }
+
+#endif /* ON_TILE(INFERENCE_TILE_NO) */

@@ -21,11 +21,6 @@ void power_control_task_create(unsigned priority, void *args);
 #if ON_TILE(POWER_CONTROL_TILE_NO)
 
 /**
- * @brief Notify that the power control task should enter the low power state.
- */
-void power_control_enter_low_power(void);
-
-/**
  * @brief Notify that the power control task should exit the low power state.
  */
 void power_control_exit_low_power(void);
@@ -40,11 +35,16 @@ power_state_t power_control_state_get(void);
 #else
 
 /**
- * @brief Notify that the requested power control state on tile[0] has completed
- * This serves control when tile[1] is allowed to commence with applying
- * low power mode.
+ * @brief Notify the power control task that the low power state has been
+ * requested. The power control task may accept or reject the request.
  */
-void power_control_req_complete(void);
+void power_control_req_low_power(void);
+
+/**
+ * @brief Notify the power control task that indication oof the power state
+ * has completed, and it is safe to proceed with the requested operation.
+ */
+void power_control_ind_complete(void);
 
 #endif
 
