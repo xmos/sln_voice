@@ -32,8 +32,8 @@ static void proc_keyword_res(void *args) {
 
     configASSERT(q_intent != 0);
 
-    const rtos_gpio_port_id_t p_out_wakeup = rtos_gpio_port(XS1_PORT_1D);       /* PORT_SPI_MOSI on XK_VOICE_L71*/
-    const rtos_gpio_port_id_t p_in_host_status = rtos_gpio_port(XS1_PORT_1P);   /* PORT_SPI_MISO on XK_VOICE_L71*/
+    const rtos_gpio_port_id_t p_out_wakeup = rtos_gpio_port(GPIO_OUT_HOST_WAKEUP_PORT);
+    const rtos_gpio_port_id_t p_in_host_status = rtos_gpio_port(GPIO_IN_HOST_STATUS_PORT);
 
     rtos_gpio_port_enable(gpio_ctx_t0, p_out_wakeup);
     rtos_gpio_port_enable(gpio_ctx_t0, p_in_host_status);
@@ -50,6 +50,7 @@ static void proc_keyword_res(void *args) {
 
         if (host_status == 0) { /* Host is not awake */
             rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_HIGH);
+            rtos_printf("Delay for host wake up\n");
             vTaskDelay(pdMS_TO_TICKS(appconfINTENT_TRANSPORT_DELAY_MS));
             rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
         }

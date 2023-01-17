@@ -84,6 +84,7 @@ void audio_response_play(int32_t id) {
     if (wav_files != NULL) {
         if(id< NUM_FILES){  //max id should be (NUM_FILES - 1)
             tmp = wav_files[id];
+            // rtos_printf("Play %s\n", audio_files_en[id]);
         }
         else{
             rtos_printf("No audio response for id %d\n", id);
@@ -97,10 +98,9 @@ void audio_response_play(int32_t id) {
             memset(i2s_audio, 0x00, sizeof(i2s_audio));
             for (int i=0; i<framesRead; i++) {
                 i2s_audio[(2*i)+0] = (int32_t) file_audio[i] << 16;
-                //printf("%d    %d\n", file_audio[i], i2s_audio[(2*i)+0]);
                 i2s_audio[(2*i)+1] = (int32_t) file_audio[i] << 16;
             }
-
+            
             rtos_i2s_tx(i2s_ctx,
                         (int32_t*) i2s_audio,
                         appconfAUDIO_PIPELINE_FRAME_ADVANCE,
@@ -115,4 +115,5 @@ void audio_response_play(int32_t id) {
     } else {
         rtos_printf("wav files not initialized\n");
     }
+    // rtos_printf("Playback done\n");
 }

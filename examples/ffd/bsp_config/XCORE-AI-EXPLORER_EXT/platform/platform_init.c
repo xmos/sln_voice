@@ -9,11 +9,23 @@
 #include "platform/app_pll_ctrl.h"
 #include "platform/driver_instances.h"
 #include "platform/platform_init.h"
+#include "usb_support.h"
 
 static void mclk_init(chanend_t other_tile_c)
 {
 #if ON_TILE(1)
     app_pll_init();
+#endif
+#if ON_TILE(0)
+#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
+    adaptive_rate_adjust_init(other_tile_c);
+#else
+    port_enable(PORT_MCLK_IN);
+    clock_enable(MCLK_CLKBLK);
+    clock_set_source_port(MCLK_CLKBLK, PORT_MCLK_IN);
+    port_set_clock(PORT_MCLK_IN, MCLK_CLKBLK);
+    clock_start(MCLK_CLKBLK);
+#endif
 #endif
 }
 
@@ -202,6 +214,13 @@ static void i2s_init(void)
 #endif
 }
 
+static void usb_init(void)
+{
+#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
+    usb_manager_init();
+#endif
+}
+
 static void uart_init(void)
 {
 #if ON_TILE(UART_TILE_NO)
@@ -229,5 +248,6 @@ void platform_init(chanend_t other_tile_c)
     i2c_init();
     mics_init();
     i2s_init();
+    usb_init();
     uart_init();
 }

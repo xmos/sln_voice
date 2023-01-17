@@ -44,10 +44,10 @@ your application. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
 #if ON_TILE(0)
-#define configTOTAL_HEAP_SIZE                   (84 * 1024)
+#define configTOTAL_HEAP_SIZE                   (90 * 1024)
 #endif
 #if ON_TILE(1)
-#define configTOTAL_HEAP_SIZE                   (90 * 1024)
+#define configTOTAL_HEAP_SIZE                   (100 * 1024)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
