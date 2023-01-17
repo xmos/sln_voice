@@ -14,6 +14,7 @@
 #include "platform_conf.h"
 #include "platform/driver_instances.h"
 #include "aic3204.h"
+#include "usb_support.h"
 
 extern void i2s_rate_conversion_enable(void);
 
@@ -105,6 +106,13 @@ static void i2s_start(void)
 #endif
 }
 
+static void usb_start(void)
+{
+#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
+    usb_manager_start(appconfUSB_MGR_TASK_PRIORITY);
+#endif
+}
+
 static void uart_start(void)
 {
 #if ON_TILE(UART_TILE_NO)
@@ -123,5 +131,6 @@ void platform_start(void)
     audio_codec_start();
     mics_start();
     i2s_start();
+    usb_start();
     uart_start();
 }

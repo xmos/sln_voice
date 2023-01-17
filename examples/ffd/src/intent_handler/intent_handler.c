@@ -18,9 +18,12 @@
 #include "fs_support.h"
 #include "ff.h"
 #include "audio_response.h"
+#include "inference_engine.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
+
+#if ON_TILE(INFERENCE_TILE_NO)
 
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
@@ -29,8 +32,8 @@ static void proc_keyword_res(void *args) {
 
     configASSERT(q_intent != 0);
 
-    const rtos_gpio_port_id_t p_out_wakeup = rtos_gpio_port(XS1_PORT_1D);       /* PORT_SPI_MOSI on XK_VOICE_L71*/
-    const rtos_gpio_port_id_t p_in_host_status = rtos_gpio_port(XS1_PORT_1P);   /* PORT_SPI_MISO on XK_VOICE_L71*/
+    const rtos_gpio_port_id_t p_out_wakeup = rtos_gpio_port(GPIO_OUT_HOST_WAKEUP_PORT);
+    const rtos_gpio_port_id_t p_in_host_status = rtos_gpio_port(GPIO_IN_HOST_STATUS_PORT);
 
     rtos_gpio_port_enable(gpio_ctx_t0, p_out_wakeup);
     rtos_gpio_port_enable(gpio_ctx_t0, p_in_host_status);
@@ -47,6 +50,7 @@ static void proc_keyword_res(void *args) {
 
         if (host_status == 0) { /* Host is not awake */
             rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_HIGH);
+            rtos_printf("Delay for host wake up\n");
             vTaskDelay(pdMS_TO_TICKS(appconfINTENT_TRANSPORT_DELAY_MS));
             rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
         }
@@ -75,6 +79,11 @@ static void proc_keyword_res(void *args) {
 #if appconfAUDIO_PLAYBACK_ENABLED
         audio_response_play(id);
 #endif
+#if appconfLOW_POWER_ENABLED
+        if (inference_engine_keyword_queue_count() == 0) {
+            inference_engine_keyword_queue_complete();
+        }
+#endif
     }
 }
 
@@ -89,3 +98,5 @@ int32_t intent_handler_create(uint32_t priority, void *args)
 
     return 0;
 }
+
+#endif /* ON_TILE(INFERENCE_TILE_NO) */

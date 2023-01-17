@@ -123,13 +123,13 @@ void vApplicationMallocFailedHook(void)
     for(;;);
 }
 
-// static void mem_analysis(void)
-// {
-// 	for (;;) {
-// 		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-// 		vTaskDelay(pdMS_TO_TICKS(5000));
-// 	}
-// }
+static void mem_analysis(void)
+{
+	for (;;) {
+		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+		vTaskDelay(pdMS_TO_TICKS(5000));
+	}
+}
 
 __attribute__((weak))
 void startup_task(void *arg)
@@ -185,7 +185,7 @@ void startup_task(void *arg)
     set_local_tile_processor_clk_div(appconfLOW_POWER_CONTROL_TILE_CLK_DIV);
 #endif
 
-    //mem_analysis();
+    // mem_analysis();
     vTaskSuspend(NULL);
     while(1){;} /* Trap */
 }
