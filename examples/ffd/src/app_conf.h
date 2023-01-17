@@ -42,7 +42,7 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINFERENCE_RESET_DELAY_MS
-#define appconfINFERENCE_RESET_DELAY_MS         3000
+#define appconfINFERENCE_RESET_DELAY_MS         4000
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase

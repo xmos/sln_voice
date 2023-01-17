@@ -1,6 +1,14 @@
 XCORE-VOICE change log
 ======================
 
+0.21.0-beta.0
+-------------
+
+  * ADDED: Improved Interference Cancellation using Voice-to-Noise Ratio estimator.  
+  * ADDED: Low-power mode to far-field dictionary example design
+  * ADDED: USB DFU to far-field voice assistant example design
+  * ADDED: Optional AEC fixed-delay to far-field voice assistant example design
+
 0.20.0
 ------
 
