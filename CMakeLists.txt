@@ -15,7 +15,7 @@ enable_language(CXX C ASM)
 option(SOLUTION_AVONA_TESTS     "Enable solution avona tests"  OFF)
 
 ## Add frameworks
-add_subdirectory(xcore_sdk)
+add_subdirectory(modules)
 
 ## Add top level project targets
 if(PROJECT_IS_TOP_LEVEL)
