@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
-   echo "Syntax: check_dfu.sh [-h] firmware output_dir adapterID_optional"
+   echo "Syntax: check_dfu.sh [-h] firmware output_dir adapterID"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -57,13 +57,11 @@ echo "${FIRMWARE_NAME}"
 rm -rf "${OUTPUT_DIR}"
 mkdir "${OUTPUT_DIR}"
 
-# TODO get the tools version numbers for xflash
-# grep -Eo '[0-9][0-9]\.[0-9]\.[0-9]+' ${XMOS_TOOL_PATH}/doc/version.txt
-TOOLS_MAJOR_VER=15
-TOOLS_MINOR_VER=1
+# get the tools version numbers for xflash
+export_tools_version
 
 # create the upgrade firmware
-xflash ${ADAPTER_ID} --factory-version ${TOOLS_MAJOR_VER}.${TOOLS_MINOR_VER} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
+xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # write the upgrade image
 dfu-util -e -d 0020 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin --reset
