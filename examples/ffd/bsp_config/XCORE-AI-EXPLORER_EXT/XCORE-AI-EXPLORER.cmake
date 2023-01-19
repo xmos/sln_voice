@@ -1,7 +1,7 @@
 
 ## Create custom board targets for application
-add_library(sln_voice_app_ffd_board_support_xcore_ai_explorer INTERFACE)
-target_sources(sln_voice_app_ffd_board_support_xcore_ai_explorer
+add_library(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext INTERFACE)
+target_sources(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -9,33 +9,37 @@ target_sources(sln_voice_app_ffd_board_support_xcore_ai_explorer
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
 )
-target_include_directories(sln_voice_app_ffd_board_support_xcore_ai_explorer
+target_include_directories(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(sln_voice_app_ffd_board_support_xcore_ai_explorer
+target_link_libraries(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext
     INTERFACE
         core::general
         rtos::freertos
         rtos::drivers::general
         rtos::drivers::audio
+        rtos::drivers::usb
+        rtos::freertos_usb
         sln_voice::app::ffd::dac::aic3204
 )
-target_compile_options(sln_voice_app_ffd_board_support_xcore_ai_explorer
+target_compile_options(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn
 )
-target_link_options(sln_voice_app_ffd_board_support_xcore_ai_explorer
+target_link_options(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn
 )
-target_compile_definitions(sln_voice_app_ffd_board_support_xcore_ai_explorer
+target_compile_definitions(sln_voice_app_ffd_board_support_xcore_ai_explorer_ext
     INTERFACE
         XCOREAI_EXPLORER=1
         PLATFORM_SUPPORTS_TILE_0=1
         PLATFORM_SUPPORTS_TILE_1=1
         PLATFORM_SUPPORTS_TILE_2=0
         PLATFORM_SUPPORTS_TILE_3=0
+        USB_TILE_NO=0
+        USB_TILE=tile[USB_TILE_NO]
 
         MIC_ARRAY_CONFIG_MCLK_FREQ=24576000
         MIC_ARRAY_CONFIG_PDM_FREQ=3072000
@@ -49,4 +53,4 @@ target_compile_definitions(sln_voice_app_ffd_board_support_xcore_ai_explorer
 )
 
 ## Create an alias
-add_library(sln_voice::app::ffd::xcore_ai_explorer ALIAS sln_voice_app_ffd_board_support_xcore_ai_explorer)
+add_library(sln_voice::app::ffd::xcore_ai_explorer_dev ALIAS sln_voice_app_ffd_board_support_xcore_ai_explorer_ext)

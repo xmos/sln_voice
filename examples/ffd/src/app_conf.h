@@ -10,10 +10,11 @@
 #define appconfGPIO_T1_RPC_PORT                   2
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
+#define appconfI2S_RPC_PORT                       5
 #define appconfCLOCK_CONTROL_PORT                 14
 #define appconfPOWER_CONTROL_PORT                 15
 
-#define appconfPOWER_STATE_PORT                   12
+#define appconfPOWER_STATE_PORT                   8
 #define appconfWANSON_READY_SYNC_PORT             16
 
 /* Application tile specifiers */
@@ -25,10 +26,15 @@
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
 #define appconfPDM_CLOCK_FREQUENCY              MIC_ARRAY_CONFIG_PDM_FREQ
-#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 4800 is not supported in FFD ext
+#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 48000 is not supported in FFD ext
 #define appconfAUDIO_PIPELINE_CHANNELS          MIC_ARRAY_CONFIG_MIC_COUNT
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
+
+/* Enable audio response output */
+#ifndef appconfAUDIO_PLAYBACK_ENABLED
+#define appconfAUDIO_PLAYBACK_ENABLED           1
+#endif
 
 /* Intent Engine Configuration */
 #define appconfINFERENCE_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
@@ -41,18 +47,17 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINFERENCE_RESET_DELAY_MS
+#if appconfAUDIO_PLAYBACK_ENABLED
+#define appconfINFERENCE_RESET_DELAY_MS         5000
+#else
 #define appconfINFERENCE_RESET_DELAY_MS         4000
+#endif
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase
  * before a command phrase */
 #ifndef appconfINFERENCE_RAW_OUTPUT
 #define appconfINFERENCE_RAW_OUTPUT   0
-#endif
-
-/* Enable audio response output */
-#ifndef appconfAUDIO_PLAYBACK_ENABLED
-#define appconfAUDIO_PLAYBACK_ENABLED   1
 #endif
 
 /* Maximum number of detected intents to hold */
@@ -114,7 +119,7 @@
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
 #define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
-#define appconfPOWER_FULL_HOLD_DURATION         (appconfINFERENCE_RESET_DELAY_MS + 3000) // milliseconds
+#define appconfPOWER_FULL_HOLD_DURATION         (1000) // milliseconds
 
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */
