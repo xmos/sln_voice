@@ -23,9 +23,11 @@ This folder contains the core application source.
    * - audio_pipeline directory
      - contains example XMOS audio pipeline
    * - gpio_ctrl directory
-     - contains general purpose input handling task and LED output heartbeat task
+     - contains general purpose input handling and LED handling tasks
    * - intent_handler directory
      - contains intent handling code
+   * - power directory
+     - contains low power state and control code
    * - rtos_conf directory
      - contains default FreeRTOS configuration header
    * - ssd1306
@@ -97,7 +99,12 @@ This function has the role of receiving the processed audio pipeline output.
 
 This function is weak so the application can override it if desired.
 
-In FFD, the output is sent to the inference engine.
+In FFD, the output is sent to the inference engine. If `appconfLOW_POWER_ENABLED`
+is set true, then the output will be dropped if the power state is not
+`POWER_STATE_FULL`. In certain conditions and environments, this behavior may
+cause the wake word to be missed. Further adjustments to the application
+configuration settings related to the VNR low power thresholds may mitigate such
+issues. See :ref:`sln_voice_ffd_power`.
 
 
 Main

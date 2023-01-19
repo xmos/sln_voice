@@ -37,7 +37,7 @@ Run the test with the following command from the top of the repository:
 
 .. code-block:: console
 
-    bash test/commands/check_sample_rate_conversion.sh <firmware> <path-to-output-dir>
+    bash test/sample_rate_conversion/check_sample_rate_conversion.sh <firmware> <path-to-output-dir>
 
 All paths must be absolute.  Relative paths may cause errors.  
 

@@ -20,6 +20,12 @@
 
 static StreamBufferHandle_t samples_to_engine_stream_buf = 0;
 
+void wanson_engine_stream_buf_reset(void)
+{
+    if (samples_to_engine_stream_buf)
+        xStreamBufferReset(samples_to_engine_stream_buf);
+}
+
 void wanson_engine_samples_send_remote(
         rtos_intertile_t *intertile_ctx,
         size_t frame_count,

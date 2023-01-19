@@ -10,7 +10,10 @@
 #define appconfGPIO_T1_RPC_PORT                   2
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
+#define appconfCLOCK_CONTROL_PORT                 14
+#define appconfPOWER_CONTROL_PORT                 15
 
+#define appconfPOWER_STATE_PORT                   12
 #define appconfWANSON_READY_SYNC_PORT             16
 
 /* Application tile specifiers */
@@ -38,7 +41,7 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINFERENCE_RESET_DELAY_MS
-#define appconfINFERENCE_RESET_DELAY_MS         3000
+#define appconfINFERENCE_RESET_DELAY_MS         4000
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase
@@ -55,6 +58,11 @@
 /* Maximum number of detected intents to hold */
 #ifndef appconfINTENT_QUEUE_LEN
 #define appconfINTENT_QUEUE_LEN     10
+#endif
+
+/* Maximum number of detected intents to hold */
+#ifndef appconfWAKEUP_TRIGGER_LEN
+#define appconfWAKEUP_TRIGGER_LEN     1
 #endif
 
 /* External wakeup pin edge on intent found.  0 for rising edge, 1 for falling edge */
@@ -89,6 +97,37 @@
 
 #ifndef appconfI2S_ENABLED
 #define appconfI2S_ENABLED   1
+#endif
+
+#ifndef appconfLOW_POWER_ENABLED
+#define appconfLOW_POWER_ENABLED                1
+#endif
+
+#ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
+#define appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE  1
+#endif
+
+#define appconfLOW_POWER_SWITCH_CLK_DIV         30  // Resulting clock freq >= 20MHz.
+#define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
+#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
+
+#define appconfPOWER_VNR_THRESHOLD              (0.3f)
+#define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
+#define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
+#define appconfPOWER_FULL_HOLD_DURATION         (appconfINFERENCE_RESET_DELAY_MS + 3000) // milliseconds
+
+/* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
+ * samples while in low power mode. */
+#ifndef appconfAUDIO_PIPELINE_BUFFER_ENABLED
+#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
+#endif
+
+/* The number of frames (appconfAUDIO_PIPELINE_FRAME_ADVANCE) to store in a ring
+ * buffer while in low power mode. This may be tuned to ensure that unvoiced
+ * speech that is a pre-cursor to voiced speech in a wake-word such as "he" part
+ * of "hello" is captured and relayed to the inference engine. */
+#ifndef appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
+#define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES 32
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
@@ -151,6 +190,8 @@
 #define appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY (configMAX_PRIORITIES - 2)
 #define appconfINFERENCE_HMI_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
 #define appconfGPIO_RPC_PRIORITY                    (configMAX_PRIORITIES / 2)
+#define appconfCLOCK_CONTROL_RPC_HOST_PRIORITY      (configMAX_PRIORITIES / 2)
+#define appconfPOWER_CONTROL_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
 #define appconfGPIO_TASK_PRIORITY                   (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_MASTER_RPC_PRIORITY              (configMAX_PRIORITIES / 2)
@@ -159,7 +200,7 @@
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
-#define appconfLED_HEARTBEAT_TASK_PRIORITY          (configMAX_PRIORITIES / 2 - 1)
+#define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"
 

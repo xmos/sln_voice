@@ -44,10 +44,10 @@ your application. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
 #if ON_TILE(0)
-#define configTOTAL_HEAP_SIZE                   64*1024
+#define configTOTAL_HEAP_SIZE                   (84 * 1024)
 #endif
 #if ON_TILE(1)
-#define configTOTAL_HEAP_SIZE                   64*1024
+#define configTOTAL_HEAP_SIZE                   (90 * 1024)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
@@ -79,7 +79,9 @@ your application. */
 #define configASSERT(x) xassert(x)
 
 /* Define to enable debug_printf() */
+#ifndef configENABLE_DEBUG_PRINTF
 #define configENABLE_DEBUG_PRINTF 1
+#endif
 
 /* Define to map sprintf and snprintf to the
  * lite versions in lib_rtos_support */

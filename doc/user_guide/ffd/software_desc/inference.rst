@@ -37,7 +37,7 @@ The inference module provides the application with two API functions:
     :caption: Inference API (inference_engine.h)
 
     int32_t inference_engine_create(uint32_t priority, void *args);
-    int32_t inference_engine_sample_push(int32_t *buf, size_t bytes);
+    int32_t inference_engine_sample_push(int32_t *buf, size_t frames);
 
 If replacing the existing model, these are the only two functions that are required to be populated.
 

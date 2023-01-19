@@ -11,7 +11,7 @@ set(STLP_INT_COMPILE_DEFINITIONS
     MIC_ARRAY_CONFIG_MCLK_FREQ=12288000
 )
 
-foreach(STLP_AP ${STLP_PIPELINES})
+foreach(STLP_AP ${STLP_PIPELINES_INT})
     #**********************
     # Tile Targets
     #**********************

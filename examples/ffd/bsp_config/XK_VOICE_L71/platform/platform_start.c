@@ -17,6 +17,18 @@
 
 extern void i2s_rate_conversion_enable(void);
 
+static void clock_control_start(void)
+{
+    rtos_clock_control_rpc_config(
+            cc_ctx_t0,
+            appconfCLOCK_CONTROL_PORT,
+            appconfCLOCK_CONTROL_RPC_HOST_PRIORITY);
+
+#if ON_TILE(0)
+    rtos_clock_control_start(cc_ctx_t0);
+#endif
+}
+
 static void gpio_start(void)
 {
     rtos_gpio_rpc_config(gpio_ctx_t0, appconfGPIO_T0_RPC_PORT, appconfGPIO_RPC_PRIORITY);
@@ -104,6 +116,7 @@ void platform_start(void)
 {
     rtos_intertile_start(intertile_ctx);
 
+    clock_control_start();
     gpio_start();
     flash_start();
     i2c_master_start();

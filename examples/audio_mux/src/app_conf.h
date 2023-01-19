@@ -50,7 +50,7 @@
 #endif
 
 #ifndef appconfUSB_ENABLED
-#define appconfUSB_ENABLED         (appconfUSB_INPUT || appconfI2S_OUTPUT)
+#define appconfUSB_ENABLED         (appconfUSB_INPUT || appconfUSB_OUTPUT)
 #endif
 
 #ifndef appconfUSB_AUDIO_ENABLED

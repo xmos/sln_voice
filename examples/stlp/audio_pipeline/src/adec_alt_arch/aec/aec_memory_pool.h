@@ -5,7 +5,7 @@
 #define AEC_MEMORY_POOL_H
 
 #include "audio_pipeline_dsp.h"
-#include "xs3_math.h"
+#include "xmath/xmath.h"
 
 //Memory pool definition
 typedef struct {
