@@ -22,4 +22,4 @@ echo '******************************************************'
 # copy fatfs_mkimage to dist
 name=fatfs/host
 make_target=fatfs_mkimage
-(cd ${path}/build_host; cp xcore_sdk/modules/rtos/modules/sw_services/${name}/${make_target} ${DIST_DIR})
+(cd ${path}/build_host; cp modules/rtos/modules/sw_services/${name}/${make_target} ${DIST_DIR})
