@@ -14,9 +14,8 @@ XCORE |reg| -VOICE Solutions
 .. toctree::
   :maxdepth: 1
 
-  doc/introduction/index
-  doc/user_guide/index
-  doc/copyright
+  doc/quick_start_guide/index
+  doc/programming_guide/index
 
 *********
 Licensing
