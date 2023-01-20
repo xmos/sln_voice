@@ -5,7 +5,7 @@ import hashlib as hl
 
 BUF_SIZE = 65536
 
-def test_hashfile(file_1, file_2):
+def test_readback(file_1, file_2):
     digests = []
     for bin_file in [file_1, file_2]:
         a = hl.sha1()
