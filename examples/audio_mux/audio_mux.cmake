@@ -38,7 +38,7 @@ set(APP_LINK_OPTIONS
 
 set(APP_COMMON_LINK_LIBRARIES
     rtos::freertos_usb
-    sdk::lib_src
+    lib_src
     sln_voice::example::audio_mux::xcore_ai_explorer
 )
 

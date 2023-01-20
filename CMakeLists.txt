@@ -14,8 +14,11 @@ enable_language(CXX C ASM)
 ## Project options
 option(SOLUTION_AVONA_TESTS     "Enable solution avona tests"  OFF)
 
+## Import some helpful macros
+include(modules/rtos/tools/cmake_utils/xmos_macros.cmake)
+
 ## Add frameworks
-add_subdirectory(xcore_sdk)
+add_subdirectory(modules)
 
 ## Add top level project targets
 if(PROJECT_IS_TOP_LEVEL)
