@@ -5,9 +5,9 @@ import hashlib as hl
 
 BUF_SIZE = 65536
 
-def test_readback(file_1, file_2):
+def test_readback(upgrade_image, readback_image):
     digests = []
-    for bin_file in [file_1, file_2]:
+    for bin_file in [upgrade_image, readback_image]:
         a = hl.sha1()
         with open(bin_file, 'rb') as f:
             while True:

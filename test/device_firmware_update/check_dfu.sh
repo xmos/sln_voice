@@ -61,13 +61,13 @@ mkdir "${OUTPUT_DIR}"
 export_tools_version
 
 # create the upgrade firmware
-xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/upgrade_image.bin
+xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # write the upgrade image
-dfu-util -e -d 0020 -a 1 -D ${OUTPUT_DIR}/upgrade_image.bin --reset
+dfu-util -e -d 0020 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin --reset
 
 # wait for dust to gather
 sleep 1
 
 # get readback upgrade image
-dfu-util -e -d 0020 -a 1 -U ${OUTPUT_DIR}/readback_image.bin
+dfu-util -e -d 0020 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
