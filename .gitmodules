@@ -22,3 +22,6 @@
 [submodule "modules/xscope_fileio"]
 	path = modules/xscope_fileio/xscope_fileio
 	url = git@github.com:xmos/xscope_fileio.git
+[submodule "modules/inferencing/lib_nn"]
+	path = modules/inferencing/lib_nn
+	url = git@github.com:xmos/lib_nn.git

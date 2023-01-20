@@ -7,6 +7,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
 endif()
 
 add_subdirectory(io)
+add_subdirectory(inferencing)
 add_subdirectory(rtos)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
