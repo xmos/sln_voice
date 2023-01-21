@@ -6,7 +6,7 @@ from shutil import rmtree
 
 def build_ffi():
     # One more ../ than necessary - builds in the 'build' subdirectory in this folder
-    APPLICATION_ROOT = "../../../../applications/stlp"
+    APPLICATION_ROOT = "../../../../applications/ffva"
 
     FLAGS = [
         '-std=c99',

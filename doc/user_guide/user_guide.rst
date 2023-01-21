@@ -6,5 +6,5 @@ USER GUIDE
    :maxdepth: 2
 
    ffd/ffd
-   stlp/stlp
+   ffva/ffva
    extending

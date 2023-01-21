@@ -2,7 +2,7 @@
 Check Sample Rate Conversion
 ############################
 
-This test is a verification of the STLP sample rate conversion feature.  
+This test is a verification of the FFVA sample rate conversion feature.  
 
 **************************
 Building and Running Tests

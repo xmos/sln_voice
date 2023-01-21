@@ -1,1 +1,1 @@
-include(${CMAKE_CURRENT_LIST_DIR}/stlp/test_stlp.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffva/test_ffva.cmake)
