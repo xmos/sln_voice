@@ -153,7 +153,7 @@ With:
 It is also possible to add or remove stages.  Refer to the XCORE-SDK documentation on the generic pipeline sw_service.
 
 
-.. _sln_voice_FFD_replacing-wanson-keyword-engine-block:
+.. _sln_voice_ffd_replacing-wanson-keyword-engine-block:
 
 Replacing Wanson Keyword Engine Block
 -------------------------------------

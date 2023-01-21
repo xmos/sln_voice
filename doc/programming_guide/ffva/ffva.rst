@@ -1,7 +1,7 @@
 .. include:: ../../substitutions.rst
 .. include:: <isonum.txt>
 
-.. _sln_voice_FFVA:
+.. _sln_voice_ffva:
 
 #########################
 Far-field Voice Assistant
@@ -11,8 +11,6 @@ Far-field Voice Assistant
    :maxdepth: 1
    :hidden:
 
-   usb_audio_demo
-   avs_demo
    audio_pipeline
 
 ========
@@ -48,13 +46,13 @@ The xTAG is used to program and debug the device
 
 Connect the xTAG to the debug header, as shown below.
 
-.. image:: ../images/xtag_installation.jpg
+.. image:: ../../shared/images/xtag_installation.jpg
     :width: 800
     :alt: xtag
 
 Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
 
-.. image:: ../images/host_setup.jpg
+.. image:: ../../shared/images/host_setup.jpg
     :width: 800
     :alt: programming host setup
 

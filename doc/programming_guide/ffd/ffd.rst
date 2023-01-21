@@ -1,6 +1,6 @@
 .. include:: ../../substitutions.rst
 
-.. _sln_voice_FFD:
+.. _sln_voice_ffd_programming_guide:
 
 #############################
 Far-field Voice Local Control
@@ -45,7 +45,7 @@ This example design requires an XTAG4 and XK-VOICE-L71 board.
 
 Optionally, an external microphone array board, LCD daugher board, and SSD1306 display can also be used.
 
-.. image:: images/all_components.jpg
+.. image:: ../../shared/images/all_components.jpg
   :width: 800
   :alt: all components
 
@@ -56,61 +56,19 @@ The xTAG is used to program and debug the device
 
 Connect the xTAG to the debug header, as shown below.
 
-.. image:: ../images/xtag_installation.jpg
+.. image:: ../../shared/images/xtag_installation.jpg
   :width: 800
   :alt: xtag
 
 Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
 
-.. image:: ../images/host_setup.jpg
+.. image:: ../../shared/images/host_setup.jpg
   :width: 800
   :alt: programming host setup
-
-External Microphone Array (OPTIONAL)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-An external microphone array can be used instead of the on board mics by connecting one, as shown below.
-
-Open the MIC EXP connector lock.
-
-.. image:: images/external_mic_installation1.jpg
-  :width: 800
-  :alt: external mic step 1
-
-Insert the external microphone ribbon cable, contacts facing away from the lock.
-
-.. image:: images/external_mic_installation2.jpg
-  :width: 800
-  :alt: external mic step 2
-
-Lock the MIC EXP connector.
-
-.. image:: images/external_mic_installation3.jpg
-  :width: 800
-  :alt: external mic step 3
 
 Speakers (OPTIONAL)
 ^^^^^^^^^^^^^^^^^^^
 This example application features audio playback responses.  Speakers can be connected to the LINE OUT on the XK-VOICE-L71.
-
-SSD1306 Display (OPTIONAL)
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-Solder header pins on TP5, TP6, J8, and J6.
-
-.. image:: images/lcd_installation1.jpg
-  :width: 800
-  :alt: lcd step 1
-
-Install the LCD daughter board by lining it up with TP5, TP6, J8, and J6.  Gently press down.
-
-.. image:: images/lcd_installation2.jpg
-  :width: 800
-  :alt: lcd step 2
-
-Attach the SSD1306 display to the daughter board.
-
-.. image:: images/lcd_installation3.jpg
-  :width: 800
-  :alt: lcd step 3
 
 Building the Firmware
 ---------------------
@@ -133,7 +91,7 @@ Run the following commands in the root folder to build the firmware:
         cd build
         nmake example_ffd
 
-.. _sln_voice_FFD_configuring-the-firmware:
+.. _sln_voice_ffd_configuring-the-firmware:
 
 Configuring the Firmware
 ------------------------
