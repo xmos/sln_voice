@@ -49,29 +49,29 @@ set(APP_COMMON_LINK_LIBRARIES
 #**********************
 # Pipeline Options
 # By default only these targets are created:
-#  example_stlp_int_fixed_delay
-#  example_stlp_ua_adec
+#  example_ffva_int_fixed_delay
+#  example_ffva_ua_adec
 #**********************
-option(ENABLE_ALL_STLP_PIPELINES  "Create all STLP pipeline configurations"  OFF)
+option(ENABLE_ALL_FFVA_PIPELINES  "Create all FFVA pipeline configurations"  OFF)
 
-if(ENABLE_ALL_STLP_PIPELINES)
-    set(STLP_PIPELINES_INT
+if(ENABLE_ALL_FFVA_PIPELINES)
+    set(FFVA_PIPELINES_INT
         fixed_delay
         adec
         adec_altarch
     )
 
-    set(STLP_PIPELINES_UA
+    set(FFVA_PIPELINES_UA
         fixed_delay
         adec
         adec_altarch
     )
 else()
-    set(STLP_PIPELINES_INT
+    set(FFVA_PIPELINES_INT
         fixed_delay
     )
 
-    set(STLP_PIPELINES_UA
+    set(FFVA_PIPELINES_UA
         adec
     )
 endif()
@@ -79,5 +79,5 @@ endif()
 #**********************
 # XMOS Example Design Targets
 #**********************
-include(${CMAKE_CURRENT_LIST_DIR}/stlp_int.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/stlp_ua.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffva_int.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffva_ua.cmake)

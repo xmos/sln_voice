@@ -70,7 +70,7 @@ On the host computer, open a `XTC Tools Command Prompt`.
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory example_stlp_ua_adec.xe --boot-partition-size 0x100000 --data example_stlp_ua_adec_fat.fs
+    xflash --quad-spi-clock 50MHz --factory example_ffva_ua_adec.xe --boot-partition-size 0x100000 --data example_ffva_ua_adec_fat.fs
 
 Record Captured Voice
 ^^^^^^^^^^^^^^^^^^^^^
@@ -164,12 +164,12 @@ Run the following commands to flash the firmware.
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory example_stlp_int_adec.xe --boot-partition-size 0x100000 --data example_stlp_int_adec_fat.fs
+    xflash --quad-spi-clock 50MHz --factory example_ffva_int_adec.xe --boot-partition-size 0x100000 --data example_ffva_int_adec_fat.fs
 
 Prepare the Raspberry Pi System
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. note:: The STLP-INT firmware is compatible with XVF3610-INT software, therefore instructions for installing the XVF3610-INT pi software can be followed for this AVS demo. The "Firmware Upgrade" section may be dismissed, as your STLP-INT firmware is already updated per the above section of this guide.
+.. note:: The FFVA-INT firmware is compatible with XVF3610-INT software, therefore instructions for installing the XVF3610-INT pi software can be followed for this AVS demo. The "Firmware Upgrade" section may be dismissed, as your FFVA-INT firmware is already updated per the above section of this guide.
 
 Prepare the Raspberry Pi System image on the SD card by following the instructions for XVF3610-INT as described on `github <https://github.com/xmos/vocalfusion-avs-setup>`_
 

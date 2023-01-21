@@ -1,7 +1,7 @@
 
 ## Create custom board targets for application
-add_library(sln_voice_app_stlp_board_support_xk_voice_l71 INTERFACE)
-target_sources(sln_voice_app_stlp_board_support_xk_voice_l71
+add_library(sln_voice_app_ffva_board_support_xk_voice_l71 INTERFACE)
+target_sources(sln_voice_app_ffva_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -9,11 +9,11 @@ target_sources(sln_voice_app_stlp_board_support_xk_voice_l71
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
 )
-target_include_directories(sln_voice_app_stlp_board_support_xk_voice_l71
+target_include_directories(sln_voice_app_ffva_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(sln_voice_app_stlp_board_support_xk_voice_l71
+target_link_libraries(sln_voice_app_ffva_board_support_xk_voice_l71
     INTERFACE
         core::general
         rtos::freertos
@@ -21,17 +21,17 @@ target_link_libraries(sln_voice_app_stlp_board_support_xk_voice_l71
         rtos::drivers::audio
         rtos::drivers::usb
         rtos::drivers::dfu_image
-        sln_voice::app::stlp::dac::dac3101
+        sln_voice::app::ffva::dac::dac3101
 )
-target_compile_options(sln_voice_app_stlp_board_support_xk_voice_l71
+target_compile_options(sln_voice_app_ffva_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_link_options(sln_voice_app_stlp_board_support_xk_voice_l71
+target_link_options(sln_voice_app_ffva_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_compile_definitions(sln_voice_app_stlp_board_support_xk_voice_l71
+target_compile_definitions(sln_voice_app_ffva_board_support_xk_voice_l71
     INTERFACE
         XK_VOICE_L71=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -51,4 +51,4 @@ target_compile_definitions(sln_voice_app_stlp_board_support_xk_voice_l71
 )
 
 ## Create an alias
-add_library(sln_voice::app::stlp::xk_voice_l71 ALIAS sln_voice_app_stlp_board_support_xk_voice_l71)
+add_library(sln_voice::app::ffva::xk_voice_l71 ALIAS sln_voice_app_ffva_board_support_xk_voice_l71)

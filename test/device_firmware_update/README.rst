@@ -2,7 +2,7 @@
 Check Device Firmware Update
 ############################
 
-This test is a verification of the STLP device firmware update (DFU) feature.  
+This test is a verification of the FFVA device firmware update (DFU) feature.  
 
 **************************
 Building and Running Tests
@@ -33,4 +33,4 @@ The actions performed by dfu-util can be verified by running a pytest for hash e
 
 .. code-block:: console
 
-    pytest test/device_firmware_update/test_dfu.py --readback_image <path-to-output-dir>/readback_upgrade.bin --upgrade_image <path-to-output-dir>/example_stlp_ua_adec_test_upgrade.bin
+    pytest test/device_firmware_update/test_dfu.py --readback_image <path-to-output-dir>/readback_upgrade.bin --upgrade_image <path-to-output-dir>/example_ffva_ua_adec_test_upgrade.bin

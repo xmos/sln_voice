@@ -42,8 +42,8 @@ source "${SLN_VOICE_ROOT}"/tools/ci/helper_functions.sh
 xflash --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
 # flash the filesystem
-# build_tests.sh creates dist/example_stlp_ua_adec_fat.fs to be used here
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_stlp_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_stlp_ua_adec_fat.fs
+# build_tests.sh creates dist/example_ffva_ua_adec_fat.fs to be used here
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_fat.fs
 
 # wait for device to reset (may not be necessary)
 sleep 3

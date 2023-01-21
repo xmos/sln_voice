@@ -3,5 +3,5 @@ documents/README.rst
 documents/shared
 sln_voice_venv
 test
-xcore_sdk
+modules
 xmos_cmake_toolchain
