@@ -13,5 +13,4 @@ QUICK START GUIDE
 
    ../shared/introduction
    example_designs
-   ../shared/copyright
-
+   ../shared/legal

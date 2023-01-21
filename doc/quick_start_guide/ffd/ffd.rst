@@ -1,7 +1,7 @@
 .. include:: ../../substitutions.rst
 .. include:: <isonum.txt>
 
-.. _sln_voice_FFD:
+.. _sln_voice_ffd_quick_start:
 
 #############################
 Far-field Voice Local Control
@@ -42,19 +42,19 @@ Hardware Setup
 
 This example design requires an XTAG4 and XK-VOICE-L71 board.
 
-.. image:: ../../shared/ffd/images/all_components.jpg
+.. image:: ../../shared/images/all_components.jpg
   :width: 800
   :alt: all components
 
 Connect the xTAG to the debug header, as shown below.
 
-.. image:: ../../shared/ffd/images/xtag_installation.jpg
+.. image:: ../../shared/images/xtag_installation.jpg
   :width: 800
   :alt: xtag
 
 Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
 
-.. image:: ../../shared/ffd/images/host_setup.jpg
+.. image:: ../../shared/images/host_setup.jpg
   :width: 800
   :alt: programming host setup
 
