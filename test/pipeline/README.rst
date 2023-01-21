@@ -2,7 +2,7 @@
 Check Pipeline
 ##############
 
-This test is a verification of the FFD or STLP audio pipelines.  
+This test is a verification of the FFD or FFVA audio pipelines.  
 
 *********************
 Install Prerequisites
@@ -50,11 +50,11 @@ The `build_test.sh` script will copy the test applications and filesystem files 
 
 To flash the filesystem:
 
-If testing the STLP pipeline run:
+If testing the FFVA pipeline run:
 
 .. code-block:: console
     
-    xflash --quad-spi-clock 50MHz --factory dist/example_stlp_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_stlp_ua_adec_fat.fs
+    xflash --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_fat.fs
 
 If testing the FFD pipeline run:
 

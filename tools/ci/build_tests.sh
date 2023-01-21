@@ -22,9 +22,9 @@ fi
 examples=(
     "ffd_usb_audio   example_ffd_usb_audio_test   example_ffd    NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     #"ffd_usb_audio_bypass_ap   example_ffd_usb_audio_test_bypass_ap   example_ffd   NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_ua_adec   example_stlp_ua_adec   example_stlp_ua_adec   DEBUG_STLP_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    #"stlp_ua_adec_altarch   example_stlp_ua_adec_altarch   example_stlp_ua_adec DEBUG_STLP_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_sample_rate_conv   example_stlp_ua_adec   example_stlp_ua_adec   DEBUG_STLP_USB_MIC_INPUT_PIPELINE_BYPASS   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_ua_adec   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
+    #"ffva_ua_adec_altarch   example_ffva_ua_adec_altarch   example_ffva_ua_adec DEBUG_FFVA_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_sample_rate_conv   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds
@@ -50,7 +50,7 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
 
     (cd ${path}; rm -rf build_${board})
     (cd ${path}; mkdir -p build_${board})
-    (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DENABLE_ALL_STLP_PIPELINES=1 ${optional_cache_entry}; log_errors make ${app_target} -j)
+    (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DENABLE_ALL_FFVA_PIPELINES=1 ${optional_cache_entry}; log_errors make ${app_target} -j)
     (cd ${path}/build_${board}; cp ${app_target}.xe ${DIST_DIR}/example_${name}_test.xe)
     if [ "${fs_target}" != "NONE" ]; then
         if [ ! -f ${DIST_DIR}/${fs_target}_fat.fs ]; then

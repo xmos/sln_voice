@@ -21,7 +21,7 @@ See the READMEs for the early example applications:
 
 [FFD](https://github.com/xmos/sln_voice/blob/develop/examples/ffd/README.md)
 
-[STLP](https://github.com/xmos/sln_voice/blob/develop/examples/stlp/README.md)
+[ffva](https://github.com/xmos/sln_voice/blob/develop/examples/ffva/README.md)
 
 # Getting Help
 

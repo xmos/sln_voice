@@ -20,9 +20,9 @@ fi
 # setup configurations
 # row format is: "name app_target run_fs_target BOARD toolchain"
 examples=(
-    "stlp_int_adec           example_stlp_int_adec           Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_int_fixed_delay    example_stlp_int_fixed_delay    Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    "stlp_ua_adec            example_stlp_ua_adec            Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_int_adec           example_ffva_int_adec           Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_int_fixed_delay    example_ffva_int_fixed_delay    Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_ua_adec            example_ffva_ua_adec            Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "ffd                     example_ffd                     Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
 )
 
@@ -41,7 +41,7 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
 
     (cd ${path}; rm -rf build_${board})
     (cd ${path}; mkdir -p build_${board})
-    (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DENABLE_ALL_STLP_PIPELINES=1; log_errors make ${app_target} -j)
+    (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DENABLE_ALL_FFVA_PIPELINES=1; log_errors make ${app_target} -j)
     (cd ${path}/build_${board}; cp ${app_target}.xe ${DIST_DIR})
     if [ "$run_fs_target" = "Yes" ]; then
         echo '======================================================'

@@ -1,7 +1,7 @@
 .. include:: ../../substitutions.rst
 .. include:: <isonum.txt>
 
-.. _sln_voice_STLP:
+.. _sln_voice_ffva:
 
 #########################
 Far-field Voice Assistant
@@ -70,7 +70,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
         cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        make example_stlp_int_adec
+        make example_ffva_int_adec
 
 .. tab:: Windows
 
@@ -78,7 +78,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        nmake example_stlp_int_adec
+        nmake example_ffva_int_adec
 
 
 Run the following commands in the root folder to build the USB firmware:
@@ -89,7 +89,7 @@ Run the following commands in the root folder to build the USB firmware:
 
         cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        make example_stlp_ua_adec
+        make example_ffva_ua_adec
 
 .. tab:: Windows
 
@@ -97,7 +97,7 @@ Run the following commands in the root folder to build the USB firmware:
 
         cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
         cd build
-        nmake example_stlp_ua_adec
+        nmake example_ffva_ua_adec
 
 --------------------
 Running the Firmware
@@ -111,15 +111,15 @@ Inside of the build folder root, after building the firmware, run one of:
 
     .. code-block:: console
 
-        make flash_fs_example_stlp_int_adec
-        make flash_fs_example_stlp_ua_adec
+        make flash_fs_example_ffva_int_adec
+        make flash_fs_example_ffva_ua_adec
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake flash_fs_example_stlp_int_adec
-        nmake flash_fs_example_stlp_ua_adec
+        nmake flash_fs_example_ffva_int_adec
+        nmake flash_fs_example_ffva_ua_adec
 
 Once flashed, the application will run.
 
@@ -131,15 +131,15 @@ From the build folder run:
 
     .. code-block:: console
 
-        make run_example_stlp_int_adec
-        make run_example_stlp_ua_adec
+        make run_example_ffva_int_adec
+        make run_example_ffva_ua_adec
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake run_example_stlp_int_adec
-        nmake run_example_stlp_ua_adec
+        nmake run_example_ffva_int_adec
+        nmake run_example_ffva_ua_adec
 
 ----------------------
 Upgrading the Firmware
@@ -153,15 +153,15 @@ To create an upgrade image from the build folder run:
 
     .. code-block:: console
 
-        make create_upgrade_img_example_stlp_ua_adec
-        make create_upgrade_img_example_stlp_ua_adec_altarch
+        make create_upgrade_img_example_ffva_ua_adec
+        make create_upgrade_img_example_ffva_ua_adec_altarch
 
 .. tab:: Windows
 
     .. code-block:: console
 
-        nmake create_upgrade_img_example_stlp_ua_adec
-        nmake create_upgrade_img_example_stlp_ua_adec_altarch
+        nmake create_upgrade_img_example_ffva_ua_adec
+        nmake create_upgrade_img_example_ffva_ua_adec_altarch
 
 Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
 
@@ -193,8 +193,8 @@ From the build folder, the upgrade image can be written by running:
 
 .. code-block:: console
 
-    dfu-util -e -d 0020 -a 1 -D example_stlp_ua_adec_upgrade.bin
-    dfu-util -e -d 0020 -a 1 -D example_stlp_ua_adec_altarch_upgrade.bin
+    dfu-util -e -d 0020 -a 1 -D example_ffva_ua_adec_upgrade.bin
+    dfu-util -e -d 0020 -a 1 -D example_ffva_ua_adec_altarch_upgrade.bin
 
 The upgrade image can be read back by running:
 
@@ -250,7 +250,7 @@ Out of the Box Integration
 
 Out of the box integration varies cased on configuration.
 
-INT requires |I2S| connections to the host.  Refer to the schematic, connecting the host reference audio playback to the ADC I2S and the host input audio to the DAC |I2S|.  Out of the box, the INT configuration requires an externally generated MCLK of 12.288 MHz.  24.576 MHz is also supported and can be changed via the compile option MIC_ARRAY_CONFIG_MCLK_FREQ, found in stlp_int.cmake.
+INT requires |I2S| connections to the host.  Refer to the schematic, connecting the host reference audio playback to the ADC I2S and the host input audio to the DAC |I2S|.  Out of the box, the INT configuration requires an externally generated MCLK of 12.288 MHz.  24.576 MHz is also supported and can be changed via the compile option MIC_ARRAY_CONFIG_MCLK_FREQ, found in ffva_int.cmake.
 
 UA requires a USB connection to the host.
 
@@ -302,7 +302,7 @@ Design Architecture
 
 The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over |I2S| or USB.
 
-.. figure:: diagrams/stlp_diagram.drawio.png
+.. figure:: diagrams/ffva_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: ffd diagram
@@ -312,4 +312,4 @@ Audio Pipeline
 ==============
 
 Information on the audio pipeline used by this application can be found here:
-:ref:`sln_voice_stlp_ap`
+:ref:`sln_voice_ffva_ap`
