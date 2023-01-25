@@ -29,3 +29,6 @@ rtos_i2c_slave_t *i2c_slave_ctx = &i2c_slave_ctx_s;
 
 static rtos_spi_slave_t spi_slave_ctx_s;
 rtos_spi_slave_t *spi_slave_ctx = &spi_slave_ctx_s;
+
+static rtos_dfu_image_t dfu_image_ctx_s;
+rtos_dfu_image_t *dfu_image_ctx = &dfu_image_ctx_s;

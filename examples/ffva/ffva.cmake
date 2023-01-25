@@ -81,3 +81,9 @@ endif()
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_int.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_ua.cmake)
+
+#**********************
+# Include FFVA Debug and Extension targets
+#**********************
+include(${CMAKE_CURRENT_LIST_DIR}/ffva_int_dev.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffva_ua_dev.cmake)
