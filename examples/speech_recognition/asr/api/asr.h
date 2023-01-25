@@ -74,30 +74,49 @@
 typedef void* asr_context_t;
 
 /**
- * Typedef to the ASR process API return.
+ * Typedef to the ASR port and model attributes
+ */
+typedef struct asr_attributes_struct
+{
+    int16_t     samples_per_brick;  ///< Input brick length (in samples) required for calls to asr_process
+    const char* engine_version;     ///< ASR port engine version
+    const char* model_version;      ///< Model version
+    size_t      required_memory;    ///< Memory (in bytes) required by engine and model
+    void*       reserved;           ///< Reserved for future use
+} asr_attributes_t;
+
+/**
+ * Typedef to the ASR result
  */
 typedef struct asr_result_struct
 {
-    uint16_t keyword_id;     // keyword ID
-    uint16_t command_id;     // command ID
-    int16_t  score;          // The confidence score of the detection
-    uint16_t gscore;         // The garbage score
+    uint16_t keyword_id;     ///< Keyword ID
+    uint16_t command_id;     ///< Command ID
+    int16_t  score;          ///< The confidence score of the detection
+    uint16_t gscore;         ///< The garbage score
+    void*    reserved;       ///< Reserved for future use
 } asr_result_t;
 
 /**
  * Enumerator type representing error return values.
  */
 typedef enum asr_error_enum {
-    ASR_OK = 0,
-    ASR_OUT_OF_MEMORY,
-    ASR_ERROR,
+    ASR_OK = 0,              ///< Ok
+    ASR_ERROR,               ///< General error  
+    ASR_INSUFFICIENT_MEMORY, ///< Insufficient memory for given model
+    ASR_NOT_SUPPORTED,       ///< Function not supported for given model
+    ASR_INVALID_PARAMETER,   ///< Invalid Parameter
+    ASR_MODEL_INCOMPATIBLE,  ///< Model type or version is not compatible with the ASR library
+    ASR_MODEL_CORRUPT,       ///< Model malformed
+    ASR_NOT_INITIALIZED,     ///< Not Initialized
+    ASR_EVALUATON_EXPIRED,   ///< Evaluation period has expired
 } asr_error_t;
 
 /**
  * Enumerator type representing each supported keyword.
  */
 typedef enum asr_keyword_enum {
-    ASR_KEYWORD_UNSUPPORTED = -1,
+    ASR_KEYWORD_UNKNOWN = -1,    ///< Keyword is unknown
     ASR_KEYWORD_HELLO_XMOS = 0,
     ASR_KEYWORD_ALEXA = 1,
 } asr_keyword_t;
@@ -106,7 +125,7 @@ typedef enum asr_keyword_enum {
  * Enumerator type representing each supported command.
  */
 typedef enum asr_command_enum {
-    ASR_COMMAND_UNSUPPORTED = -1,
+    ASR_COMMAND_UNKNOWN = -1,    ///< Command is unknown
     ASR_COMMAND_TV_ON = 0,
     ASR_COMMAND_TV_OFF = 1,
     ASR_COMMAND_VOLUME_UP = 2,
@@ -136,16 +155,35 @@ typedef enum asr_command_enum {
 asr_context_t asr_init(int32_t *model, int32_t *grammar);
 
 /**
+ * Get engine and model attributes.
+ *
+ * \param ctx         A pointer to the ASR context.
+ * \param attributes  The attributes result.
+ * 
+ * \returns Success or error code.  
+ */
+asr_error_t asr_get_attributes(asr_context_t *ctx, asr_attributes_t *attributes);
+
+/**
  * Process an audio buffer.
  *
  * \param ctx        A pointer to the ASR context.
  * \param audio_buf  A pointer to the 16-bit PCM samples.
  * \param buf_len    The number of PCM samples.
+ * 
+ * \returns Success or error code.  
+ */
+asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len);
+
+/**
+ * Get the most recent results.
+ *
+ * \param ctx        A pointer to the ASR context.
  * \param result     The processed result.
  * 
  * \returns Success or error code.  
  */
-asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len, asr_result_t *result);
+asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result);
 
 /**
  * Reset ASR port (if necessary).

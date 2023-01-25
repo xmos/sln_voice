@@ -25,7 +25,7 @@ const char* keyword2text(asr_keyword_t keyword) {
             return "Hello XMOS";
             break;
         default:
-            return "Unsupported";
+            return "Unknown";
             break; 
     }
 }
@@ -80,23 +80,24 @@ void process_file() {
         xscope_fseek(&file, wav_get_frame_start(&header_struct, b * BRICK_SIZE_SAMPLES, header_size), SEEK_SET);
         xscope_fread(&file, (uint8_t *)&brick[0], BRICK_SIZE_BYTES);
 
+        // Process the audio samples, timing duration of the call to asr_process
         timer_start = get_reference_time();
+        asr_error = asr_process(asr_context, brick, BRICK_SIZE_SAMPLES);
+        timer_end = get_reference_time();
+        //printf("Duration: %lu (us)\n", timer_duration);
 
-        asr_error = asr_process(asr_context, brick, BRICK_SIZE_SAMPLES, &asr_result);
-        
-        if (asr_error == 0) {
+        timer_duration = (timer_end - timer_start) / 100;
+        total_duration += timer_duration;
+        if (timer_duration > max_duration)
+            max_duration = timer_duration;
 
-            timer_end = get_reference_time();
-
-            timer_duration = (timer_end - timer_start) / 100;
-            total_duration += timer_duration;
-            if (timer_duration > max_duration)
-                max_duration = timer_duration;
-            //printf("Duration: %lu (us)\n", timer_duration);
-
-            if (asr_result.keyword_id > 0) {
+        if (asr_error == ASR_OK) {
+            asr_error = asr_get_result(asr_context, &asr_result);
+            if (asr_error == ASR_OK) {
                 asr_keyword_t keyword = asr_get_keyword(asr_context, asr_result.keyword_id);
-                printf("Keyword: %s\n", keyword2text(keyword));
+                if (keyword != ASR_KEYWORD_UNKNOWN) {
+                    printf("Keyword: %s\n", keyword2text(keyword));
+                }
             }
         }
 
