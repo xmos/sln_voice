@@ -10,15 +10,16 @@ Automated Speech Recognition Porting
 Overview
 ********
 
-This is the XCORE-VOICE automated speech recognition (ASR) porting example application.  This example can by used
+This is the XCORE-VOICE automated speech recognition (ASR) porting example design.  This example can be used
 by 3rd-party ASR developers and ISVs to port their ASR library to xcore.ai.  
 
-The example reads an input 16kHZ, 16-bit wav file, breaks in up into bricks, and calls the ASR library with each 
+The example reads a 1 channel, 16-bit, 16kHz wav file, slices it up into bricks, and calls the ASR library with each 
 brick.  The default brick length is 240 samples but this is configurable.  ASR ports that implement the public API 
-defined in `asr/api/asr.h` can easily be added to current and future XCORE-VOICE example designs that support speech recognition.
+defined in `asr/api/asr.h` can easily be added to current and future XCORE-VOICE example designs that support speech
+recognition.
 
-A mock, overly simplistic ASR port is provided.  This ASR port recognizes the "Hello XMOS" keyword if any acoustic activity 
-is present in 75 consecutive bricks.
+An oversimplified ASR port is provided.  This ASR port recognizes the "Hello XMOS" keyword if any acoustic activity 
+is observed in 75 consecutive bricks.
 
 ******************
 Supported Hardware
@@ -126,6 +127,15 @@ Run the following commands in the root folder to build the firmware:
     cd build
     nmake example_asr
 
+.. _sln_voice_asr_programming_guide_flash_model:
+
+Flashing the Model
+==================
+
+Run the following commands in the root folder to flash the model:
+
+    xflash --quad-spi-clock 50MHz --factory example_asr.xe --boot-partition-size 0x100000 --target-file examples/speech_recognition/XCORE-AI-EXPLORER.xn --data examples/speech_recognition/asr/port/simple/simple_asr_model.dat
+
 Running the Firmware
 =====================
 
@@ -146,6 +156,9 @@ From the root folder run:
 **********************
 Modifying the Software
 **********************
+
+Implementing the ASR API
+========================
 
 Begin your ASR port by creating a new folder under `example/speech_recognition/asr/port`.  Be sure to include `asr/api/asr.h` in your port's main source file.  The `asr.h` file includes comments detailing the public API methods and parameters.  ASR ports that implement the public API 
 defined can easily be added to current and future XCORE-VOICE example designs that support speech recognition.
@@ -171,6 +184,18 @@ allocating the destination buffer.
   To minimize SRAM scratch space usage, some ASR ports load coefficients into SRAM in chunks.  This is useful when performing a routine
   such as a vector matrix multiply as this operation can be performed on a portion of the matrix at a time.
 
+In the current source code, the model data (and optional grammar data) are set in `src/process_file.c`.  Modify these variables to reflect your data.  
+
 The remainder of the API should be familiar to ASR developers.  The API can be extended if necessary.
 
- 
+Flashing Models
+===============
+
+To flash your model, modify the `--data` argument passed to `xflash` command in the :ref:`_sln_voice_asr_programming_guide_flash_model` section.
+
+See `asr/port/simple/simple_asr_model.h` to see how the model's flash address is defined.
+
+Placing Models in SRAM
+======================
+
+Small models (near or under 100kB in size) may be placed in SRAM.  See `asr/port/simple/simple_asr_model.h` and `asr/port/simple/simple_asr_model.c` for more information on placing your model in SRAM.  

@@ -58,6 +58,12 @@ On Windows run:
     cd build
     nmake example_asr
 
+## Flashing the Model
+
+Run the following commands in the root folder to flash the model:
+
+    xflash --quad-spi-clock 50MHz --factory example_asr.xe --boot-partition-size 0x100000 --target-file examples/speech_recognition/XCORE-AI-EXPLORER.xn --data examples/speech_recognition/asr/port/simple/simple_asr_model.dat
+
 ## Running the Firmware
 
 Run the following command to run the firmware.

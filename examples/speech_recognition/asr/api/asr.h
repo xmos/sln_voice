@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "asr_config.h" // application provided configuration
+#include "asr_conf.h" // application provided configuration
 
 /**
  * \addtogroup asr_api asr_api
@@ -89,6 +89,7 @@ typedef struct asr_result_struct
  */
 typedef enum asr_error_enum {
     ASR_OK = 0,
+    ASR_OUT_OF_MEMORY,
     ASR_ERROR,
 } asr_error_t;
 
@@ -127,9 +128,12 @@ typedef enum asr_command_enum {
 /**
  * Initialize an ASR port.
  *
+ * \param model      A pointer to the model data.
+ * \param grammar    A pointer to the grammar data (Optional).
+ *
  * \returns the ASR context.
  */
-asr_context_t asr_init();
+asr_context_t asr_init(int32_t *model, int32_t *grammar);
 
 /**
  * Process an audio buffer.

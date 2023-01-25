@@ -12,6 +12,9 @@
 #include "wav_utils.h"
 #include "xscope_io_device.h"
 
+// TODO: Include the port model data
+#include "port/simple/simple_asr_model.h"
+
 #define MAX_CHANNELS         (1)
 #define BRICK_SIZE_SAMPLES   (240) 
 #define BRICK_SIZE_BYTES     (BRICK_SIZE_SAMPLES*sizeof(int16_t))
@@ -39,12 +42,16 @@ void process_file() {
     uint32_t timer_duration = 0;
     uint32_t total_duration = 0;
     uint32_t max_duration = 0;
+    uint32_t avg_duration = 0;
 
     asr_context_t asr_context = NULL;
     asr_error_t asr_error;
     asr_result_t asr_result;
 
-    asr_context = asr_init();
+    printf("Opening %s\n", appconfINPUT_FILENAME);
+
+    // TODO: Pass your model data here (and grammar data here if required)
+    asr_context = asr_init((int32_t *) model_data, (int32_t *) grammar_data);
 
     printf("Opening %s\n", appconfINPUT_FILENAME);
 
@@ -94,9 +101,15 @@ void process_file() {
         }
 
     }
+    
+    avg_duration = total_duration / brick_count;
 
     printf("Max duration: %lu (us)\n", max_duration);
-    printf("Avg duration: %lu (us)\n", total_duration / brick_count);
+    printf("Avg duration: %lu (us)\n", avg_duration);
+
+    if (avg_duration > 15000) {
+       printf("WARNING: Avg duration exceeds 15 (ms)\n");
+    }
 
     asr_release(asr_context);
     xscope_close_all_files();

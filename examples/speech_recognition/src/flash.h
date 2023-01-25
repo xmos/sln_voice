@@ -7,7 +7,7 @@
 
 void flash_setup();
 void flash_teardown();
-void flash_read_wrapper(unsigned src, unsigned *dest, size_t num_words);
+void flash_read_wrapper(unsigned *dest, unsigned src, size_t size);
 
 swmem_fill_t swmem_setup();
 void swmem_teardown(swmem_fill_t fill_handle);
