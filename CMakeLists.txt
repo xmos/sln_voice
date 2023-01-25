@@ -12,7 +12,7 @@ project(solution_avona)
 enable_language(CXX C ASM)
 
 ## Project options
-option(SOLUTION_AVONA_TESTS     "Enable solution avona tests"  OFF)
+option(XCORE_VOICE_TESTS     "Enable XCORE-VOICE tests"  OFF)
 
 ## Import some helpful macros
 include(modules/rtos/tools/cmake_utils/xmos_macros.cmake)
@@ -25,6 +25,6 @@ if(PROJECT_IS_TOP_LEVEL)
     include(examples/examples.cmake)
 endif()
 
-if(SOLUTION_AVONA_TESTS)
+if(XCORE_VOICE_TESTS)
     include(test/tests.cmake)
 endif()
