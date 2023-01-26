@@ -57,7 +57,6 @@ AMAZON_THRESH="500"
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
 # flash the filesystem
-# TODO if for which firmware and fs, also a script arg? or switch off provided firmware arg
 if [[ ${FIRMWARE} == *"example_ffd_usb_audio_test"* ]]
 then
     # build_tests.sh creates example_ffd_fat.fs used here
