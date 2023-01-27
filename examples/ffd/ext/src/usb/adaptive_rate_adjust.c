@@ -131,9 +131,8 @@ bool tud_xcore_sof_cb(uint8_t rhport)
     return false;
 }
 
-void adaptive_rate_adjust_init(chanend_t other_tile_c)
+void adaptive_rate_adjust_init(void)
 {
-
     xTaskCreate((TaskFunction_t) usb_adaptive_clk_manager,
                 "usb_adpt_mgr",
                 RTOS_THREAD_STACK_SIZE(usb_adaptive_clk_manager),

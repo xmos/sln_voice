@@ -41,6 +41,6 @@
 #define Q9(f)  (int)((signed long long)((f) * ((unsigned long long)1 << (9+20)) + (1<<19)) >> 20)
 #define Q8(f)  (int)((signed long long)((f) * ((unsigned long long)1 << (8+20)) + (1<<19)) >> 20)
 
-void adaptive_rate_adjust_init(chanend_t other_tile_c);
+void adaptive_rate_adjust_init(void);
 
 #endif /* ADAPTIVE_RATE_ADJUST_H_ */
