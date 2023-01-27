@@ -64,7 +64,7 @@ then
 elif [[ ${FIRMWARE} == *"example_ffva_ua_adec_test"* ]]
 then
     # build_tests.sh creates example_ffva_ua_adec_fat.fs used here
-    xflash --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_fat.fs
+    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_fat.fs
 fi
 
 # wait for device to reset (may not be necessary)
@@ -92,7 +92,6 @@ echo "***********************************"
 echo "Log file: ${RESULTS}"
 echo "***********************************"
 
-# for ((j = 0; j < 1; j += 1)); do
 for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     read -ra FIELDS <<< ${INPUT_ARRAY[j]}
     FILE_NAME=${FIELDS[0]}
@@ -100,7 +99,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     MIN=${FIELDS[2]}
     MAX=${FIELDS[3]}
 
-    # determing AEC flag
+    # determine AEC flag
     if [ "${AEC}" == "Y" ] ; then
         AEC_FLAG="-a"
     else
@@ -114,7 +113,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
-    (bash /home/jrshaferxmos/sln_voice/tools/audio/process_wav.sh -c4 "/home/jrshaferxmos/Desktop/samples/InHouse_XVF3510v080_v1.2_20190423_Loc3_Noise1_60dB__Take1.wav" "/home/jrshaferxmos/Desktop/output2/processed_InHouse_XVF3510v080_v1.2_20190423_Loc3_Noise1_60dB__Take1.wav")
+
     # single out ASR channel
     sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
 
