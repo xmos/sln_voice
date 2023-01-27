@@ -18,14 +18,14 @@ if [ -d "${DIST_HOST_DIR}" ]; then
 fi
 
 # setup configurations
-# row format is: "name app_target fs_target flag BOARD toolchain"
+# row format is: "name app_target run_data_partition_target flag BOARD toolchain"
 examples=(
-    "ffd_usb_audio   example_ffd_usb_audio_test   example_ffd    NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    #"ffd_usb_audio_bypass_ap   example_ffd_usb_audio_test_bypass_ap   example_ffd   NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_ua_adec   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    #"ffva_ua_adec_altarch   example_ffva_ua_adec_altarch   example_ffva_ua_adec DEBUG_FFVA_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_sample_rate_conv   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "test_ffd_gpio   test_ffd_gpio   NONE    XCORE_VOICE_TESTS   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
+    "ffd_usb_audio              example_ffd_usb_audio_test              example_ffd             NONE                                        XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    #"ffd_usb_audio_bypass_ap   example_ffd_usb_audio_test_bypass_ap    example_ffd             NONE                                        XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_ua_adec               example_ffva_ua_adec                    example_ffva_ua_adec    DEBUG_FFVA_USB_MIC_INPUT                    XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    #"ffva_ua_adec_altarch      example_ffva_ua_adec_altarch            example_ffva_ua_adec    DEBUG_FFVA_USB_MIC_INPUT                    XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "ffva_sample_rate_conv      example_ffva_ua_adec                    example_ffva_ua_adec    DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS    XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
+    "test_ffd_gpio              test_ffd_gpio                           NONE                    XCORE_VOICE_TESTS                           XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds
@@ -33,7 +33,7 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     read -ra FIELDS <<< ${examples[i]}
     name="${FIELDS[0]}"
     app_target="${FIELDS[1]}"
-    fs_target="${FIELDS[2]}"
+    data_partition_target="${FIELDS[2]}"
 
     flag="${FIELDS[3]}"
     board="${FIELDS[4]}"
@@ -53,16 +53,16 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     (cd ${path}; mkdir -p build_${board})
     (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DENABLE_ALL_FFVA_PIPELINES=1 ${optional_cache_entry}; log_errors make ${app_target} -j)
     (cd ${path}/build_${board}; cp ${app_target}.xe ${DIST_DIR}/example_${name}_test.xe)
-    if [ "${fs_target}" != "NONE" ]; then
-        if [ ! -f ${DIST_DIR}/${fs_target}_fat.fs ]; then
-            # need to make the filesystem file for the fs_target
-            #  this is getnerate once per fs_target and later copied 
-            #  to match the name of the app_target.  
+    if [ "${data_partition_target}" != "NONE" ]; then
+        if [ ! -f ${DIST_DIR}/${data_partition_target}_data_partition.bin ]; then
+            # need to make the data partition file for the data_partition_target
+            #  this is generated once per data_partition_target and later copied
+            #  to match the name of the app_target.
             echo '======================================================'
-            echo '= Making filesystem for' ${fs_target}
+            echo '= Making data partition for' ${data_partition_target}
             echo '======================================================'
-            (cd ${path}/build_${board}; log_errors make make_fs_${fs_target} -j)
-            (cd ${path}/build_${board}; cp ${fs_target}_fat.fs ${DIST_DIR}/${fs_target}_fat.fs)
+            (cd ${path}/build_${board}; log_errors make make_data_partition_${data_partition_target} -j)
+            (cd ${path}/build_${board}; cp ${data_partition_target}_data_partition.bin ${DIST_DIR})
         fi
-    fi    
+    fi
 done

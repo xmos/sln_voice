@@ -18,7 +18,7 @@ if [ -d "${DIST_HOST_DIR}" ]; then
 fi
 
 # setup configurations
-# row format is: "name app_target run_fs_target BOARD toolchain"
+# row format is: "name app_target run_data_partition_target BOARD toolchain"
 examples=(
     "ffva_int_adec           example_ffva_int_adec           Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "ffva_int_fixed_delay    example_ffva_int_fixed_delay    Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
@@ -31,7 +31,7 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     read -ra FIELDS <<< ${examples[i]}
     name="${FIELDS[0]}"
     app_target="${FIELDS[1]}"
-    run_fs_target="${FIELDS[2]}"
+    run_data_partition_target="${FIELDS[2]}"
     board="${FIELDS[3]}"
     toolchain_file="${XCORE_VOICE_ROOT}/${FIELDS[4]}"
     path="${XCORE_VOICE_ROOT}"
@@ -43,11 +43,11 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
     (cd ${path}; mkdir -p build_${board})
     (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DENABLE_ALL_FFVA_PIPELINES=1; log_errors make ${app_target} -j)
     (cd ${path}/build_${board}; cp ${app_target}.xe ${DIST_DIR})
-    if [ "$run_fs_target" = "Yes" ]; then
+    if [ "$run_data_partition_target" = "Yes" ]; then
         echo '======================================================'
-        echo '= Making filesystem for' ${app_target}
+        echo '= Making data partition for' ${app_target}
         echo '======================================================'
-        (cd ${path}/build_${board}; log_errors make make_fs_${app_target} -j)
-        (cd ${path}/build_${board}; cp ${app_target}_fat.fs ${DIST_DIR})
-    fi    
+        (cd ${path}/build_${board}; log_errors make make_data_partition_${app_target} -j)
+        (cd ${path}/build_${board}; cp ${app_target}_data_partition.bin ${DIST_DIR})
+    fi
 done
