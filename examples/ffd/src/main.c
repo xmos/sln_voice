@@ -29,7 +29,6 @@
 #include "gpio_ctrl/leds.h"
 #include "rtos_swmem.h"
 #include "xcore_device_memory.h"
-#include "ssd1306_rtos_support.h"
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
 #include "power/power_status.h"
@@ -147,9 +146,6 @@ void startup_task(void *arg)
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-#if appconfSSD1306_DISPLAY_ENABLED
-    ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
-#endif
     QueueHandle_t q_intent = xQueueCreate(appconfINTENT_QUEUE_LEN, sizeof(int32_t));
     intent_handler_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, q_intent);
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, q_intent);

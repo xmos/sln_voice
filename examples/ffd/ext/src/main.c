@@ -129,8 +129,8 @@ void startup_task(void *arg)
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-#if appconfSSD1306_DISPLAY_ENABLED
-    ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
+#if SSD1306_DISPLAY_ENABLED
+    ssd1306_display_create((configMAX_PRIORITIES / 2 - 1));
 #endif
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, NULL);
 #endif

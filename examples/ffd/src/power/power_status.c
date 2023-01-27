@@ -13,7 +13,6 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "ssd1306_rtos_support.h"
 #include "power/power_state.h"
 #include "power/power_status.h"
 
@@ -28,15 +27,9 @@ static void proc_power_status(void *args) {
 
         rtos_intertile_rx_data(intertile_ctx, &power_state, sizeof(power_state));
         if (power_state == POWER_STATE_LOW) {
-#if appconfSSD1306_DISPLAY_ENABLED
-            ssd1306_display_ascii_to_bitmap("Low power\0");
-#endif
             rtos_printf("POWER_MODE: %d, Low\n", power_state);
 
         } else if (power_state == POWER_STATE_FULL) {
-#if appconfSSD1306_DISPLAY_ENABLED
-            ssd1306_display_ascii_to_bitmap("Full power\0");
-#endif
             rtos_printf("POWER_MODE: %d, Full\n", power_state);
         }
     }
