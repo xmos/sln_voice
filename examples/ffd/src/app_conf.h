@@ -96,10 +96,6 @@
 #define appconfUART_BAUD_RATE       9600
 #endif
 
-#ifndef appconfSSD1306_DISPLAY_ENABLED
-#define appconfSSD1306_DISPLAY_ENABLED   1
-#endif
-
 #ifndef appconfI2S_ENABLED
 #define appconfI2S_ENABLED   1
 #endif
@@ -204,7 +200,6 @@
 #define appconfUSB_AUDIO_TASK_PRIORITY              (configMAX_PRIORITIES - 1)
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
-#define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"
