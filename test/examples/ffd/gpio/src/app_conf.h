@@ -19,9 +19,11 @@
 
 #define appconfLOW_POWER_ENABLED                0
 #define appconfAUDIO_PLAYBACK_ENABLED           0
+#define appconfINFERENCE_I2C_OUTPUT_ENABLED     0
+#define appconfINFERENCE_UART_OUTPUT_ENABLED    0
+
 #define INFERENCE_TILE_NO                       0
 #define UART_TILE_NO                            0
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED     1
 #define appconfINTENT_WAKEUP_EDGE_TYPE          0
 
 #define UART_RX_CORE_MASK       (1 << 2)

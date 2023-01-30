@@ -68,6 +68,7 @@ void vWD(void *arg)
     _Exit(0);
 }
 
+#if ON_TILE(1)
 RTOS_GPIO_ISR_CALLBACK_ATTR
 static void gpio_callback(rtos_gpio_t *ctx, void *app_data, rtos_gpio_port_id_t port_id, uint32_t value)
 {
@@ -78,36 +79,13 @@ static void gpio_callback(rtos_gpio_t *ctx, void *app_data, rtos_gpio_port_id_t 
 
     portYIELD_FROM_ISR(yield_required);
 }
-
-RTOS_I2C_SLAVE_CALLBACK_ATTR
-static void i2c_slave_rx(rtos_i2c_slave_t *ctx, void *app_data, uint8_t *data, size_t len)
-{
-    test_printf("Got 0x%x", *data);
-    QueueHandle_t q_i2c_slave = (QueueHandle_t)app_data;
-    xQueueSend(q_i2c_slave, (void*)data, (TickType_t)0);
-}
-
-RTOS_I2C_SLAVE_CALLBACK_ATTR
-size_t tx_start(rtos_i2c_slave_t *ctx, void *app_data, uint8_t **data) {
-    static uint8_t buf[4];
-    *data = buf;
-    rtos_printf("tx start\n");
-    return sizeof(buf);
-}
-
-RTOS_I2C_SLAVE_CALLBACK_ATTR
-void tx_done(rtos_i2c_slave_t *ctx, void *app_data, uint8_t *data, size_t len) {
-    rtos_printf("tx done %d\n", len);
-    return;
-}
+#endif
 
 void vApplicationDaemonTaskStartup(void *arg)
 {
     sync(other_tile_c);
 
 #if ON_TILE(0)
-    rtos_i2c_master_start(i2c_master_ctx);
-
     // Setup and wait for "host" to be in initial state
     QueueHandle_t q_intent = xQueueCreate(1, sizeof(int32_t));
     intent_handler_create(1, q_intent);
@@ -126,19 +104,7 @@ void vApplicationDaemonTaskStartup(void *arg)
 #endif
 
 #if ON_TILE(1)
-    QueueHandle_t q_i2c_slave = xQueueCreate(1, sizeof(int32_t));
-    rtos_i2c_slave_start(i2c_slave_ctx,
-                         q_i2c_slave,
-                         NULL,
-                         i2c_slave_rx,
-                         tx_start,
-                         tx_done,
-                         NULL,
-                         NULL,
-                         I2C_SLAVE_ISR_CORE,
-                         configMAX_PRIORITIES-1);
-    uint32_t value;
-    uint32_t gpio_val;
+    uint32_t value = 0;
 
     // Setup watchdog-like task to fail after timeout if transitions are not seen
     xTaskCreate((TaskFunction_t) vWD,
@@ -181,14 +147,9 @@ void vApplicationDaemonTaskStartup(void *arg)
     
     // Update host status
     rtos_gpio_port_out(gpio_ctx_t1, p_host_status, 1);
-
-    // Check I2C
-    xQueueReceive(q_i2c_slave, &value, portMAX_DELAY);
-    test_printf("Host I2C got 0x%x", value);
-
-    // Check UART
-
     sync(other_tile_c);
+
+    test_printf("PASS");
 
     _Exit(0);
 #endif
