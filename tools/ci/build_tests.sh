@@ -25,6 +25,7 @@ examples=(
     "ffva_ua_adec   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     #"ffva_ua_adec_altarch   example_ffva_ua_adec_altarch   example_ffva_ua_adec DEBUG_FFVA_USB_MIC_INPUT   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "ffva_sample_rate_conv   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
+    "test_ffd_gpio   test_ffd_gpio   NONE    XCORE_VOICE_TESTS   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds

@@ -98,6 +98,8 @@ void vApplicationDaemonTaskStartup(void *arg)
     test_printf("Send dummy intent");
     xQueueSend(q_intent, &test_val, (TickType_t)0);
     test_printf("Sent dummy intent");
+
+    test_printf("PASS GPIO");
     sync(other_tile_c);
 
     while(1) {;}
@@ -149,7 +151,7 @@ void vApplicationDaemonTaskStartup(void *arg)
     rtos_gpio_port_out(gpio_ctx_t1, p_host_status, 1);
     sync(other_tile_c);
 
-    test_printf("PASS");
+    test_printf("PASS GPIO");
 
     _Exit(0);
 #endif
