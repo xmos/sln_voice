@@ -48,20 +48,6 @@ To build the test application firmware and filesystem files, run the following c
 
 The `build_test.sh` script will copy the test applications and filesystem files to the `dist` folder.  
 
-To flash the filesystem:
-
-If testing the FFVA pipeline run:
-
-.. code-block:: console
-    
-    xflash --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_fat.fs
-
-If testing the FFD pipeline run:
-
-.. code-block:: console
-    
-    xflash --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_fat.fs
-
 *************
 Running Tests
 *************
@@ -79,3 +65,9 @@ The <path-to-input-list> file is a text file listing wav files that must exist i
     filename    AEC    min_instances    max_instances 
 
 The filename must not include the ".wav" extension, values for AEC must be "Y" or "N".  
+
+The pipeline detections log can be verified via a pytest:
+
+.. code-block:: console
+
+    pytest test/pipeline/test_pipeline.py --log <path-to-output-dir>/results.csv

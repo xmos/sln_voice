@@ -30,14 +30,10 @@ if [ ! -z "${@:$OPTIND:1}" ] && [ "${@:$OPTIND+1:1}" ]
 then
     FIRMWARE=${@:$OPTIND:1}
     OUTPUT_DIR=${@:$OPTIND+1:1}
-else
-    echo "Error: Expected firmware and output_dir arguments"
 fi
 if [ ! -z "${@:$OPTIND+2:1}" ]
 then
     ADAPTER_ID="--adapter-id ${@:$OPTIND+2:1}"
-else
-    echo "Warning: No optional adapter ID provided by user."
 fi
 
 # discern repository root
@@ -51,7 +47,6 @@ mkdir -p ${OUTPUT_DIR}
 INPUT_WAV=${OUTPUT_DIR}/"sample_rate_conversion_input.wav"
 TMP_CH1_WAV=${OUTPUT_DIR}/"sample_rate_conversion_input_ch1.wav"
 TMP_CH2_WAV=${OUTPUT_DIR}/"sample_rate_conversion_input_ch2.wav"
-INPUT_FILE=${OUTPUT_DIR}/"sample_rate_conversion_input.wav"
 SAMPLE_RATE="48000"
 LENGTH="10"
 VOLUME="0.5"
