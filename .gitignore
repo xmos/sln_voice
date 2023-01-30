@@ -52,7 +52,6 @@
 build/
 
 # filesystem cruft
-**/fatmktmp
 **/fat.fs
 **/flash_bin_node0
 **/fw-*

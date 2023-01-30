@@ -86,7 +86,7 @@ foreach(FFVA_AP ${FFVA_PIPELINES_UA})
     set(TARGET_NAME example_ffva_ua_dev_${FFVA_AP})
     set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
     set(FATFS_FILE ${TARGET_NAME}_fat.fs)
-    set(FATFS_CONTENTS_DIR ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/fatmktmp)
+    set(FATFS_CONTENTS_DIR ${TARGET_NAME}_fatmktmp)
 
     add_custom_target(
         ${FATFS_FILE} ALL
