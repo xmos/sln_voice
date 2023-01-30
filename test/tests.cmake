@@ -1,1 +1,1 @@
-include(${CMAKE_CURRENT_LIST_DIR}/examples/test_examples.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffd_gpio/gpio.cmake)
