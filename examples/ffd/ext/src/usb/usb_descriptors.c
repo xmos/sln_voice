@@ -30,7 +30,7 @@
 #include "tusb.h"
 
 #define XMOS_VID        0x20B1
-#define XCORE_VOICE_PID 0x0020
+#define XCORE_VOICE_PID 0x4000
 #define XCORE_VOICE_PRODUCT_STR "XCORE-VOICE"
 
 //--------------------------------------------------------------------+

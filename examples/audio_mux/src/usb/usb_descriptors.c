@@ -30,7 +30,7 @@
 #include "tusb.h"
 
 #define XMOS_VID    0x20B1
-#define AUDIO_MUX_PID   0x0021
+#define AUDIO_MUX_PID   0x4002
 #define AUDIO_MUX_PRODUCT_STR "Audio MUX Example"
 
 //--------------------------------------------------------------------+
