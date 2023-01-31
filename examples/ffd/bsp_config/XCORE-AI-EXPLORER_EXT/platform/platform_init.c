@@ -240,6 +240,7 @@ static void uart_init(void)
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
+    rtos_intertile_init(intertile_usb_ctx, other_tile_c);
 
     mclk_init(other_tile_c);
     clock_control_init();
