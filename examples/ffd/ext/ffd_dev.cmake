@@ -59,7 +59,7 @@ set_target_properties(${MODEL_FILE} PROPERTIES
 
 create_filesystem_target(
     #[[ Target ]]                   ${TARGET_NAME}
-    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
+    #[[ Input Directory ]]          ${FFD_SRC_ROOT}/filesystem_support
     #[[ Image Size ]]               ${FILESYSTEM_SIZE_BYTES}
 )
 

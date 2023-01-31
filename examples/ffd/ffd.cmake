@@ -179,4 +179,5 @@ unset(DATA_PARTITION_FILE_LIST)
 #**********************
 # Include FFD Debug and Extension targets
 #**********************
+set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 include(${CMAKE_CURRENT_LIST_DIR}/ext/ffd_ext.cmake)
