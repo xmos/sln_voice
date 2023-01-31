@@ -123,6 +123,7 @@ static void uart_start(void)
 void platform_start(void)
 {
     rtos_intertile_start(intertile_ctx);
+    rtos_intertile_start(intertile_usb_ctx);
 
     clock_control_start();
     gpio_start();
