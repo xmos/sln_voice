@@ -17,7 +17,6 @@ Far-field Voice Local Control
    modifying_software
    audio_pipeline
    software_description
-   faq
 
 
 Overview

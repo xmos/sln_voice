@@ -1,3 +1,5 @@
+.. include:: ../substitutions.rst
+
 ###################
 Product Description 
 ###################
@@ -54,7 +56,7 @@ These include:
 Obtaining the Hardware
 ######################
 
-TODO: Need link to the XK-VOICE-L71 DevKit and Hardware Manual.  
+The XK-VOICE-L71 DevKit and Hardware Manual can be obtained from the |HARDWARE_URL| product information page. 
 
 The XK-VOICE-L71 is based on the: `XU316-1024-QF60A <https://www.xmos.ai/file/xu316-1024-qf60b-xcore_ai-datasheet?version=latest>`_
 
@@ -76,4 +78,4 @@ Download and install the XCore `XTC Tools <https://www.xmos.ai/software-tools/>`
 Application Demonstrations 
 **************************
 
-TODO: This section will include links and instructions for downloading the pre-built XCORE and host applications from xmos.ai.
+Pre-built example designs and other software can be downloaded from the |SOFTWARE_URL| product information page.  

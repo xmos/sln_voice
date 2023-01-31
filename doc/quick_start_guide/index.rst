@@ -3,9 +3,9 @@
 
 .. _sln_voice_quick_start_guide:
 
-#################
-QUICK START GUIDE
-#################
+#############################
+XCORE-VOICE Quick Start Guide
+#############################
 
 
 .. toctree::

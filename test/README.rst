@@ -1,14 +1,14 @@
-############################
-XCORE-VOICE Functional Tests
-############################
+#################
+XCORE-VOICE Tests
+#################
 
 ************
 Requirements
 ************
 
-The following software is required for running many functional tests.  Install them using your operating systems package management system.
+The following software is required for running tests.
 
-* Linux or MacOS. Windows is not currently supported.
+* Linux, MacOS, or Windows Subsystem for Linux
 * `Python 3.8 <https://www.python.org/>`__
 
 Python Virtual Environment
@@ -29,10 +29,12 @@ Install development packages with the Python virtual environment activated:
 Running Tests
 *************
 
-Functional tests exists for the following:
+Tests exists for the following:
 
 - Audio processing pipelines
 - Speech recognition command dictionaries
 - Sample rate conversion
+- DFU
+- GPIO
 
-To run tests, see the README files located in the directories containing the tests.
+To run tests, see the README files located in the directories containing each test group.

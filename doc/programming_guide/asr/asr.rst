@@ -53,7 +53,7 @@ Alternatively, the source code can be obtained by cloning the public GitHub repo
 
 
 Cloning the Repository
-=====================
+======================
 
 Run the following `git` command to clone the repository and all submodules:
 
@@ -191,7 +191,7 @@ The remainder of the API should be familiar to ASR developers.  The API can be e
 Flashing Models
 ===============
 
-To flash your model, modify the `--data` argument passed to `xflash` command in the :ref:`_sln_voice_asr_programming_guide_flash_model` section.
+To flash your model, modify the `--data` argument passed to `xflash` command in the :ref:`sln_voice_asr_programming_guide_flash_model` section.
 
 See `asr/port/simple/simple_asr_model.h` to see how the model's flash address is defined.
 
