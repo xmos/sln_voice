@@ -6,6 +6,9 @@
 static rtos_intertile_t intertile_ctx_s;
 rtos_intertile_t *intertile_ctx = &intertile_ctx_s;
 
+static rtos_intertile_t intertile_usb_audio_ctx_s;
+rtos_intertile_t *intertile_usb_audio_ctx = &intertile_usb_audio_ctx_s;
+
 static rtos_qspi_flash_t qspi_flash_ctx_s;
 rtos_qspi_flash_t *qspi_flash_ctx = &qspi_flash_ctx_s;
 

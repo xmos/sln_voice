@@ -110,7 +110,7 @@ void audio_pipeline_input(void *input_app_data,
      * As noted above, this does not block.
      * and expects ref L, ref R, mic 0, mic 1
      */
-    usb_audio_recv(intertile_ctx,
+    usb_audio_recv(intertile_usb_audio_ctx,
                    frame_count,
                    usb_mic_audio_frame,
                    ch_cnt);
@@ -206,7 +206,7 @@ int audio_pipeline_output(void *output_app_data,
 #endif
 
 #if appconfUSB_ENABLED
-    usb_audio_send(intertile_ctx,
+    usb_audio_send(intertile_usb_audio_ctx,
                 frame_count,
                 output_audio_frames,
                 6);
@@ -365,7 +365,7 @@ static void tile_common_init(chanend_t c)
     chanend_free(c);
 
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
-    usb_audio_init(intertile_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
+    usb_audio_init(intertile_usb_audio_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
 #endif
 
     xTaskCreate((TaskFunction_t) startup_task,
