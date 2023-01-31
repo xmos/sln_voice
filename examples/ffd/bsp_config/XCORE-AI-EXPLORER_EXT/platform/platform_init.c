@@ -9,6 +9,7 @@
 #include "platform/app_pll_ctrl.h"
 #include "platform/driver_instances.h"
 #include "platform/platform_init.h"
+#include "adaptive_rate_adjust.h"
 #include "usb_support.h"
 
 static void mclk_init(chanend_t other_tile_c)
@@ -18,7 +19,7 @@ static void mclk_init(chanend_t other_tile_c)
 #endif
 #if ON_TILE(0)
 #if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
-    adaptive_rate_adjust_init(other_tile_c);
+    adaptive_rate_adjust_init();
 #else
     port_enable(PORT_MCLK_IN);
     clock_enable(MCLK_CLKBLK);
