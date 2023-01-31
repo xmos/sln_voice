@@ -17,8 +17,8 @@ static void mclk_init(chanend_t other_tile_c)
 #if ON_TILE(1)
     app_pll_init();
 #endif
-#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
-    adaptive_rate_adjust_init(other_tile_c);
+#if ON_TILE(USB_TILE_NO) && appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
+    adaptive_rate_adjust_init();
 #endif
 }
 
@@ -148,7 +148,10 @@ static void mics_init(void)
 
 static void i2s_init(void)
 {
-#if appconfI2S_ENABLED && ON_TILE(I2S_TILE_NO)
+#if appconfI2S_ENABLED
+    static rtos_driver_rpc_t i2s_rpc_config;
+#if ON_TILE(I2S_TILE_NO)
+    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     port_t p_i2s_dout[1] = {
             PORT_I2S_DAC_DATA
     };
@@ -167,6 +170,19 @@ static void i2s_init(void)
             PORT_I2S_LRCLK,
             PORT_MCLK,
             I2S_CLKBLK);
+
+
+    rtos_i2s_rpc_host_init(
+            i2s_ctx,
+            &i2s_rpc_config,
+            client_intertile_ctx,
+            1);
+#else
+    rtos_i2s_rpc_client_init(
+            i2s_ctx,
+            &i2s_rpc_config,
+            intertile_ctx);
+#endif
 #endif
 }
 
@@ -196,6 +212,7 @@ static void uart_init(void)
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
+    rtos_intertile_init(intertile_usb_ctx, other_tile_c);
 
     mclk_init(other_tile_c);
     clock_control_init();

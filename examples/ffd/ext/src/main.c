@@ -44,7 +44,7 @@ void audio_pipeline_input(void *input_app_data,
 
     if (mic_from_usb) {
         usb_mic_audio_frame = input_audio_frames;
-        usb_audio_recv(intertile_ctx,
+        usb_audio_recv(intertile_usb_ctx,
                        frame_count,
                        usb_mic_audio_frame,
                        ch_count);
@@ -90,8 +90,8 @@ int audio_pipeline_output(void *output_app_data,
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
     for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
         /* ASR output is first */
-        tmp[j][0] = output_audio_frames[j];
-        tmp[j][1] = output_audio_frames[j];
+        tmp[j][0] = (int32_t)output_audio_frames[j];
+        tmp[j][1] = (int32_t)output_audio_frames[j];
     }
 
     rtos_i2s_tx(i2s_ctx,
@@ -101,7 +101,7 @@ int audio_pipeline_output(void *output_app_data,
 #endif
 
 #if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
-    usb_audio_send(intertile_ctx,
+    usb_audio_send(intertile_usb_ctx,
                 frame_count,
                 output_audio_frames,
                 4);
@@ -129,23 +129,30 @@ void startup_task(void *arg)
 #endif
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-#if appconfSSD1306_DISPLAY_ENABLED
-    ssd1306_display_create(appconfSSD1306_TASK_PRIORITY);
+#if SSD1306_DISPLAY_ENABLED
+    ssd1306_display_create((configMAX_PRIORITIES / 2 - 1));
 #endif
     inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, NULL);
 #endif
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    audio_pipeline_init(NULL, NULL);
+
 #if appconfINFERENCE_ENABLED 
-    // Wait until the Wanson engine is initialized before we start the
-    // audio pipeline.
+    // In the normal application we wait until the 
+    // inference engine is running before starting the audio pipeline.
+    // Due to adaptive usb timing constraints we cannot
+    // wait in the FFD audio test build, so we initialize the pipeline
+    // always, and then consume the Wanson ready packet.
+    // This results in warning prints about samples being lost to
+    // the inference engine during the period where the engine is
+    // being set up.
     {
         int ret = 0;
         rtos_intertile_rx_len(intertile_ctx, appconfWANSON_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
 #endif
-    audio_pipeline_init(NULL, NULL);
 #endif
 
 	for (;;) {
@@ -160,7 +167,7 @@ void tile_common_init(chanend_t c)
     chanend_free(c);
 
 #if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED && ON_TILE(USB_TILE_NO)
-    usb_audio_init(intertile_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
+    usb_audio_init(intertile_usb_ctx, appconfUSB_AUDIO_TASK_PRIORITY);
 #endif
 
     xTaskCreate((TaskFunction_t) startup_task,

@@ -16,7 +16,6 @@
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
 #include "rtos_swmem.h"
-#include "ssd1306_rtos_support.h"
 #include "wanson_inf_eng.h"
 #include "wanson_api.h"
 #include "xcore_device_memory.h"

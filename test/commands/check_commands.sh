@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE FFD commands test"
    echo
-   echo "Syntax: check_commands.sh [-h] firmware input_directory input_list output_directory"
+   echo "Syntax: check_commands.sh [-h] firmware input_directory input_list output_directory adapterID"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -30,6 +30,10 @@ FIRMWARE=${@:$OPTIND:1}
 INPUT_DIR=${@:$OPTIND+1:1}
 INPUT_LIST=${@:$OPTIND+2:1}
 OUTPUT_DIR=${@:$OPTIND+3:1}
+if [ ! -z "${@:$OPTIND+4:1}" ]
+then
+    ADAPTER_ID="--adapter-id ${@:$OPTIND+4:1}"
+fi
 
 # read input list
 INPUT_ARRAY=()
@@ -42,6 +46,15 @@ done < ${INPUT_LIST}
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
+
+# xflash erase
+xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+
+# flash the filesystem
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_fat.fs
+
+# wait for device to reset (may not be necessary)
+sleep 3
 
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
@@ -65,7 +78,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
     
     # call xrun (in background)
-    xrun --xscope ${FIRMWARE} &> ${OUTPUT_LOG} &
+    xrun ${ADAPTER_ID} --xscope ${FIRMWARE} &> ${OUTPUT_LOG} &
     XRUN_PID=$!
 
     # wait for app to load
@@ -75,7 +88,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
 
     # kill xrun
-    pkill -P ${XRUN_PID}
+    kill -INT ${XRUN_PID}
 
     # count keyword occurrences in the log
     DETECTIONS=$(grep -o -I "KEYWORD:" ${OUTPUT_LOG} | wc -l)
@@ -84,7 +97,6 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     echo "${INPUT_WAV}: ${DETECTIONS} detections"
     echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
-
 done 
 
 # print results

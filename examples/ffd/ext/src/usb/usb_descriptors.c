@@ -30,7 +30,7 @@
 #include "tusb.h"
 
 #define XMOS_VID        0x20B1
-#define XCORE_VOICE_PID 0x0020
+#define XCORE_VOICE_PID 0x4000
 #define XCORE_VOICE_PRODUCT_STR "XCORE-VOICE"
 
 //--------------------------------------------------------------------+
@@ -223,9 +223,9 @@ uint8_t const* tud_descriptor_configuration_cb(uint8_t index)
 // array of pointer to string descriptors
 char const *string_desc_arr[] = {(const char[]) {0x09, 0x04}, // 0: is supported language is English (0x0409)
         "XMOS",                     // 1: Manufacturer
-        XCORE_VOICE_PRODUCT_STR,          // 2: Product
+        XCORE_VOICE_PRODUCT_STR,    // 2: Product
         "123456",                   // 3: Serials, should use chip ID
-        XCORE_VOICE_PRODUCT_STR,          // 4: Audio Interface
+        XCORE_VOICE_PRODUCT_STR,    // 4: Audio Interface
         };
 
 static uint16_t _desc_str[32];
