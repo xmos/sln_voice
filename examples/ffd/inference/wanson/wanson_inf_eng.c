@@ -63,10 +63,10 @@ static void vInferenceTimerCallback(TimerHandle_t pxTimer);
 static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
                                  int16_t *buf_short, size_t *buf_short_index);
 static void timeout_event_handler(TimerHandle_t pxTimer);
-static void hold_inf_state(TimerHandle_t pxTimer);
 
 #if appconfLOW_POWER_ENABLED
 
+static void hold_inf_state(TimerHandle_t pxTimer);
 static void hold_full_power(TimerHandle_t pxTimer);
 static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
                                  int16_t *buf_short, size_t *buf_short_index);
@@ -134,6 +134,8 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
     }
 }
 
+#if appconfLOW_POWER_ENABLED
+
 static void hold_inf_state(TimerHandle_t pxTimer)
 {
     xTimerStop(pxTimer, 0);
@@ -141,8 +143,6 @@ static void hold_inf_state(TimerHandle_t pxTimer)
     timeout_event = TIMEOUT_EVENT_NONE;
     xTimerReset(pxTimer, 0);
 }
-
-#if appconfLOW_POWER_ENABLED
 
 static void proc_keyword_wait_for_completion(void)
 {
