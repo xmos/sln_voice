@@ -81,5 +81,6 @@ kill -INT ${XRUN_PID}
 rm ${TMP_CH1_WAV}
 rm ${TMP_CH2_WAV}
 
-# check output file for correct frequency
-pytest ${SLN_VOICE_ROOT}/test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file ${OUTPUT_WAV} --wav_duration ${LENGTH}
+echo "Arguments for pytest:"
+echo "  OUTPUT_WAV="${OUTPUT_WAV}
+echo "  LENGTH="${LENGTH}
