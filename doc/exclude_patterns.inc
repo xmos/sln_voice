@@ -14,3 +14,4 @@ modules/xscope_fileio
 sln_voice_venv
 test
 xmos_cmake_toolchain
+build_*

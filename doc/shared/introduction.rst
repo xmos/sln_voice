@@ -79,3 +79,24 @@ Application Demonstrations
 **************************
 
 Pre-built example designs and other software can be downloaded from the |SOFTWARE_URL| product information page.  
+
+***********
+Source Code
+***********
+
+A zip archive of all source code can be downloaded from the |SOFTWARE_URL| product information page.  
+
+Cloning the Repository
+======================
+
+Alternatively, the source code can be obtained by cloning the public GitHub repository.  
+
+.. note::
+
+  Cloning requires a `GitHub <https://github.com>`_ account configured with `SSH key authentication <https://docs.github.com/en/authentication/connecting-to-github-with-ssh/about-ssh>`_.  
+
+Run the following `git` command to clone the repository and all submodules:
+
+.. code-block:: console
+
+  git clone --recurse-submodules https://github.com/xmos/sln_voice.git
