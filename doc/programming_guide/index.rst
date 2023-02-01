@@ -1,8 +1,8 @@
 .. _sln_voice_programming_guide:
 
-#################
-PROGRAMMING GUIDE
-#################
+#############################
+XCORE-VOICE Programming Guide
+#############################
 
 .. toctree::
    :maxdepth: 4
@@ -10,4 +10,5 @@ PROGRAMMING GUIDE
    ../shared/introduction
    example_designs
    extending
+   faq
    ../shared/legal

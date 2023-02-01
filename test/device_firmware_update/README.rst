@@ -2,7 +2,32 @@
 Check Device Firmware Update
 ############################
 
-This test is a verification of the FFVA device firmware update (DFU) feature.  
+*******
+Purpose
+*******
+
+Description
+===========
+
+This test is a verification of the FFVA device firmware update (DFU) feature.  It verifies that the USB DFU feature works.  
+
+Method
+======
+
+1. Build and flash the factory firmware.
+2. Create an upgrade image
+3. DFU the upgrade image
+4. Read back the upgrade image and verify the created upgrade image is a bit perfect copy of the upgrade image read. 
+
+Inputs
+======
+
+N/A
+
+Outputs
+=======
+
+Output files are saved in the output directory for manual inspection if necessary.
 
 **************************
 Building and Running Tests

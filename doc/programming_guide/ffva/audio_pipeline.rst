@@ -1,7 +1,3 @@
-.. include:: <isonum.txt>
-
-.. _sln_voice_ffva_ap:
-
 ##############
 Audio Pipeline
 ##############

@@ -8,7 +8,38 @@ PREDEFINED += DWORD_ALIGNED=
 PREDEFINED += __attribute__((weak))=
 PREDEFINED += C_API= MA_C_API= C_API_START= C_API_END= EXTERN_C=
 
-#INPUT += 
+# Core library APIs
+INPUT += ../modules/core/modules/xcore_math 
 
+# Voice DSP library APIs
+INPUT += ../modules/voice/modules/lib_aec/api ../modules/voice/examples/bare-metal/shared_src/aec/
+INPUT += ../modules/voice/modules/lib_ns/api
+INPUT += ../modules/voice/modules/lib_agc/api
+INPUT += ../modules/voice/modules/lib_adec/api
+INPUT += ../modules/voice/modules/lib_ic/api
+INPUT += ../modules/voice/modules/lib_vad/api
+
+# RTOS driver APIs
+INPUT += ../modules/rtos/modules/drivers 
+
+# RTOS SW Services
+INPUT += ../modules/rtos/modules/sw_services/device_control/host ../modules/rtos/modules/sw_services/device_control/api 
+
+# IO library APIs
+INPUT += ../modules/io/modules/i2c/api
+INPUT += ../modules/io/modules/i2s/api
+INPUT += ../modules/io/modules/qspi_io/api
+INPUT += ../modules/io/modules/spi/api
+INPUT += ../modules/io/modules/uart/api
+INPUT += ../modules/io/modules/mic_array/lib_mic_array/api ../modules/io/modules/mic_array/etc/vanilla
+
+USE_MATHJAX = YES
+MATHJAX_FORMAT = HTML-CSS
+MATHJAX_RELPATH = https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/
+
+# Make short MATHJAX sequences prettier
+ALIASES += math{1}="@f$\1@f$"
+ALIASES += vector{1}="@f$\bar \1@f$"
+ALIASES += operation{1}="@par Operation Performed:^^@f{align*}{ \1 @f}"
 ALIASES += "beginrst=^^\verbatim embed:rst^^"
 ALIASES += "endrst=\endverbatim"

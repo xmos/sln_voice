@@ -1,14 +1,17 @@
 # The following patterns are to be excluded from the documentation build
 documents/README.rst
 documents/shared
+modules/core/modules/legacy_compat
+modules/core/modules/otpinfo
+modules/core/modules/random
+modules/core/modules/trycatch
 modules/inferencing
+modules/io/modules/xud
+modules/io/doc/substitutions.rst
 modules/sample_rate_conversion
+modules/voice/doc/substitutions.rst
 modules/xscope_fileio
 sln_voice_venv
 test
 xmos_cmake_toolchain
-
-modules/voice
-modules/core
-modules/io
-modules/rtos
+build_*
