@@ -47,29 +47,30 @@ Run the following commands in the root folder to build the USB firmware:
 Running the Firmware
 ====================
 
-Before the firmware is run, the filesystem must be loaded.
-
-Inside of the build folder root, after building the firmware, run one of:
+Before the firmware is run, the data partition containing the filesystem must be
+loaded. Run the following commands from the build folder.
 
 **Linux and Mac**
 
 .. code-block:: console
 
-    make flash_fs_example_ffva_int_adec
-    make flash_fs_example_ffva_ua_adec
+    make flash_app_example_ffva_int_adec
+    make flash_app_example_ffva_ua_adec
 
 **Windows**
 
 .. code-block:: console
 
-    nmake flash_fs_example_ffva_int_adec
-    nmake flash_fs_example_ffva_ua_adec
+    nmake flash_app_example_ffva_int_adec
+    nmake flash_app_example_ffva_ua_adec
 
 Once flashed, the application will run.
 
-After the filesystem has been flashed once, the application can be run without flashing.  If changes are made to the filesystem image, the application must be reflashed.
+If changes are made to the data partition components, the application must be
+re-flashed.
 
-From the build folder run:
+If there are no changes to the data partition, run the following from the build
+folder.
 
 **Linux and Mac**
 

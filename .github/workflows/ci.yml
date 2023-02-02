@@ -84,9 +84,7 @@ jobs:
         with:
           name: sln_voice_main_example_apps
           path: |
-            ./dist/*.xe
-            ./dist/*.fs
-            ./dist/*.json
+            ./dist/*.*
 
   build_misc_examples:
     name: Build misc example applications
@@ -121,9 +119,7 @@ jobs:
         with:
           name: sln_voice_misc_example_apps
           path: |
-            ./dist/*.xe
-            ./dist/*.fs
-            ./dist/*.json
+            ./dist/*.*
 
   build_tests:
     name: Build tests and test applications
@@ -158,6 +154,4 @@ jobs:
         with:
           name: sln_voice_test_apps
           path: |
-            ./dist/*.xe
-            ./dist/*.fs
-            ./dist/*.json
+            ./dist/*.*

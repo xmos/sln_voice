@@ -30,21 +30,27 @@ On Windows run:
     nmake example_ffva_ua_adec
     nmake example_ffva_ua_adec_altarch
 
-From the build folder, create the filesystem and flash the device with the appropriate command to the desired configuration:
+From the build folder, create the data partition containing the filesystem and
+flash the device with the appropriate command to the desired configuration:
 
 On Linux and Mac run:
 
-    make flash_fs_example_ffva_int_adec
-    make flash_fs_example_ffva_int_adec_altarch
-    make flash_fs_example_ffva_ua_adec
-    make flash_fs_example_ffva_ua_adec_altarch
+    make flash_app_example_ffva_int_adec
+    make flash_app_example_ffva_int_adec_altarch
+    make flash_app_example_ffva_ua_adec
+    make flash_app_example_ffva_ua_adec_altarch
 
 On Windows run:
 
-    nmake flash_fs_example_ffva_int_adec
-    nmake flash_fs_example_ffva_int_adec_altarch
-    nmake flash_fs_example_ffva_ua_adec
-    nmake flash_fs_example_ffva_ua_adec_altarch
+    nmake flash_app_example_ffva_int_adec
+    nmake flash_app_example_ffva_int_adec_altarch
+    nmake flash_app_example_ffva_ua_adec
+    nmake flash_app_example_ffva_ua_adec_altarch
+
+Once flashed, the application will run.
+
+If changes are made to the data partition components, the application must be
+re-flashed.
 
 ## Running the Firmware
 

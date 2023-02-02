@@ -13,84 +13,110 @@ ${APP_COMPILE_DEFINITIONS}
 )
 
 foreach(FFVA_AP ${FFVA_PIPELINES_INT})
-#**********************
-# Tile Targets
-#**********************
-set(TARGET_NAME tile0_example_ffva_int_dev_${FFVA_AP})
-add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
-target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
-target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
-target_compile_definitions(${TARGET_NAME}
-    PUBLIC
-        ${FFVA_INT_COMPILE_DEFINITIONS}
-        THIS_XCORE_TILE=0
-)
-target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME}
-    PUBLIC
-        ${APP_COMMON_LINK_LIBRARIES}
-        sln_voice::app::ffva::xcore_ai_explorer
-        sln_voice::app::ffva::ap::${FFVA_AP}
-)
-target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
-unset(TARGET_NAME)
+    #**********************
+    # Tile Targets
+    #**********************
+    set(TARGET_NAME tile0_example_ffva_int_dev_${FFVA_AP})
+    add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
+    target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
+    target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
+    target_compile_definitions(${TARGET_NAME}
+        PUBLIC
+            ${FFVA_INT_COMPILE_DEFINITIONS}
+            THIS_XCORE_TILE=0
+    )
+    target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
+    target_link_libraries(${TARGET_NAME}
+        PUBLIC
+            ${APP_COMMON_LINK_LIBRARIES}
+            sln_voice::app::ffva::xcore_ai_explorer
+            sln_voice::app::ffva::ap::${FFVA_AP}
+    )
+    target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
+    unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_example_ffva_int_dev_${FFVA_AP})
-add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
-target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
-target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
-target_compile_definitions(${TARGET_NAME}
-    PUBLIC
-        ${FFVA_INT_COMPILE_DEFINITIONS}
-        THIS_XCORE_TILE=1
-)
-target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME}
-    PUBLIC
-        ${APP_COMMON_LINK_LIBRARIES}
-        sln_voice::app::ffva::xcore_ai_explorer
-        sln_voice::app::ffva::ap::${FFVA_AP}
-)
-target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
-unset(TARGET_NAME)
+    set(TARGET_NAME tile1_example_ffva_int_dev_${FFVA_AP})
+    add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
+    target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
+    target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
+    target_compile_definitions(${TARGET_NAME}
+        PUBLIC
+            ${FFVA_INT_COMPILE_DEFINITIONS}
+            THIS_XCORE_TILE=1
+    )
+    target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
+    target_link_libraries(${TARGET_NAME}
+        PUBLIC
+            ${APP_COMMON_LINK_LIBRARIES}
+            sln_voice::app::ffva::xcore_ai_explorer
+            sln_voice::app::ffva::ap::${FFVA_AP}
+    )
+    target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
+    unset(TARGET_NAME)
 
-#**********************
-# Merge binaries
-#**********************
-merge_binaries(example_ffva_int_dev_${FFVA_AP} tile0_example_ffva_int_dev_${FFVA_AP} tile1_example_ffva_int_dev_${FFVA_AP} 1)
+    #**********************
+    # Merge binaries
+    #**********************
+    merge_binaries(example_ffva_int_dev_${FFVA_AP} tile0_example_ffva_int_dev_${FFVA_AP} tile1_example_ffva_int_dev_${FFVA_AP} 1)
 
-#**********************
-# Create run and debug targets
-#**********************
-create_run_target(example_ffva_int_dev_${FFVA_AP})
-create_debug_target(example_ffva_int_dev_${FFVA_AP})
+    #**********************
+    # Create run and debug targets
+    #**********************
+    create_run_target(example_ffva_int_dev_${FFVA_AP})
+    create_debug_target(example_ffva_int_dev_${FFVA_AP})
 
-#**********************
-# Filesystem support targets
-#**********************
+    #**********************
+    # Create data partition support targets
+    #**********************
+    set(TARGET_NAME example_ffva_int_dev_${FFVA_AP})
+    set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
+    set(FATFS_FILE ${TARGET_NAME}_fat.fs)
+    set(FATFS_CONTENTS_DIR ${TARGET_NAME}_fatmktmp)
 
-set(FATFS_CONTENTS_DIR ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/fatmktmp)
-set(FATFS_FILE ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/example_ffva_int_dev_${FFVA_AP}_fat.fs)
-add_custom_target(
-    example_ffva_int_dev_${FFVA_AP}_fat.fs ALL
-    COMMAND ${CMAKE_COMMAND} -E copy demo.txt ${FATFS_CONTENTS_DIR}/fs/demo.txt
-    COMMAND fatfs_mkimage --input=${FATFS_CONTENTS_DIR} --output=${FATFS_FILE}
-    COMMENT
-        "Create filesystem"
-    WORKING_DIRECTORY
-        ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
-    VERBATIM
-)
+    add_custom_target(
+        ${FATFS_FILE} ALL
+        COMMAND ${CMAKE_COMMAND} -E rm -rf ${FATFS_CONTENTS_DIR}/fs/
+        COMMAND ${CMAKE_COMMAND} -E make_directory ${FATFS_CONTENTS_DIR}/fs/
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/demo.txt ${FATFS_CONTENTS_DIR}/fs/
+        COMMAND fatfs_mkimage --input=${FATFS_CONTENTS_DIR} --output=${FATFS_FILE}
+        COMMENT
+            "Create filesystem"
+        VERBATIM
+    )
 
-set_target_properties(example_ffva_int_dev_${FFVA_AP}_fat.fs PROPERTIES
-    ADDITIONAL_CLEAN_FILES "${FATFS_CONTENTS_DIR};${FATFS_FILE}"
-)
+    set_target_properties(${FATFS_FILE} PROPERTIES
+        ADDITIONAL_CLEAN_FILES ${FATFS_CONTENTS_DIR}
+    )
 
-create_filesystem_target(example_ffva_int_dev_${FFVA_AP})
-create_flash_app_target(
-    #[[ Target ]]                  example_ffva_int_dev_${FFVA_AP}
-    #[[ Boot Partition Size ]]     0x100000
-    #[[ Data Partition Contents ]] ${FATFS_FILE}
-    #[[ Dependencies ]]            make_fs_example_ffva_int_dev_${FFVA_AP}
-)
+    # The filesystem is the only component in the data partition, copy it to
+    # the assocated data partition file which is required for CI.
+    add_custom_command(
+        OUTPUT ${DATA_PARTITION_FILE}
+        COMMAND ${CMAKE_COMMAND} -E copy ${FATFS_FILE} ${DATA_PARTITION_FILE}
+        DEPENDS
+            ${FATFS_FILE}
+        COMMENT
+            "Create data partition"
+        VERBATIM
+    )
+
+    list(APPEND DATA_PARTITION_FILE_LIST
+        ${FATFS_FILE}
+        ${DATA_PARTITION_FILE}
+    )
+
+    create_data_partition_directory(
+        #[[ Target ]]                   ${TARGET_NAME}
+        #[[ Copy Files ]]               "${DATA_PARTITION_FILE_LIST}"
+        #[[ Dependencies ]]             "${DATA_PARTITION_FILE_LIST}"
+    )
+
+    create_flash_app_target(
+        #[[ Target ]]                  ${TARGET_NAME}
+        #[[ Boot Partition Size ]]     0x100000
+        #[[ Data Partition Contents ]] ${DATA_PARTITION_FILE}
+        #[[ Dependencies ]]            ${DATA_PARTITION_FILE}
+    )
+
+    unset(DATA_PARTITION_FILE_LIST)
 endforeach()

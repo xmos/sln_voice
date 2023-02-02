@@ -50,8 +50,8 @@ source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 # xflash erase
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
-# flash the filesystem
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_fat.fs
+# flash the data partition
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_data_partition.bin
 
 # wait for device to reset (may not be necessary)
 sleep 3

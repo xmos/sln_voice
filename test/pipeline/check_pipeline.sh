@@ -56,15 +56,15 @@ AMAZON_THRESH="500"
 # xflash erase
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
-# flash the filesystem
+# flash the data partition
 if [[ ${FIRMWARE} == *"example_ffd_usb_audio_test"* ]]
 then
-    # build_tests.sh creates example_ffd_fat.fs used here
-    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_fat.fs
+    # build_tests.sh creates example_ffd_data_partition.bin used here
+    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_data_partition.bin
 elif [[ ${FIRMWARE} == *"example_ffva_ua_adec_test"* ]]
 then
-    # build_tests.sh creates example_ffva_ua_adec_fat.fs used here
-    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_fat.fs
+    # build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
+    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
 fi
 
 # wait for device to reset (may not be necessary)

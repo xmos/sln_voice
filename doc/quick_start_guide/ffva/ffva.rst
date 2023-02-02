@@ -70,7 +70,7 @@ On the host computer, open a `XTC Tools Command Prompt`.
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory example_ffva_ua_adec.xe --boot-partition-size 0x100000 --data example_ffva_ua_adec_fat.fs
+    xflash --quad-spi-clock 50MHz --factory example_ffva_ua_adec.xe --boot-partition-size 0x100000 --data example_ffva_ua_adec_data_partition.bin
 
 Record Captured Voice
 ^^^^^^^^^^^^^^^^^^^^^
@@ -164,7 +164,7 @@ Run the following commands to flash the firmware.
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory example_ffva_int_adec.xe --boot-partition-size 0x100000 --data example_ffva_int_adec_fat.fs
+    xflash --quad-spi-clock 50MHz --factory example_ffva_int_adec.xe --boot-partition-size 0x100000 --data example_ffva_int_adec_data_partition.bin
 
 Prepare the Raspberry Pi System
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
