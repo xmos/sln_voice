@@ -1,6 +1,37 @@
 #!/bin/bash
 set -e
 
+# help text
+help()
+{
+   echo "XCORE-VOICE example builder script"
+   echo
+   echo "Syntax: build_examples.sh [-h] <example_list.txt>"
+   echo
+   echo "example_list.txt format:"
+   echo "   name app_target run_data_partition_target BOARD toolchain"
+   echo
+   echo "options:"
+   echo "h     Print this Help."
+}
+
+# flag arguments
+while getopts h option
+do
+    case "${option}" in
+        h) help
+           exit;;
+    esac
+done
+
+# get input list file
+INPUT_LIST=${@:$OPTIND:1}
+FILE=/etc/resolv.conf
+if [ ! -f "$INPUT_LIST" ]; then
+    echo "ERROR: $INPUT_LIST does not exist"
+    exit
+fi
+
 XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
 
 source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
@@ -17,21 +48,7 @@ if [ -d "${DIST_HOST_DIR}" ]; then
     find ${DIST_HOST_DIR} -type f -exec chmod a+x {} +
 fi
 
-# setup configurations
-# row format is: "name app_target run_data_partition_target BOARD toolchain"
-examples=(
-    "audio_mux                 example_audio_mux                No   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffd                       example_ffd_dev                  Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_int_adec_altarch     example_ffva_int_adec_altarch    Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_ua_adec_altarch      example_ffva_ua_adec_altarch     Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_ua_fixed_delay       example_ffva_ua_fixed_delay      Yes  XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_int_dev_fixed_delay  example_ffva_int_dev_fixed_delay Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_int_dev_adec         example_ffva_int_dev_adec        Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_int_dev_adec_altarch example_ffva_int_adec_altarch    Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_ua_dev_fixed_delay   example_ffva_ua_dev_fixed_delay  Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_ua_dev_adec          example_ffva_ua_dev_adec         Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-    "ffva_ua_dev_adec_altarch  example_ffva_ua_adec_altarch     Yes  XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
-)
+readarray examples < ${INPUT_LIST}
 
 # perform builds
 for ((i = 0; i < ${#examples[@]}; i += 1)); do

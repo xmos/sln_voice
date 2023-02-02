@@ -21,9 +21,7 @@ fi
 # row format is: "name app_target run_data_partition_target flag BOARD toolchain"
 examples=(
     "ffd_usb_audio              example_ffd_usb_audio_test              example_ffd             NONE                                        XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    #"ffd_usb_audio_bypass_ap   example_ffd_usb_audio_test_bypass_ap    example_ffd             NONE                                        XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "ffva_ua_adec               example_ffva_ua_adec                    example_ffva_ua_adec    DEBUG_FFVA_USB_MIC_INPUT                    XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
-    #"ffva_ua_adec_altarch      example_ffva_ua_adec_altarch            example_ffva_ua_adec    DEBUG_FFVA_USB_MIC_INPUT                    XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "ffva_sample_rate_conv      example_ffva_ua_adec                    example_ffva_ua_adec    DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS    XK_VOICE_L71        xmos_cmake_toolchain/xs3a.cmake"
     "test_ffd_gpio              test_ffd_gpio                           NONE                    XCORE_VOICE_TESTS                           XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
 )
