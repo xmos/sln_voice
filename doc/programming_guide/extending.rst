@@ -1,4 +1,5 @@
 .. _sln_voice_memory_cpu:
+.. include:: ../substitutions.rst
 
 ###########################
 Memory and CPU Requirements
@@ -51,7 +52,7 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - USB XUD
       - 100
       - 120
-    * - I2S (slave mode)
+    * - |I2S| (slave mode)
       - 80
       - 96
     * - Stereo Adaptive Echo Canceler (AEC)

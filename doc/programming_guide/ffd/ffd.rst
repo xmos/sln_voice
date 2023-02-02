@@ -5,11 +5,13 @@ Far-field Voice Local Control
 #############################
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :hidden:
 
    overview
    hardware
-   deploying
+   deploying/configuration
+   deploying/linux_macos
+   deploying/native_windows
    modifying
 
