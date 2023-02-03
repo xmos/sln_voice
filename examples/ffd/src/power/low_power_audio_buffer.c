@@ -3,6 +3,7 @@
 
 /* System headers */
 #include <stdint.h>
+#include <string.h>
 #include <platform.h>
 #include <xs1.h>
 

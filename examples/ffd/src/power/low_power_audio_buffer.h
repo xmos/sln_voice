@@ -7,6 +7,7 @@
 
 /* System headers */
 #include <stdint.h>
+#include <stddef.h>
 #include <platform.h>
 #include <xs1.h>
 
