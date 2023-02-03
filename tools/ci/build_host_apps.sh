@@ -22,7 +22,7 @@ echo '******************************************************'
 # setup configurations
 # row format is: "app_name app_path"
 host_apps=(
-    "fatfs_mkimage              modules/rtos/modules/sw_services/fatfs/host"
+    "fatfs_mkimage              modules/rtos/tools/fatfs_mkimage"
     "datapartition_mkimage      modules/rtos/tools/datapartition_mkimage"
 )
 
