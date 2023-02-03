@@ -83,5 +83,6 @@ jobs:
         with:
           context: .
           push: true
+          file: 'tools/docker/Dockerfile.tests'
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
