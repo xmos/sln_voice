@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 #ifndef LOW_POWER_AUDIO_BUFFER_H_
 #define LOW_POWER_AUDIO_BUFFER_H_
@@ -31,9 +31,11 @@ void low_power_audio_buffer_enqueue(int32_t *frames, size_t num_frames);
  * Dequeue audio frames out of a ring buffer. These frames are sent onward to
  * the inference engine.
  *
- * \param num_frames    The requested number of frames to dequeue.
+ * \param num_packets   The requested number of packets to dequeue, where
+ *                      one packet is appconfAUDIO_PIPELINE_FRAME_ADVANCE
+ *                      frames.
  * \return              The number of samples actually dequeued from the buffer.
  */
-uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames);
+uint32_t low_power_audio_buffer_dequeue(uint32_t num_packets);
 
 #endif // LOW_POWER_AUDIO_BUFFER_H_

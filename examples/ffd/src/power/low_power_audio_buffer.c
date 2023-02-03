@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* System headers */
 #include <stdint.h>
@@ -25,7 +25,7 @@ typedef struct ring_buffer
     uint8_t empty;
 } ring_buffer_t;
 
-int32_t sample_buf[appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES * appconfAUDIO_PIPELINE_FRAME_ADVANCE] = {0};
+int32_t sample_buf[appconfAUDIO_PIPELINE_BUFFER_NUM_PACKETS * appconfAUDIO_PIPELINE_FRAME_ADVANCE] = {0};
 
 /* Ring buffer to hold onto the latest audio samples while in low power mode.
  * This serves to capture the onset of speech that meet or exceed the trigger
@@ -80,11 +80,11 @@ void low_power_audio_buffer_enqueue(int32_t *frames, size_t num_frames)
 #endif // LOW_POWER_AUDIO_BUFFER_ENABLED
 }
 
-uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
+uint32_t low_power_audio_buffer_dequeue(uint32_t num_packets)
 {
     uint32_t ret = 0;
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
-    if ((ring_buf.count == 0) || (num_frames == 0)) {
+    if ((ring_buf.count == 0) || (num_packets == 0)) {
         // No data to dequeue.
         return ret;
     }
@@ -95,9 +95,9 @@ uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
     int32_t tail_bytes = ring_buf.size - ((uint32_t)ring_buf.get_ptr - (uint32_t)ring_buf.buf);
 
     int32_t samples_to_dequeue =
-        ((num_frames * appconfAUDIO_PIPELINE_FRAME_ADVANCE) > ring_buf.count) ?
+        ((num_packets * appconfAUDIO_PIPELINE_FRAME_ADVANCE) > ring_buf.count) ?
         ring_buf.count :
-        (num_frames * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        (num_packets * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
     ring_buf.empty = ((ring_buf.count - samples_to_dequeue) == 0);
     ret = (uint32_t)samples_to_dequeue;
