@@ -146,7 +146,7 @@ With:
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
 
-It is also possible to add or remove stages.  Refer to the XCORE-SDK documentation on the generic pipeline sw_service.
+It is also possible to add or remove stages.  Refer to the RTOS Framework documentation on the generic pipeline sw_service.
 
 
 .. _sln_voice_ffd_replacing-wanson-keyword-engine-block:
@@ -176,7 +176,7 @@ It may be desired to have a different output interface to talk to a host, or not
 Different Peripheral IO
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-To add or remove a peripheral IO, modify the bsp_config accordingly.  Refer to documentation inside the XCORE-SDK on how to instantiate different RTOS peripheral drivers.
+To add or remove a peripheral IO, modify the bsp_config accordingly.  Refer to documentation inside the RTOS Framework on how to instantiate different RTOS peripheral drivers.
 
 
 Direct Control
@@ -200,9 +200,13 @@ The proc_keyword_res task can be modified as follows:
         }
     }
 
-This code example will receive the id of each intent, and can be populated by any user application logic.
+This code example will receive the id of each intent, and can be populated by any user application logic.  User logic can use other RTOS drivers to control various peripherals, such as screens, motors, lights, etc, based on the intent engine outputs.
 
 .. figure:: diagrams/ffd_direct_control_diagram.drawio.png
    :align: center
-   :scale: 80 %
+   :scale: 40 %
    :alt: ffd host direct control diagram
+
+.. raw:: latex
+
+    \clearpage

@@ -29,8 +29,8 @@ To replace the Wanson engine with a different engine, refer to the FFD documenta
 Dictionary command table
 ========================
 
-.. list-table:: English langauge demo
-   :widths: 100 50 50
+.. list-table:: English language demo
+   :widths: 50 50 50
    :header-rows: 1
    :align: left
 
