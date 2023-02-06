@@ -4,6 +4,7 @@
 /* System headers */
 #include <stdint.h>
 #include <string.h>
+#include <assert.h>
 #include <platform.h>
 #include <xs1.h>
 
@@ -16,13 +17,13 @@
 
 typedef struct ring_buffer
 {
-    int32_t * const buf;
-    const uint32_t size;
-    char *set_ptr;
-    char *get_ptr;
-    uint32_t count;
-    uint8_t full;
-    uint8_t empty;
+    int32_t * const buf;    // The head of the buffer where data is stored.
+    const uint32_t size;    // Number of bytes in buffer.
+    char *set_ptr;          // The pointer where to set data.
+    char *get_ptr;          // The pointer where to get data.
+    uint32_t count;         // The number of valid int32_t entries in the buffer.
+    uint8_t full;           // Indicates the buffer is full.
+    uint8_t empty;          // Indicates the buffer is empty.
 } ring_buffer_t;
 
 int32_t sample_buf[appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES * appconfAUDIO_PIPELINE_FRAME_ADVANCE] = {0};
@@ -46,7 +47,9 @@ ring_buffer_t ring_buf = {
 void low_power_audio_buffer_enqueue(int32_t *samples, size_t num_samples)
 {
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
-    const uint32_t tail_addr = ((uint32_t)ring_buf.buf + (ring_buf.size * sizeof(int32_t)));
+    const uint32_t tail_addr = ((uint32_t)ring_buf.buf + ring_buf.size);
+
+    assert(num_samples <= appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
     size_t total_bytes = num_samples * sizeof(int32_t);
     size_t tail_bytes = ring_buf.size - ((uint32_t)ring_buf.set_ptr - (uint32_t)ring_buf.buf);
@@ -67,11 +70,11 @@ void low_power_audio_buffer_enqueue(int32_t *samples, size_t num_samples)
     if ((uint32_t)ring_buf.set_ptr >= tail_addr)
         ring_buf.set_ptr = (char *)ring_buf.buf;
 
-    ring_buf.full = ((ring_buf.count + num_samples) >= ring_buf.size);
+    ring_buf.full = ((ring_buf.count + num_samples) >= (ring_buf.size / sizeof(int32_t)));
 
     if (ring_buf.full) {
         ring_buf.get_ptr = ring_buf.set_ptr;
-        ring_buf.count = ring_buf.size;
+        ring_buf.count = (ring_buf.size / sizeof(int32_t));
     } else {
         ring_buf.count += num_samples;
     }
@@ -84,7 +87,7 @@ uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
 {
     uint32_t ret = 0;
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
-    if ((ring_buf.count == 0) || (num_frames == 0)) {
+    if ((ring_buf.count < appconfAUDIO_PIPELINE_FRAME_ADVANCE) || (num_frames == 0)) {
         // No data to dequeue.
         return ret;
     }
