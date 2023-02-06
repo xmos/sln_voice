@@ -25,7 +25,7 @@ on:
   workflow_dispatch: {}
 
 env:
-  SDK_BUILDER_IMAGE: 'ghcr.io/xmos/sdk_app_builder:develop'
+  XCORE_BUILDER: 'ghcr.io/xmos/xcore_builder:latest'
 
 jobs:
   build_host_apps:
@@ -39,11 +39,11 @@ jobs:
 
       - name: Pull SDK builder
         run: |
-          docker pull ${SDK_BUILDER_IMAGE}
+          docker pull ${XCORE_BUILDER}
 
       - name: Build
         run: |
-          docker run --rm -w /xcore_sdk -v ${{github.workspace}}:/xcore_sdk ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_host_apps.sh
+          docker run --rm -w /xcore_sdk -v ${{github.workspace}}:/xcore_sdk ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
@@ -56,14 +56,14 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_host_apps
     steps:
-      - name: Checkout SDK
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Pull SDK builder image
+      - name: Pull Docker builder
         run: |
-          docker pull ${SDK_BUILDER_IMAGE}
+          docker pull ${XCORE_BUILDER}
 
       - name: Download host build artifacts
         uses: actions/download-artifact@v3
@@ -73,7 +73,7 @@ jobs:
           
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_main_examples.sh
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/main_examples.txt
 
       - name: Save metadata
         run: |
@@ -84,23 +84,21 @@ jobs:
         with:
           name: sln_voice_main_example_apps
           path: |
-            ./dist/*.xe
-            ./dist/*.fs
-            ./dist/*.json
+            ./dist/*.*
 
   build_misc_examples:
     name: Build misc example applications
     runs-on: ubuntu-latest
     needs: build_host_apps
     steps:
-      - name: Checkout SDK
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Pull SDK builder image
+      - name: Pull Docker builder
         run: |
-          docker pull ${SDK_BUILDER_IMAGE}
+          docker pull ${XCORE_BUILDER}
 
       - name: Download host build artifacts
         uses: actions/download-artifact@v3
@@ -110,34 +108,45 @@ jobs:
           
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_misc_examples.sh
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/misc_examples.txt
 
-      - name: Save metadata
-        run: |
-          bash tools/ci/log_metadata.sh ./dist/misc_examples_metadata.json
-
-      - name: Save example app firmware artifacts
-        uses: actions/upload-artifact@v3
+  build_dev_examples:
+    name: Build dev example applications
+    runs-on: ubuntu-latest
+    needs: build_host_apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
         with:
-          name: sln_voice_misc_example_apps
-          path: |
-            ./dist/*.xe
-            ./dist/*.fs
-            ./dist/*.json
+          submodules: recursive
+
+      - name: Pull Docker builder
+        run: |
+          docker pull ${XCORE_BUILDER}
+
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: host_apps
+          path: ./dist_host
+          
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/dev_examples.txt
 
   build_tests:
     name: Build tests and test applications
     runs-on: ubuntu-latest
     needs: build_host_apps
     steps:
-      - name: Checkout SDK
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Pull SDK builder image
+      - name: Pull Docker builder
         run: |
-          docker pull ${SDK_BUILDER_IMAGE}
+          docker pull ${XCORE_BUILDER}
 
       - name: Download host build artifacts
         uses: actions/download-artifact@v3
@@ -147,7 +156,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${SDK_BUILDER_IMAGE} bash -l tools/ci/build_tests.sh
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
 
       - name: Save metadata
         run: |
@@ -158,6 +167,4 @@ jobs:
         with:
           name: sln_voice_test_apps
           path: |
-            ./dist/*.xe
-            ./dist/*.fs
-            ./dist/*.json
+            ./dist/*.*

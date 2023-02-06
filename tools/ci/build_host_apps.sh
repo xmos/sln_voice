@@ -19,7 +19,17 @@ echo '******************************************************'
 (cd ${path}; mkdir -p build_host)
 (cd ${path}/build_host; log_errors cmake ../ ; log_errors make -j)
 
-# copy fatfs_mkimage to dist
-name=fatfs/host
-make_target=fatfs_mkimage
-(cd ${path}/build_host; cp modules/rtos/modules/sw_services/${name}/${make_target} ${DIST_DIR})
+# setup configurations
+# row format is: "app_name app_path"
+host_apps=(
+    "fatfs_mkimage              modules/rtos/tools/fatfs_mkimage"
+    "datapartition_mkimage      modules/rtos/tools/datapartition_mkimage"
+)
+
+# copy applications to dist
+for ((i = 0; i < ${#host_apps[@]}; i += 1)); do
+    read -ra FIELDS <<< ${host_apps[i]}
+    app_name="${FIELDS[0]}"
+    app_path="${FIELDS[1]}"
+    (cd ${path}/build_host; cp ${app_path}/${app_name} ${DIST_DIR})
+done

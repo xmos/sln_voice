@@ -75,7 +75,7 @@ On the host computer, open a `XTC Tools Command Prompt`.
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd_fat.fs
+    xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd_data_partition.bin
 
 Speech Recognition
 ^^^^^^^^^^^^^^^^^^

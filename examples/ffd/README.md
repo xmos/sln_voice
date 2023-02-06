@@ -59,17 +59,24 @@ On Windows run:
 
 ## Running the Firmware
 
-Before the firmware is run, the filesystem must be loaded. Run the following commands in the build folder.
+Before the firmware is run, the data partition containing the filesystem and
+model(s) must be loaded. Run the following commands from the build folder.
 
 On Linux and Mac run:
 
-    make flash_fs_example_ffd
+    make flash_app_example_ffd
 
 On Windows run:
 
-    nmake flash_fs_example_ffd
+    nmake flash_app_example_ffd
 
-Once flashed, the example will run.
+Once flashed, the application will run.
+
+If changes are made to the data partition components, the application must be
+re-flashed.
+
+If there are no changes to the data partition, run the following from the build
+folder.
 
 On Linux and Mac run:
 
