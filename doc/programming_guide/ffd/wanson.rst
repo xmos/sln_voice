@@ -21,7 +21,7 @@ The Wanson speech recognition engine runs proprietary models to identify keyword
 
 The model used in FFD is approximately 185k.  The runtime and application supporting code consumes approximately 250k.
 
-The Wanson engine requires at a core frequency of at least 400 MHz to keep up with real time.
+With the model in flash, the Wanson engine requires a core frequency of at least 400 MHz to keep up with real time.
 
 To replace the Wanson engine with a different engine, refer to the FFD documentation on :ref:`sln_voice_FFD_replacing-wanson-keyword-engine-block`
 
@@ -29,8 +29,8 @@ To replace the Wanson engine with a different engine, refer to the FFD documenta
 Dictionary command table
 ========================
 
-.. list-table:: English langauge demo
-   :widths: 100 50 50
+.. list-table:: English language demo
+   :widths: 50 50 50
    :header-rows: 1
    :align: left
 

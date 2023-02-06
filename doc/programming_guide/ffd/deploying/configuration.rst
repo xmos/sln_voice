@@ -1,29 +1,4 @@
-.. include:: ../../substitutions.rst
-
-**********************
-Deploying the Software
-**********************
-
-Building the Firmware
-=====================
-
-Run the following commands in the root folder to build the firmware:
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-    cd build
-    make example_ffd
-
-**Windows**
-
-.. code-block:: console
-
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-    cd build
-    nmake example_ffd
+.. include:: ../../../substitutions.rst
 
 Configuring the Firmware
 ========================
@@ -33,7 +8,7 @@ The default application performs as described in the Overview. There are numerou
 If options are changed, the application firmware must be rebuilt.
 
 .. list-table:: FFD Compile Options
-   :widths: 50 100 50
+   :widths: 90 85 20
    :header-rows: 1
    :align: left
 
@@ -54,9 +29,6 @@ If options are changed, the application firmware must be rebuilt.
      - 1
    * - appconfINFERENCE_UART_OUTPUT_ENABLED
      - Enables/disables the UART intent message
-     - 1
-   * - appconfSSD1306_DISPLAY_ENABLED
-     - Enables/disables the SSD1306 daughter board display intent message
      - 1
    * - appconfINFERENCE_I2C_OUTPUT_ENABLED
      - Enables/disables the |I2C| intent message
@@ -85,58 +57,3 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfAUDIO_PIPELINE_SKIP_AGC
      - Enables/disables the AGC
      - 0
-
-Running the Firmware
-====================
-
-Before the firmware is run, the data partition containing the filesystem and
-model(s) must be loaded. Run the following commands from the build folder.
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    make flash_app_example_ffd
-
-**Windows**
-
-.. code-block:: console
-
-    nmake flash_app_example_ffd
-
-Once flashed, the application will run.
-
-If changes are made to the data partition components, the application must be
-re-flashed.
-
-If there are no changes to the data partition, run the following from the build
-folder.
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    make run_example_ffd
-
-**Windows**
-
-.. code-block:: console
-
-    nmake run_example_ffd
-
-Debugging the Firmware
-======================
-
-To debug with xgdb, from the build folder run:
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    make debug_example_ffd
-
-**Windows**
-
-.. code-block:: console
-
-    nmake debug_example_ffd

@@ -11,7 +11,7 @@ Setting up the Hardware
 
 This example design requires an XTAG4 and XK-VOICE-L71 board.
 
-Optionally, an external microphone array board, LCD daugher board, and SSD1306 display can also be used.
+Optionally, an external microphone array board can be used.
 
 .. image:: ../../shared/images/all_components.jpg
   :width: 800

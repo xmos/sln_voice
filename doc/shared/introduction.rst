@@ -21,7 +21,7 @@ These include:
 - Two PDM microphone interfaces 
 - Digital signal processing pipeline 
 - Full duplex, stereo, Acoustic Echo Cancellation (AEC) 
-- Reference audio via I2S with automatic bulk delay insertion 
+- Reference audio via |I2S| with automatic bulk delay insertion 
 - Point noise suppression via interference canceller 
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
