@@ -1,3 +1,5 @@
+set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+
 #**********************
 # Gather Sources
 #**********************
@@ -16,6 +18,7 @@ set(RTOS_CONF_INCLUDES
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/inference/inference.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/asr/asr.cmake)
 
 #**********************
 # QSPI Flash Layout
@@ -59,13 +62,14 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::app::ffd::inference_engine::wanson
+    sln_voice::app::ffd::asr::wanson
     fwk_voice::agc
     fwk_voice::ic
     fwk_voice::ns
     fwk_voice::vnr::features
     fwk_voice::vnr::inference
     rtos::drivers::clock_control
+    sln_voice::app::ffd::inference_engine
 )
 
 #**********************
@@ -179,5 +183,4 @@ unset(DATA_PARTITION_FILE_LIST)
 #**********************
 # Include FFD Debug and Extension targets
 #**********************
-set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 include(${CMAKE_CURRENT_LIST_DIR}/ext/ffd_ext.cmake)

@@ -22,82 +22,101 @@
 static QueueHandle_t q_intent = 0;
 static uint8_t keyword_proc_busy = 0;
 
+// look up table to converting ASR IDs to wav file IDs or strings
+// 1st column: ASR response IDs
+// 2nd column: Wav file IDs corresponding to audio_files_en[] array in audio_response.c
+// 2nd column: Text
+typedef struct asr_lut_struct
+{
+    int     asr_id;
+    int     wav_id;
+    const char* text;
+} asr_lut_t;
 
-// This enum table should match audio_files_en[] array in audio_response.c
-enum WAV_FILES {
-    SLEEP_WAV,
-    WAKEUP_WAV,
-    TVON_WAV,
-    TVOFF_WAV,
-    CHUP_WAV,
-    CHDOWN_WAV,
-    VOLUP_WAV,
-    VOLDOWN_WAV,
-    LIGHTON_WAV,
-    LIGHTOFF_WAV,
-    LIGHTSUP_WAV,
-    LIGHTSDOWN_WAV,
-    FANON_WAV,
-    FANOFF_WAV,
-    FANUP_WAV,
-    FANDOWN_WAV,
-    TEMPUP_WAV,
-    TEMPDOWN_WAV,
-    TOTAL_WAV_NUM
+static asr_lut_t asr_keyword_lut[ASR_NUMBER_OF_KEYWORDS] = {
+    // {50, 0, ""},
+    // {1, 1, ""},
+    {ASR_KEYWORD_HELLO_XMOS, 1, "Hello XMOS"},
+    {ASR_KEYWORD_ALEXA, 1, "Alexa"},
 };
-
-// wanson_id_intent_conv: look up table to converting Wanson's audio response IDs to intent IDs.
-// 1st column: Wanson's audio repsonse IDs, 2nd column: Intent IDs corresponding to audio_files_en[] array in audio_response.c
-
-static int wanson_id_intent_id[TOTAL_WAV_NUM][2] = {
-    {50,SLEEP_WAV},
-    {1,WAKEUP_WAV},
-    {3,TVON_WAV},
-    {4,TVOFF_WAV},
-    {5,CHUP_WAV},
-    {6,CHDOWN_WAV},
-    {7,VOLUP_WAV},
-    {8,VOLDOWN_WAV},
-    {9,LIGHTON_WAV},
-    {10,LIGHTOFF_WAV},
-    {11,LIGHTSUP_WAV},
-    {12,LIGHTSDOWN_WAV},
-    {13,FANON_WAV},
-    {14,FANOFF_WAV},
-    {15,FANUP_WAV},
-    {16,FANDOWN_WAV},
-    {17,TEMPUP_WAV},
-    {18,TEMPDOWN_WAV}
+static asr_lut_t asr_command_lut[ASR_NUMBER_OF_COMMANDS] = {
+    {ASR_COMMAND_TV_ON, 2, "Switch on the TV"},
+    {ASR_COMMAND_TV_OFF, 3, "Switch off the TV"},
+    {ASR_COMMAND_VOLUME_UP, 6, "Volume up"},
+    {ASR_COMMAND_VOLUME_DOWN, 7, "Volume down"},
+    {ASR_COMMAND_CHANNEL_UP, 4, "Channel up"},
+    {ASR_COMMAND_CHANNEL_DOWN, 5, "Channel down"},
+    {ASR_COMMAND_LIGHTS_ON, 8, "Switch on the lights"},
+    {ASR_COMMAND_LIGHTS_OFF, 9, "Switch off the lights"},
+    {ASR_COMMAND_LIGHTS_UP, 10, "Brightness up"},
+    {ASR_COMMAND_LIGHTS_DOWN, 11, "Brightness down"},
+    {ASR_COMMAND_FAN_ON, 12, "Switch on the fan"},
+    {ASR_COMMAND_FAN_OFF, 13, "Switch off the fan"},
+    {ASR_COMMAND_FAN_UP, 14, "Speed up the fan"},
+    {ASR_COMMAND_FAN_DOWN, 15, "Slow down the fan"},
+    {ASR_COMMAND_TEMPERATURE_UP, 16, "Set higher temperature"},
+    {ASR_COMMAND_TEMPERATURE_DOWN, 17, "Set lower temperature"}
 };
 
 
-int wanson_id_intent_id_conv(int wan_id)
-{
-    uint16_t i;
+//KAM void get_wav_id(int asr_id)
+//KAM {
+//KAM     uint16_t i;
 
-    for(i=0;i<sizeof(wanson_id_intent_id)/2;i++){
-        if(wanson_id_intent_id[i][0] == wan_id){
-            return wanson_id_intent_id[i][1];
-        }
-    }
-    return 0xFF;
-}
-
-__attribute__((weak))
-void wanson_engine_proc_keyword_result(const char **text, int id)
+//KAM     for(i=0;i<sizeof(asr_id_wav_id_lut)/2;i++){
+//KAM         if(asr_id_wav_id_lut[i][0] == asr_id){
+//KAM             return asr_id_wav_id_lut[i][1];
+//KAM         }
+//KAM     }
+//KAM     return 0xFF;
+//KAM }
+void wanson_engine_play_response(int wav_id)
 {
-    if(text != NULL) {
-        rtos_printf("KEYWORD: 0x%x, %s\n", id, (char*)*text);
-    }
     if(q_intent != 0) {
-        int wav_id = 0;
         keyword_proc_busy = 1;
-        wav_id = wanson_id_intent_id_conv(id);
         if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
-            rtos_printf("Lost intent.  Queue was full.\n");
+            rtos_printf("Lost wav playback.  Queue was full.\n");
             keyword_proc_busy = 0;
         }
     }
+}
+
+void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t command)
+{
+    int wav_id = 0;
+    const char* text = "";
+
+    if (keyword != ASR_KEYWORD_UNKNOWN) {
+        for (int i=0; i<ASR_NUMBER_OF_KEYWORDS; i++) {
+            if (asr_keyword_lut[i].asr_id == keyword) {
+                wav_id = asr_keyword_lut[i].wav_id;
+                text = asr_keyword_lut[i].text;
+            }
+        }
+        rtos_printf("KEYWORD: 0x%x, %s\n", (int) keyword, (char*)text);
+        wanson_engine_play_response(wav_id);
+    } else if (command != ASR_COMMAND_UNKNOWN) {
+        for (int i=0; i<ASR_NUMBER_OF_COMMANDS; i++) {
+            if (asr_command_lut[i].asr_id == command) {
+                wav_id = asr_command_lut[i].wav_id;
+                text = asr_command_lut[i].text;
+            }
+        }
+        rtos_printf("KEYWORD: 0x%x, %s\n", (int) command, (char*)text);
+        wanson_engine_play_response(wav_id);
+    }
+    //KAM if(text != NULL) {
+    //KAM     rtos_printf("KEYWORD: 0x%x, %s\n", id, (char*)*text);
+    //KAM }
+    //KAM if(q_intent != 0) {
+    //KAM     int wav_id = 0;
+    //KAM     keyword_proc_busy = 1;
+    //KAM     wav_id = get_wav_id(id);
+    //KAM     if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
+    //KAM         rtos_printf("Lost ASR recognition.  Queue was full.\n");
+    //KAM         keyword_proc_busy = 0;
+    //KAM     }
+    //KAM }
 }
 
 #if appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO)

@@ -17,7 +17,8 @@
 #include "inference_engine.h"
 #include "rtos_swmem.h"
 #include "wanson_inf_eng.h"
-#include "wanson_api.h"
+//KAM #include "wanson_api.h"
+#include "asr.h"
 #include "xcore_device_memory.h"
 #include "gpio_ctrl/leds.h"
 
@@ -27,6 +28,9 @@
 #endif
 
 #if ON_TILE(INFERENCE_TILE_NO)
+
+#define IS_KEYWORD(id)    (id != ASR_KEYWORD_UNKNOWN)
+#define IS_COMMAND(id)    (id != ASR_COMMAND_UNKNOWN)
 
 #define WANSON_SAMPLES_PER_INFERENCE    (2 * appconfINFERENCE_SAMPLE_BLOCK_LENGTH)
 
@@ -51,6 +55,7 @@ enum timeout_event {
 };
 
 static inference_state_t inference_state;
+static asr_context_t asr_ctx; 
 
 #if appconfLOW_POWER_ENABLED
 static inference_power_state_t inference_power_state;
@@ -111,7 +116,7 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
         // Playback "stop listening for command" sound (50)
-        wanson_engine_proc_keyword_result(NULL, 50);
+        wanson_engine_play_response(50);
         led_indicate_waiting();
         inference_state = STATE_EXPECTING_WAKEWORD;
 #if appconfLOW_POWER_ENABLED
@@ -226,7 +231,7 @@ void wanson_engine_low_power_accept(void)
 #pragma stackfunction 1500
 void wanson_engine_task(void *args)
 {
-    assert(WANSON_SAMPLES_PER_INFERENCE == 480); // Wanson ASR engine expects 480 samples per inference
+    //KAM assert(WANSON_SAMPLES_PER_INFERENCE == 480); // Wanson ASR engine expects 480 samples per inference
 
     inference_state = STATE_EXPECTING_WAKEWORD;
 
@@ -237,21 +242,15 @@ void wanson_engine_task(void *args)
     requested_full_power = 0;
 #endif
 
-    // NOTE: The Wanson model uses the .SwMem_data attribute but no SwMem event handling code is required.
-    //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol.
-    //       To work around this, we simply need to init the swmem.
-    rtos_swmem_init(0);
+    //KAM // NOTE: The Wanson asr port uses the .SwMem_data attribute but no SwMem event handling code is required.
+    //KAM //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol.
+    //KAM //       To work around this, we simply need to init the swmem.
+    //KAM rtos_swmem_init(0);
 
-    size_t model_file_size;
-    model_file_size = model_file_init();
-    if (model_file_size == 0) {
-        rtos_printf("ERROR: Failed to load model file\n");
-        vTaskDelete(NULL);
-    }
-
-    rtos_printf("Wanson init\n");
-    Wanson_ASR_Init();
-    rtos_printf("Wanson init done\n");
+    //KAM rtos_printf("Wanson init\n");
+    //KAM Wanson_ASR_Init();
+    //KAM rtos_printf("Wanson init done\n");
+    asr_ctx = asr_init(NULL, NULL);
 
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
     TimerHandle_t inf_eng_tmr = xTimerCreate(
@@ -264,22 +263,28 @@ void wanson_engine_task(void *args)
     int32_t buf[appconfINFERENCE_SAMPLE_BLOCK_LENGTH] = {0};
     int16_t buf_short[WANSON_SAMPLES_PER_INFERENCE] = {0};
 
-    /* Perform any initialization here */
-#if 1   // domain doesn't do anything right now, 0 is both wakeup and asr
-    rtos_printf("Wanson reset for wakeup\n");
-    int ret = Wanson_ASR_Reset(0);
-#else
-    rtos_printf("Wanson reset for asr\n");
-    int ret = Wanson_ASR_Reset(1);
-#endif
-    rtos_printf("Wanson reset ret: %d\n", ret);
+//KAM    /* Perform any initialization here */
+//KAM #if 1   // domain doesn't do anything right now, 0 is both wakeup and asr
+//KAM    rtos_printf("Wanson reset for wakeup\n");
+//KAM    int ret = Wanson_ASR_Reset(0);
+//KAM #else
+//KAM    rtos_printf("Wanson reset for asr\n");
+//KAM    int ret = Wanson_ASR_Reset(1);
+//KAM #endif
+//KAM    rtos_printf("Wanson reset ret: %d\n", ret);
+    asr_reset(asr_ctx);
 
     /* Alert other tile to start the audio pipeline */
     int dummy = 0;
     rtos_intertile_tx(intertile_ctx, appconfWANSON_READY_SYNC_PORT, &dummy, sizeof(dummy));
 
-    char *text_ptr = NULL;
-    int id = 0;
+    //KAM char *text_ptr = NULL;
+    //KAM int id = 0;
+    asr_error_t asr_error;
+    asr_result_t asr_result;
+    asr_keyword_t asr_keyword;
+    asr_command_t asr_command;
+
     size_t buf_short_index = 0;
 
     while (1)
@@ -300,45 +305,50 @@ void wanson_engine_task(void *args)
 
         buf_short_index = 0; // reset the offset into the buffer of int16s.
                              // Note, we do not need to overlap the window of samples.
-                             // This is handled in the Wanson ASR engine.
+                             // This is handled in the ASR ports.
 
         /* Perform inference here */
-        ret = Wanson_ASR_Recog(buf_short, WANSON_SAMPLES_PER_INFERENCE, (const char **)&text_ptr, &id);
+        //KAM ret = Wanson_ASR_Recog(buf_short, WANSON_SAMPLES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
-        if (ret == 0) {
-            // No keyword detected.
-            continue;
-        } else if (ret < 0) {
-            debug_printf("Wanson recog ret: %d\n", ret);
-            continue;
-        }
+        //KAM if (ret == 0) {
+        //KAM     // No keyword detected.
+        //KAM     continue;
+        //KAM } else if (ret < 0) {
+        //KAM     debug_printf("Wanson recog ret: %d\n", ret);
+        //KAM     continue;
+        //KAM }
+
+        asr_error = asr_process(asr_ctx, buf_short, WANSON_SAMPLES_PER_INFERENCE);
+        asr_error = asr_get_result(asr_ctx, &asr_result);
+        asr_keyword = asr_get_keyword(asr_ctx, asr_result.keyword_id);
+        asr_command = asr_get_command(asr_ctx, asr_result.command_id);
 
     #if appconfINFERENCE_RAW_OUTPUT
     #if appconfLOW_POWER_ENABLED
         hold_inf_state(inf_eng_tmr);
     #endif
-        wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+        wanson_engine_process_asr_result(asr_keyword, asr_command);
     #else
-        if (inference_state == STATE_EXPECTING_WAKEWORD && IS_WAKEWORD(id)) {
+        if (inference_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(asr_keyword)) {
             led_indicate_listening();
             hold_inf_state(inf_eng_tmr);
-            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+            wanson_engine_process_asr_result(asr_keyword, asr_command);
             inference_state = STATE_EXPECTING_COMMAND;
-        } else if (inference_state == STATE_EXPECTING_COMMAND && IS_COMMAND(id)) {
+        } else if (inference_state == STATE_EXPECTING_COMMAND && IS_COMMAND(asr_command)) {
             hold_inf_state(inf_eng_tmr);
-            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+            wanson_engine_process_asr_result(asr_keyword, asr_command);
             inference_state = STATE_PROCESSING_COMMAND;
-        } else if (inference_state == STATE_EXPECTING_COMMAND && IS_WAKEWORD(id)) {
+        } else if (inference_state == STATE_EXPECTING_COMMAND && IS_KEYWORD(asr_keyword)) {
             hold_inf_state(inf_eng_tmr);
-            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+            wanson_engine_process_asr_result(asr_keyword, asr_command);
             // remain in STATE_EXPECTING_COMMAND state
-        } else if (inference_state == STATE_PROCESSING_COMMAND && IS_WAKEWORD(id)) {
+        } else if (inference_state == STATE_PROCESSING_COMMAND && IS_KEYWORD(asr_keyword)) {
             hold_inf_state(inf_eng_tmr);
-            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+            wanson_engine_process_asr_result(asr_keyword, asr_command);
             inference_state = STATE_EXPECTING_COMMAND;
-        } else if (inference_state == STATE_PROCESSING_COMMAND && IS_COMMAND(id)) {
+        } else if (inference_state == STATE_PROCESSING_COMMAND && IS_COMMAND(asr_command)) {
             hold_inf_state(inf_eng_tmr);
-            wanson_engine_proc_keyword_result((const char **)&text_ptr, id);
+            wanson_engine_process_asr_result(asr_keyword, asr_command);
             // remain in STATE_PROCESSING_COMMAND state
         }
     #endif

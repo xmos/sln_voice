@@ -16,11 +16,6 @@
 #define model_data_load(...) swmem_load(__VA_ARGS__)
 
 /**
- * Init model file.
- */
-size_t model_file_init();
-
-/**
  * Load model data.
  *
  * @param[out] dest Pointer to the memory location to copy to

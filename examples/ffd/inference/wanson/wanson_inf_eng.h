@@ -5,10 +5,12 @@
 #define WANSON_INF_ENG_H_
 
 #include <stdint.h>
+
+#include "asr.h"
 #include "rtos_intertile.h"
 
-#define IS_WAKEWORD(id)   (id <= 2)
-#define IS_COMMAND(id)    (id > 2)
+//KAM #define IS_WAKEWORD(id)   (id <= 2)
+//KAM #define IS_COMMAND(id)    (id > 2)
 
 void wanson_engine_task(void *args);
 
@@ -24,7 +26,8 @@ void wanson_engine_samples_send_remote(
         size_t frame_count,
         int32_t *processed_audio_frame);
 
-void wanson_engine_proc_keyword_result(const char **text, int id);
+void wanson_engine_play_response(int wav_id);
+void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t command);
 
 void wanson_engine_full_power_request(void);
 void wanson_engine_low_power_accept(void);
