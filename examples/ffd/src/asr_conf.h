@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-//#include "flash.h"
+#include "flash.h"
 
 #define IS_FLASH(a)                    \
    (((uintptr_t)a >= XS1_SWMEM_BASE) && \

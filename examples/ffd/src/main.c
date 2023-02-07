@@ -27,8 +27,6 @@
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
-#include "rtos_swmem.h"
-#include "xcore_device_memory.h"
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
 #include "power/power_status.h"

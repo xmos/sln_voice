@@ -15,10 +15,8 @@
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
-#include "rtos_swmem.h"
 #include "wanson_inf_eng.h"
 #include "asr.h"
-#include "xcore_device_memory.h"
 #include "gpio_ctrl/leds.h"
 
 #if appconfLOW_POWER_ENABLED
