@@ -16,7 +16,7 @@ These are the XCORE-VOICE far-field voice assistant example designs demonstratin
 
 - 2-microphone far-field voice assistant front-end
 - Audio pipeline including echo cancelation, interference cancelling and noise suppression
-- Stereo reference input and voice assistant output each supported as |I2C| or USB (UAC2.0)    
+- Stereo reference input and voice assistant output each supported as |I2S| or USB (UAC2.0)    
 
 This application can be used out of the box as a voice processor solution, or extended to run local wakeword engines.
 

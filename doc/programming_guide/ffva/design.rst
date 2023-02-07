@@ -6,6 +6,7 @@ Host Integration
 
 This example design can be integrated with existing solutions or modified to be a single controller solution.
 
+
 Out of the Box Integration
 ==========================
 
@@ -14,6 +15,7 @@ Out of the box integration varies cased on configuration.
 INT requires |I2S| connections to the host.  Refer to the schematic, connecting the host reference audio playback to the ADC |I2S| and the host input audio to the DAC |I2S|.  Out of the box, the INT configuration requires an externally generated MCLK of 12.288 MHz.  24.576 MHz is also supported and can be changed via the compile option MIC_ARRAY_CONFIG_MCLK_FREQ, found in ffva_int.cmake.
 
 UA requires a USB connection to the host.
+
 
 Single Controller Solution
 ==========================
@@ -65,4 +67,8 @@ The application consists of a PDM microphone input, which is fed through the XMO
 .. figure:: diagrams/ffva_diagram.drawio.png
    :align: center
    :scale: 80 %
-   :alt: ffd diagram
+   :alt: ffva diagram
+
+.. raw:: latex
+
+    \clearpage

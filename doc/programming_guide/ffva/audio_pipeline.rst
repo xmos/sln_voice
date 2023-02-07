@@ -11,7 +11,7 @@ The audio pipeline in FFVA processes two channel pdm microphone input into a sin
 The audio pipeline consists of 4 stages.
 
 .. list-table:: FFVA Audio Pipeline
-   :widths: 30 100 10 10
+   :widths: 20 80 20 20
    :header-rows: 1
    :align: left
 
@@ -36,4 +36,8 @@ The audio pipeline consists of 4 stages.
      - 1
      - 1
 
-TODO: link to XCORE SDK voice framework documentation
+TODO: link to voice framework documentation
+
+.. raw:: latex
+
+    \clearpage
