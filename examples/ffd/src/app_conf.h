@@ -111,6 +111,9 @@
 #define appconfLOW_POWER_SWITCH_CLK_DIV         30  // Resulting clock freq >= 20MHz.
 #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
 #define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
+// #define appconfLOW_POWER_SWITCH_CLK_DIV         1  // Resulting clock freq >= 20MHz.
+// #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     1
+//#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   1   // Resulting clock freq >= 200MHz
 
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
@@ -120,7 +123,7 @@
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */
 #ifndef appconfAUDIO_PIPELINE_BUFFER_ENABLED
-#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
+#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    0
 #endif
 
 /* The number of frames (appconfAUDIO_PIPELINE_FRAME_ADVANCE) to store in a ring

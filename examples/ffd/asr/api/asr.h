@@ -109,7 +109,7 @@ typedef enum asr_error_enum {
     ASR_MODEL_INCOMPATIBLE,  ///< Model type or version is not compatible with the ASR library
     ASR_MODEL_CORRUPT,       ///< Model malformed
     ASR_NOT_INITIALIZED,     ///< Not Initialized
-    ASR_EVALUATON_EXPIRED,   ///< Evaluation period has expired
+    ASR_EVALUATION_EXPIRED,   ///< Evaluation period has expired
 } asr_error_t;
 
 /**

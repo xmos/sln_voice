@@ -23,19 +23,14 @@ static QueueHandle_t q_intent = 0;
 static uint8_t keyword_proc_busy = 0;
 
 // look up table to converting ASR IDs to wav file IDs or strings
-// 1st column: ASR response IDs
-// 2nd column: Wav file IDs corresponding to audio_files_en[] array in audio_response.c
-// 2nd column: Text
 typedef struct asr_lut_struct
 {
-    int     asr_id;
-    int     wav_id;
-    const char* text;
+    int     asr_id;    // ASR response IDs
+    int     wav_id;    // Wav file IDs corresponding to audio_files_en[] array in audio_response.c
+    const char* text;  // String output
 } asr_lut_t;
 
 static asr_lut_t asr_keyword_lut[ASR_NUMBER_OF_KEYWORDS] = {
-    // {50, 0, ""},
-    // {1, 1, ""},
     {ASR_KEYWORD_HELLO_XMOS, 1, "Hello XMOS"},
     {ASR_KEYWORD_ALEXA, 1, "Alexa"},
 };
@@ -70,7 +65,7 @@ static asr_lut_t asr_command_lut[ASR_NUMBER_OF_COMMANDS] = {
 //KAM     }
 //KAM     return 0xFF;
 //KAM }
-void wanson_engine_play_response(int wav_id)
+inline void wanson_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
         keyword_proc_busy = 1;
@@ -85,7 +80,6 @@ void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t comma
 {
     int wav_id = 0;
     const char* text = "";
-
     if (keyword != ASR_KEYWORD_UNKNOWN) {
         for (int i=0; i<ASR_NUMBER_OF_KEYWORDS; i++) {
             if (asr_keyword_lut[i].asr_id == keyword) {

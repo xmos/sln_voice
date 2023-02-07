@@ -42,8 +42,6 @@ extern void tile_common_init(chanend_t c);
 static power_data_t wakeup_app_data;
 #endif
 
-//void uart_write(char data) {} //API for Wanson's Debug
-
 __attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,

@@ -12,6 +12,18 @@ This issue occurs when the `fatfs_mkimage` host utility cannot be found.  The mo
 
 Ensure that the host applications build and install has been completed.  Verify that the `fatfs_mkimage`` binary is installed to a location on PATH, or that the default application installation folder is added to PATH.
 
+*******************
+Debugging low-power
+*******************
+
+The clock dividers are set high to minimize core power consumption.  This can make debugging a challenge or impossible.  Even adding a simple `printf` can case critical timing to be missed.  In order to debug with the low-power features enabled, temporarily modify the clock dividers in `app_conf.h`.
+
+.. code-block:: c
+
+    #define appconfLOW_POWER_SWITCH_CLK_DIV         1   // Resulting clock freq 600MHz.
+    #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     1   // Resulting clock freq 600MHz.
+    #define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   1   // Resulting clock freq 600MHz.
+
 ***********************************************
 xcc2clang.exe: error: no such file or directory
 ***********************************************

@@ -7,13 +7,15 @@
 #include "rtos_swmem.h"
 #include "wanson_api.h"
 
-#define IS_KEYWORD(id)   (id == 1 || id == 2)
+#define MAX_EVAL_RECOGNITIONS  (50)
+
+#define IS_KEYWORD(id)    (id == 1 || id == 2)
 #define IS_COMMAND(id)    (id > 2)
 
 typedef struct wanson_asr_struct
 {
-    int      recognition_id;
-    int16_t  recognition_count;
+    int      recog_id;
+    int16_t  recog_count;
 } wanson_asr_t;
 
 wanson_asr_t wanson_asr; 
@@ -30,7 +32,7 @@ asr_context_t asr_init(int32_t *model, int32_t *grammar) {
     ASR_PRINTF("Wanson init\n");
 
     Wanson_ASR_Init();
-    wanson_asr.recognition_count = 0;
+    wanson_asr.recog_count = 0;
 
     ASR_PRINTF("Wanson init done\n");
 
@@ -51,13 +53,19 @@ asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
     wanson_asr_t *wanson_asr = (wanson_asr_t *) ctx;
     char *text_ptr = NULL;
 
-    int ret = Wanson_ASR_Recog(audio_buf, buf_len, (const char **)&text_ptr, &wanson_asr->recognition_id);
+    wanson_asr->recog_id = 0;
+    int ret = Wanson_ASR_Recog(audio_buf, buf_len, (const char **)&text_ptr, &wanson_asr->recog_id);
 
-    if (ret < 0) {
-        wanson_asr->recognition_count++;
-        ASR_PRINTF("Wanson recog ret: %d\n", ret);
-    } else {
-        wanson_asr->recognition_id = 0;
+    if (ret == 1) {
+        wanson_asr->recog_count++;
+    } else if (ret < 0) {
+        ASR_PRINTF("Wanson recog: ret=%d\n", ret);
+        return ASR_ERROR;
+    } 
+
+    if (wanson_asr->recog_count > MAX_EVAL_RECOGNITIONS) {
+        ASR_PRINTF("Wanson eval expired\n");
+        return ASR_EVALUATION_EXPIRED;
     }
 
     return ASR_OK;
@@ -68,14 +76,14 @@ asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result) {
 
     wanson_asr_t *wanson_asr = (wanson_asr_t *) ctx;
 
-    if (IS_KEYWORD(wanson_asr->recognition_id)) {
+    if (IS_KEYWORD(wanson_asr->recog_id)) {
         // Hello XMOS or Hello Wanson
-        result->keyword_id = wanson_asr->recognition_id;
+        result->keyword_id = wanson_asr->recog_id;
         result->command_id = 0;
-    } else if (IS_COMMAND(wanson_asr->recognition_id)) {
+    } else if (IS_COMMAND(wanson_asr->recog_id)) {
         // All other commands
         result->keyword_id = 0;
-        result->command_id = wanson_asr->recognition_id;
+        result->command_id = wanson_asr->recog_id;
     } else {
         // Nothing recognized
         result->keyword_id = 0;
@@ -87,6 +95,8 @@ asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result) {
 
 asr_error_t asr_reset(asr_context_t *ctx)
 {
+    wanson_asr.recog_id = 0;
+
     // domain doesn't do anything right now, 0 is both wakeup and asr
     ASR_PRINTF("Wanson reset for wakeup\n");
     int ret = Wanson_ASR_Reset(0);

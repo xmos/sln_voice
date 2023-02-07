@@ -34,6 +34,8 @@
 
 #define WANSON_SAMPLES_PER_INFERENCE    (2 * appconfINFERENCE_SAMPLE_BLOCK_LENGTH)
 
+#define STOP_LISTENING_SOUND_WAV_ID     (0)
+
 typedef enum inference_state {
     STATE_EXPECTING_WAKEWORD,
     STATE_EXPECTING_COMMAND,
@@ -115,8 +117,7 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
 {
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
-        // Playback "stop listening for command" sound (50)
-        wanson_engine_play_response(50);
+        wanson_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
         led_indicate_waiting();
         inference_state = STATE_EXPECTING_WAKEWORD;
 #if appconfLOW_POWER_ENABLED
@@ -306,7 +307,8 @@ void wanson_engine_task(void *args)
         buf_short_index = 0; // reset the offset into the buffer of int16s.
                              // Note, we do not need to overlap the window of samples.
                              // This is handled in the ASR ports.
-
+        // debug_printf("KAM\n");
+        // continue;
         /* Perform inference here */
         //KAM ret = Wanson_ASR_Recog(buf_short, WANSON_SAMPLES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
@@ -317,12 +319,22 @@ void wanson_engine_task(void *args)
         //KAM     debug_printf("Wanson recog ret: %d\n", ret);
         //KAM     continue;
         //KAM }
-
+        //debug_printf("KAM: 111\n");
         asr_error = asr_process(asr_ctx, buf_short, WANSON_SAMPLES_PER_INFERENCE);
+        if (asr_error != ASR_OK) continue; 
+
+        //continue;
+
+        //debug_printf("KAM: 222\n");
         asr_error = asr_get_result(asr_ctx, &asr_result);
+        if (asr_error != ASR_OK) continue; 
+
+        //debug_printf("KAM: 333\n");
         asr_keyword = asr_get_keyword(asr_ctx, asr_result.keyword_id);
         asr_command = asr_get_command(asr_ctx, asr_result.command_id);
+        if (!IS_KEYWORD(asr_keyword) && !IS_COMMAND(asr_command)) continue; 
 
+        //debug_printf("KAM: 444\n");
     #if appconfINFERENCE_RAW_OUTPUT
     #if appconfLOW_POWER_ENABLED
         hold_inf_state(inf_eng_tmr);
