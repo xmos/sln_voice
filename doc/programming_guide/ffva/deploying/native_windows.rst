@@ -1,23 +1,15 @@
-.. include:: ../../substitutions.rst
+.. include:: ../../../substitutions.rst
 
-**********************
-Deploying the Software
-**********************
+******************************************
+Deploying the Firmware with Native Windows
+******************************************
+
+This document explains how to deploy the software using `CMake` and `NMake`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to  :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
 
 Building the Firmware
 =====================
 
 Run the following commands in the root folder to build the |I2S| firmware:
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-    cd build
-    make example_ffva_int_adec
-
-**Windows**
 
 .. code-block:: console
 
@@ -28,16 +20,6 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
 Run the following commands in the root folder to build the USB firmware:
 
-**Linux and Mac**
-
-.. code-block:: console
-
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-    cd build
-    make example_ffva_ua_adec
-
-**Windows**
-
 .. code-block:: console
 
     cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
@@ -47,39 +29,20 @@ Run the following commands in the root folder to build the USB firmware:
 Running the Firmware
 ====================
 
-Before the firmware is run, the data partition containing the filesystem must be
-loaded. Run the following commands from the build folder.
+Before the firmware is run, the filesystem must be loaded.
 
-**Linux and Mac**
-
-.. code-block:: console
-
-    make flash_app_example_ffva_int_adec
-    make flash_app_example_ffva_ua_adec
-
-**Windows**
+Inside of the build folder root, after building the firmware, run one of:
 
 .. code-block:: console
 
-    nmake flash_app_example_ffva_int_adec
-    nmake flash_app_example_ffva_ua_adec
+    nmake flash_fs_example_ffva_int_adec
+    nmake flash_fs_example_ffva_ua_adec
 
 Once flashed, the application will run.
 
-If changes are made to the data partition components, the application must be
-re-flashed.
+After the filesystem has been flashed once, the application can be run without flashing.  If changes are made to the filesystem image, the application must be reflashed.
 
-If there are no changes to the data partition, run the following from the build
-folder.
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    make run_example_ffva_int_adec
-    make run_example_ffva_ua_adec
-
-**Windows**
+From the build folder run:
 
 .. code-block:: console
 
@@ -92,15 +55,6 @@ Upgrading the Firmware
 The UA variants of this application contain DFU over the USB DFU Class V1.1 transport method.
 
 To create an upgrade image from the build folder run:
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    make create_upgrade_img_example_ffva_ua_adec
-    make create_upgrade_img_example_ffva_ua_adec_altarch
-
-**Windows**
 
 .. code-block:: console
 
@@ -167,15 +121,6 @@ Debugging the Firmware
 ======================
 
 To debug with xgdb, from the build folder run:
-
-**Linux and Mac**
-
-.. code-block:: console
-
-    make debug_example_int_adec
-    make debug_example_ua_adec
-
-**Windows**
 
 .. code-block:: console
 

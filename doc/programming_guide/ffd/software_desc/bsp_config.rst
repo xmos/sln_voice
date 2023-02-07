@@ -11,7 +11,7 @@ bsp_config
 Overview
 ========
 
-This folder contains bsp_configs for the FFD application.  More information on bsp_configs can be found in the XCORE-SDK documentation.
+This folder contains bsp_configs for the FFD application.  More information on bsp_configs can be found in the RTOS Framework documentation.
 
 .. list-table:: FFD bsp_config
    :widths: 30 50

@@ -15,3 +15,6 @@ sln_voice_venv
 test
 xmos_cmake_toolchain
 build_*
+modules/*/build
+modules/*/build_*
+modules/*/test

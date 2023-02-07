@@ -29,9 +29,7 @@ This folder contains the core application source.
    * - power directory
      - contains low power state and control code
    * - rtos_conf directory
-     - contains default FreeRTOS configuration header
-   * - ssd1306
-     - contains code for configuring and controlling the optional ssd1306 display daughter board
+     - contains default FreeRTOS configuration headers
    * - app_conf_check.h
      - header to validate app_conf.h
    * - app_conf.h
