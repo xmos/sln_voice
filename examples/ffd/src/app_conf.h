@@ -110,10 +110,10 @@
 
 #define appconfLOW_POWER_SWITCH_CLK_DIV         30  // Resulting clock freq >= 20MHz.
 #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
-//#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
-// #define appconfLOW_POWER_SWITCH_CLK_DIV         1  // Resulting clock freq >= 20MHz.
-// #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     1
-#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2   // Resulting clock freq >= 200MHz
+#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
+//KAM #define appconfLOW_POWER_SWITCH_CLK_DIV         1  // Resulting clock freq >= 20MHz.
+//KAM #define appconfLOW_POWER_OTHER_TILE_CLK_DIV     1
+//KAM #define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2   // Resulting clock freq >= 200MHz
 
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
