@@ -17,7 +17,6 @@
 #include "inference_engine.h"
 #include "rtos_swmem.h"
 #include "wanson_inf_eng.h"
-//KAM #include "wanson_api.h"
 #include "asr.h"
 #include "xcore_device_memory.h"
 #include "gpio_ctrl/leds.h"
@@ -239,8 +238,6 @@ void wanson_engine_low_power_accept(void)
 #pragma stackfunction 1500
 void wanson_engine_task(void *args)
 {
-    //KAM assert(WANSON_SAMPLES_PER_INFERENCE == 480); // Wanson ASR engine expects 480 samples per inference
-
     inference_state = STATE_EXPECTING_WAKEWORD;
 
 #if appconfLOW_POWER_ENABLED
@@ -250,14 +247,6 @@ void wanson_engine_task(void *args)
     requested_full_power = 0;
 #endif
 
-    //KAM // NOTE: The Wanson asr port uses the .SwMem_data attribute but no SwMem event handling code is required.
-    //KAM //       This may cause xflash to whine if the compiler optimizes out the __swmem_address symbol.
-    //KAM //       To work around this, we simply need to init the swmem.
-    //KAM rtos_swmem_init(0);
-
-    //KAM rtos_printf("Wanson init\n");
-    //KAM Wanson_ASR_Init();
-    //KAM rtos_printf("Wanson init done\n");
     asr_ctx = asr_init(NULL, NULL);
 
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
@@ -271,23 +260,12 @@ void wanson_engine_task(void *args)
     int32_t buf[appconfINFERENCE_SAMPLE_BLOCK_LENGTH] = {0};
     int16_t buf_short[WANSON_SAMPLES_PER_INFERENCE] = {0};
 
-//KAM    /* Perform any initialization here */
-//KAM #if 1   // domain doesn't do anything right now, 0 is both wakeup and asr
-//KAM    rtos_printf("Wanson reset for wakeup\n");
-//KAM    int ret = Wanson_ASR_Reset(0);
-//KAM #else
-//KAM    rtos_printf("Wanson reset for asr\n");
-//KAM    int ret = Wanson_ASR_Reset(1);
-//KAM #endif
-//KAM    rtos_printf("Wanson reset ret: %d\n", ret);
     asr_reset(asr_ctx);
 
     /* Alert other tile to start the audio pipeline */
     int dummy = 0;
     rtos_intertile_tx(intertile_ctx, appconfWANSON_READY_SYNC_PORT, &dummy, sizeof(dummy));
 
-    //KAM char *text_ptr = NULL;
-    //KAM int id = 0;
     asr_error_t asr_error;
     asr_result_t asr_result;
     asr_keyword_t asr_keyword;
@@ -314,34 +292,17 @@ void wanson_engine_task(void *args)
         buf_short_index = 0; // reset the offset into the buffer of int16s.
                              // Note, we do not need to overlap the window of samples.
                              // This is handled in the ASR ports.
-        // debug_printf("KAM\n");
-        // continue;
-        /* Perform inference here */
-        //KAM ret = Wanson_ASR_Recog(buf_short, WANSON_SAMPLES_PER_INFERENCE, (const char **)&text_ptr, &id);
 
-        //KAM if (ret == 0) {
-        //KAM     // No keyword detected.
-        //KAM     continue;
-        //KAM } else if (ret < 0) {
-        //KAM     debug_printf("Wanson recog ret: %d\n", ret);
-        //KAM     continue;
-        //KAM }
-        //debug_printf("KAM: 111\n");
         asr_error = asr_process(asr_ctx, buf_short, WANSON_SAMPLES_PER_INFERENCE);
         if (asr_error != ASR_OK) continue; 
 
-        //continue;
-
-        //debug_printf("KAM: 222\n");
         asr_error = asr_get_result(asr_ctx, &asr_result);
         if (asr_error != ASR_OK) continue; 
 
-        //debug_printf("KAM: 333\n");
         asr_keyword = asr_get_keyword(asr_ctx, asr_result.keyword_id);
         asr_command = asr_get_command(asr_ctx, asr_result.command_id);
         if (!IS_KEYWORD(asr_keyword) && !IS_COMMAND(asr_command)) continue; 
 
-        //debug_printf("KAM: 444\n");
     #if appconfINFERENCE_RAW_OUTPUT
     #if appconfLOW_POWER_ENABLED
         hold_inf_state(inf_eng_tmr);

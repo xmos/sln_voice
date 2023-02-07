@@ -123,7 +123,7 @@
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */
 #ifndef appconfAUDIO_PIPELINE_BUFFER_ENABLED
-#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    0
+#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
 #endif
 
 /* The number of packets to store in a ring buffer while in low power mode,

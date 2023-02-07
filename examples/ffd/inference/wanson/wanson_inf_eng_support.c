@@ -16,7 +16,6 @@
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
-//KAM #include "wanson_api.h"
 
 #if ON_TILE(INFERENCE_TILE_NO)
 

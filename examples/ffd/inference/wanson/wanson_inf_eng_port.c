@@ -53,19 +53,7 @@ static asr_lut_t asr_command_lut[ASR_NUMBER_OF_COMMANDS] = {
     {ASR_COMMAND_TEMPERATURE_DOWN, 17, "Set lower temperature"}
 };
 
-
-//KAM void get_wav_id(int asr_id)
-//KAM {
-//KAM     uint16_t i;
-
-//KAM     for(i=0;i<sizeof(asr_id_wav_id_lut)/2;i++){
-//KAM         if(asr_id_wav_id_lut[i][0] == asr_id){
-//KAM             return asr_id_wav_id_lut[i][1];
-//KAM         }
-//KAM     }
-//KAM     return 0xFF;
-//KAM }
-inline void wanson_engine_play_response(int wav_id)
+void wanson_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
         keyword_proc_busy = 1;
@@ -99,18 +87,6 @@ void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t comma
         rtos_printf("KEYWORD: 0x%x, %s\n", (int) command, (char*)text);
         wanson_engine_play_response(wav_id);
     }
-    //KAM if(text != NULL) {
-    //KAM     rtos_printf("KEYWORD: 0x%x, %s\n", id, (char*)*text);
-    //KAM }
-    //KAM if(q_intent != 0) {
-    //KAM     int wav_id = 0;
-    //KAM     keyword_proc_busy = 1;
-    //KAM     wav_id = get_wav_id(id);
-    //KAM     if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
-    //KAM         rtos_printf("Lost ASR recognition.  Queue was full.\n");
-    //KAM         keyword_proc_busy = 0;
-    //KAM     }
-    //KAM }
 }
 
 #if appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO)
