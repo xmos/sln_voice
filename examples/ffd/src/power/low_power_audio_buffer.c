@@ -87,6 +87,8 @@ uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
 {
     uint32_t ret = 0;
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
+    const uint32_t tail_addr = ((uint32_t)ring_buf.buf + ring_buf.size);
+
     if ((ring_buf.count < appconfAUDIO_PIPELINE_FRAME_ADVANCE) || (num_frames == 0)) {
         // No data to dequeue.
         return ret;
@@ -121,12 +123,13 @@ uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
         ring_buf.count -= appconfAUDIO_PIPELINE_FRAME_ADVANCE;
     }
 
+    if ((uint32_t)ring_buf.get_ptr >= tail_addr)
+        ring_buf.get_ptr = (char *)ring_buf.buf;
+
     if (head_bytes == 0) {
         // No data left to dequeue, return now.
         return ret;
     }
-
-    ring_buf.get_ptr = (char *)ring_buf.buf;
 
     while (head_bytes > 0) {
         if (samples_to_dequeue <= 0)
