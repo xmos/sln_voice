@@ -5,6 +5,7 @@
 #define INFERENCE_ENGINE_H_
 
 #include <stdint.h>
+#include <stddef.h>
 
 /* Generic interface for inference engines */
 int32_t inference_engine_create(uint32_t priority, void *args);
