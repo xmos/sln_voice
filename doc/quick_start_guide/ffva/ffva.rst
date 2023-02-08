@@ -204,8 +204,8 @@ Run Demo and Test Virtual Assistant Functionality
 
 3. Tap to talk can be used to simulate wakeword functionality. Type 't' and hit Enter, and avsrun displays 'Listening...'
 
-4. The device waits a short time for a query. Try speaking "Tell me a joke," and avsrun displays 'Thinking...'
+4. The device waits a short time for a query. Try speaking "What is the weather?" and avsrun displays 'Thinking...'
 
-5. Soon after, the virtual assistant should share some of their best material over the speakers as avsrun displays 'Speaking...'
+5. Soon after, the virtual assistant should audibly answer over speaker as avsrun displays 'Speaking...'
 
-6. Barge-in may also be tested. Before the assistant has finished telling the joke, Type 't' and hit Enter. The assistant will stop and await a new command. Congratulations! You have just ruined the punchline.
+6. Barge-in may also be tested. Before the assistant has finished speaking, Type 't' and hit Enter. The assistant will stop and await a new command.
