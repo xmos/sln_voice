@@ -27,7 +27,7 @@ These include:
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
 - Independent audio paths for communications and Automatic Speech Recognition (ASR) 
-- Support for Wanson Speech Recognition or chooser-0defined 3rd party ASR 
+- Support for Wanson Speech Recognition or chooser-defined 3rd party ASR 
 
 **Device Interface components**
 
