@@ -54,7 +54,7 @@ void lp_master_voice_activity_present(rtos_low_power_t *ctx) {
 }
 
 static void tile0_power_down(void) {
-    rtos_printf("Power down t0\n");
+    rtos_printf("Entering low power...\n");
     // Save clock divider config before apply low power configuration.
     tile0_div = rtos_clock_control_get_processor_clk_div(cc_ctx_t0);
     rtos_clock_control_set_processor_clk_div(cc_ctx_t0, appconfLOW_POWER_OTHER_TILE_CLK_DIV);
@@ -66,7 +66,7 @@ static void tile0_power_down(void) {
 }
 
 static void tile0_power_up(void) {
-    rtos_printf("Power up t0\n");
+    rtos_printf("Entering full power...\n");
     // Restore the original clock divider state(s).
 #if (appconfLOW_POWER_ENABLE_SWITCH_CONTROL)
     set_node_switch_clk_div(TILE_ID(0), switch_div);
