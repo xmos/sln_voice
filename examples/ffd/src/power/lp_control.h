@@ -4,17 +4,20 @@
 #ifndef LP_CONTROL_H_
 #define LP_CONTROL_H_
 
+#include <stdbool.h>
+
 #include "FreeRTOS.h"
 #include "rtos_osal.h"
 
-
 typedef enum lp_slave_event_group_bits {
+    /* When 1, that means low power request is active */
     LP_SLAVE_LP_REQ_ACTIVE = 0,
-    LP_SLAVE_LP_INF_NOT_ACTIVE,
-    LP_SLAVE_LP_INF_PROC_ACTIVE
+    /* When 1, that means safe to power down */
+    LP_SLAVE_LP_INT_HANDLER
 } lp_slave_event_group_bits_t;
 
-#define LP_ALL_SLAVE_EVENT_BITS     LP_SLAVE_LP_REQ_ACTIVE | LP_SLAVE_LP_INF_NOT_ACTIVE | LP_SLAVE_LP_INF_PROC_ACTIVE
+#define LP_ALL_SLAVE_EVENT_BITS     (1 << LP_SLAVE_LP_REQ_ACTIVE)  \
+                                  | (1 << LP_SLAVE_LP_INT_HANDLER)
 
 /**
  * Typedef of the low power system states.
@@ -46,9 +49,15 @@ struct rtos_low_power_struct {
 void lp_master_task_create(rtos_low_power_t *ctx, unsigned priority, void *args);
 void lp_slave_task_create(rtos_low_power_t *ctx, unsigned priority, void *args);
 
+power_state_t get_lp_power_state_ll(rtos_low_power_t *ctx);
 power_state_t get_lp_power_state(rtos_low_power_t *ctx);
+
 void lp_master_voice_activity_present(rtos_low_power_t *ctx);
 
+bool lp_slave_req_active(rtos_low_power_t *ctx);
+
+void lp_slave_user_active(rtos_low_power_t *ctx, lp_slave_event_group_bits_t bitmask);
+void lp_slave_user_not_active(rtos_low_power_t *ctx, lp_slave_event_group_bits_t bitmask);
 
 extern rtos_low_power_t *lp_ctx;
 

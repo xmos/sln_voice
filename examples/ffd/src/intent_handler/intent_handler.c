@@ -19,6 +19,7 @@
 #include "ff.h"
 #include "audio_response.h"
 #include "inference_engine.h"
+#include "power/lp_control.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
@@ -43,8 +44,15 @@ static void proc_keyword_res(void *args) {
 #if appconfAUDIO_PLAYBACK_ENABLED
     audio_response_init();
 #endif
+
+#if appconfLOW_POWER_ENABLED
+    lp_slave_user_not_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
+#endif
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
+#if appconfLOW_POWER_ENABLED
+        lp_slave_user_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
+#endif
 
         host_status = rtos_gpio_port_in(gpio_ctx_t0, p_in_host_status);
 
@@ -80,9 +88,7 @@ static void proc_keyword_res(void *args) {
         audio_response_play(id);
 #endif
 #if appconfLOW_POWER_ENABLED
-        if (inference_engine_keyword_queue_count() == 0) {
-            inference_engine_keyword_queue_complete();
-        }
+        lp_slave_user_not_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
 #endif
     }
 }

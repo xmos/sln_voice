@@ -102,7 +102,7 @@
 #endif
 
 #ifndef appconfLOW_POWER_ENABLED
-#define appconfLOW_POWER_ENABLED                0
+#define appconfLOW_POWER_ENABLED                1
 #endif
 
 #ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
@@ -119,7 +119,7 @@
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
 #define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
-#define appconfPOWER_FULL_HOLD_DURATION         (1000) // milliseconds
+#define appconfPOWER_FULL_HOLD_DURATION         (5000) // milliseconds
 
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */

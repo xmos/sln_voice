@@ -17,7 +17,6 @@
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
-#include "power/power_state.h"
 
 static QueueHandle_t q_intent = 0;
 static uint8_t keyword_proc_busy = 0;
@@ -88,39 +87,6 @@ void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t comma
         wanson_engine_play_response(wav_id);
     }
 }
-
-#if appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-void inference_engine_full_power_request(void)
-{
-    wanson_engine_full_power_request();
-}
-
-void inference_engine_low_power_accept(void)
-{
-    wanson_engine_low_power_accept();
-}
-
-uint8_t inference_engine_low_power_ready(void)
-{
-    return (keyword_proc_busy == 0);
-}
-
-void inference_engine_low_power_reset(void)
-{
-    wanson_engine_stream_buf_reset();
-    xQueueReset(q_intent);
-}
-
-int32_t inference_engine_keyword_queue_count(void)
-{
-    return (q_intent != NULL) ? (int32_t)uxQueueMessagesWaiting(q_intent) : 0;
-}
-
-void inference_engine_keyword_queue_complete(void)
-{
-    keyword_proc_busy = 0;
-}
-#endif /* appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO) */
 
 #if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
 int32_t inference_engine_create(uint32_t priority, void *args)

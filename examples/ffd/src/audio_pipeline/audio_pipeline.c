@@ -160,6 +160,10 @@ static void stage_agc(frame_data_t *frame_data)
             &agc_stage_state.md);
     memcpy(frame_data->samples, agc_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
+}
+
+static void stage_ema_calc(frame_data_t *frame_data)
+{
     // Compute exponential moving average of frame energy
     bfp_s32_t B;
     bfp_s32_init(&B, &frame_data->samples[0][0], -31, appconfAUDIO_PIPELINE_FRAME_ADVANCE, 1);
@@ -189,18 +193,20 @@ void audio_pipeline_init(
     void *input_app_data,
     void *output_app_data)
 {
-    const int stage_count = 3;
+    const int stage_count = 4;
 
     const pipeline_stage_t stages[] = {
         (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_ns,
         (pipeline_stage_t)stage_agc,
+        (pipeline_stage_t)stage_ema_calc,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_vnr_and_ic) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ns),
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ema_calc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
 
     initialize_pipeline_stages();
