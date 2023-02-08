@@ -22,6 +22,7 @@
 #define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
 #define INFERENCE_TILE_NO       FLASH_TILE_NO
 #define FS_TILE_NO              FLASH_TILE_NO
+#define POWER_CONTROL_TILE_NO   AUDIO_PIPELINE_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
@@ -101,7 +102,7 @@
 #endif
 
 #ifndef appconfLOW_POWER_ENABLED
-#define appconfLOW_POWER_ENABLED                1
+#define appconfLOW_POWER_ENABLED                0
 #endif
 
 #ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
@@ -191,12 +192,12 @@
 
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 5)
-#define appconfAUDIO_PIPELINE_TASK_PRIORITY    	    (configMAX_PRIORITIES / 2)
+#define appconfAUDIO_PIPELINE_TASK_PRIORITY    	    (configMAX_PRIORITIES / 2 + 1)
 #define appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY (configMAX_PRIORITIES - 2)
 #define appconfINFERENCE_HMI_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
 #define appconfGPIO_RPC_PRIORITY                    (configMAX_PRIORITIES / 2)
 #define appconfCLOCK_CONTROL_RPC_HOST_PRIORITY      (configMAX_PRIORITIES / 2)
-#define appconfPOWER_CONTROL_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
+#define appconfPOWER_CONTROL_TASK_PRIORITY          (configMAX_PRIORITIES / 2 - 1)
 #define appconfGPIO_TASK_PRIORITY                   (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_MASTER_RPC_PRIORITY              (configMAX_PRIORITIES / 2)

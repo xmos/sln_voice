@@ -3,6 +3,9 @@
 
 #include "platform/driver_instances.h"
 
+static rtos_intertile_t intertile_ap_ctx_s;
+rtos_intertile_t *intertile_ap_ctx = &intertile_ap_ctx_s;
+
 static rtos_intertile_t intertile_ctx_s;
 rtos_intertile_t *intertile_ctx = &intertile_ctx_s;
 

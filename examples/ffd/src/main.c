@@ -28,16 +28,20 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
-#include "power/power_state.h"
-#include "power/power_status.h"
-#include "power/power_control.h"
-#include "power/low_power_audio_buffer.h"
+// #include "power/power_state.h"
+// #include "power/power_control.h"
+#include "power/lp_control.h"
+#include "xmath/xmath.h"
+
 
 extern void startup_task(void *arg);
 extern void tile_common_init(chanend_t c);
 
+rtos_low_power_t lp_ctx_s;
+rtos_low_power_t *lp_ctx = &lp_ctx_s;
+
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
-static power_data_t wakeup_app_data;
+// static power_data_t wakeup_app_data;
 #endif
 
 __attribute__((weak))
@@ -70,43 +74,145 @@ void audio_pipeline_input(void *input_app_data,
                       portMAX_DELAY);
 }
 
+StreamBufferHandle_t audio_buffer = NULL;
+
 __attribute__((weak))
 int audio_pipeline_output(void *output_app_data,
                           int32_t **output_audio_frames,
                           size_t ch_count,
                           size_t frame_count)
 {
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && (appconfLOW_POWER_ENABLED || appconfINFERENCE_ENABLED)
-    power_state_t power_state = POWER_STATE_FULL;
-#endif
+    
+// #if ON_TILE(AUDIO_PIPELINE_TILE_NO) && !appconfLOW_POWER_ENABLED
+//     if (audio_buffer == NULL) {
+//         audio_buffer = xStreamBufferCreate((size_t)(appconfAUDIO_PIPELINE_BUFFER_NUM_PACKETS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t)), 0);
+//     }
+//         size_t bytes_sent = xStreamBufferSend(
+//                                 audio_buffer,
+//                                 (int32_t *)output_audio_frames,
+//                                 sizeof(int32_t) * frame_count,
+//                                 0);
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfLOW_POWER_ENABLED
-    power_state = power_state_data_add((power_data_t *)output_app_data);
-#endif
+//     configASSERT(bytes_sent == (sizeof(int32_t) * frame_count));
+//             size_t bytes_rxed = xStreamBufferReceive(
+//                                     audio_buffer,
+//                                     (int32_t *)output_audio_frames,
+//                                     sizeof(int32_t) * frame_count,
+//                                     portMAX_DELAY);
+                                    
+//         configASSERT(bytes_rxed == (sizeof(int32_t) * frame_count));
+// #if appconfINFERENCE_ENABLED
+//         inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+// #endif /* appconfINFERENCE_ENABLED */
+// #endif
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINFERENCE_ENABLED
-    if (power_state == POWER_STATE_FULL) {
-#if LOW_POWER_AUDIO_BUFFER_ENABLED
-        const uint32_t max_dequeue_packets = 1;
-        const uint32_t max_dequeued_samples = (max_dequeue_packets * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    if (audio_buffer == NULL) {
+        audio_buffer = xStreamBufferCreate((size_t)(appconfAUDIO_PIPELINE_BUFFER_NUM_PACKETS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t)), 0);
+    }
 
-        if (power_control_state_get() != POWER_STATE_FULL) {
-            low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-        } else if (low_power_audio_buffer_dequeue(max_dequeue_packets) == max_dequeued_samples) {
-            // Max data has been dequeued, enqueue the newest data.
-            low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-        } else // More data can be sent.
-#endif // LOW_POWER_AUDIO_BUFFER_ENABLED
-        {
-            inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+    /* Extract the vnr and ema data from the frame */
+    uint8_t *tmp_ptr = (uint8_t *)output_audio_frames;
+    uint32_t vnr_pred_offset = 2 * appconfAUDIO_PIPELINE_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t);
+    uint32_t ema_energy_offset = vnr_pred_offset + sizeof(float_s32_t);
+    float_s32_t vnr_pred_tmp;
+    float_s32_t ema_energy_tmp;
+    memcpy(&vnr_pred_tmp, tmp_ptr + vnr_pred_offset, sizeof(float_s32_t));
+    memcpy(&ema_energy_tmp, tmp_ptr + ema_energy_offset, sizeof(float_s32_t));
+
+    float vnr_pred = float_s32_to_float(vnr_pred_tmp);
+    float ema_energy = float_s32_to_float(ema_energy_tmp);
+
+    if ((ema_energy >= appconfPOWER_HIGH_ENERGY_THRESHOLD) ||
+        ((ema_energy >= appconfPOWER_LOW_ENERGY_THRESHOLD) &&
+         (vnr_pred >= appconfPOWER_VNR_THRESHOLD))) {
+            lp_master_voice_activity_present(lp_ctx);
+    }
+
+    power_state_t power_state = get_lp_power_state(lp_ctx);
+
+    size_t bytes_sent = xStreamBufferSend(
+                                audio_buffer,
+                                (int32_t *)output_audio_frames,
+                                sizeof(int32_t) * frame_count,
+                                0);
+
+    configASSERT(bytes_sent == (sizeof(int32_t) * frame_count));
+
+    if (power_state != POWER_STATE_LOW) {
+        size_t bytes_rxed = xStreamBufferReceive(
+                                    audio_buffer,
+                                    (int32_t *)output_audio_frames,
+                                    sizeof(int32_t) * frame_count,
+                                    portMAX_DELAY);
+                                    
+        configASSERT(bytes_rxed == (sizeof(int32_t) * frame_count));
+
+        inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+    } else {
+        if (xStreamBufferSpacesAvailable(audio_buffer) < (sizeof(int32_t) * frame_count)) {
+            /* drop oldest data */
+            size_t bytes_rxed = xStreamBufferReceive(
+                                        audio_buffer,
+                                        (int32_t *)output_audio_frames,
+                                        sizeof(int32_t) * frame_count,
+                                        portMAX_DELAY);
+                                        
+            configASSERT(bytes_rxed == (sizeof(int32_t) * frame_count));
         }
     }
-#if LOW_POWER_AUDIO_BUFFER_ENABLED
-    else {
-        low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-    }
-#endif // LOW_POWER_AUDIO_BUFFER_ENABLED
-#endif // ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINFERENCE_ENABLED
+#endif
+
+// #if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfLOW_POWER_ENABLED
+// #if LOW_POWER_AUDIO_BUFFER_ENABLED
+//     if (audio_buffer == NULL) {
+//         audio_buffer = xStreamBufferCreate((size_t)(appconfAUDIO_PIPELINE_BUFFER_NUM_PACKETS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t)), 0);
+//     }
+// #endif
+
+//     power_state_t power_state = POWER_STATE_FULL;
+
+//     power_state = power_state_data_add((power_data_t *)output_app_data);
+
+// #if LOW_POWER_AUDIO_BUFFER_ENABLED
+//     size_t bytes_sent = xStreamBufferSend(
+//                                 audio_buffer,
+//                                 (int32_t *)output_audio_frames,
+//                                 sizeof(int32_t) * frame_count,
+//                                 0);
+
+//     configASSERT(bytes_sent == (sizeof(int32_t) * frame_count));
+
+//     if (power_state == POWER_STATE_FULL) {
+//         size_t bytes_rxed = xStreamBufferReceive(
+//                                     audio_buffer,
+//                                     (int32_t *)output_audio_frames,
+//                                     sizeof(int32_t) * frame_count,
+//                                     portMAX_DELAY);
+                                    
+//         configASSERT(bytes_rxed == (sizeof(int32_t) * frame_count));
+
+// #if appconfINFERENCE_ENABLED
+//         inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+// #endif /* appconfINFERENCE_ENABLED */
+//     } else {
+//         if (xStreamBufferSpacesAvailable(audio_buffer) < (sizeof(int32_t) * frame_count)) {
+//             /* drop oldest data */
+//             size_t bytes_rxed = xStreamBufferReceive(
+//                                         audio_buffer,
+//                                         (int32_t *)output_audio_frames,
+//                                         sizeof(int32_t) * frame_count,
+//                                         portMAX_DELAY);
+                                        
+//             configASSERT(bytes_rxed == (sizeof(int32_t) * frame_count));
+//         }
+//     }
+// #else
+// #if appconfINFERENCE_ENABLED
+//         inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+// #endif /* appconfINFERENCE_ENABLED */
+// #endif /* LOW_POWER_AUDIO_BUFFER_ENABLED */
+// #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
 }
@@ -121,8 +227,9 @@ void vApplicationMallocFailedHook(void)
 static void mem_analysis(void)
 {
 	for (;;) {
-		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-		vTaskDelay(pdMS_TO_TICKS(5000));
+        ;
+		// rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+		// vTaskDelay(pdMS_TO_TICKS(5000));
 	}
 }
 
@@ -151,10 +258,6 @@ void startup_task(void *arg)
     led_task_create(appconfLED_TASK_PRIORITY, NULL);
 #endif
 
-#if appconfLOW_POWER_ENABLED
-    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
-#endif
-
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 #if appconfINFERENCE_ENABLED
     // Wait until the Wanson engine is initialized before we start the
@@ -165,13 +268,23 @@ void startup_task(void *arg)
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
 #endif
-    audio_pipeline_init(NULL, &wakeup_app_data);
-#if appconfLOW_POWER_ENABLED
-    power_state_init();
-#endif
+    audio_pipeline_init(NULL, NULL);
 #endif
 
-#if appconfLOW_POWER_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(0)
+    lp_slave_task_create(lp_ctx, appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
+#endif
+#if ON_TILE(1)
+    lp_master_task_create(lp_ctx, appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
+#endif
+
+#if appconfLOW_POWER_ENABLED
+    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
+#endif
+
+// #if appconfLOW_POWER_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    vTaskDelay(pdMS_TO_TICKS(100));
     set_local_tile_processor_clk_div(1);
     enable_local_tile_processor_clock_divider();
     set_local_tile_processor_clk_div(appconfLOW_POWER_CONTROL_TILE_CLK_DIV);

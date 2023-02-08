@@ -273,13 +273,13 @@ void wanson_engine_task(void *args)
 
     while (1)
     {
-        timeout_event_handler(inf_eng_tmr);
+        // timeout_event_handler(inf_eng_tmr);
 
     #if appconfLOW_POWER_ENABLED
-        if (low_power_handler(inf_eng_tmr, buf, buf_short, &buf_short_index)) {
-            // Low power, processing stopped.
-            continue;
-        }
+        // if (low_power_handler(inf_eng_tmr, buf, buf_short, &buf_short_index)) {
+        //     // Low power, processing stopped.
+        //     continue;
+        // }
     #endif
 
         receive_audio_frames(input_queue, buf, buf_short, &buf_short_index);
@@ -303,7 +303,7 @@ void wanson_engine_task(void *args)
 
     #if appconfINFERENCE_RAW_OUTPUT
     #if appconfLOW_POWER_ENABLED
-        hold_inf_state(inf_eng_tmr);
+        // hold_inf_state(inf_eng_tmr);
     #endif
         wanson_engine_process_asr_result(asr_keyword, asr_command);
     #else

@@ -40,7 +40,7 @@ void wanson_engine_samples_send_remote(
 {
     configASSERT(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    rtos_intertile_tx(intertile_ctx,
+    rtos_intertile_tx(intertile_ap_ctx,
                       appconfINTENT_MODEL_RUNNER_SAMPLES_PORT,
                       processed_audio_frame,
                       sizeof(int32_t) * frame_count);
@@ -57,14 +57,14 @@ static void wanson_engine_intertile_samples_in_task(void *arg)
         size_t bytes_received;
 
         bytes_received = rtos_intertile_rx_len(
-                intertile_ctx,
+                intertile_ap_ctx,
                 appconfINTENT_MODEL_RUNNER_SAMPLES_PORT,
                 portMAX_DELAY);
 
         xassert(bytes_received == sizeof(samples));
 
         rtos_intertile_rx_data(
-                intertile_ctx,
+                intertile_ap_ctx,
                 samples,
                 bytes_received);
 
