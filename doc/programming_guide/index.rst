@@ -8,6 +8,7 @@ XCORE-VOICE Programming Guide
    :maxdepth: 4
 
    ../shared/introduction
+   prerequisites
    example_designs
    extending
    faq

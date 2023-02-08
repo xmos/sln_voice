@@ -1,8 +1,7 @@
 .. include:: ../../substitutions.rst
 .. include:: <isonum.txt>
 
-.. _sln_voice_FFVA:
-
+.. _sln_voice_ffva_quick_start:
 
 #########################
 Far-field Voice Assistant
