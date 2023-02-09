@@ -241,6 +241,7 @@ static void lp_slave_op_thread(rtos_low_power_t *ctx) {
         // rtos_printf("slave op got %d\n", op.event);
         switch(op.event) {
             case MASTER_REQ_SLAVE_LP:
+                rtos_printf("%d active\n", LP_SLAVE_LP_REQ_ACTIVE);
                 if (rtos_osal_event_group_set_bits(
                         &ctx->lp_slave_event_group,
                         (1 << LP_SLAVE_LP_REQ_ACTIVE))
@@ -253,6 +254,7 @@ static void lp_slave_op_thread(rtos_low_power_t *ctx) {
                 led_indicate_awake();
                 /* Fallthrough */
             case MASTER_REQ_CANCEL_REQ_SLAVE_LP:
+                rtos_printf("%d not active\n", LP_SLAVE_LP_REQ_ACTIVE);
                 if (rtos_osal_event_group_clear_bits(
                         &ctx->lp_slave_event_group,
                         (1 << LP_SLAVE_LP_REQ_ACTIVE))
