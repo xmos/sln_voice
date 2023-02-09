@@ -13,11 +13,13 @@ typedef enum lp_slave_event_group_bits {
     /* When 1, that means low power request is active */
     LP_SLAVE_LP_REQ_ACTIVE = 0,
     /* When 1, that means safe to power down */
-    LP_SLAVE_LP_INT_HANDLER
+    LP_SLAVE_LP_INT_HANDLER,
+    LP_SLAVE_LP_INT_TIMEOUT_HANDLER
 } lp_slave_event_group_bits_t;
 
 #define LP_ALL_SLAVE_EVENT_BITS     (1 << LP_SLAVE_LP_REQ_ACTIVE)  \
-                                  | (1 << LP_SLAVE_LP_INT_HANDLER)
+                                  | (1 << LP_SLAVE_LP_INT_HANDLER)  \
+                                  | (1 << LP_SLAVE_LP_INT_TIMEOUT_HANDLER)
 
 /**
  * Typedef of the low power system states.
@@ -33,7 +35,6 @@ typedef struct rtos_low_power_struct rtos_low_power_t;
 struct rtos_low_power_struct {
     TimerHandle_t state_timer;
     power_state_t power_state;
-    void *app_data;
 
     unsigned op_task_priority;
     rtos_osal_thread_t op_task;

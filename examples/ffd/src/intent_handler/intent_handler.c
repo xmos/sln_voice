@@ -50,9 +50,6 @@ static void proc_keyword_res(void *args) {
 #endif
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
-#if appconfLOW_POWER_ENABLED
-        lp_slave_user_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
-#endif
 
         host_status = rtos_gpio_port_in(gpio_ctx_t0, p_in_host_status);
 

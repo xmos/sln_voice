@@ -17,9 +17,9 @@
 #include "platform/driver_instances.h"
 #include "inference_engine.h"
 #include "wanson_inf_eng.h"
+#include "power/lp_control.h"
 
 static QueueHandle_t q_intent = 0;
-static uint8_t keyword_proc_busy = 0;
 
 // look up table to converting ASR IDs to wav file IDs or strings
 typedef struct asr_lut_struct
@@ -55,11 +55,17 @@ static asr_lut_t asr_command_lut[ASR_NUMBER_OF_COMMANDS] = {
 void wanson_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
-        keyword_proc_busy = 1;
         if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost wav playback.  Queue was full.\n");
-            keyword_proc_busy = 0;
+#if appconfLOW_POWER_ENABLED
+            lp_slave_user_not_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
+#endif
         }
+#if appconfLOW_POWER_ENABLED
+        else {
+            lp_slave_user_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
+        }
+#endif
     }
 }
 
@@ -67,6 +73,11 @@ void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t comma
 {
     int wav_id = 0;
     const char* text = "";
+
+#if appconfLOW_POWER_ENABLED
+    lp_slave_user_active(lp_ctx, LP_SLAVE_LP_INT_HANDLER);
+#endif
+
     if (keyword != ASR_KEYWORD_UNKNOWN) {
         for (int i=0; i<ASR_NUMBER_OF_KEYWORDS; i++) {
             if (asr_keyword_lut[i].asr_id == keyword) {

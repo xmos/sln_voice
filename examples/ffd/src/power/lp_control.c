@@ -82,6 +82,7 @@ bool lp_slave_req_active(rtos_low_power_t *ctx) {
 }
 
 void lp_slave_user_active(rtos_low_power_t *ctx, lp_slave_event_group_bits_t bitmask) {
+    rtos_printf("%d active\n", bitmask);
     if (rtos_osal_event_group_clear_bits(
             &ctx->lp_slave_event_group,
             (1 << bitmask))
@@ -92,6 +93,7 @@ void lp_slave_user_active(rtos_low_power_t *ctx, lp_slave_event_group_bits_t bit
 }
 
 void lp_slave_user_not_active(rtos_low_power_t *ctx, lp_slave_event_group_bits_t bitmask) {
+    rtos_printf("%d not active\n", bitmask);
     if (rtos_osal_event_group_set_bits(
             &ctx->lp_slave_event_group,
             (1 << bitmask))
@@ -172,6 +174,7 @@ static void lp_master_op_thread(rtos_low_power_t *ctx) {
                 /* Verify this request was not cancelled in
                  * the time it took for tile 0 to enter a safe state */
                 if (ctx->power_state == POWER_STATE_FULL_TO_LOW) {
+                    xTimerStop(ctx->state_timer, 0);
                     ctx->power_state = POWER_STATE_LOW;
                     tile0_power_down();
                 }

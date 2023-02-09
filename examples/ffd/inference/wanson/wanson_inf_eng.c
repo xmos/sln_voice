@@ -37,27 +37,25 @@ typedef enum inference_state {
     STATE_PROCESSING_COMMAND
 } inference_state_t;
 
-enum timeout_event {
-    TIMEOUT_EVENT_NONE = 0,
-    TIMEOUT_EVENT_INTENT = 1,
-};
-
 static inference_state_t inference_state;
 static asr_context_t asr_ctx; 
-
-static uint32_t timeout_event = TIMEOUT_EVENT_NONE;
 
 static void vInferenceTimerCallback(TimerHandle_t pxTimer);
 static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
                                  int16_t *buf_short, size_t *buf_short_index);
-static void timeout_event_handler(TimerHandle_t pxTimer);
 
 static void vInferenceTimerCallback(TimerHandle_t pxTimer)
 {
     if ((inference_state == STATE_EXPECTING_COMMAND)
         || (inference_state == STATE_PROCESSING_COMMAND)) {
-        timeout_event |= TIMEOUT_EVENT_INTENT;
+        wanson_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
+        led_indicate_waiting();
+        inference_state = STATE_EXPECTING_WAKEWORD;
     }
+    xTimerStop(pxTimer, 0);
+#if appconfLOW_POWER_ENABLED
+    lp_slave_user_not_active(lp_ctx, LP_SLAVE_LP_INT_TIMEOUT_HANDLER);
+#endif
 }
 
 static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
@@ -80,24 +78,13 @@ static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
     }
 }
 
-static void timeout_event_handler(TimerHandle_t pxTimer)
-{
-    if (timeout_event & TIMEOUT_EVENT_INTENT) {
-        timeout_event &= ~TIMEOUT_EVENT_INTENT;
-        wanson_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
-        led_indicate_waiting();
-        inference_state = STATE_EXPECTING_WAKEWORD;
-    }
-}
-
 static void hold_inf_state(TimerHandle_t pxTimer)
 {
-    xTimerStop(pxTimer, 0);
-    xTimerChangePeriod(pxTimer, pdMS_TO_TICKS(appconfINFERENCE_RESET_DELAY_MS), 0);
-    timeout_event = TIMEOUT_EVENT_NONE;
+#if appconfLOW_POWER_ENABLED
+    lp_slave_user_active(lp_ctx, LP_SLAVE_LP_INT_TIMEOUT_HANDLER);
+#endif
     xTimerReset(pxTimer, 0);
 }
-
 
 #pragma stackfunction 1500
 void wanson_engine_task(void *args)
@@ -130,10 +117,11 @@ void wanson_engine_task(void *args)
 
     size_t buf_short_index = 0;
 
+#if appconfLOW_POWER_ENABLED
+    lp_slave_user_not_active(lp_ctx, LP_SLAVE_LP_INT_TIMEOUT_HANDLER);
+#endif
     while (1)
     {
-        timeout_event_handler(inf_eng_tmr);
-
         receive_audio_frames(input_queue, buf, buf_short, &buf_short_index);
 
         if (buf_short_index < WANSON_SAMPLES_PER_INFERENCE)
@@ -155,7 +143,7 @@ void wanson_engine_task(void *args)
 
     #if appconfINFERENCE_RAW_OUTPUT
     #if appconfLOW_POWER_ENABLED
-            hold_inf_state(inf_eng_tmr);
+        hold_inf_state(inf_eng_tmr);
     #endif
         wanson_engine_process_asr_result(asr_keyword, asr_command);
     #else
