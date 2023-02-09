@@ -122,16 +122,14 @@ Test Wake-up and Low-power Functionality
 
 1. Once flashing is complete, the application is now running on the board.
 
-2. Observe application state. While not detecting speech, the demo enters low-power mode. Observe the solid red LED.
+2. Observe application state. While not detecting sufficient acoustic activity, the demo enters low-power mode. Observe the solid red LED.
 
-3. Begin to speak the wake-up phrase, 'Hello XMOS'. The demo enters full-power mode, waiting for the wake-up phrase. Observe the flashing green LED.
+3. Say, "Far field voice local control". The demo enters full-power mode, waiting for the wake-up phrase. Observe the flashing green LED.
 
-4. Upon speaking the phrase, the demo awaits a command for a time. Observe the solid red and green LEDs.
+4. Speak the wake-up phrase, "Hello XMOS". The demo plays a recognition tone and awaits a command for a time. Observe the solid red and green LEDs.
 
 5. Say, "Switch on the lights". The demo recognizes this command, and replies an acknowledgement over speakers, |I2C| and UART.
 
 6. The demo awaits more commands. Say, "Volume up". After another acknowledgement, the board will continue to wait for commands.
 
-7. Barge-in may also be tested. Before the demo has finished an audio acknowledgement, interject with another command. Your new command queues, proven by observing another immediate acknowledgement from the demo.
-
-8. After a period of of inactivity, low-power mode resumes.
+7. After a period of inactivity, a power-down tone plays and low-power mode resumes.
