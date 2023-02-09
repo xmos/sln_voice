@@ -15,7 +15,7 @@ These are the XCORE-VOICE far-field local control example designs demonstrating:
 
 - 2-microphone far-field voice control with |I2C| or UART interface 
 - Audio pipeline including interference cancelling and noise supression 
-- 25-phrase English language voice recognition
+- 25-phrase English language speech recognition
 
 ***************
 Example designs
@@ -26,9 +26,9 @@ Low-power Wake-up Demonstration
 
 This is the low-power far-field voice local command (FFD) example design with Wanson speech recognition and local dictionary.
 
-TODO: Add info on low-power capabilities.  
+While inactive, low-power mode uses a fraction of energy otherwise required by normal operations while awaiting and processing speech.
 
-When a wakeup phrase is followed by an intent phrase the application will output an audio response and a discrete message over |I2C| and UART.
+When a wake-up phrase is followed by an command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
 This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50. You can reset the counter to 0 by restarting or rebooting the application.  The application can be rebooted by power cycling or pressing the SW2 button.
 
@@ -69,7 +69,7 @@ Running the Demonstration
 Flashing the Firmware
 ^^^^^^^^^^^^^^^^^^^^^
 
-Connect the XTAG4 via USB to the host computer running the XTC tools, and power on the board (either via RPi or directly via USB).
+Connect the XTAG4 via USB to the host computer running the XTC tools, and power on the board directly via USB.
 
 On the host computer, open a `XTC Tools Command Prompt`.
 
@@ -77,17 +77,26 @@ On the host computer, open a `XTC Tools Command Prompt`.
 
     xflash --quad-spi-clock 50MHz --factory example_ffd.xe --boot-partition-size 0x100000 --data example_ffd_data_partition.bin
 
+Being returned to the prompt means flashing has completed, and the XTAG4 may be disconnected.
+
 Speech Recognition
 ^^^^^^^^^^^^^^^^^^
 
 Speak one of the wakewords followed by one of the commands from the lists below.
 
-TODO: Explain LED status and how it relates to power management state.  
+There are three LED states:
+
+- Flashing Green    = Full Power, Waiting for Wake Word
+- Solid Red & Green = Full Power, Waiting for Command
+- Solid Red         = Low Power
+
+The application rests in low-power mode (solid red) until the audio pipeline detects audio, thereby entering full-power mode (flashing green) to begin wake-up phrase recognition.
+Upon recognizing 'Hello XMOS,' waiting begins for a command (solid red & green).
+After a period of inactivity, low-power mode resumes.
 
 **Wakewords**
 
 - Hello XMOS
-- Hello Wanson
 
 **Dictionary Commands**
 
@@ -107,3 +116,22 @@ TODO: Explain LED status and how it relates to power management state.
 - Slow down the fan
 - Set higher temperature
 - Set lower temperature
+
+Test Wake-up and Low-power Functionality
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+1. Once flashing is complete, the application is now running on the board.
+
+2. Observe application state. While not detecting speech, the demo enters low-power mode. Observe the solid red LED.
+
+3. Begin to speak the wake-up phrase, 'Hello XMOS'. The demo enters full-power mode, waiting for the wake-up phrase. Observe the flashing green LED.
+
+4. Upon speaking the phrase, the demo awaits a command for a time. Observe the solid red and green LEDs.
+
+5. Say, "Switch on the lights". The demo recognizes this command, and replies an acknowledgement over speakers, |I2C| and UART.
+
+6. The demo awaits more commands. Say, "Volume up". After another acknowledgement, the board will continue to wait for commands.
+
+7. Barge-in may also be tested. Before the demo has finished an audio acknowledgement, interject with another command. Your new command queues, proven by observing another immediate acknowledgement from the demo.
+
+8. After a period of of inactivity, low-power mode resumes.
