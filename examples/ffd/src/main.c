@@ -31,7 +31,6 @@
 #include "xcore_device_memory.h"
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
-#include "power/power_status.h"
 #include "power/power_control.h"
 #include "power/low_power_audio_buffer.h"
 
