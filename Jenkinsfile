@@ -92,6 +92,23 @@ pipeline {
                 }
             }
         }
+        stage('Run GPIO test') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            if (fileExists("$DOWNLOAD_DIRNAME/example_test_ffd_gpio_test.xe")) {
+                                withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                    sh "test/ffd_gpio/run_tests.sh"
+                                }
+                            } else {
+                                echo 'SKIPPED: ${TEST_SCRIPT_GPIO}'
+                            }
+                        } 
+                    }
+                }
+            }
+        }
     }
     post {
         cleanup {
