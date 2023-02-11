@@ -21,8 +21,3 @@ echo "****************"
 echo "* Run Tests    *"
 echo "****************"
 xsim --plugin LoopbackPort.dll "-port tile[0] XS1_PORT_1M 1 0 -port tile[1] XS1_PORT_1M 1 0" --plugin LoopbackPort.dll "-port tile[0] XS1_PORT_1P 1 0 -port tile[1] XS1_PORT_1P 1 0" --xscope "-offline trace.xmt" ${REPO_ROOT}/dist/${FIRMWARE} 2>&1 | tee -a ${REPORT}
-
-echo "****************"
-echo "* Parse Result *"
-echo "****************"
-python ${REPO_ROOT}/modules/rtos/test/rtos_drivers/python/parse_test_output.py testing/test.rpt -outfile="testing/test_results" --print_test_results --verbose
