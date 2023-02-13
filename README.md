@@ -33,5 +33,5 @@ This Software is subject to the terms of the [XMOS Public Licence: Version 1](ht
 
 Additional third party copyrighted code is included under the following licenses:
 
-The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/tree/develop/examples/ffd/inference/wanson/lib/LICENSE.md).
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/blob/develop/examples/ffd/asr/port/wanson/lib/LICENSE.md).
 

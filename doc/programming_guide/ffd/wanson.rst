@@ -11,7 +11,7 @@ License
 
 This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50.
 
-The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the `Wanson Restrictive License <https://github.com/xmos/sln_voice/tree/develop/examples/ffd/inference/wanson/lib/LICENSE.md>`__.
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the `Wanson Restrictive License <hhttps://github.com/xmos/sln_voice/blob/develop/examples/ffd/asr/port/wanson/lib/LICENSE.md>`__.
 
 
 Overview
