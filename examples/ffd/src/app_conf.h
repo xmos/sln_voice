@@ -123,10 +123,11 @@
 #define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
 #endif
 
-/* The number of frames (appconfAUDIO_PIPELINE_FRAME_ADVANCE) to store in a ring
- * buffer while in low power mode. This may be tuned to ensure that unvoiced
- * speech that is a pre-cursor to voiced speech in a wake-word such as "he" part
- * of "hello" is captured and relayed to the inference engine. */
+/* The number of frames to store in a ring buffer while in low power mode,
+ * where each frame contains appconfAUDIO_PIPELINE_FRAME_ADVANCE samples.
+ * This may be tuned to ensure that unvoiced speech that is a pre-cursor to
+ * voiced speech in a wake-word such as "he" part of "hello" is captured and
+ * relayed to the inference engine. */
 #ifndef appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
 #define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES 32
 #endif

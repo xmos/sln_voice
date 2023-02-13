@@ -36,5 +36,6 @@ Tests exists for the following:
 - Sample rate conversion
 - DFU
 - GPIO
+- Low power mode's audio ring buffer
 
 To run tests, see the README files located in the directories containing each test group.

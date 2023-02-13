@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* System headers */
 #include <platform.h>
@@ -31,7 +31,6 @@
 #include "xcore_device_memory.h"
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
-#include "power/power_status.h"
 #include "power/power_control.h"
 #include "power/low_power_audio_buffer.h"
 
