@@ -5,6 +5,7 @@
 
 static rtos_intertile_t intertile_ctx_s;
 rtos_intertile_t *intertile_ctx = &intertile_ctx_s;
+rtos_intertile_t *intertile_ap_ctx = &intertile_ctx_s;
 
 static rtos_intertile_t intertile_usb_ctx_s;
 rtos_intertile_t *intertile_usb_ctx = &intertile_usb_ctx_s;
