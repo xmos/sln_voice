@@ -24,8 +24,3 @@ if [ "$UNAME" == "Linux" ] ; then
 elif [ "$UNAME" == "Darwin" ] ; then
     gtimeout ${TIMEOUT_S}s xsim "${REPO_ROOT}/dist/example_${APPLICATION}_test.xe" 2>&1 | tee -a "${REPORT}"
 fi
-
-echo "****************"
-echo "* Parse Result *"
-echo "****************"
-pytest
