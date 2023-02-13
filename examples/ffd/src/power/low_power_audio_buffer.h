@@ -20,20 +20,20 @@
     ON_TILE(AUDIO_PIPELINE_TILE_NO) )
 
 /**
- * Enqueue audio frames into a ring buffer. Oldest data will be overwritten.
+ * Enqueue audio samples into a ring buffer. Oldest data will be overwritten.
  *
- * \param frames        The point to the frames to enqueue.
- * \param num_frames    The number of frames to enqueue.
+ * \param samples       The pointer to the samples to enqueue.
+ * \param num_samples   The number of samples to enqueue.
  */
-void low_power_audio_buffer_enqueue(int32_t *frames, size_t num_frames);
+void low_power_audio_buffer_enqueue(int32_t *samples, size_t num_samples);
 
 /**
  * Dequeue audio frames out of a ring buffer. These frames are sent onward to
  * the inference engine.
  *
- * \param num_packets   The requested number of packets to dequeue, where
- *                      one packet is appconfAUDIO_PIPELINE_FRAME_ADVANCE
- *                      frames.
+ * \param num_frames    The requested number of frames to dequeue, where
+ *                      one frame is appconfAUDIO_PIPELINE_FRAME_ADVANCE
+ *                      samples.
  * \return              The number of samples actually dequeued from the buffer.
  */
 uint32_t low_power_audio_buffer_dequeue(uint32_t num_packets);

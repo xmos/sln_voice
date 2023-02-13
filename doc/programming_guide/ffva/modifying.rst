@@ -11,3 +11,5 @@ Modifying the Software
 
    design
    audio_pipeline
+   software_description
+   software_modifications

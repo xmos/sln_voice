@@ -29,3 +29,7 @@ Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
 .. image:: ../../shared/images/host_setup.jpg
     :width: 800
     :alt: programming host setup
+
+.. raw:: latex
+
+    \clearpage

@@ -1,4 +1,4 @@
-// Copyright (c) 2023 XMOS LIMITED.
+// Copyright (c) 2022-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* System headers */
@@ -29,7 +29,6 @@
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
-#include "power/power_status.h"
 #include "power/power_control.h"
 #include "power/low_power_audio_buffer.h"
 

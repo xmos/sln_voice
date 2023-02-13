@@ -1,8 +1,7 @@
 .. include:: ../../substitutions.rst
 .. include:: <isonum.txt>
 
-.. _sln_voice_FFVA:
-
+.. _sln_voice_ffva_quick_start:
 
 #########################
 Far-field Voice Assistant
@@ -16,7 +15,7 @@ These are the XCORE-VOICE far-field voice assistant example designs demonstratin
 
 - 2-microphone far-field voice assistant front-end
 - Audio pipeline including echo cancelation, interference cancelling and noise suppression
-- Stereo reference input and voice assistant output each supported as |I2C| or USB (UAC2.0)    
+- Stereo reference input and voice assistant output each supported as |I2S| or USB (UAC2.0)    
 
 This application can be used out of the box as a voice processor solution, or extended to run local wakeword engines.
 
@@ -71,6 +70,8 @@ On the host computer, open a `XTC Tools Command Prompt`.
 .. code-block:: console
 
     xflash --quad-spi-clock 50MHz --factory example_ffva_ua_adec.xe --boot-partition-size 0x100000 --data example_ffva_ua_adec_data_partition.bin
+
+Being returned to the prompt means flashing has completed, and the XTAG4 may be disconnected.
 
 Record Captured Voice
 ^^^^^^^^^^^^^^^^^^^^^
@@ -166,10 +167,14 @@ Run the following commands to flash the firmware.
 
     xflash --quad-spi-clock 50MHz --factory example_ffva_int_adec.xe --boot-partition-size 0x100000 --data example_ffva_int_adec_data_partition.bin
 
+Being returned to the prompt means flashing has completed, and the XTAG4 may be disconnected.
+
 Prepare the Raspberry Pi System
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. note:: The FFVA-INT firmware is compatible with XVF3610-INT software, therefore instructions for installing the XVF3610-INT pi software can be followed for this AVS demo. The "Firmware Upgrade" section may be dismissed, as your FFVA-INT firmware is already updated per the above section of this guide.
+
+.. note:: While 'apt update' will break the install, the user can and must 'apt-get update' before the auto_install.sh script is called, or package installation will fail.
 
 Prepare the Raspberry Pi System image on the SD card by following the instructions for XVF3610-INT as described on `github <https://github.com/xmos/vocalfusion-avs-setup>`_
 
@@ -189,7 +194,17 @@ Install the Amazon Alexa SDK and configure the Raspberry Pi Audio by following t
 
 `AVS Setup Instructions <https://github.com/xmos/vocalfusion-avs-setup>`_
 
-Run Demo
-^^^^^^^^
+Run Demo and Test Virtual Assistant Functionality
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Once the installation is complete, run the demo by typing `avsrun` in a terminal. The demo will now operate as an Alexa virtual assistant.
+1. Once installation is complete, avsrun will run on startup. Otherwise, run the demo by typing `avsrun` in a terminal. The demo will now operate as an Alexa virtual assistant.
+
+2. After successful device authorization, avsrun always displays 'Alexa is currently idle!' while waiting for the user.
+
+3. Tap to talk can be used to simulate wakeword functionality. Type 't' and hit Enter, and avsrun displays 'Listening...'
+
+4. The device waits a short time for a query. Try speaking "What is the weather?" and avsrun displays 'Thinking...'
+
+5. Soon after, the virtual assistant should audibly answer over speaker as avsrun displays 'Speaking...'
+
+6. Barge-in may also be tested. Before the assistant has finished speaking, Type 't' and hit Enter. The assistant will stop and await a new command.

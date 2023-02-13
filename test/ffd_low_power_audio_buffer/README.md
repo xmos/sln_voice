@@ -26,8 +26,5 @@ This test runs on `xsim`. Run the test with the following command from the top
 of the repository:
 
 ``` console
-bash test/ffd_gpio/run_tests.sh
+bash test/ffd_low_power_audio_buffer/run_tests.sh
 ```
-
-
-TODO: THIS MIGHT NOT HAVE CORRECT INFO!!!!!!!!!!!!!!
