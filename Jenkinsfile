@@ -103,7 +103,7 @@ pipeline {
                                 // TODO update to pytest
                                 // python "tools/ci/python/parse_test_output.py testing/test.rpt -outfile="<output_dir>/output_file" --print_test_results --verbose"
                             } else {
-                                echo 'SKIPPED: ${TEST_SCRIPT_GPIO}'
+                                echo 'SKIPPED: ${TEST_SCRIPT_GPIO}' 
                             }
                         }
                     }
