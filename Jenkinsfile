@@ -88,7 +88,7 @@ pipeline {
                                 echo 'SKIPPED: ${TEST_SCRIPT_SRCT}'
                             }
                         }
-                        sh 'pytest "test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file test/sample_rate_conversion/test_output/sample_rate_conversion_output.wav --wav_duration 10"'
+                        sh "pytest test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file test/sample_rate_conversion/test_output/sample_rate_conversion_output.wav --wav_duration 10"
                     }
                 }
             }
