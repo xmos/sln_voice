@@ -23,12 +23,10 @@
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
 #include "audio_pipeline/audio_pipeline.h"
-#include "inference_engine.h"
+#include "intent_engine/intent_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
-#include "rtos_swmem.h"
-#include "xcore_device_memory.h"
 #include "intent_handler/intent_handler.h"
 #include "power/power_state.h"
 #include "power/power_control.h"
@@ -40,8 +38,6 @@ extern void tile_common_init(chanend_t c);
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 static power_data_t wakeup_app_data;
 #endif
-
-//void uart_write(char data) {} //API for Wanson's Debug
 
 __attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
@@ -79,7 +75,7 @@ int audio_pipeline_output(void *output_app_data,
                           size_t ch_count,
                           size_t frame_count)
 {
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && (appconfLOW_POWER_ENABLED || appconfINFERENCE_ENABLED)
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && (appconfLOW_POWER_ENABLED || appconfINTENT_ENABLED)
     power_state_t power_state = POWER_STATE_FULL;
 #endif
 
@@ -87,21 +83,21 @@ int audio_pipeline_output(void *output_app_data,
     power_state = power_state_data_add((power_data_t *)output_app_data);
 #endif
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINFERENCE_ENABLED
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINTENT_ENABLED
     if (power_state == POWER_STATE_FULL) {
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
-        const uint32_t max_dequeue_frames = 1;
-        const uint32_t max_dequeued_samples = (max_dequeue_frames * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        const uint32_t max_dequeue_packets = 1;
+        const uint32_t max_dequeued_samples = (max_dequeue_packets * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
         if (power_control_state_get() != POWER_STATE_FULL) {
             low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-        } else if (low_power_audio_buffer_dequeue(max_dequeue_frames) == max_dequeued_samples) {
+        } else if (low_power_audio_buffer_dequeue(max_dequeue_packets) == max_dequeued_samples) {
             // Max data has been dequeued, enqueue the newest data.
             low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
         } else // More data can be sent.
 #endif // LOW_POWER_AUDIO_BUFFER_ENABLED
         {
-            inference_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+            intent_engine_sample_push((int32_t *)output_audio_frames, frame_count);
         }
     }
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
@@ -109,7 +105,7 @@ int audio_pipeline_output(void *output_app_data,
         low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
     }
 #endif // LOW_POWER_AUDIO_BUFFER_ENABLED
-#endif // ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINFERENCE_ENABLED
+#endif // ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINTENT_ENABLED
 
     return AUDIO_PIPELINE_FREE_FRAME;
 }
@@ -144,10 +140,10 @@ void startup_task(void *arg)
     rtos_fatfs_init(qspi_flash_ctx);
 #endif
 
-#if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
+#if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
     QueueHandle_t q_intent = xQueueCreate(appconfINTENT_QUEUE_LEN, sizeof(int32_t));
-    intent_handler_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, q_intent);
-    inference_engine_create(appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY, q_intent);
+    intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
+    intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
 #if ON_TILE(0)
@@ -159,12 +155,12 @@ void startup_task(void *arg)
 #endif
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
-#if appconfINFERENCE_ENABLED
+#if appconfINTENT_ENABLED
     // Wait until the Wanson engine is initialized before we start the
     // audio pipeline.
     {
         int ret = 0;
-        rtos_intertile_rx_len(intertile_ctx, appconfWANSON_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
+        rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
 #endif

@@ -19,7 +19,7 @@
 #include "gpio_ctrl/leds.h"
 #include "power/power_state.h"
 #include "power/power_control.h"
-#include "inference_engine.h"
+#include "intent_engine.h"
 
 #if appconfLOW_POWER_ENABLED
 
@@ -179,10 +179,10 @@ static uint8_t low_power_response(void)
 
     if (full_pwr_time_expired == 0) {
         // Timer has not expired, NAK the request to continue in full power.
-        inference_engine_full_power_request();
+        intent_engine_full_power_request();
     } else {
         debug_printf("Entering low power...\n");
-        inference_engine_low_power_accept();
+        intent_engine_low_power_accept();
     }
 #endif
 
@@ -226,7 +226,7 @@ static void low_power_ready(void)
     configASSERT(notif_value == TASK_NOTIF_MASK_LP_IND_COMPLETE);
 
     driver_control_lock();
-    inference_engine_low_power_reset();
+    intent_engine_low_power_reset();
 
     /*
      * Signal to the other tile that it is ready to enter low power mode.
@@ -300,7 +300,7 @@ static void full_power(void)
     configASSERT(notif_value == TASK_NOTIF_MASK_LP_IND_COMPLETE);
 
     // Restart the timer for holding full power.
-    inference_engine_full_power_request();
+    intent_engine_full_power_request();
 #endif
 }
 

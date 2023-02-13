@@ -11,7 +11,7 @@
 /* App headers */
 #include "app_conf.h"
 #include "low_power_audio_buffer.h"
-#include "inference_engine.h"
+#include "intent_engine.h"
 
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
 
@@ -116,7 +116,7 @@ uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
         if (samples_to_dequeue <= 0)
             break;
 
-        inference_engine_sample_push((int32_t *)ring_buf.get_ptr, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        intent_engine_sample_push((int32_t *)ring_buf.get_ptr, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
         ring_buf.get_ptr += (appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
         tail_bytes -= (appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
         samples_to_dequeue -= appconfAUDIO_PIPELINE_FRAME_ADVANCE;
@@ -135,7 +135,7 @@ uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames)
         if (samples_to_dequeue <= 0)
             break;
 
-        inference_engine_sample_push((int32_t *)ring_buf.get_ptr, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        intent_engine_sample_push((int32_t *)ring_buf.get_ptr, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
         ring_buf.get_ptr += (appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
         head_bytes -= (appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
         samples_to_dequeue -= appconfAUDIO_PIPELINE_FRAME_ADVANCE;

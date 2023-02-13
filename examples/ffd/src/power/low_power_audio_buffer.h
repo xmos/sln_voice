@@ -36,6 +36,6 @@ void low_power_audio_buffer_enqueue(int32_t *samples, size_t num_samples);
  *                      samples.
  * \return              The number of samples actually dequeued from the buffer.
  */
-uint32_t low_power_audio_buffer_dequeue(uint32_t num_frames);
+uint32_t low_power_audio_buffer_dequeue(uint32_t num_packets);
 
 #endif // LOW_POWER_AUDIO_BUFFER_H_

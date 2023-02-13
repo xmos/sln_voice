@@ -11,7 +11,9 @@
 
 /* App headers */
 #include "platform/driver_instances.h"
-#include "xcore_device_memory.h"
+#include "flash_read_ext.h"
+#include "asr.h"
+
 
 /* The offset in flash where the model(s) reside. */
 #ifndef QSPI_FLASH_MODEL_START_ADDRESS
@@ -20,17 +22,12 @@
 
 #define QSPI_FLASH_READ_MIN_SIZE 2
 
-size_t model_file_init(void)
-{
-    return 1;
-}
-
-size_t model_data_load(void *dest, const void *src, size_t size)
+size_t flash_read_ext(void *dest, const void *src, size_t size)
 {
     unsigned offset = (unsigned)src - XS1_SWMEM_BASE +
         QSPI_FLASH_MODEL_START_ADDRESS;
 
-    xassert(IS_SWMEM(src));
+    xassert(IS_FLASH(src));
 
     rtos_qspi_flash_lock(qspi_flash_ctx);
 

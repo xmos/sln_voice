@@ -30,7 +30,7 @@ thus keeping the device is `POWER_STATE_FULL` or at least another
 `appconfPOWER_FULL_HOLD_DURATION` milliseconds.
 
 `appconfPOWER_FULL_HOLD_DURATION` should be configured to take into account
-`appconfINFERENCE_RESET_DELAY_MS` and any time required to produce
+`appconfINTENT_RESET_DELAY_MS` and any time required to produce
 (audible/visual) feedback; in this application, the SLEEP_WAV tone should be
 considered.
 

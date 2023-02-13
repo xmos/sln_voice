@@ -119,6 +119,7 @@ typedef enum asr_keyword_enum {
     ASR_KEYWORD_UNKNOWN = -1,    ///< Keyword is unknown
     ASR_KEYWORD_HELLO_XMOS = 0,
     ASR_KEYWORD_ALEXA = 1,
+    ASR_NUMBER_OF_KEYWORDS
 } asr_keyword_t;
 
 /**
@@ -142,6 +143,7 @@ typedef enum asr_command_enum {
     ASR_COMMAND_FAN_DOWN = 13,
     ASR_COMMAND_TEMPERATURE_UP = 14,
     ASR_COMMAND_TEMPERATURE_DOWN = 15,
+    ASR_NUMBER_OF_COMMANDS
 } asr_command_t;
 
 /**

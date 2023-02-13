@@ -15,14 +15,14 @@
 #define I2C_SLAVE_CORE_MASK  (1 << 3)
 #define I2C_SLAVE_ADDR       0x7A
 
-#define appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR  I2C_SLAVE_ADDR
+#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR  I2C_SLAVE_ADDR
 
 #define appconfLOW_POWER_ENABLED                0
 #define appconfAUDIO_PLAYBACK_ENABLED           0
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED     0
-#define appconfINFERENCE_UART_OUTPUT_ENABLED    0
+#define appconfINTENT_I2C_OUTPUT_ENABLED     0
+#define appconfINTENT_UART_OUTPUT_ENABLED    0
 
-#define INFERENCE_TILE_NO                       0
+#define ASR_TILE_NO                             0
 #define UART_TILE_NO                            0
 #define appconfINTENT_WAKEUP_EDGE_TYPE          0
 

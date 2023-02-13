@@ -1,3 +1,5 @@
+set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+
 #**********************
 # Gather Sources
 #**********************
@@ -6,6 +8,7 @@ set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/audio_pipeline
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
+    ${CMAKE_CURRENT_LIST_DIR}/src/intent_engine
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response
     ${CMAKE_CURRENT_LIST_DIR}/src/power
@@ -15,7 +18,7 @@ set(RTOS_CONF_INCLUDES
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/inference/inference.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/asr/asr.cmake)
 
 #**********************
 # QSPI Flash Layout
@@ -59,7 +62,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::app::ffd::inference_engine::wanson
+    sln_voice::app::ffd::asr::wanson
     fwk_voice::agc
     fwk_voice::ic
     fwk_voice::ns
@@ -179,5 +182,4 @@ unset(DATA_PARTITION_FILE_LIST)
 #**********************
 # Include FFD Debug and Extension targets
 #**********************
-set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 include(${CMAKE_CURRENT_LIST_DIR}/ext/ffd_ext.cmake)
