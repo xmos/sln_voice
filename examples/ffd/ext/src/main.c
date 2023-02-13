@@ -28,7 +28,6 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "rtos_swmem.h"
 #include "ssd1306_rtos_support.h"
-#include "xcore_device_memory.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 
