@@ -21,7 +21,7 @@ void intent_engine_samples_send_local(
         size_t frame_count,
         int32_t *processed_audio_frame);
 void intent_engine_samples_send_remote(
-        rtos_intertile_t *intertile_ctx,
+        rtos_intertile_t *intertile,
         size_t frame_count,
         int32_t *processed_audio_frame);
 
