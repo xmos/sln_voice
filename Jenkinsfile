@@ -84,6 +84,7 @@ pipeline {
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                     sh "test/sample_rate_conversion/check_sample_rate_conversion.sh $DOWNLOAD_DIRNAME/example_ffva_sample_rate_conv_test.xe test/sample_rate_conversion/test_output " + adapterIDs[0]
                                 }
+                                pytest "test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file test/sample_rate_conversion/test_output/sample_rate_conversion_output.wav --wav_duration 10"
                             } else {
                                 echo 'SKIPPED: ${TEST_SCRIPT_SRCT}'
                             }
@@ -99,6 +100,8 @@ pipeline {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_test_ffd_gpio_test.xe")) {
                                 sh "test/ffd_gpio/run_tests.sh"
+                                // TODO update to pytest
+                                // python "tools/ci/python/parse_test_output.py testing/test.rpt -outfile="<output_dir>/output_file" --print_test_results --verbose"
                             } else {
                                 echo 'SKIPPED: ${TEST_SCRIPT_GPIO}'
                             }
