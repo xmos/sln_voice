@@ -14,11 +14,10 @@
 /* App headers */
 #include "app_conf.h"
 #include "platform/driver_instances.h"
-#include "inference_engine.h"
-#include "wanson_inf_eng.h"
+#include "intent_engine/intent_engine.h"
 #include "ssd1306_rtos_support.h"
 
-void wanson_engine_proc_keyword_result(const char **text, int id)
+void intent_engine_proc_keyword_result(const char **text, int id)
 {
     rtos_printf("KEYWORD: 0x%x, %s\n", id, (char*)*text);
 #if appconfSSD1306_DISPLAY_ENABLED
@@ -51,14 +50,14 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
             ssd1306_display_ascii_to_bitmap((char *)*text);
     }
 #endif
-#if appconfINFERENCE_I2C_OUTPUT_ENABLED
+#if appconfINTENT_I2C_OUTPUT_ENABLED
     i2c_res_t ret;
     uint32_t buf = id;
     size_t sent = 0;
 
     ret = rtos_i2c_master_write(
         i2c_master_ctx,
-        appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR,
+        appconfINTENT_I2C_OUTPUT_DEVICE_ADDR,
         (uint8_t*)&buf,
         sizeof(uint32_t),
         &sent,
@@ -69,7 +68,7 @@ void wanson_engine_proc_keyword_result(const char **text, int id)
         rtos_printf("I2C inference output was not acknowledged\n\tSent %d bytes\n", sent);
     }
 #endif
-#if appconfINFERENCE_UART_OUTPUT_ENABLED && (UART_TILE_NO == INFERENCE_TILE_NO)
+#if appconfINTENT_UART_OUTPUT_ENABLED && (UART_TILE_NO == ASR_TILE_NO)
     uint32_t buf_uart = id;
     rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
 #endif

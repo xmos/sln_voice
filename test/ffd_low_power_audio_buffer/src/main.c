@@ -476,11 +476,3 @@ int main(void)
 
     return 0;
 }
-
-/*
-xcc -Os -g -report -fxscope -target=..\..\..\examples\ffd\bsp_config\XK_VOICE_L71\XK_VOICE_L71.xn -I . -I .\stubs\ -I ..\..\..\examples\ffd\src\power ..\..\..\modules\core\modules\multitile_support\src\tile_map.xc ..\..\..\examples\ffd\src\power\low_power_audio_buffer.c .\main.c .\stubs\inference_engine.c
-xcc -Os -g -report -fxscope -target=..\..\..\examples\ffd\bsp_config\XK_VOICE_L71\XK_VOICE_L71.xn -I . -I .\stubs\ -I ..\..\..\examples\ffd\src\power ..\..\..\examples\ffd\src\power\low_power_audio_buffer.c .\main.c .\stubs\inference_engine.c && sxt a.xe
-xcc -Os -g -report -fxscope -target=..\..\..\examples\ffd\bsp_config\XK_VOICE_L71\XK_VOICE_L71.xn -I . -I .\stubs\ -I ..\..\..\examples\ffd\src\power ..\..\..\examples\ffd\src\power\low_power_audio_buffer.c .\main.c .\stubs\inference_engine.c && xsim a.xe
-*/
-
-// __VA_ARGS__, __FILE__, __LINE__, __FUNCTION__

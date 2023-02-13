@@ -14,26 +14,25 @@
 /* App headers */
 #include "app_conf.h"
 #include "platform/driver_instances.h"
-#include "inference_engine.h"
-#include "wanson_inf_eng.h"
+#include "intent_engine/intent_engine.h"
 
-#if ON_TILE(INFERENCE_TILE_NO)
+#if ON_TILE(ASR_TILE_NO)
 
 static StreamBufferHandle_t samples_to_engine_stream_buf = 0;
 
-void wanson_engine_stream_buf_reset(void)
+void intent_engine_stream_buf_reset(void)
 {
     if (samples_to_engine_stream_buf)
         while (xStreamBufferReset(samples_to_engine_stream_buf) == pdFAIL)
             vTaskDelay(pdMS_TO_TICKS(1));
 }
 
-#endif /* ON_TILE(INFERENCE_TILE_NO) */
+#endif /* ON_TILE(ASR_TILE_NO) */
 
-#if INFERENCE_TILE_NO != AUDIO_PIPELINE_TILE_NO
+#if ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
-void wanson_engine_samples_send_remote(
+void intent_engine_samples_send_remote(
         rtos_intertile_t *intertile_ctx,
         size_t frame_count,
         int32_t *processed_audio_frame)
@@ -48,7 +47,7 @@ void wanson_engine_samples_send_remote(
 
 #else /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
 
-static void wanson_engine_intertile_samples_in_task(void *arg)
+static void intent_engine_intertile_samples_in_task(void *arg)
 {
     (void) arg;
 
@@ -69,38 +68,38 @@ static void wanson_engine_intertile_samples_in_task(void *arg)
                 bytes_received);
 
         if (xStreamBufferSend(samples_to_engine_stream_buf, samples, sizeof(samples), 0) != sizeof(samples)) {
-            rtos_printf("lost output samples for inference\n");
+            rtos_printf("lost output samples for intent\n");
         }
     }
 }
 
-void wanson_engine_intertile_task_create(uint32_t priority)
+void intent_engine_intertile_task_create(uint32_t priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(
-                                           appconfINFERENCE_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                                           appconfINFERENCE_SAMPLE_BLOCK_LENGTH);
+                                           appconfINTENT_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                                           appconfINTENT_SAMPLE_BLOCK_LENGTH);
 
-    xTaskCreate((TaskFunction_t)wanson_engine_intertile_samples_in_task,
-                "inf_intertile_rx",
-                RTOS_THREAD_STACK_SIZE(wanson_engine_intertile_samples_in_task),
+    xTaskCreate((TaskFunction_t)intent_engine_intertile_samples_in_task,
+                "int_intertile_rx",
+                RTOS_THREAD_STACK_SIZE(intent_engine_intertile_samples_in_task),
                 NULL,
                 priority-1,
                 NULL);
-    xTaskCreate((TaskFunction_t)wanson_engine_task,
-                "wanson_eng",
-                RTOS_THREAD_STACK_SIZE(wanson_engine_task),
+    xTaskCreate((TaskFunction_t)intent_engine_task,
+                "intent_eng",
+                RTOS_THREAD_STACK_SIZE(intent_engine_task),
                 samples_to_engine_stream_buf,
                 uxTaskPriorityGet(NULL),
                 NULL);
 }
 
 #endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
-#endif /* INFERENCE_TILE_NO != AUDIO_PIPELINE_TILE_NO */
+#endif /* ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO */
 
-#if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
-#if ON_TILE(INFERENCE_TILE_NO)
+#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+#if ON_TILE(ASR_TILE_NO)
 
-void wanson_engine_samples_send_local(
+void intent_engine_samples_send_local(
         size_t frame_count,
         int32_t *processed_audio_frame)
 {
@@ -109,26 +108,26 @@ void wanson_engine_samples_send_local(
     if(samples_to_engine_stream_buf != NULL) {
         size_t bytes_to_send = sizeof(int32_t) * frame_count;
         if (xStreamBufferSend(samples_to_engine_stream_buf, processed_audio_frame, bytes_to_send, 0) != bytes_to_send) {
-            rtos_printf("lost local output samples for inference\n");
+            rtos_printf("lost local output samples for intent\n");
         }
     } else {
-        rtos_printf("inference engine streambuffer not ready\n");
+        rtos_printf("intent engine streambuffer not ready\n");
     }
 }
 
-void wanson_engine_task_create(unsigned priority)
+void intent_engine_task_create(unsigned priority)
 {
     samples_to_engine_stream_buf = xStreamBufferCreate(
-                                           appconfINFERENCE_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                                           appconfINFERENCE_SAMPLE_BLOCK_LENGTH);
+                                           appconfINTENT_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                                           appconfINTENT_SAMPLE_BLOCK_LENGTH);
 
-    xTaskCreate((TaskFunction_t)wanson_engine_task,
-                "wanson_eng",
-                RTOS_THREAD_STACK_SIZE(wanson_engine_task),
+    xTaskCreate((TaskFunction_t)intent_engine_task,
+                "intent_eng",
+                RTOS_THREAD_STACK_SIZE(intent_engine_task),
                 samples_to_engine_stream_buf,
                 uxTaskPriorityGet(NULL),
                 NULL);
 }
 
-#endif /* ON_TILE(INFERENCE_TILE_NO) */
-#endif /* INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO */
+#endif /* ON_TILE(ASR_TILE_NO) */
+#endif /* ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO */

@@ -15,28 +15,28 @@ If options are changed, the application firmware must be rebuilt.
    * - Compile Option
      - Description
      - Default Value
-   * - appconfINFERENCE_ENABLED
-     - Enables/disables the keyword spotter, primarily for debug.
+   * - appconfINTENT_ENABLED
+     - Enables/disables the inference engine, primarily for debug.
      - 1
-   * - appconfINFERENCE_RESET_DELAY_MS
+   * - appconfINTENT_RESET_DELAY_MS
      - Sets the period after the wake up phrase has been heard for a valid command phrase
      - 3000
-   * - appconfINFERENCE_RAW_OUTPUT
+   * - appconfINTENT_RAW_OUTPUT
      - Set to 1 to output all keywords found, skipping the internal wake up and command state machine
      - 0
    * - appconfAUDIO_PLAYBACK_ENABLED
      - Enables/disables the audio playback command response
      - 1
-   * - appconfINFERENCE_UART_OUTPUT_ENABLED
+   * - appconfINTENT_UART_OUTPUT_ENABLED
      - Enables/disables the UART intent message
      - 1
-   * - appconfINFERENCE_I2C_OUTPUT_ENABLED
+   * - appconfINTENT_I2C_OUTPUT_ENABLED
      - Enables/disables the |I2C| intent message
      - 1
    * - appconfUART_BAUD_RATE
      - Sets the baud rate for the UART tx intent interface
      - 9600
-   * - appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
+   * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
      - Sets the |I2C| slave address to transmit the intent to
      - 0x01
    * - appconfINTENT_TRANSPORT_DELAY_MS

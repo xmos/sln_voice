@@ -18,12 +18,12 @@
 #include "fs_support.h"
 #include "ff.h"
 #include "audio_response.h"
-#include "inference_engine.h"
+#include "intent_engine/intent_engine.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
 
-#if ON_TILE(INFERENCE_TILE_NO)
+#if ON_TILE(ASR_TILE_NO)
 
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
@@ -54,14 +54,14 @@ static void proc_keyword_res(void *args) {
             vTaskDelay(pdMS_TO_TICKS(appconfINTENT_TRANSPORT_DELAY_MS));
             rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
         }
-#if appconfINFERENCE_I2C_OUTPUT_ENABLED
+#if appconfINTENT_I2C_OUTPUT_ENABLED
         i2c_res_t ret;
         uint32_t buf = id;
         size_t sent = 0;
 
         ret = rtos_i2c_master_write(
             i2c_master_ctx,
-            appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR,
+            appconfINTENT_I2C_OUTPUT_DEVICE_ADDR,
             (uint8_t*)&buf,
             sizeof(uint32_t),
             &sent,
@@ -72,7 +72,7 @@ static void proc_keyword_res(void *args) {
             rtos_printf("I2C inference output was not acknowledged\n\tSent %d bytes\n", sent);
         }
 #endif
-#if appconfINFERENCE_UART_OUTPUT_ENABLED && (UART_TILE_NO == INFERENCE_TILE_NO)
+#if appconfINTENT_UART_OUTPUT_ENABLED && (UART_TILE_NO == ASR_TILE_NO)
         uint32_t buf_uart = id;
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
 #endif
@@ -80,8 +80,8 @@ static void proc_keyword_res(void *args) {
         audio_response_play(id);
 #endif
 #if appconfLOW_POWER_ENABLED
-        if (inference_engine_keyword_queue_count() == 0) {
-            inference_engine_keyword_queue_complete();
+        if (intent_engine_keyword_queue_count() == 0) {
+            intent_engine_keyword_queue_complete();
         }
 #endif
     }
@@ -99,4 +99,4 @@ int32_t intent_handler_create(uint32_t priority, void *args)
     return 0;
 }
 
-#endif /* ON_TILE(INFERENCE_TILE_NO) */
+#endif /* ON_TILE(ASR_TILE_NO) */

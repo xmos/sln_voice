@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stddef.h>
-#include "inference_engine.h"
+#include "intent_engine.h"
 
 void print_data(int32_t* buffer, size_t count)
 {
@@ -16,8 +16,8 @@ void print_data(int32_t* buffer, size_t count)
     printf("\n");
 }
 
-/* Stub for inference_engine_sample_push */
-int32_t inference_engine_sample_push(int32_t *buf, size_t frames)
+/* Stub for intent_engine_sample_push */
+int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
 {
     print_data(buf, frames);
     return 0;

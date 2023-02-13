@@ -15,9 +15,7 @@
 /* App headers */
 #include "app_conf.h"
 #include "platform/driver_instances.h"
-#include "inference_engine.h"
-#include "wanson_inf_eng.h"
-#include "power/power_state.h"
+#include "intent_engine.h"
 
 static QueueHandle_t q_intent = 0;
 static uint8_t keyword_proc_busy = 0;
@@ -53,7 +51,7 @@ static asr_lut_t asr_command_lut[ASR_NUMBER_OF_COMMANDS] = {
     {ASR_COMMAND_TEMPERATURE_DOWN, 17, "Set lower temperature"}
 };
 
-void wanson_engine_play_response(int wav_id)
+void intent_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
         keyword_proc_busy = 1;
@@ -64,7 +62,7 @@ void wanson_engine_play_response(int wav_id)
     }
 }
 
-void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t command)
+void intent_engine_process_asr_result(asr_keyword_t keyword, asr_command_t command)
 {
     int wav_id = 0;
     const char* text = "";
@@ -76,7 +74,7 @@ void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t comma
             }
         }
         rtos_printf("KEYWORD: 0x%x, %s\n", (int) keyword, (char*)text);
-        wanson_engine_play_response(wav_id);
+        intent_engine_play_response(wav_id);
     } else if (command != ASR_COMMAND_UNKNOWN) {
         for (int i=0; i<ASR_NUMBER_OF_COMMANDS; i++) {
             if (asr_command_lut[i].asr_id == command) {
@@ -85,66 +83,57 @@ void wanson_engine_process_asr_result(asr_keyword_t keyword, asr_command_t comma
             }
         }
         rtos_printf("KEYWORD: 0x%x, %s\n", (int) command, (char*)text);
-        wanson_engine_play_response(wav_id);
+        intent_engine_play_response(wav_id);
     }
 }
 
-#if appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-void inference_engine_full_power_request(void)
-{
-    wanson_engine_full_power_request();
-}
+#if appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO)
 
-void inference_engine_low_power_accept(void)
-{
-    wanson_engine_low_power_accept();
-}
-
-uint8_t inference_engine_low_power_ready(void)
+uint8_t intent_engine_low_power_ready(void)
 {
     return (keyword_proc_busy == 0);
 }
 
-void inference_engine_low_power_reset(void)
+void intent_engine_low_power_reset(void)
 {
-    wanson_engine_stream_buf_reset();
+    intent_engine_stream_buf_reset();
     xQueueReset(q_intent);
 }
 
-int32_t inference_engine_keyword_queue_count(void)
+int32_t intent_engine_keyword_queue_count(void)
 {
     return (q_intent != NULL) ? (int32_t)uxQueueMessagesWaiting(q_intent) : 0;
 }
 
-void inference_engine_keyword_queue_complete(void)
+void intent_engine_keyword_queue_complete(void)
 {
     keyword_proc_busy = 0;
 }
-#endif /* appconfLOW_POWER_ENABLED && ON_TILE(INFERENCE_TILE_NO) */
+#endif /* appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO) */
 
-#if appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO)
-int32_t inference_engine_create(uint32_t priority, void *args)
+#if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
+int32_t intent_engine_create(uint32_t priority, void *args)
 {
     q_intent = (QueueHandle_t) args;
 
-#if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
-    wanson_engine_task_create(priority);
+#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+    intent_engine_task_create(priority);
 #else
-    wanson_engine_intertile_task_create(priority);
+    intent_engine_intertile_task_create(priority);
 #endif
     return 0;
 }
-#endif /* appconfINFERENCE_ENABLED && ON_TILE(INFERENCE_TILE_NO) */
+#endif /* appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO) */
 
-int32_t inference_engine_sample_push(int32_t *buf, size_t frames)
+int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
 {
-#if appconfINFERENCE_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
-#if INFERENCE_TILE_NO == AUDIO_PIPELINE_TILE_NO
-    wanson_engine_samples_send_local(
+#if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+    intent_engine_samples_send_local(
             frames,
             buf);
 #else
-    wanson_engine_samples_send_remote(
+    intent_engine_samples_send_remote(
             intertile_ctx,
             frames,
             buf);
