@@ -87,7 +87,24 @@ pipeline {
                             } else {
                                 echo 'SKIPPED: ${TEST_SCRIPT_SRCT}'
                             }
-                        } 
+                        }
+                        sh "pytest test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file test/sample_rate_conversion/test_output/sample_rate_conversion_output.wav --wav_duration 10"
+                    }
+                }
+            }
+        }
+        stage('Run GPIO test') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            if (fileExists("$DOWNLOAD_DIRNAME/example_test_ffd_gpio_test.xe")) {
+                                sh "test/ffd_gpio/run_tests.sh"
+                            } else {
+                                echo 'SKIPPED: ${TEST_SCRIPT_GPIO}' 
+                            }
+                        }
+                        sh 'python tools/ci/python/parse_test_output.py testing/test.rpt -outfile="testing/test_results" --print_test_results --verbose'
                     }
                 }
             }
@@ -100,5 +117,4 @@ pipeline {
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
             cleanWs()
         }
-    }    
-}
+    }    }

@@ -28,3 +28,9 @@ of the repository:
 ``` console
 bash test/ffd_low_power_audio_buffer/run_tests.sh
 ```
+
+The output file can be verified via a pytest:
+
+``` console
+pytest
+```
