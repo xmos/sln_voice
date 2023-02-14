@@ -56,14 +56,14 @@ static void intent_engine_intertile_samples_in_task(void *arg)
         size_t bytes_received;
 
         bytes_received = rtos_intertile_rx_len(
-                intertile_ap_ctx,
+                intertile_ctx,
                 appconfINTENT_MODEL_RUNNER_SAMPLES_PORT,
                 portMAX_DELAY);
 
         xassert(bytes_received == sizeof(samples));
 
         rtos_intertile_rx_data(
-                intertile_ap_ctx,
+                intertile_ctx,
                 samples,
                 bytes_received);
 
