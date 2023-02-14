@@ -683,30 +683,40 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     size_t tx_size_bytes_rate_adjusted = tx_size_bytes / RATE_MULTIPLIER;
     size_t tx_size_frames_rate_adjusted = tx_size_frames / RATE_MULTIPLIER;
 
+    /* We must always output samples equal to what we recv in adaptive
+     * In the event we underflow send 0's. */
+    size_t ready_data_bytes = 0;
     if (bytes_available >= tx_size_bytes_rate_adjusted) {
-
-        size_t num_rx_total = 0;
-        while(num_rx_total < tx_size_bytes_rate_adjusted){
-            size_t num_rx =  xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], tx_size_bytes_rate_adjusted-num_rx_total, 0);
-            num_rx_total += num_rx;
-        }        
-
-        if (RATE_MULTIPLIER == 3) {
-            static int32_t __attribute__((aligned (8))) src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX][SRC_FF3V_FIR_TAPS_PER_PHASE];
-
-            for (int i = 0; i < tx_size_frames_rate_adjusted ; i++) {
-                for (int j = 0; j < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX; j++) {
-                    usb_audio_frames[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)stream_buffer_audio_frames[i][j]);
-                    usb_audio_frames[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
-                    usb_audio_frames[3*i + 2][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[0]);
-                }
-            }
-            tud_audio_write(usb_audio_frames, tx_size_bytes);
-        } else {
-            tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
-        }
+        ready_data_bytes = tx_size_bytes_rate_adjusted;
     } else {
-        rtos_printf("Oops buffer is empty!\n");
+        ready_data_bytes = bytes_available;
+        if (RATE_MULTIPLIER == 3) {
+            memset(usb_audio_frames, 0, tx_size_bytes);
+        } else {
+            memset(stream_buffer_audio_frames, 0, tx_size_bytes);
+        }
+        rtos_printf("Oops tx buffer underflowed!\n");
+    }
+
+    size_t num_rx_total = 0;
+    while(num_rx_total < ready_data_bytes){
+        size_t num_rx =  xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes-num_rx_total, 0);
+        num_rx_total += num_rx;
+    }
+
+    if (RATE_MULTIPLIER == 3) {
+        static int32_t __attribute__((aligned (8))) src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX][SRC_FF3V_FIR_TAPS_PER_PHASE];
+
+        for (int i = 0; i < ready_data_bytes ; i++) {
+            for (int j = 0; j < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX; j++) {
+                usb_audio_frames[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)stream_buffer_audio_frames[i][j]);
+                usb_audio_frames[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
+                usb_audio_frames[3*i + 2][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[0]);
+            }
+        }
+        tud_audio_write(usb_audio_frames, tx_size_bytes);
+    } else {
+        tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
     }
 
     return true;
