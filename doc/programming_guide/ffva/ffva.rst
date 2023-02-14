@@ -6,7 +6,6 @@ Far-field Voice Assistant
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    overview
    hardware

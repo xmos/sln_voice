@@ -26,8 +26,7 @@ These include:
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
-- Independent audio paths for communications and Automatic Speech Recognition (ASR) 
-- Support for Wanson Speech Recognition or chooser-defined 3rd party ASR 
+- Support for Wanson Speech Recognition or other 3rd party ASR 
 
 **Device Interface components**
 
@@ -37,7 +36,7 @@ These include:
 
 **Example Designs utilizing above components**
 
-- Far-Field Voice Local Control 
+- Far-Field Voice Local Command 
 - Far-Field Voice Assistance 
 
 **Firmware Management**
@@ -70,7 +69,7 @@ Obtaining the Software
 Development Tools
 *****************
 
-Download and install the XCore `XTC Tools <https://www.xmos.ai/software-tools/>`_ version 15.1.4 or newer. If you already have the XTC Toolchain installed, you can check the version with the following command:
+It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`_.  XTC Tools 15.1.4 or newer are required. If you already have the XTC Toolchain installed, you can check the version with the following command:
 
     xcc --version
 
