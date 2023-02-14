@@ -1,4 +1,4 @@
-# Far-field Voice Local Control
+# Far-field Voice Local Command
 
 This is the XCORE-VOICE far-field voice local control firmware with Wanson speech recognition. 
 
@@ -17,7 +17,6 @@ The application will recognize the following utterances:
 
 **Wakeword Utterances**
 - Hello XMOS
-- Hello Wanson
 
 **Command Utterances**
 - Switch on the TV

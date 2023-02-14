@@ -4,7 +4,7 @@
 .. _sln_voice_ffd_quick_start:
 
 #############################
-Far-field Voice Local Control
+Far-field Voice Local Command
 #############################
 
 ********

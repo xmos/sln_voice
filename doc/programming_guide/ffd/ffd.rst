@@ -1,12 +1,11 @@
 .. _sln_voice_ffd_programming_guide:
 
 #############################
-Far-field Voice Local Control
+Far-field Voice Local Command
 #############################
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
 
    overview
    hardware

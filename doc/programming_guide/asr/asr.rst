@@ -6,7 +6,6 @@ Automated Speech Recognition Porting
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
    overview
    hardware
