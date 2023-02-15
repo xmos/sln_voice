@@ -621,7 +621,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     samp_t stream_buffer_audio_frames[2 * AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /* This buffer has to be large enough to contain any size transaction */
-    samp_t usb_audio_frames[RATE_MULTIPLIER*AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
+    samp_t usb_audio_frames[4 * RATE_MULTIPLIER * AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /*
      * Copying XUA_lite logic basically verbatim - if the host is streaming out, 
@@ -691,6 +691,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     } else {
         ready_data_bytes = bytes_available;
         if (RATE_MULTIPLIER == 3) {
+            ready_data_bytes /= RATE_MULTIPLIER;
             memset(usb_audio_frames, 0, tx_size_bytes);
         } else {
             memset(stream_buffer_audio_frames, 0, tx_size_bytes);
@@ -718,7 +719,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     } else {
         tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
     }
-
     return true;
 }
 
