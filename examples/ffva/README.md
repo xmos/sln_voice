@@ -15,37 +15,29 @@ On Linux and Mac run:
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    make example_ffva_int_adec
-    make example_ffva_int_adec_altarch
+    make example_ffva_int_fixed_delay
     make example_ffva_ua_adec
-    make example_ffva_ua_adec_altarch
 
 On Windows run:
 
     cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    nmake example_ffva_int_adec
-    nmake example_ffva_int_adec_altarch
+    nmake example_ffva_int_fixed_delay
     nmake example_ffva_ua_adec
-    nmake example_ffva_ua_adec_altarch
 
 From the build folder, create the data partition containing the filesystem and
 flash the device with the appropriate command to the desired configuration:
 
 On Linux and Mac run:
 
-    make flash_app_example_ffva_int_adec
-    make flash_app_example_ffva_int_adec_altarch
+    make flash_app_example_ffva_int_fixed_delay
     make flash_app_example_ffva_ua_adec
-    make flash_app_example_ffva_ua_adec_altarch
 
 On Windows run:
 
-    nmake flash_app_example_ffva_int_adec
-    nmake flash_app_example_ffva_int_adec_altarch
+    nmake flash_app_example_ffva_int_fixed_delay
     nmake flash_app_example_ffva_ua_adec
-    nmake flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
 
@@ -58,17 +50,13 @@ Run the following commands in the build folder.
 
 On Linux and Mac run:
 
-    make run_example_ffva_int_adec
-    make run_example_ffva_int_adec_altarch
+    make run_example_ffva_int_fixed_delay
     make run_example_ffva_ua_adec
-    make run_example_ffva_ua_adec_altarch
 
 On Windows run:
 
-    nmake run_example_ffva_int_adec
-    nmake run_example_ffva_int_adec_altarch
+    nmake run_example_ffva_int_fixed_delay
     nmake run_example_ffva_ua_adec
-    nmake run_example_ffva_ua_adec_altarch
 
 ## Debugging the firmware with `xgdb`
 
@@ -76,17 +64,13 @@ Run the following commands in the build folder.
 
 On Linux and Mac run:
 
-    make debug_example_ffva_int_adec
-    make debug_example_ffva_int_adec_altarch
+    make debug_example_ffva_int_fixed_delay
     make debug_example_ffva_ua_adec
-    make debug_example_ffva_ua_adec_altarch
 
 On Windows run:
 
-    nmake debug_example_ffva_int_adec
-    nmake debug_example_ffva_int_adec_altarch
+    nmake debug_example_ffva_int_fixed_delay
     nmake debug_example_ffva_ua_adec
-    nmake debug_example_ffva_ua_adec_altarch
 
 ## Running the Firmware With WAV Files
 
@@ -102,7 +86,6 @@ On Linux and Mac run:
     cd build
 
     make example_ffva_ua_adec
-    make example_ffva_ua_adec_altarch
 
 On Windows run:
 
@@ -110,7 +93,6 @@ On Windows run:
     cd build
 
     nmake example_ffva_ua_adec
-    nmake example_ffva_ua_adec_altarch
 
 After rebuilding the firmware, run the application.
 
