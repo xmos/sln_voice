@@ -26,7 +26,7 @@ Inside of the build folder root, after building the firmware:
 
 .. code-block:: console
 
-    make flash_fs_example_ffd
+    make flash_app_example_ffd
 
 Once flashed, the application will run.
 
