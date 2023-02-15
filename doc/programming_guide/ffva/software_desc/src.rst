@@ -37,7 +37,7 @@ This folder contains the core application source.
    * - FreeRTOSConfig.h
      - header to describe FreeRTOS configuration
    * - main.c
-
+     - application code
 
 Main
 ====

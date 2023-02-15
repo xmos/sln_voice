@@ -17,7 +17,7 @@ INPUT += ../modules/voice/modules/lib_ns/api
 INPUT += ../modules/voice/modules/lib_agc/api
 INPUT += ../modules/voice/modules/lib_adec/api
 INPUT += ../modules/voice/modules/lib_ic/api
-INPUT += ../modules/voice/modules/lib_vad/api
+INPUT += ../modules/voice/modules/lib_vnr/api/common ../modules/voice/modules/lib_vnr/api/features ../modules/voice/modules/lib_vnr/api/inference
 
 # RTOS driver APIs
 INPUT += ../modules/rtos/modules/drivers 
