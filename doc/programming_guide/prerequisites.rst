@@ -4,7 +4,7 @@
 Prerequisites
 #############
 
-`XTC Tools 15.1.4 <https://www.xmos.com/software/tools/>`_ or newer are required for building, running, flashing and debugging the example applications.
+It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`_.  XTC Tools 15.1.4 or newer are required for building, running, flashing and debugging the example applications.
 
 `CMake 3.21 <https://cmake.org/download/>`_ or newer is also required for building the example applications.
 
@@ -21,7 +21,7 @@ XCORE-VOICE host build should also work using other Windows GNU development envi
 libusb
 ======
 
-The DFU feature of XCORE-VOICE requires `dfu-util <<https://dfu-util.sourceforge.net/>`_ which requires `libusb v1.0`. `libusb`` requires the installation of a driver for use on a Windows host. Driver installation should be done using a third-party installation tool like `Zadig <https://zadig.akeo.ie/>`_.
+The DFU feature of XCORE-VOICE requires `dfu-util <https://dfu-util.sourceforge.net/>`_ which requires `libusb v1.0`. `libusb`` requires the installation of a driver for use on a Windows host. Driver installation should be done using a third-party installation tool like `Zadig <https://zadig.akeo.ie/>`_.
 
 *****
 macOS

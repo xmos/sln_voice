@@ -8,7 +8,6 @@ Software Description
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
    software_desc/bsp_config
    software_desc/ext
