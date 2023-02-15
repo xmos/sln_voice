@@ -657,7 +657,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
      * maintain a good fill level again.
      */
 
-
     if (xStreamBufferIsFull(samples_to_host_stream_buf)) {
         xStreamBufferReset(samples_to_host_stream_buf);
         ready = 0;
@@ -708,7 +707,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     if (RATE_MULTIPLIER == 3) {
         static int32_t __attribute__((aligned (8))) src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX][SRC_FF3V_FIR_TAPS_PER_PHASE];
 
-        for (int i = 0; i < ready_data_bytes ; i++) {
+        for (int i = 0; i < tx_size_frames_rate_adjusted ; i++) {
             for (int j = 0; j < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX; j++) {
                 usb_audio_frames[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)stream_buffer_audio_frames[i][j]);
                 usb_audio_frames[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
