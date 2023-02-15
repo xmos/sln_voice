@@ -6,7 +6,7 @@ help()
 {
    echo "XCORE-VOICE module PDF builder script"
    echo
-   echo "Syntax: build_module_pdfs.sh"
+   echo "Syntax: build_pdfs.sh"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -44,8 +44,6 @@ mkdir -p ${DIST_DIR}
 # setup configurations
 # row format is: "module_path  generated_filename   final_filename"
 modules=(
-    ".                programming_guide.pdf       xcore_voice_programming_guide.pdf"
-    ".                quick_start_guide.pdf       xcore_voice_quick_start_guide.pdf"
     "modules/io       programming_guide.pdf       peripheral_io_programming_guide.pdf"
     "modules/rtos     programming_guide.pdf       rtos_programming_guide.pdf"
     "modules/rtos     build_system_guide.pdf      build_system_guide.pdf"
@@ -66,7 +64,7 @@ for ((i = 0; i < ${#modules[@]}; i += 1)); do
         echo '******************************************************'
         echo '* Building PDFs for' ${rel_path}
         echo '******************************************************'
-        
+
         # build docs
         (cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/exclude_patterns.inc -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:latest)
 
