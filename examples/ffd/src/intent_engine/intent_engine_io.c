@@ -134,7 +134,7 @@ int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
             buf);
 #else
     intent_engine_samples_send_remote(
-            intertile_ctx,
+            intertile_ap_ctx,
             frames,
             buf);
 #endif
