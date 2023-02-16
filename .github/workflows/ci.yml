@@ -1,170 +1,175 @@
-# YAML schema for GitHub Actions:
-# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/workflow-syntax-for-github-actions
-#
-# Helpful YAML parser to clarify YAML syntax:
-# https://yaml-online-parser.appspot.com/
-#
-# This workflow uses actions that are not certified by GitHub. They are provided by a third-party and are governed by
+# This workflow uses other callable workflows containing actions that are not
+# certified by GitHub. They are provided by a third-party and are governed by
 # separate terms of service, privacy policy, and support documentation.
 #
-# This file contains the workflows that are run prior to merging a pull request.
+# This workflow triggers on multiple event sources and is intended as the
+# top-level CI for building artifacts during PRs and creation of release tags
+# (note the tags format specified below).
 
-name: CI
+name: Build and Upload Artifacts
 
 on:
   push:
     branches:
-      - 'develop'
-      - 'main'
+      - "develop"
+      - "main"
+
+    # NOTE:
+    # "on tags" is used to trigger the release process instead of
+    # "on release" due to current release process requirements.
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
   pull_request:
     branches:
-      - 'develop'
-      - 'main'
+      - "develop"
+      - "main"
 
   # Allow manually triggering of the workflow.
-  workflow_dispatch: {}
+  workflow_dispatch:
+    is_release:
+      description: "Indicates whether to treat this run as a release. This input is only intended for testing purposes. Releases are to be performed on tag creation."
+      type: string
+      required: true
+      default: "false"
 
 env:
-  XCORE_BUILDER: 'ghcr.io/xmos/xcore_builder:latest'
+  TMP_SOURCES_DIR: ${{ github.workspace }}/tmp/src
+  TMP_PDF_DOCS_ARTIFACT_NAME: docs.tmp
+  RELEASE_SOURCES_DIR: ${{ github.workspace }}/release/src
+  RELEASE_PDF_DOCS_DIR: ${{ github.workspace }}/release/docs/pdf
 
 jobs:
-  build_host_apps:
-    name: Build host applications
+  event_configuration:
+    name: Determine event configuration
     runs-on: ubuntu-latest
+    outputs:
+      is_release: ${{ steps.run_type.outputs.IS_RELEASE }}
+      example_apps_artifact_name: ${{ steps.artifact_names.outputs.EXAMPLES_ARTIFACT_NAME }}
+      src_artifact_name: ${{ steps.artifact_names.outputs.SOURCES_ARTIFACT_NAME }}
+      html_docs_artifact_name: ${{ steps.artifact_names.outputs.HTML_DOCS_ARTIFACT_NAME }}
+      pdf_docs_artifact_name: ${{ steps.artifact_names.outputs.PDF_DOCS_ARTIFACT_NAME }}
+      pdf_docs_artifact_name_release: ${{ steps.artifact_names.outputs.PDF_DOCS_ARTIFACT_NAME_RELEASE }}
+    steps:
+      - name: Determine workflow run type
+        id: run_type
+        run: |
+          IS_RELEASE=false
+          IS_TAGGED=false
+          if [ "${{ startsWith(github.ref, 'refs/tags/v') }}" = "true" ]; then
+            IS_RELEASE=true
+            IS_TAGGED=true
+          fi
+          if [ "${{ inputs.is_release }}" = "true" ]; then
+            IS_RELEASE=true
+          fi
+          echo "IS_RELEASE=$IS_RELEASE" >> $GITHUB_OUTPUT
+          echo "IS_RELEASE=$IS_RELEASE" >> $GITHUB_ENV
+          echo "IS_TAGGED=$IS_TAGGED" >> $GITHUB_ENV
+
+      - name: Determine artifact names
+        id: artifact_names
+        run: |
+          if [ "$IS_RELEASE" = "true" ]; then
+            if [ "$IS_TAGGED" = "true" ]; then
+              version=$(echo "${{ github.ref_name }}" | sed "s/\./_/g")
+            else
+              version="test"
+            fi
+            echo "EXAMPLES_ARTIFACT_NAME=xcore_voice_example_apps_$version" >> $GITHUB_OUTPUT
+            echo "SOURCES_ARTIFACT_NAME=xcore_voice_sources_$version" >> $GITHUB_OUTPUT
+            echo "HTML_DOCS_ARTIFACT_NAME=xcore_voice_html_docs_$version" >> $GITHUB_OUTPUT
+            echo "PDF_DOCS_ARTIFACT_NAME=$TMP_PDF_DOCS_ARTIFACT_NAME" >> $GITHUB_OUTPUT
+            echo "PDF_DOCS_ARTIFACT_NAME_RELEASE=xcore_voice_pdf_docs_$version" >> $GITHUB_OUTPUT
+          else
+            echo "EXAMPLES_ARTIFACT_NAME=xcore_voice_example_apps" >> $GITHUB_OUTPUT
+            echo "SOURCES_ARTIFACT_NAME=xcore_voice_sources" >> $GITHUB_OUTPUT
+            echo "PDF_DOCS_ARTIFACT_NAME=xcore_voice_pdf_docs" >> $GITHUB_OUTPUT
+            echo "HTML_DOCS_ARTIFACT_NAME=xcore_voice_html_docs" >> $GITHUB_OUTPUT
+          fi
+
+  build_apps:
+    name: Build example applications
+    needs: event_configuration
+    uses: ./.github/workflows/apps.yml
+    with:
+      is_release: ${{ needs.event_configuration.outputs.is_release }}
+      example_apps_artifact_name: ${{ needs.event_configuration.outputs.example_apps_artifact_name }}
+
+  build_docs:
+    name: Build documentation
+    needs: event_configuration
+    uses: ./.github/workflows/docs.yml
+    with:
+      html_docs_artifact_name: ${{ needs.event_configuration.outputs.html_docs_artifact_name }}
+      pdf_docs_artifact_name: ${{ needs.event_configuration.outputs.pdf_docs_artifact_name }}
+
+  # NOTE:
+  # The jobs below only run on releases.
+
+  release_docs:
+    name: Release documentation
+    needs: [event_configuration, build_docs]
+    runs-on: ubuntu-latest
+    if: needs.event_configuration.outputs.is_release == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           submodules: recursive
 
-      - name: Pull SDK builder
-        run: |
-          docker pull ${XCORE_BUILDER}
+      - name: Download documentation artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ needs.event_configuration.outputs.pdf_docs_artifact_name }}
+          path: ${{ env.RELEASE_PDF_DOCS_DIR }}
 
-      - name: Build
+      - name: Rename xcore voice PDFs
         run: |
-          docker run --rm -w /xcore_sdk -v ${{github.workspace}}:/xcore_sdk ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
+          cd ${{ env.RELEASE_PDF_DOCS_DIR }}
+          mv programming_guide.pdf xcore_voice_programming_guide.pdf
+          mv quick_start_guide.pdf xcore_voice_quick_start_guide.pdf
 
-      - name: Upload artifacts
+      - name: Build other modules' PDFs
+        run: |
+          bash tools/ci/build_pdfs.sh
+          cp dist_pdfs/* ${{ env.RELEASE_PDF_DOCS_DIR }}
+
+      - name: Upload documentation
         uses: actions/upload-artifact@v3
         with:
-          name: host_apps
-          path: ./dist_host
+          name: ${{ needs.event_configuration.outputs.pdf_docs_artifact_name_release }}
+          path: ${{ env.RELEASE_PDF_DOCS_DIR }}
 
-  build_main_examples:
-    name: Build main example applications
+  release_sources:
+    name: Release sources
+    needs: event_configuration
     runs-on: ubuntu-latest
-    needs: build_host_apps
+    if: needs.event_configuration.outputs.is_release == 'true'
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
+          fetch-depth: 1
           submodules: recursive
+          path: ${{ env.TMP_SOURCES_DIR }}
 
-      - name: Pull Docker builder
+      # NOTE:
+      # Sources must be pre-zipped or added to an archive such as a tarball to
+      # prevent loss of file permissions such as the executable bash scripts.
+      # The side-effect of this is that the uploaded artifact will be
+      # double-zipped. This is a reported limitation (as of 2023-02) in:
+      # https://github.com/actions/upload-artifact
+      # Also some 3rd party sources contain symlinks thus the --symlinks option
+      # specified below.
+      - name: Prepare artifact
         run: |
-          docker pull ${XCORE_BUILDER}
+          cd $TMP_SOURCES_DIR
+          mkdir -p $RELEASE_SOURCES_DIR
+          zip -r --symlinks $RELEASE_SOURCES_DIR/${{ needs.event_configuration.outputs.src_artifact_name }}.zip .
 
-      - name: Download host build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: host_apps
-          path: ./dist_host
-          
-      - name: Build
-        run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/main_examples.txt
-
-      - name: Save metadata
-        run: |
-          bash tools/ci/log_metadata.sh ./dist/main_examples_metadata.json
-
-      - name: Save example app firmware artifacts
+      - name: Upload sources
         uses: actions/upload-artifact@v3
         with:
-          name: sln_voice_main_example_apps
-          path: |
-            ./dist/*.*
-
-  build_misc_examples:
-    name: Build misc example applications
-    runs-on: ubuntu-latest
-    needs: build_host_apps
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Pull Docker builder
-        run: |
-          docker pull ${XCORE_BUILDER}
-
-      - name: Download host build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: host_apps
-          path: ./dist_host
-          
-      - name: Build
-        run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/misc_examples.txt
-
-  build_dev_examples:
-    name: Build dev example applications
-    runs-on: ubuntu-latest
-    needs: build_host_apps
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Pull Docker builder
-        run: |
-          docker pull ${XCORE_BUILDER}
-
-      - name: Download host build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: host_apps
-          path: ./dist_host
-          
-      - name: Build
-        run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/dev_examples.txt
-
-  build_tests:
-    name: Build tests and test applications
-    runs-on: ubuntu-latest
-    needs: build_host_apps
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Pull Docker builder
-        run: |
-          docker pull ${XCORE_BUILDER}
-
-      - name: Download host build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: host_apps
-          path: ./dist_host
-
-      - name: Build
-        run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
-
-      - name: Save metadata
-        run: |
-          bash tools/ci/log_metadata.sh ./dist/tests_metadata.json
-
-      - name: Save example application firmware artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: sln_voice_test_apps
-          path: |
-            ./dist/*.*
+          name: ${{ needs.event_configuration.outputs.src_artifact_name }}
+          path: ${{ env.RELEASE_SOURCES_DIR }}
