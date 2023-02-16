@@ -24,6 +24,8 @@ This folder contains bsp_configs for the FFD application.  More information on b
      - DAC ports for supported bsp_configs
    * - XCORE-AI-EXPLORER directory
      - experimental bsp_config, not recommended for general use
+   * - XCORE-AI-EXPLORER_EXT directory
+     - experimental bsp_config, not recommended for general use
    * - XK_VOICE_L71 directory
      - default FFD application bsp_config
    * - XK_VOICE_L71_EXT directory

@@ -20,7 +20,7 @@ If options are changed, the application firmware must be rebuilt.
      - 1
    * - appconfINTENT_RESET_DELAY_MS
      - Sets the period after the wake up phrase has been heard for a valid command phrase
-     - 3000
+     - 5000
    * - appconfINTENT_RAW_OUTPUT
      - Set to 1 to output all keywords found, skipping the internal wake up and command state machine
      - 0
@@ -48,6 +48,30 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_WAKEUP_EDGE_TYPE
      - Sets the host wake up pin GPIO edge type.  0 for rising edge, 1 for falling edge
      - 0
+   * - appconfLOW_POWER_ENABLED
+     - Enables/disables low power feature
+     - 1
+   * - appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
+     - Enables/disables low power feature adjusting the switch clock
+     - 1
+   * - appconfLOW_POWER_SWITCH_CLK_DIV
+     - Sets the low power mode switch clock divider value
+     - 30
+   * - appconfLOW_POWER_OTHER_TILE_CLK_DIV
+     - Sets the low power mode tile core clock divider value for the keyword engine tile
+     - 600
+   * - appconfLOW_POWER_CONTROL_TILE_CLK_DIV
+     - Sets the low power mode tile core clock divider value for the audio pipeline and voice activity detection tile
+     - 2
+   * - appconfPOWER_FULL_HOLD_DURATION
+     - Sets the minimum amount of time to expect a wakeword before requesting to be set back into low power
+     - 1000
+   * - appconfAUDIO_PIPELINE_BUFFER_ENABLED
+     - Enables/disables a ring buffer to hold pre-trigger audio frames when in low power
+     - 1
+   * - appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
+     - Sets the number of audio frames held in the low power audio frame buffer
+     - 32
    * - appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
      - Enables/disables the IC and VNR
      - 0

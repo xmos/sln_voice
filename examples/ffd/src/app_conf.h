@@ -65,11 +65,6 @@
 #define appconfINTENT_QUEUE_LEN     10
 #endif
 
-/* Maximum number of detected intents to hold */
-#ifndef appconfWAKEUP_TRIGGER_LEN
-#define appconfWAKEUP_TRIGGER_LEN     1
-#endif
-
 /* External wakeup pin edge on intent found.  0 for rising edge, 1 for falling edge */
 #ifndef appconfINTENT_WAKEUP_EDGE_TYPE
 #define appconfINTENT_WAKEUP_EDGE_TYPE     0
@@ -108,14 +103,36 @@
 #define appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE  1
 #endif
 
-#define appconfLOW_POWER_SWITCH_CLK_DIV         30  // Resulting clock freq >= 20MHz.
-#define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
-#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2   // Resulting clock freq >= 300MHz
+#ifndef appconfLOW_POWER_SWITCH_CLK_DIV
+/* Resulting clock freq: 20MHz */
+#define appconfLOW_POWER_SWITCH_CLK_DIV         30
+#endif
 
+#ifndef appconfLOW_POWER_OTHER_TILE_CLK_DIV
+#define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
+#endif
+
+#ifndef appconfLOW_POWER_CONTROL_TILE_CLK_DIV
+/* Resulting clock freq: 300MHz */
+#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2
+#endif
+
+#ifndef appconfPOWER_VNR_THRESHOLD
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
+#endif
+
+#ifndef appconfPOWER_LOW_ENERGY_THRESHOLD
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
+#endif
+
+#ifndef appconfPOWER_HIGH_ENERGY_THRESHOLD
 #define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
-#define appconfPOWER_FULL_HOLD_DURATION         (1000) // milliseconds
+#endif
+
+/* In Milliseconds*/
+#ifndef appconfPOWER_FULL_HOLD_DURATION
+#define appconfPOWER_FULL_HOLD_DURATION         (1000)
+#endif
 
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */
@@ -189,8 +206,8 @@
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 5)
 #define appconfAUDIO_PIPELINE_TASK_PRIORITY    	    (configMAX_PRIORITIES / 2)
-#define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY (configMAX_PRIORITIES - 2)
-#define appconfINTENT_HMI_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
+#define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY    (configMAX_PRIORITIES - 2)
+#define appconfINTENT_HMI_TASK_PRIORITY             (configMAX_PRIORITIES / 2)
 #define appconfGPIO_RPC_PRIORITY                    (configMAX_PRIORITIES / 2)
 #define appconfCLOCK_CONTROL_RPC_HOST_PRIORITY      (configMAX_PRIORITIES / 2)
 #define appconfPOWER_CONTROL_TASK_PRIORITY          (configMAX_PRIORITIES / 2)

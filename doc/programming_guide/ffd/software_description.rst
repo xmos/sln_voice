@@ -9,13 +9,14 @@ Software Description
 .. toctree::
    :maxdepth: 1
 
+   software_desc/asr
    software_desc/bsp_config
    software_desc/ext
    software_desc/filesystem_support
-   software_desc/host
-   software_desc/inference
-   software_desc/power
    software_desc/src
+   software_desc/intent_engine
+   software_desc/intent_handler
+   software_desc/power
 
 Overview
 ========
@@ -43,13 +44,25 @@ low power state consumes around 50 mW.
      - Tile 1
    * - Unused CPU Time (600 MHz)
      - 69%
-     - 55 %
+     - 55%
    * - Total Memory Free
      - 210k
      - 273k
    * - Runtime Heap Memory Free
      - 18k
      - 6k
+
+.. list-table:: FFD Power Usage
+   :widths: 30 30
+   :header-rows: 1
+   :align: left
+
+   * - Power State
+     - Power (mW)
+   * - Low Power
+     - TBD
+   * - Full Power
+     - TBD
 
 The description of the software is split up by folder:
 
@@ -61,6 +74,9 @@ The description of the software is split up by folder:
    * - Folder
      - Description
      - Link
+   * - asr
+     - ASR engine ports
+     - :ref:`sln_voice_ffd_asr`
    * - bsp_config
      - Board support configuration setting up software based IO peripherals
      - :ref:`sln_voice_ffd_bsp_config`
@@ -70,15 +86,15 @@ The description of the software is split up by folder:
    * - filesystem_support
      - Filesystem contents for application
      - :ref:`sln_voice_ffd_filesystem_support`
-   * - host
-     - Host applications
-     - :ref:`sln_voice_ffd_host`
-   * - inference
-     - Inferencing engine integration
-     - :ref:`sln_voice_ffd_inference`
-   * - power
-     - Low power state and control
-     - :ref:`sln_voice_ffd_power`
    * - src
      - Main application
      - :ref:`sln_voice_ffd_src`
+   * - src/intent_engine
+     - Intent engine integration
+     - :ref:`sln_voice_ffd_intent_engine`
+   * - src/intent_handler
+     - Intent engine output integration
+     - :ref:`sln_voice_ffd_intent_handler`
+   * - src/power
+     - Low power state and control
+     - :ref:`sln_voice_ffd_power`

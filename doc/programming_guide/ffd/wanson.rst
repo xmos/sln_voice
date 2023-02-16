@@ -21,7 +21,7 @@ The Wanson speech recognition engine runs proprietary models to identify keyword
 
 The model used in FFD is approximately 185k.  The runtime and application supporting code consumes approximately 250k.
 
-With the model in flash, the Wanson engine requires a core frequency of at least 400 MHz to keep up with real time.
+With the model in flash, the Wanson engine requires a core frequency of at least 400 MHz to keep up with real time. Additionally, the Wanson engine must be on the same tile as the flash.
 
 To replace the Wanson engine with a different engine, refer to the FFD documentation on :ref:`sln_voice_FFD_replacing-wanson-keyword-engine-block`
 
@@ -29,7 +29,7 @@ To replace the Wanson engine with a different engine, refer to the FFD documenta
 Dictionary command table
 ========================
 
-.. list-table:: English language demo
+.. list-table:: English Language Demo
    :widths: 50 50 50
    :header-rows: 1
    :align: left
@@ -40,57 +40,54 @@ Dictionary command table
    * - Hello XMOS
      - keyword
      - 1
-   * - Hello Wanson
-     - keyword
-     - 2
    * - Switch on the TV
      - command
-     - 3
+     - 2
    * - Switch off the TV
      - command
-     - 4
+     - 3
    * - Channel up
      - command
-     - 5
+     - 4
    * - Channel down
      - command
-     - 6
+     - 5
    * - Volume up
      - command
-     - 7
+     - 6
    * - Volume down
      - command
-     - 8
+     - 7
    * - Switch on the lights
      - command
-     - 9
+     - 8
    * - Switch off the lights
      - command
-     - 10
+     - 9
    * - Brightness up
      - command
-     - 11
+     - 10
    * - Brightness down
      - command
-     - 12
+     - 11
    * - Switch on the fan
      - command
-     - 13
+     - 12
    * - Switch off the fan
      - command
-     - 14
+     - 13
    * - Speed up the fan
      - command
-     - 15
+     - 14
    * - Slow down the fan
      - command
-     - 16
+     - 15
    * - Set higher temperature
      - command
-     - 17
+     - 16
    * - Set lower temperature
      - command
-     - 18
+     - 17
 
 
 State Machine
@@ -104,6 +101,10 @@ When using the state machine, the application intent callback will only occur wh
    :align: center
    :scale: 100 %
    :alt: Wanson speech recognizer state machine diagram
+
+.. raw:: latex
+
+    \clearpage
 
 The state machine logic can be disabled by setting the compile time option appconfINTENT_RAW_OUTPUT, to 1.  The wake word to command timeout is compile time configurable via appconfINTENT_RESET_DELAY_MS.
 

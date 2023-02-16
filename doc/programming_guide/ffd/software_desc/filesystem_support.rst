@@ -23,7 +23,7 @@ This folder contains filesystem contents for the FFD application.
    * - 50.wav
      - Playback for intent ID 50
    * - 1.wav
-     - Playback for intent ID 1 and ID 2
+     - Playback for intent ID 1
    * - 3.wav
      - Playback for intent ID 3
    * - 4.wav

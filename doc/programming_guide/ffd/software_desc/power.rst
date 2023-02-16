@@ -1,7 +1,7 @@
 .. _sln_voice_ffd_power:
 
 #########
-power
+src/power
 #########
 
 
@@ -42,4 +42,4 @@ values that result in frequencies greater than or equal to 20MHz have been
 observed to work.
 
 Values for `appconfLOW_POWER_CONTROL_TILE_CLK_DIV` that result in frequencies
-greater than or equal to 200MHz have been observed to work.
+greater than or equal to 300MHz have been observed to work.
