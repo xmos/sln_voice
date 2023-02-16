@@ -610,6 +610,11 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
                                    uint8_t ep_in,
                                    uint8_t cur_alt_setting)
 {
+    (void) rhport;
+    (void) itf;
+    (void) ep_in;
+    (void) cur_alt_setting;
+
     static int ready = 0;
     size_t bytes_available;
     size_t tx_size_bytes;
@@ -621,7 +626,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     samp_t stream_buffer_audio_frames[2 * AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /* This buffer has to be large enough to contain any size transaction */
-    samp_t usb_audio_frames[RATE_MULTIPLIER*AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
+    samp_t usb_audio_frames[2 * RATE_MULTIPLIER * AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /*
      * Copying XUA_lite logic basically verbatim - if the host is streaming out, 
@@ -642,11 +647,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
     tx_size_frames = tx_size_bytes / (sizeof(samp_t) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
 
-    (void) rhport;
-    (void) itf;
-    (void) ep_in;
-    (void) cur_alt_setting;
-
     if (!mic_interface_open) {
         ready = 0;
         mic_interface_open = true;
@@ -656,7 +656,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
      * If the buffer becomes full, reset it in an attempt to
      * maintain a good fill level again.
      */
-
 
     if (xStreamBufferIsFull(samples_to_host_stream_buf)) {
         xStreamBufferReset(samples_to_host_stream_buf);
@@ -691,6 +690,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     } else {
         ready_data_bytes = bytes_available;
         if (RATE_MULTIPLIER == 3) {
+            ready_data_bytes /= RATE_MULTIPLIER;
             memset(usb_audio_frames, 0, tx_size_bytes);
         } else {
             memset(stream_buffer_audio_frames, 0, tx_size_bytes);
@@ -707,7 +707,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     if (RATE_MULTIPLIER == 3) {
         static int32_t __attribute__((aligned (8))) src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX][SRC_FF3V_FIR_TAPS_PER_PHASE];
 
-        for (int i = 0; i < ready_data_bytes ; i++) {
+        for (int i = 0; i < tx_size_frames_rate_adjusted ; i++) {
             for (int j = 0; j < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX; j++) {
                 usb_audio_frames[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)stream_buffer_audio_frames[i][j]);
                 usb_audio_frames[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
@@ -718,7 +718,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     } else {
         tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
     }
-
     return true;
 }
 

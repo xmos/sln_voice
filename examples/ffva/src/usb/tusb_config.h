@@ -67,7 +67,7 @@
 #define CFG_TUD_MIDI              0
 #define CFG_TUD_AUDIO             1
 #define CFG_TUD_VENDOR            0
-#define CFG_TUD_DFU         1
+#define CFG_TUD_DFU               1
 
 //--------------------------------------------------------------------
 // DFU DRIVER CONFIGURATION
@@ -109,6 +109,9 @@ extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 
 // EP and buffer sizes
 #define AUDIO_FRAMES_PER_USB_FRAME                   (appconfUSB_AUDIO_SAMPLE_RATE / 1000)
+#if appconfUSB_AUDIO_SAMPLE_RATE == 48000
+#define USB_TASK_STACK_SIZE                          2000
+#endif
 
 // To support USB Adaptive/Asynchronous, maximum packet size must be large enough to accommodate an extra set of samples per frame.
 // Adding 1 to AUDIO_SAMPLES_PER_USB_FRAME allows this.
