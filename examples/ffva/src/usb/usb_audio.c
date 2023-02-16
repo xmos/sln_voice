@@ -610,6 +610,11 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
                                    uint8_t ep_in,
                                    uint8_t cur_alt_setting)
 {
+    (void) rhport;
+    (void) itf;
+    (void) ep_in;
+    (void) cur_alt_setting;
+
     static int ready = 0;
     size_t bytes_available;
     size_t tx_size_bytes;
@@ -621,7 +626,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     samp_t stream_buffer_audio_frames[2 * AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /* This buffer has to be large enough to contain any size transaction */
-    samp_t usb_audio_frames[4 * RATE_MULTIPLIER * AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
+    samp_t usb_audio_frames[2 * RATE_MULTIPLIER * AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /*
      * Copying XUA_lite logic basically verbatim - if the host is streaming out, 
@@ -641,11 +646,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         tx_size_bytes = sizeof(samp_t) * (AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
     }
     tx_size_frames = tx_size_bytes / (sizeof(samp_t) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
-
-    (void) rhport;
-    (void) itf;
-    (void) ep_in;
-    (void) cur_alt_setting;
 
     if (!mic_interface_open) {
         ready = 0;
