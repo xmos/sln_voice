@@ -27,11 +27,12 @@ on:
 
   # Allow manually triggering of the workflow.
   workflow_dispatch:
-    is_release:
-      description: "Indicates whether to treat this run as a release. This input is only intended for testing purposes. Releases are to be performed on tag creation."
-      type: string
-      required: true
-      default: "false"
+    inputs:
+      is_release:
+        description: "Run as release (for testing purposes)?"
+        type: boolean
+        required: true
+        default: false
 
 env:
   TMP_SOURCES_DIR: ${{ github.workspace }}/tmp/src
