@@ -44,6 +44,6 @@ If replacing the existing handler code, this is the only functions that is requi
 intent_handler_create
 ^^^^^^^^^^^^^^^^^^^^^
 
-This function has the role of creating the keyword handling task. In the case of the Wanson model, the application provides a FreeRTOS Queue object. This handler is on the same tile as the Wanson engine, tile 0.
+This function has the role of creating the keyword handling task for the ASR engine. In the case of the Wanson model, the application provides a FreeRTOS Queue object. This handler is on the same tile as the Wanson engine, tile 0.
 
 The call to intent_handler_create() will create one thread on tile 0. This thread will receive id packets from the ASR engine over a FreeRTOS Queue object and output over various IO interfaces based on configuration.

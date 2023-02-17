@@ -108,7 +108,7 @@ When using the state machine, the application intent callback will only occur wh
 
 The state machine logic can be disabled by setting the compile time option appconfINTENT_RAW_OUTPUT, to 1.  The wake word to command timeout is compile time configurable via appconfINTENT_RESET_DELAY_MS.
 
-More information on these options can be found in the FFD :ref:`sln_voice_FFD_configuring-the-firmware` section.
+More information on these options can be found in the FFD :ref:`sln_voice_ffd_configuration` section.
 
 Application Integration
 =======================

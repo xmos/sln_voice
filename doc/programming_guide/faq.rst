@@ -12,6 +12,37 @@ This issue occurs when the `fatfs_mkimage` host utility cannot be found.  The mo
 
 Ensure that the host applications build and install has been completed.  Verify that the `fatfs_mkimage`` binary is installed to a location on PATH, or that the default application installation folder is added to PATH.
 
+******************
+FFD Crash At Start
+******************
+
+One potential issue with the FFD application is a crash when trying to run:
+
+.. code-block:: console
+
+    Wanson init
+    xrun: Program received signal ET_ECALL, Application exception.
+        [Switching to tile[0] core[3]]
+        0x0008d308 in __xcore_ecallf ()
+
+This generally occurs when the model was not properly loaded into flash.  To flash the model and filesystem, see :ref:`sln_voice_ffd_deloying_linux_mac`
+or :ref:`sln_voice_ffd_deloying_native_windows` based on host platform.
+
+
+**********************
+FFD pdm_rx_isr() Crash
+**********************
+
+One potential issue with the low power FFD application is a crash after adding new code:
+
+.. code-block:: console
+
+    xrun: Program received signal ET_ECALL, Application exception.
+        [Switching to tile[1] core[1]]
+        0x0008a182 in pdm_rx_isr ()
+
+This generally occurs when there is not enough processing time available on tile 1, or when interrupts were disabled for too long, causing the mic array driver to fail to meet timing.  To resolve reduce the processing time, minimize context switching and other actions that require kernel locks, and/or increase the tile 1 core clock frequency.
+
 *******************
 Debugging low-power
 *******************

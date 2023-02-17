@@ -27,12 +27,12 @@ tolerances and any user added code and/or user added compile options.
 
 By default, the application will startup using a system frequency of 600 MHz
 which will consume around 141 mW. After startup, `tile[1]` clock divider is
-enabled and set to 3 bringing the tile's frequency down to 200 MHz, where it
-will consumer around 113 mW. Tile frequencies lower than this may lead to
+enabled and set to 3 bringing the tile's frequency down to 300 MHz, where it
+will consumer around 114 mW. Tile frequencies lower than this may lead to
 application instability. When the application enters `POWER_STATE_LOW`,
 the `tile[0]` clock frequency will be divided by 600 and the switch clock
 frequency by 30 bringing the frequencies to 1 MHz and 20 MHz, respectively. This
-low power state consumes around 50 mW.
+low power state consumes around 55 mW.
 
 .. list-table:: FFD Resources
    :widths: 30 10 30
@@ -43,14 +43,14 @@ low power state consumes around 50 mW.
      - Tile 0
      - Tile 1
    * - Unused CPU Time (600 MHz)
-     - 69%
-     - 55%
+     - 83%
+     - 27%
    * - Total Memory Free
-     - 210k
-     - 273k
+     - 192k
+     - 173k
    * - Runtime Heap Memory Free
-     - 18k
-     - 6k
+     - 38k
+     - 42k
 
 .. list-table:: FFD Power Usage
    :widths: 30 30
@@ -60,9 +60,9 @@ low power state consumes around 50 mW.
    * - Power State
      - Power (mW)
    * - Low Power
-     - TBD
+     - 55
    * - Full Power
-     - TBD
+     - 114
 
 The description of the software is split up by folder:
 
