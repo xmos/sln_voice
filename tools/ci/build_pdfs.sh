@@ -70,7 +70,7 @@ for ((i = 0; i < ${#standard_modules[@]}; i += 1)); do
         echo '******************************************************'
         echo '* Building PDFs for' ${rel_path}
         echo '******************************************************'
-        
+
         # build docs
         (cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/${expat_file} -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:v2.0.0)
         # append to built paths so we do not build it again
