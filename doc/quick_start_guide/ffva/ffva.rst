@@ -65,7 +65,7 @@ Flashing the Firmware
 
 Connect the XTAG4 via USB to the host computer running the XTC tools, and power on the board (either via RPi or directly via USB).
 
-On the host computer, open a `XTC Tools Command Prompt`.
+On the host computer, open a ``XTC Tools Command Prompt``.
 
 .. code-block:: console
 
@@ -157,7 +157,7 @@ Flashing the Firmware
 
 Connect the XTAG4 via USB to the host computer running the XTC tools, and power on the board (either via RPi or directly via USB).
 
-On the host computer, open a `XTC Tools Command Prompt`.
+On the host computer, open a ``XTC Tools Command Prompt``.
 
 Navigate to the root directory of the sln_voice repository.
 
@@ -197,7 +197,7 @@ Install the Amazon Alexa SDK and configure the Raspberry Pi Audio by following t
 Run Demo and Test Virtual Assistant Functionality
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-1. Once installation is complete, avsrun will run on startup. Otherwise, run the demo by typing `avsrun` in a terminal. The demo will now operate as an Alexa virtual assistant.
+1. Once installation is complete, avsrun will run on startup. Otherwise, run the demo by typing ``avsrun`` in a terminal. The demo will now operate as an Alexa virtual assistant.
 
 2. After successful device authorization, avsrun always displays 'Alexa is currently idle!' while waiting for the user.
 

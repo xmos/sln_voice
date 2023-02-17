@@ -42,22 +42,28 @@ DIST_DIR=${XCORE_VOICE_ROOT}/dist_pdfs
 mkdir -p ${DIST_DIR}
 
 # setup configurations
-# row format is: "module_path  generated_filename   final_filename"
-modules=(
-    "modules/io       programming_guide.pdf       peripheral_io_programming_guide.pdf"
-    "modules/rtos     programming_guide.pdf       rtos_programming_guide.pdf"
-    "modules/rtos     build_system_guide.pdf      build_system_guide.pdf"
+# row format is: "module_path  exclude_patterns generated_filename   final_filename"
+standard_modules=(
+    "modules/io/modules/mic_array   programming_guide.pdf   doc_excludes.txt   mic_array_programming_guide.pdf"
+    "modules/io   programming_guide.pdf   exclude_patterns.inc   peripheral_io_programming_guide.pdf"
+    "modules/rtos   programming_guide.pdf   exclude_patterns.inc   rtos_programming_guide.pdf"
+    "modules/rtos   build_system_guide.pdf   exclude_patterns.inc   build_system_guide.pdf"
 )
+
+# *****************************************************************
+# NOTE: some modules are not standard and are built individually
+# *****************************************************************
 
 
 built_paths=()
 
-# perform builds
-for ((i = 0; i < ${#modules[@]}; i += 1)); do
-    read -ra FIELDS <<< ${modules[i]}
+# perform builds on standard modules
+for ((i = 0; i < ${#standard_modules[@]}; i += 1)); do
+    read -ra FIELDS <<< ${standard_modules[i]}
     rel_path="${FIELDS[0]}"
     gen_name="${FIELDS[1]}"
-    fin_name="${FIELDS[2]}"
+    expat_file="${FIELDS[2]}"
+    fin_name="${FIELDS[3]}"
     full_path="${XCORE_VOICE_ROOT}/${rel_path}"
 
     if [[ ! ${built_paths[*]} =~ ${rel_path} ]] ; then
@@ -66,8 +72,7 @@ for ((i = 0; i < ${#modules[@]}; i += 1)); do
         echo '******************************************************'
 
         # build docs
-        (cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/exclude_patterns.inc -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:latest)
-
+        (cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/${expat_file} -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:v2.0.0)
         # append to built paths so we do not build it again
         built_paths+=( ${rel_path} )
     fi
@@ -75,3 +80,19 @@ for ((i = 0; i < ${#modules[@]}; i += 1)); do
     # copy to dist folder
     (cd ${full_path}/doc/_build/pdf; cp ${gen_name} ${DIST_DIR}/${fin_name})
 done
+
+# perform builds on non-standard modules
+
+echo '******************************************************'
+echo '* Building PDFs for lib_xcore_math'
+echo '******************************************************'
+# lib_xcore_math is non standard because the doc_builder returns a non-zero return code but does not generate an error.  
+#  To workaround this, the call to docker is redirected so the return code can be ignored.  
+full_path="${XCORE_VOICE_ROOT}/modules/core/modules/xcore_math/lib_xcore_math"
+
+# build docs
+
+(cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/doc_excludes.txt -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:v2.0.0 || echo "Container always falsely reports an error. Ignoring error.")
+
+# copy to dist folder
+(cd ${full_path}/doc/_build/pdf; cp programming_guide.pdf ${DIST_DIR}/xcore_math_programming_guide.pdf)

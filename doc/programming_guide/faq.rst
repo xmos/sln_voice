@@ -8,15 +8,15 @@ Frequently Asked Questions
 fatfs_mkimage: not found
 ************************
 
-This issue occurs when the `fatfs_mkimage` host utility cannot be found.  The most common cause for these issues are an incomplete installation of XCORE-VOICE.
+This issue occurs when the ``fatfs_mkimage`` host utility cannot be found.  The most common cause for these issues are an incomplete installation of XCORE-VOICE.
 
-Ensure that the host applications build and install has been completed.  Verify that the `fatfs_mkimage`` binary is installed to a location on PATH, or that the default application installation folder is added to PATH.
+Ensure that the host applications build and install has been completed.  Verify that the ``fatfs_mkimage`` binary is installed to a location on PATH, or that the default application installation folder is added to PATH.
 
 *******************
 Debugging low-power
 *******************
 
-The clock dividers are set high to minimize core power consumption.  This can make debugging a challenge or impossible.  Even adding a simple `printf` can case critical timing to be missed.  In order to debug with the low-power features enabled, temporarily modify the clock dividers in `app_conf.h`.
+The clock dividers are set high to minimize core power consumption.  This can make debugging a challenge or impossible.  Even adding a simple ``printf`` can case critical timing to be missed.  In order to debug with the low-power features enabled, temporarily modify the clock dividers in ``app_conf.h``.
 
 .. code-block:: c
 

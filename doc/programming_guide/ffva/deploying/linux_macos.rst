@@ -1,10 +1,12 @@
 .. include:: ../../../substitutions.rst
 
+.. _sln_voice_ffva_deploying_linux_macos_programming_guide:
+
 ******************************************
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `Make`. 
+This document explains how to deploy the software using ``CMake`` and ``Make``. 
 
 Building the Firmware
 =====================

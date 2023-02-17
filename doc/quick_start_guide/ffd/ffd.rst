@@ -71,7 +71,7 @@ Flashing the Firmware
 
 Connect the XTAG4 via USB to the host computer running the XTC tools, and power on the board directly via USB.
 
-On the host computer, open a `XTC Tools Command Prompt`.
+On the host computer, open a ``XTC Tools Command Prompt``.
 
 .. code-block:: console
 
