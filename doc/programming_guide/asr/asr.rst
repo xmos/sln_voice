@@ -9,5 +9,6 @@ Automated Speech Recognition Porting
 
    overview
    hardware
-   deploying
+   deploying/linux_macos
+   deploying/native_windows
    modifying

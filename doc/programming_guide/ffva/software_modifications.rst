@@ -22,7 +22,7 @@ See :ref:`sln_voice_memory_cpu` for more details on the memory footprint and CPU
 Replacing XCORE-VOICE DSP Block
 -------------------------------
 
-The audio pipeline can be replaced by making changes to the `audio_pipeline.c` file.
+The audio pipeline can be replaced by making changes to the ``audio_pipeline.c`` file.
 
 It is up to the user to ensure that the input and output frames of the audio pipeline remain the same, or the remainder of the application will not function properly.
 
@@ -149,7 +149,7 @@ It is also possible to add or remove stages.  Refer to the RTOS Framework docume
 Populating a Keyword Engine Block
 -------------------------------------
 
-To add a keyword engine block, a user may populate the existing `model_runner_manager()` function with their model:
+To add a keyword engine block, a user may populate the existing ``model_runner_manager()`` function with their model:
 
 .. code-block:: c
     :caption: Model Runner (model_runner.c)
