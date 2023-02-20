@@ -36,7 +36,7 @@ The audio pipeline consists of 4 stages.
      - 1
      - 1
 
-TODO: link to voice framework documentation
+See the Voice Framework User Guide for more information.
 
 .. raw:: latex
 
