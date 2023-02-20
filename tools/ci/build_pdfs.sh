@@ -46,6 +46,7 @@ mkdir -p ${DIST_DIR}
 standard_modules=(
     "modules/io/modules/mic_array   programming_guide.pdf   doc_excludes.txt   mic_array_programming_guide.pdf"
     "modules/io   programming_guide.pdf   exclude_patterns.inc   peripheral_io_programming_guide.pdf"
+    "modules/voice   user_guide.pdf   exclude_patterns.inc   voice_framework_user_guide.pdf"
     "modules/rtos   programming_guide.pdf   exclude_patterns.inc   rtos_programming_guide.pdf"
     "modules/rtos   build_system_guide.pdf   exclude_patterns.inc   build_system_guide.pdf"
 )

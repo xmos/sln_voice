@@ -9,7 +9,7 @@ by 3rd-party ASR developers and ISVs to port their ASR library to xcore.ai.
 
 The example reads a 1 channel, 16-bit, 16kHz wav file, slices it up into bricks, and calls the ASR library with each 
 brick.  The default brick length is 240 samples but this is configurable.  ASR ports that implement the public API 
-defined in `asr/api/asr.h` can easily be added to current and future XCORE-VOICE example designs that support speech
+defined in ``asr/api/asr.h`` can easily be added to current and future XCORE-VOICE example designs that support speech
 recognition.
 
 An oversimplified ASR port is provided.  This ASR port recognizes the "Hello XMOS" keyword if any acoustic activity 

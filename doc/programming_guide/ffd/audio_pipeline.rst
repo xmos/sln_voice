@@ -37,4 +37,4 @@ The audio pipeline consists of 3 stages.
      - 1
      - 1
 
-TODO: link to XCORE-VOICE documentation
+See the Voice Framework User Guide for more information. 

@@ -4,12 +4,6 @@ Documentation Source
 
 This folder contains source files for **XCORE-VOICE**.  The sources do not render well in GitHub or an RST viewer.  In addition, some information is not visible at all and some links will not be functional.
 
-********************
-Hosted Documentation
-********************
-
-TODO: Include URL for hosted documentation
-
 **********************
 Building Documentation
 **********************
