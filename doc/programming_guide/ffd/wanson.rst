@@ -42,52 +42,52 @@ Dictionary command table
      - 1
    * - Switch on the TV
      - command
-     - 2
+     - 3
    * - Switch off the TV
      - command
-     - 3
+     - 4
    * - Channel up
      - command
-     - 4
+     - 5
    * - Channel down
      - command
-     - 5
+     - 6
    * - Volume up
      - command
-     - 6
+     - 7
    * - Volume down
      - command
-     - 7
+     - 8
    * - Switch on the lights
      - command
-     - 8
+     - 9
    * - Switch off the lights
      - command
-     - 9
+     - 10
    * - Brightness up
      - command
-     - 10
+     - 11
    * - Brightness down
      - command
-     - 11
+     - 12
    * - Switch on the fan
      - command
-     - 12
+     - 13
    * - Switch off the fan
      - command
-     - 13
+     - 14
    * - Speed up the fan
      - command
-     - 14
+     - 15
    * - Slow down the fan
      - command
-     - 15
+     - 16
    * - Set higher temperature
      - command
-     - 16
+     - 17
    * - Set lower temperature
      - command
-     - 17
+     - 18
 
 
 State Machine
