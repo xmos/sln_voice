@@ -24,6 +24,8 @@ This folder contains the core application source.
      - contains example XMOS audio pipeline
    * - gpio_ctrl directory
      - contains general purpose input handling and LED handling tasks
+   * - intent_engine directory
+     - contains intent engine code
    * - intent_handler directory
      - contains intent handling code
    * - power directory

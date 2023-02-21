@@ -1,5 +1,7 @@
 .. include:: ../../../substitutions.rst
 
+.. _sln_voice_ffd_deloying_native_windows:
+
 ******************************************
 Deploying the Firmware with Native Windows
 ******************************************

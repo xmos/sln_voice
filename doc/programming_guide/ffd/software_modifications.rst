@@ -18,7 +18,7 @@ The FFD example design consists of three major software blocks, the audio pipeli
 It is highly recommended to be familiar with the application as a whole before attempting replacing these functional units.  This information can be found here:
 :ref:`sln_voice_ffd_software_description`
 
-See :ref:`sln_voice_memory_cpu` for more details on the memory footprint and CPU usage of the major software components.
+See :ref:`sln_voice_ffd_software_description` for more details on the memory footprint and CPU usage of the major software components.
 
 Replacing XCORE-VOICE DSP Block
 -------------------------------
@@ -153,8 +153,8 @@ It is also possible to add or remove stages.  Refer to the RTOS Framework docume
 
 .. _sln_voice_ffd_replacing-wanson-keyword-engine-block:
 
-Replacing Wanson Keyword Engine Block
--------------------------------------
+Replacing ASR Engine Block
+--------------------------
 
 Replacing the keyword spotter engine has the potential to require significant changes due to various feature extraction input requirements and varied output logic.
 

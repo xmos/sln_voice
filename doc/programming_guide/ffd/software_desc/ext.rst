@@ -24,9 +24,9 @@ This folder contains FFD application debug and experimental extensions.
      - custom Wanson engine port for USB output
    * - src directory
      - custom code for USB output and debug
+   * - ffd_dev.cmake
+     - cmake for declaring FFD experimental configs
    * - ffd_ext.cmake
      - cmake for declaring FFD extensions
    * - ffd_usb_audio_testing.cmake
      - cmake for declaring FFD usb debug extension
-   * - ffd_usb_output.cmake
-     - cmake for declaring FFD usb output extension

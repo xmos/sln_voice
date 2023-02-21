@@ -1,5 +1,7 @@
 .. include:: ../../../substitutions.rst
 
+.. _sln_voice_ffd_deloying_linux_mac:
+
 ******************************************
 Deploying the Firmware with Linux or macOS
 ******************************************
