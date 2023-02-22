@@ -70,38 +70,38 @@ extern ring_buffer_t ring_buf;
 static uint32_t error_count = 0;
 static int32_t samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
-static uint8_t inference_engine_sample_push_skip_verify;
-static int32_t *inference_engine_sample_push_expected_buf;
-static size_t inference_engine_sample_push_total_frames;
-static uint32_t inference_engine_sample_push_error_count;
+static uint8_t intent_engine_sample_push_skip_verify;
+static int32_t *intent_engine_sample_push_expected_buf;
+static size_t intent_engine_sample_push_total_frames;
+static uint32_t intent_engine_sample_push_error_count;
 
-void setup_inference_engine_sample_push(char *expected_start_address)
+void setup_intent_engine_sample_push(char *expected_start_address)
 {
     // Catch potential issues in test logic.
     assert((uint32_t)expected_start_address % sizeof(int32_t) == 0);
 
-    inference_engine_sample_push_expected_buf = (int32_t *)expected_start_address;
-    inference_engine_sample_push_error_count = error_count;
-    inference_engine_sample_push_skip_verify = 1;
-    inference_engine_sample_push_total_frames = 0;
+    intent_engine_sample_push_expected_buf = (int32_t *)expected_start_address;
+    intent_engine_sample_push_error_count = error_count;
+    intent_engine_sample_push_skip_verify = 1;
+    intent_engine_sample_push_total_frames = 0;
 }
 
-void verify_inference_engine_sample_push_args(int32_t *buf, size_t samples)
+void verify_intent_engine_sample_push_args(int32_t *buf, size_t samples)
 {
     const uint32_t tail_addr = ((uint32_t)ring_buf.buf + ring_buf.size);
 
-    if (inference_engine_sample_push_skip_verify)
+    if (intent_engine_sample_push_skip_verify)
         return;
 
-    TEST_ASSERT_PTRS_ARE_EQUAL(inference_engine_sample_push_expected_buf, buf);
+    TEST_ASSERT_PTRS_ARE_EQUAL(intent_engine_sample_push_expected_buf, buf);
     TEST_ASSERT_LONGS_ARE_EQUAL((uint32_t)appconfAUDIO_PIPELINE_FRAME_ADVANCE, (uint32_t)samples);
-    inference_engine_sample_push_expected_buf += samples;
+    intent_engine_sample_push_expected_buf += samples;
 
-    if ((uint32_t)inference_engine_sample_push_expected_buf >= tail_addr)
-        inference_engine_sample_push_expected_buf = ring_buf.buf;
+    if ((uint32_t)intent_engine_sample_push_expected_buf >= tail_addr)
+        intent_engine_sample_push_expected_buf = ring_buf.buf;
 
-    if (inference_engine_sample_push_error_count != error_count)
-        inference_engine_sample_push_skip_verify = 0;
+    if (intent_engine_sample_push_error_count != error_count)
+        intent_engine_sample_push_skip_verify = 0;
 }
 
 void verify_sample_buffer_state(uint32_t *starting_index,
@@ -229,7 +229,7 @@ void verify_get_pointer_wraps_around(void)
 
     TEST_CASE_PRINTF();
     init_sample_buffer(); // Reinitialize to decouple test cases.
-    setup_inference_engine_sample_push(expected_get_ptr_start);
+    setup_intent_engine_sample_push(expected_get_ptr_start);
     // Set the buffer to the tail of the buffer.
     set_ring_buffer_state(expected_set_ptr,
                           expected_get_ptr_start,
@@ -395,7 +395,7 @@ void verify_dequeuing_empty_buffer_does_not_output_samples(void)
 
     TEST_CASE_PRINTF();
     init_sample_buffer(); // Reinitialize to decouple test cases.
-    setup_inference_engine_sample_push(expected_get_ptr_start);
+    setup_intent_engine_sample_push(expected_get_ptr_start);
     reset_ring_buffer_state();
 
     uint32_t frames_dequeued = low_power_audio_buffer_dequeue(max_dequeue_frames);
@@ -425,7 +425,7 @@ void verify_dequeuing_non_full_frame_is_not_possible(uint32_t samples_to_enqueue
 
     TEST_CASE_PRINTF(": Dequeuing %ld enqueued sample(s).", samples_to_enqueue);
     init_sample_buffer(); // Reinitialize to decouple test cases.
-    setup_inference_engine_sample_push(expected_get_ptr_start);
+    setup_intent_engine_sample_push(expected_get_ptr_start);
     set_ring_buffer_state(expected_set_ptr,
                           expected_get_ptr,
                           expected_frame_count,
@@ -466,7 +466,7 @@ void verify_dequeuing_partially_reports_not_empty(uint32_t frame_index)
                      appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES,
                      frame_index);
     init_sample_buffer(); // Reinitialize to decouple test cases.
-    setup_inference_engine_sample_push(expected_get_ptr_start);
+    setup_intent_engine_sample_push(expected_get_ptr_start);
     set_ring_buffer_state(expected_set_ptr,
                           expected_get_ptr_start,
                           init_buf_count,
@@ -507,7 +507,7 @@ void verify_dequeuing_all_frames_reports_empty(uint32_t frame_index)
                      max_dequeue_frames,
                      frame_index);
     init_sample_buffer(); // Reinitialize to decouple test cases.
-    setup_inference_engine_sample_push(expected_get_ptr_start);
+    setup_intent_engine_sample_push(expected_get_ptr_start);
     set_ring_buffer_state(expected_set_ptr,
                           expected_get_ptr_start,
                           init_buf_count,
