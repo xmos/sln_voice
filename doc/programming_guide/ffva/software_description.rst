@@ -66,7 +66,7 @@ The description of the software is split up by folder:
      - Description
      - Link
    * - audio_pipeline
-     - Preconfigured audio piplines
+     - Preconfigured audio pipelines
      - :ref:`sln_voice_ffva_audio_pipeline`
    * - bsp_config
      - Board support configuration setting up software based IO peripherals

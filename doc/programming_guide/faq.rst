@@ -25,8 +25,8 @@ One potential issue with the FFD application is a crash when trying to run:
         [Switching to tile[0] core[3]]
         0x0008d308 in __xcore_ecallf ()
 
-This generally occurs when the model was not properly loaded into flash.  To flash the model and filesystem, see :ref:`sln_voice_ffd_deloying_linux_mac`
-or :ref:`sln_voice_ffd_deloying_native_windows` based on host platform.
+This generally occurs when the model was not properly loaded into flash.  To flash the model and filesystem, see :ref:`_sln_voice_ffd_deploying_linux_mac`
+or :ref:`sln_voice_ffd_deploying_native_windows` based on host platform.
 
 
 **********************

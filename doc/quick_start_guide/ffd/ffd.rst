@@ -14,7 +14,7 @@ Overview
 These are the XCORE-VOICE far-field local control example designs demonstrating:
 
 - 2-microphone far-field voice control with |I2C| or UART interface 
-- Audio pipeline including interference cancelling and noise supression 
+- Audio pipeline including interference cancelling and noise suppression 
 - 25-phrase English language speech recognition
 
 ***************

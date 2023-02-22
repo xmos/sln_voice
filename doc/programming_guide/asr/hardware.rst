@@ -14,6 +14,6 @@ This example design requires an XCORE.AI Evaulation Kit.
 
 .. image:: ../../shared/images/XK-EVK-XU316.png
   :width: 400
-  :alt: XCORE.AI Evaulation Kit 
+  :alt: XCORE.AI Evaluation Kit
 
-Connect the XCORE.AI Evaulation Kit as described in the `xcore.ai Explorer Board Quick Start <https://www.xmos.ai/download/xcore.ai-Explorer-Board-Quick-Start(6).pdf>`_ guide.  
+Connect the XCORE.AI Evaluation Kit as described in the `xcore.ai Explorer Board Quick Start <https://www.xmos.ai/download/xcore.ai-Explorer-Board-Quick-Start(6).pdf>`_ guide.
