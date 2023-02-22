@@ -6,19 +6,12 @@
 #include <stddef.h>
 #include "intent_engine.h"
 
-void print_data(int32_t* buffer, size_t count)
-{
-    printf("OUTPUT DATA --> ");
-
-    for (size_t i = 0; i < count; i++)
-        printf("%3ld ", buffer[i]);
-
-    printf("\n");
-}
+// Defined by test logic.
+void verify_intent_engine_sample_push_args(int32_t *buf, size_t frames);
 
 /* Stub for intent_engine_sample_push */
 int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
 {
-    print_data(buf, frames);
+    verify_intent_engine_sample_push_args(buf, frames);
     return 0;
 }
