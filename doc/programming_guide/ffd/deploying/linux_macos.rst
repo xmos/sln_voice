@@ -6,7 +6,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `Make`. 
+This document explains how to deploy the software using `CMake` and `Make`.
 
 Building the Firmware
 =====================
@@ -22,17 +22,20 @@ Run the following commands in the root folder to build the firmware:
 Running the Firmware
 ====================
 
-Before the firmware is run, the filesystem must be loaded.
+Before running the firmware, the filesystem and model must be flashed to the
+data partition.
 
-Inside of the build folder root, after building the firmware:
+Within the root of the build folder, run:
 
 .. code-block:: console
 
     make flash_app_example_ffd
 
-Once flashed, the application will run.
+After this command completes, the application will be running.
 
-After the filesystem has been flashed once, the application can be run without flashing.  If changes are made to the filesystem image, the application must be reflashed.
+After flashing the data partition, the application can be run without
+reflashing. If changes are made to the data partition components, the
+application must be reflashed.
 
 From the build folder run:
 
@@ -49,4 +52,3 @@ To debug with xgdb, from the build folder run:
 .. code-block:: console
 
     make debug_example_ffd
-    
