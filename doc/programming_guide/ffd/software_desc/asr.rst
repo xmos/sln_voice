@@ -27,4 +27,4 @@ This folder contains ASR ports.
    * - port/wanson directory
      - contains the Wanson engine and associated port code
    * - asr.cmake
-     - cmake for adding asr targets
+     - cmake for adding ASR targets

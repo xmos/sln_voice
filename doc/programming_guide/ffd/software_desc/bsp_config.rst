@@ -29,6 +29,6 @@ This folder contains bsp_configs for the FFD application.  More information on b
    * - XK_VOICE_L71 directory
      - default FFD application bsp_config
    * - XK_VOICE_L71_EXT directory
-     - usb debug extension FFD application bsp_config
+     - USB debug extension FFD application bsp_config
    * - bsp_config.cmake
      - cmake for adding FFD bsp_configs

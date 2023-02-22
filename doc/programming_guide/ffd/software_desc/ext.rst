@@ -20,8 +20,6 @@ This folder contains FFD application debug and experimental extensions.
 
    * - Filename/Directory
      - Description
-   * - inference directory
-     - custom Wanson engine port for USB output
    * - src directory
      - custom code for USB output and debug
    * - ffd_dev.cmake

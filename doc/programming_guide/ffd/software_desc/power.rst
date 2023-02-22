@@ -22,17 +22,14 @@ The application monitors the VNR and produces low power events based on:
 - `appconfPOWER_HIGH_ENERGY_THRESHOLD`
 - `appconfPOWER_FULL_HOLD_DURATION`
 
-The first three configuration options above determine when to produce a
-`POWER_STATE_FULL` event. The last configuration option above determines when
-a timer period, on expiration, this timer will produce a `POWER_STATE_LOW`
-event. Additionally, when `POWER_STATE_FULL` events occur, this timer is reset
-thus keeping the device is `POWER_STATE_FULL` or at least another
-`appconfPOWER_FULL_HOLD_DURATION` milliseconds.
-
-`appconfPOWER_FULL_HOLD_DURATION` should be configured to take into account
-`appconfINTENT_RESET_DELAY_MS` and any time required to produce
-(audible/visual) feedback; in this application, the SLEEP_WAV tone should be
-considered.
+The first three configuration options above determine when to begin
+transitioning, or continue to hold, the device in `POWER_STATE_FULL`. The last
+configuration option above determines the minimum period of time to device is
+allowed to wait for a wake word before requesting to transition into
+`POWER_STATE_LOW`. Each time `POWER_STATE_FULL` is set by the audio pipeline
+tile, the timer that is configured for a period of `appconfPOWER_FULL_HOLD_DURATION`
+milliseconds is reset, preventing any requests to `POWER_STATE_LOW` to be
+aborted.
 
 `appconfLOW_POWER_ENABLED` enables/disables use of this low power functionality.
 

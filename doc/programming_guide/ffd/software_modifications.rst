@@ -158,12 +158,12 @@ Replacing ASR Engine Block
 
 Replacing the keyword spotter engine has the potential to require significant changes due to various feature extraction input requirements and varied output logic.
 
-The generic inference engine API only requires two functions be declared:
+The generic intent engine API only requires two functions be declared:
 
 .. code-block:: c
     :caption: Intent API (intent_engine.h)
 
-    /* Generic interface for inference engines */
+    /* Generic interface for intent engines */
     int32_t intent_engine_create(uint32_t priority, void *args);
     int32_t intent_engine_sample_push(int32_t *buf, size_t frames);
 
@@ -202,7 +202,7 @@ The proc_keyword_res task can be modified as follows:
         }
     }
 
-This code example will receive the id of each intent, and can be populated by any user application logic.  User logic can use other RTOS drivers to control various peripherals, such as screens, motors, lights, etc, based on the intent engine outputs.
+This code example will receive the ID of each intent, and can be populated by any user application logic.  User logic can use other RTOS drivers to control various peripherals, such as screens, motors, lights, etc, based on the intent engine outputs.
 
 .. figure:: diagrams/ffd_direct_control_diagram.drawio.png
    :align: center

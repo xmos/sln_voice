@@ -5,7 +5,7 @@
 Configuring the Firmware
 ========================
 
-The default application performs as described in the Overview. There are numerous compile time options that can be added to change the example design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/ffd.cmake>`_.
+The default application performs as described in the :ref:`_sln_voice_ffd_overview`. There are numerous compile time options that can be added to change the example design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/ffd.cmake>`_.
 
 If options are changed, the application firmware must be rebuilt.
 
@@ -18,7 +18,7 @@ If options are changed, the application firmware must be rebuilt.
      - Description
      - Default Value
    * - appconfINTENT_ENABLED
-     - Enables/disables the inference engine, primarily for debug.
+     - Enables/disables the intent engine, primarily for debug.
      - 1
    * - appconfINTENT_RESET_DELAY_MS
      - Sets the period after the wake up phrase has been heard for a valid command phrase
