@@ -26,7 +26,7 @@ These include:
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
-- Support for Wanson Speech Recognition or other 3rd party ASR 
+- Support for Wanson or other 3rd party Automatic Speech Recognition (ASR) software
 
 **Device Interface components**
 
@@ -49,7 +49,7 @@ These include:
 **Power Consumption**
 
 - Typical power consumption 300-350mW 
-- Low power modes down to 100mW 
+- Low power modes down to 55mW
 
 ######################
 Obtaining the Hardware

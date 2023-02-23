@@ -15,7 +15,7 @@ These are the XCORE-VOICE far-field local control example designs demonstrating:
 
 - 2-microphone far-field voice control with |I2C| or UART interface 
 - Audio pipeline including interference cancelling and noise suppression 
-- 25-phrase English language speech recognition
+- 16-phrase English language speech recognition
 
 ***************
 Example designs
@@ -31,6 +31,9 @@ While inactive, low-power mode uses a fraction of energy otherwise required by n
 When a wake-up phrase is followed by an command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
 This software is an evaluation version only.  It includes a mechanism that limits the maximum number of recognitions to 50. You can reset the counter to 0 by restarting or rebooting the application.  The application can be rebooted by power cycling or pressing the SW2 button.
+
+.. note::
+  Due to the hardware design, SW2 is only functional when in full-power operation.
 
 **Requirements**
 
