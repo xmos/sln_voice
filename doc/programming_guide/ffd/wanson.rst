@@ -89,6 +89,10 @@ Dictionary command table
      - command
      - 18
 
+.. raw:: latex
+
+    \clearpage
+
 
 State Machine
 =============
