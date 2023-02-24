@@ -99,7 +99,7 @@ This function has the role of receiving the processed audio pipeline output.
 
 This function is weak so the application can override it if desired.
 
-In FFD, the output is sent to the inference engine. If `appconfLOW_POWER_ENABLED`
+In FFD, the output is sent to the intent engine. If `appconfLOW_POWER_ENABLED`
 is set true, then the output will be dropped if the power state is not
 `POWER_STATE_FULL`. In certain conditions and environments, this behavior may
 cause the wake word to be missed. Further adjustments to the application

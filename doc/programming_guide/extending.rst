@@ -26,7 +26,7 @@ The table below lists the approximate memory requirements for the larger softwar
       - 130
     * - USB
       - 20
-    * - Noise Supressor (NS)
+    * - Noise Suppressor (NS)
       - 15
     * - Adaptive Gain Control (AGC)
       - 11
@@ -64,7 +64,7 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - Interference Canceler (IC) + Voice To Noise Ratio Estimator (VNR)
       - 25
       - 30
-    * - Noise Supressor (NS)
+    * - Noise Suppressor (NS)
       - 10
       - 12
     * - Adaptive Gain Control (AGC)

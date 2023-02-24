@@ -11,12 +11,12 @@ Audio Pipeline
 Overview
 ========
 
-The audio pipeline in FFD processes two channel pdm microphone input into a single output channel, intended for use by an ASR engine.
+The audio pipeline in FFD processes two channel PDM microphone input into a single output channel, intended for use by an ASR engine.
 
 The audio pipeline consists of 3 stages.
 
 .. list-table:: FFD Audio Pipeline
-   :widths: 30 100 10 10
+   :widths: 15 91 22 22
    :header-rows: 1
    :align: left
 

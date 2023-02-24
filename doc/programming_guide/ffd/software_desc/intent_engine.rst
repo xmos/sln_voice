@@ -60,13 +60,13 @@ In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
         intent_engine_intertile_task_create(priority);
     #endif
 
-The call to intent_engine_intertile_task_create() will create two threads on tile 0.  One thread is the ASR engine thread.  The other thread is an intertile rx thread, which will interface with the audiopipeline output.
+The call to intent_engine_intertile_task_create() will create two threads on tile 0.  One thread is the ASR engine thread.  The other thread is an intertile rx thread, which will interface with the audio pipeline output.
 
 
 intent_engine_sample_push
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This function has the role of sending the ASR output channel from the audiopipeline to the inference engine.
+This function has the role of sending the ASR output channel from the audio pipeline to the intent engine.
 
 In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
 
@@ -99,6 +99,7 @@ Miscellaneous Functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Several supporting helper functions to support the low power and audio playback features that are unique the the default FFD application.  These include:
+
   - intent_engine_keyword_queue_count
   - intent_engine_keyword_queue_complete
   - intent_engine_stream_buf_reset

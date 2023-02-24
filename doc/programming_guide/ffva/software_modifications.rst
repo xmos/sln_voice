@@ -1,5 +1,9 @@
 .. include:: ../../substitutions.rst
 
+.. raw:: latex
+
+    \clearpage
+
 **********************
 Software Modifications
 **********************
