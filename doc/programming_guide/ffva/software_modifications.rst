@@ -8,9 +8,6 @@
 Software Modifications
 **********************
 
-Overview
-========
-
 The FFVA example design consists of three major software blocks, the audio interface, audio pipeline, and placeholder for a keyword handler. This section will go into detail on how to modify each/all of these subsystems.
 
 .. figure:: diagrams/ffva_diagram.drawio.png

@@ -4,13 +4,6 @@
 asr
 ####
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains ASR ports.
 
 .. list-table:: FFD ASR

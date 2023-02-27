@@ -1,15 +1,10 @@
+.. include:: ../../../substitutions.rst
+
 .. _sln_voice_ffva_src:
 
 ###
 src
 ###
-
-.. include:: ../../../substitutions.rst
-.. include:: <isonum.txt>
-
-
-Overview
-========
 
 This folder contains the core application source.
 

@@ -4,13 +4,6 @@
 ext
 ###
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains FFD application debug and experimental extensions.
 
 .. list-table:: FFD ext

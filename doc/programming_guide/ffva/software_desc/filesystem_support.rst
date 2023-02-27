@@ -4,13 +4,6 @@
 filesystem_support
 ##################
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains filesystem contents for the FFVA application.
 
 .. list-table:: FFVA filesystem_support

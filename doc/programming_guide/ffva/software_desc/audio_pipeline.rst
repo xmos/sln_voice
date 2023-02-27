@@ -4,13 +4,6 @@
 Audio Pipelines
 ###############
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains preconfigured audio pipelines for the FFVA application.
 
 .. list-table:: FFVA Audio Pipelines

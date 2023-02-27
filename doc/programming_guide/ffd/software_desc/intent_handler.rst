@@ -4,13 +4,6 @@
 src/intent_handler
 ##################
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains ASR output handling modules for the FFD application.
 
 .. list-table:: FFD Intent handler

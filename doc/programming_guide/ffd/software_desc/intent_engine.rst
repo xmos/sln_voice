@@ -4,13 +4,6 @@
 src/intent_engine
 #################
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains the intent engine module for the FFD application.
 
 .. list-table:: FFD Intent Engine

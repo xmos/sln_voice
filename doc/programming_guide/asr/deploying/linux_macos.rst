@@ -1,4 +1,4 @@
-.. include:: ../../substitutions.rst
+.. include:: ../../../substitutions.rst
 
 .. _sln_voice_asr_deploying_linux_macos_programming_guide:
 
@@ -40,8 +40,6 @@ Run the following commands in the root folder to build the firmware:
     cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_asr
-
-.. _sln_voice_asr_programming_guide_flash_model:
 
 Flashing the Model
 ==================
