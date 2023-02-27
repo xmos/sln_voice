@@ -11,11 +11,11 @@ Setting up the Hardware
 
 This example design requires an XTAG4 and XK-VOICE-L71 board.
 
-Optionally, an external microphone array board can be used.
-
 .. image:: ../../shared/images/all_components.jpg
   :width: 800
   :alt: all components
+
+Optionally, an external microphone array board can be used. If an external microphone array is used, the MUTE switch must be set ON to receive data. When using an external microphone array, the onboard hardware mute circuit is always bypassed. Refer to the schematic for more details.
 
 
 xTAG
