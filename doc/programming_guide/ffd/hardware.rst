@@ -15,9 +15,6 @@ This example design requires an XTAG4 and XK-VOICE-L71 board.
   :width: 800
   :alt: all components
 
-Optionally, an external microphone array board can be used. If an external microphone array is used, the MUTE switch must be set ON to receive data. When using an external microphone array, the onboard hardware mute circuit is always bypassed. Refer to the schematic for more details.
-
-
 xTAG
 ----
 
@@ -39,3 +36,7 @@ Speakers (OPTIONAL)
 -------------------
 
 This example application features audio playback responses.  Speakers can be connected to the LINE OUT on the XK-VOICE-L71.
+
+.. image:: ../../shared/images/speakers.jpg
+  :width: 800
+  :alt: speakers
