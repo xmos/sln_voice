@@ -25,7 +25,7 @@ One potential issue with the FFD application is a crash when trying to run:
         [Switching to tile[0] core[3]]
         0x0008d308 in __xcore_ecallf ()
 
-This generally occurs when the model was not properly loaded into flash.  To flash the model and filesystem, see :ref:`_sln_voice_ffd_deploying_linux_mac`
+This generally occurs when the model was not properly loaded into flash.  To flash the model and filesystem, see :ref:`sln_voice_ffd_deploying_linux_mac`
 or :ref:`sln_voice_ffd_deploying_native_windows` based on host platform.
 
 
@@ -47,7 +47,7 @@ This generally occurs when there is not enough processing time available on tile
 Debugging low-power
 *******************
 
-The clock dividers are set high to minimize core power consumption.  This can make debugging a challenge or impossible.  Even adding a simple ``printf`` can case critical timing to be missed.  In order to debug with the low-power features enabled, temporarily modify the clock dividers in ``app_conf.h``.
+The clock dividers are set high to minimize core power consumption.  This can make debugging a challenge or impossible.  Even adding a simple ``printf`` can cause critical timing to be missed.  In order to debug with the low-power features enabled, temporarily modify the clock dividers in ``app_conf.h``.
 
 .. code-block:: c
 

@@ -4,13 +4,8 @@
 src/power
 #########
 
-
-Overview
-========
-
 This folder contains modules for lower power control and state reporting in the
 FFD application.
-
 
 Configuration Notes
 ===================

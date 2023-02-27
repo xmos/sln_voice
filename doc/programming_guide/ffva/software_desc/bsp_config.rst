@@ -4,13 +4,6 @@
 bsp_config
 ##########
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains bsp_configs for the FFVA application.  More information on bsp_configs can be found in the RTOS Framework documentation.
 
 .. list-table:: FFVA bsp_config

@@ -1,5 +1,6 @@
-.. _sln_voice_memory_cpu:
 .. include:: ../substitutions.rst
+
+.. _sln_voice_memory_cpu:
 
 ###########################
 Memory and CPU Requirements

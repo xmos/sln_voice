@@ -1,4 +1,4 @@
-.. include:: ../../substitutions.rst
+.. include:: ../../../substitutions.rst
 
 ******************************************
 Deploying the Firmware with Native Windows

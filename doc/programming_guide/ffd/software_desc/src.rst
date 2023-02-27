@@ -4,13 +4,6 @@
 src
 ###
 
-.. include:: <isonum.txt>
-
-
-
-Overview
-========
-
 This folder contains the core application source.
 
 .. list-table:: FFD src
