@@ -66,6 +66,10 @@ Speakers (OPTIONAL)
 
 This example application features audio playback responses.  Speakers can be connected to the LINE OUT on the XK-VOICE-L71.
 
+.. image:: ../../shared/images/speakers.jpg
+  :width: 800
+  :alt: speakers
+  
 Running the Demonstration
 -------------------------
 
