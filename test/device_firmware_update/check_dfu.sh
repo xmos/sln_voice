@@ -67,7 +67,7 @@ xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR}
 dfu-util -e -d 0020 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin --reset
 
 # wait for dust to gather
-sleep 1
+sleep 5
 
 # get readback upgrade image
 dfu-util -e -d 0020 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
