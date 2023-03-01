@@ -131,8 +131,6 @@ pipeline {
                     withVenv {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe")) {
-                                echo 'udev rules:'
-                                cat '/etc/udev/rules.d/99-xmos.rules'
                                 sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                     sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
