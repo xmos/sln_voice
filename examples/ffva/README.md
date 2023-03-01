@@ -6,6 +6,33 @@ This is the far-field voice assistant example design firmware.  See the full doc
 
 This example is supported on the XK_VOICE_L71 board.
 
+## Building the Host Applications
+
+This application requires a host application to create the flash data partition. Run the following commands in the root folder to build the host application using your native Toolchain:
+
+NOTE: Permissions may be required to install the host applications.
+
+On Linux and Mac run:
+
+    cmake -B build_host
+    cd build_host
+    make install
+
+The host applications will be installed at ``/opt/xmos/bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
+
+On Windows run:
+
+Before building the host application, you will need to add the path to the XTC Tools to your environment.
+
+    set "XMOS_TOOL_PATH=<path-to-xtc-tools>"
+
+Then build the host application:
+
+    cmake -G "NMake Makefiles" -B build_host
+    cd build_host
+    nmake install
+
+The host applications will be install at ``<USERPROFILE>\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 ## Building the Firmware
 
 Run the following commands in the root folder to build the firmware.

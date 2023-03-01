@@ -8,6 +8,23 @@ Deploying the Firmware with Linux or macOS
 
 This document explains how to deploy the software using `CMake` and `Make`.
 
+Building the Host Applications
+==============================
+
+This application requires a host application to create the flash data partition. Run the following commands in the root folder to build the host application using your native Toolchain:
+
+.. note::
+
+  Permissions may be required to install the host applications.
+
+.. code-block:: console
+
+  cmake -B build_host
+  cd build_host
+  make install
+
+The host applications will be installed at ``/opt/xmos/bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
+
 Building the Firmware
 =====================
 
