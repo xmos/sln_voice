@@ -133,7 +133,7 @@ pipeline {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe")) {
                                 sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                    sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v /home/hp/sln_voice:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
+                                    sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $(pwd):/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
                                 }
                             } else {
                                 echo 'SKIPPED: ${TEST_SCRIPT_DFU}' 
