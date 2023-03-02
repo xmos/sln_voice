@@ -29,22 +29,19 @@ size_t flash_read_ext(void *dest, const void *src, size_t size)
 
     xassert(IS_FLASH(src));
 
-    rtos_qspi_flash_lock(qspi_flash_ctx);
-
     if (size == 1) {
         uint8_t temp_dest[QSPI_FLASH_READ_MIN_SIZE];
-        rtos_qspi_flash_read(qspi_flash_ctx,
+        rtos_qspi_flash_read_ll(qspi_flash_ctx,
                              temp_dest,
                              offset,
                              sizeof(temp_dest));
         *(uint8_t *)dest=temp_dest[0];
     } else {
-        rtos_qspi_flash_read(qspi_flash_ctx,
+        rtos_qspi_flash_read_ll(qspi_flash_ctx,
                              (uint8_t *)dest,
                              offset,
                              size);
     }
 
-    rtos_qspi_flash_unlock(qspi_flash_ctx);
     return size;
 }
