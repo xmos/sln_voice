@@ -696,6 +696,9 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
         tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
     } else {
+        memset(stream_buffer_audio_frames, 0, tx_size_bytes);
+        (void) xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames, bytes_available, 0);
+        tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
         rtos_printf("Oops buffer is empty!\n");
     }
 
