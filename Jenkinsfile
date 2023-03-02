@@ -125,23 +125,25 @@ pipeline {
                 }
             }
         }
-        // TODO the dfu test requires dfu-util
-        // stage('Run Device_Firmware_Update test') {
-        //     steps {
-        //         withTools(params.TOOLS_VERSION) {
-        //             withVenv {
-        //                 script {
-        //                     if (fileExists("$DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe")) {
-        //                         sh "test/device_firmware_update/check_dfu.sh $DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
-        //                     } else {
-        //                         echo 'SKIPPED: ${TEST_SCRIPT_DFU}' 
-        //                     }
-        //                 }
-        //                 sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/example_ffva_ua_adec_test_upgrade.bin"
-        //             }
-        //         }
-        //     }
-        // }
+        stage('Run Device_Firmware_Update test') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            if (fileExists("$DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe")) {
+                                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
+                                withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                    sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
+                                }
+                            } else {
+                                echo 'SKIPPED: ${TEST_SCRIPT_DFU}'
+                            }
+                        }
+                        sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/example_ffva_ua_adec_test_upgrade.bin"
+                    }
+                }
+            }
+        }
         // TODO the commands and pipeline tests require the testing suite sample files
         // stage('Run Commands test') {
         //     steps {
