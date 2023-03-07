@@ -30,7 +30,7 @@ on:
         type: string
 
 env:
-  DOC_BUILDER_IMAGE: "ghcr.io/xmos/doc_builder:latest"
+  DOC_BUILDER_IMAGE: "ghcr.io/xmos/doc_builder:v2.0.0"
   HTML_DOCS_ARTIFACT_NAME: "sln_voice_html_docs"
   PDF_DOCS_ARTIFACT_NAME: "sln_voice_pdf_docs"
 
