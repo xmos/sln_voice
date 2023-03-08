@@ -3,10 +3,10 @@
 #ifndef XCORE_VOICE_ASR_H
 #define XCORE_VOICE_ASR_H
 
+#include <stdarg.h>
+#include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
-
-#include "asr_conf.h" // application provided configuration
 
 /**
  * \addtogroup asr_api asr_api
@@ -19,21 +19,23 @@
  * Memory allocation macro that allows the application 
  * to provide an alternative implementation.
  * 
- * ASR ports should call ASR_MALLOC instead of malloc
+ * ASR ports should call asr_malloc instead of malloc
  */
-#ifndef ASR_MALLOC
-#define ASR_MALLOC      malloc
-#endif
+__attribute__((weak))
+void * asr_malloc(size_t size) {
+    return malloc(size);
+}
 
 /**
  * Memory deallocation macro that allows the application 
  * to provide an alternative implementation.
  * 
- * ASR ports should call ASR_FREE instead of free
+ * ASR ports should call asr_free instead of free
  */
-#ifndef ASR_FREE
-#define ASR_FREE        free
-#endif
+__attribute__((weak))
+void asr_free(void *ptr) {
+    free(ptr);
+}
 
 // Extentended  macro that allows the application 
 // to provide an alternative implementation.
@@ -41,28 +43,54 @@
 // ASR ports should call ASR_FREE instead of free
 
 /**
- * Extended memory read macro that allows the application  
- * to provide an alternative implementation.
+ * Synchronous extended memory read macro that allows the application  
+ * to provide an alternative implementation.  Blocks the callers thread 
+ * until the read is completed.
  * 
- * ASR ports should call ASR_READ_EXT instead of any other
+ * ASR ports should call asr_read_ext instead of any other
  * functions to read memory from flash, LPDDR or SDRAM. 
  * ASR ports are free to use memcpy if the dest and src 
  * are both SRAM addresses.  
  */
-#ifndef ASR_READ_EXT
-#define ASR_READ_EXT    memcpy
-#endif
+__attribute__((weak))
+void asr_read_ext(void *dest, const void * src, size_t n) {
+    memcpy(dest, src, n);
+}
+
+/**
+ * Asynchronous extended memory read macro that allows the application  
+ * to provide an alternative implementation.
+ * 
+ * ASR ports should call asr_read_ext_async instead of any other
+ * functions to read memory from flash, LPDDR or SDRAM. 
+ */
+__attribute__((weak))
+int asr_read_ext_async(void *dest, const void * src, size_t n) {
+    memcpy(dest, src, n);
+    return 0;
+}
+
+/**
+ * Wait in the caller's thread for an asynchronous extended memory read to finish.
+ */
+__attribute__((weak))
+void asr_read_ext_wait(int handle) {
+    return;
+}
 
 /**
  * String output macro that allows the application  
  * to provide an alternative implementation.
  * 
- * ASR ports should call ASR_PRINTF instead of printf
+ * ASR ports should call asr_printf instead of printf
  */
-#ifndef ASR_PRINTF
-#define ASR_PRINTF(...) printf(__VA_ARGS__)
-#endif
-
+__attribute__((weak))
+void asr_printf(const char * format, ...) {
+    va_list args;
+    va_start(args, format);
+    vprintf(format, args);
+    va_end(args);
+}
 
 /**
  * Typedef to the ASR port context struct.
@@ -119,6 +147,7 @@ typedef enum asr_keyword_enum {
     ASR_KEYWORD_UNKNOWN = -1,    ///< Keyword is unknown
     ASR_KEYWORD_HELLO_XMOS = 0,
     ASR_KEYWORD_ALEXA = 1,
+    ASR_NUMBER_OF_KEYWORDS
 } asr_keyword_t;
 
 /**
@@ -142,6 +171,7 @@ typedef enum asr_command_enum {
     ASR_COMMAND_FAN_DOWN = 13,
     ASR_COMMAND_TEMPERATURE_UP = 14,
     ASR_COMMAND_TEMPERATURE_DOWN = 15,
+    ASR_NUMBER_OF_COMMANDS
 } asr_command_t;
 
 /**

@@ -12,8 +12,8 @@
 #include "wav_utils.h"
 #include "xscope_io_device.h"
 
-// TODO: Include the port model data
-#include "port/simple/simple_asr_model.h"
+// Include the example port model data
+#include "port/example/asr_example_model.h"
 
 #define MAX_CHANNELS         (1)
 #define BRICK_SIZE_SAMPLES   (240) 

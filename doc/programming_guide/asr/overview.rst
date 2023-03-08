@@ -12,6 +12,6 @@ brick.  The default brick length is 240 samples but this is configurable.  ASR p
 defined in ``asr/api/asr.h`` can easily be added to current and future XCORE-VOICE example designs that support speech
 recognition.
 
-An oversimplified ASR port is provided.  This ASR port recognizes the "Hello XMOS" keyword if any acoustic activity 
+An oversimplified ASR port example is provided.  This ASR port recognizes the "Hello XMOS" keyword if any acoustic activity 
 is observed in 75 consecutive bricks.
 
