@@ -10,7 +10,7 @@ int32_t *model_data = (int32_t *) (XS1_SWMEM_BASE + 0x100000); // XS1_SWMEM_BASE
                                                                // 0x100000 is the flashed boot partition size
 
 // OR, use the line below to include a model placed in SRAM
-//#include "simple_asr_model.c"
+//#include "asr_example_model.c"
 
 // This simple ASR port is not using grammar data
 int32_t *grammar_data = NULL; 
