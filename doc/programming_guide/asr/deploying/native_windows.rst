@@ -61,7 +61,7 @@ Run the following commands in the root folder to flash the model:
 Running the Firmware
 ====================
 
-From the root folder run:
+Return to the build folder and run:
 
 .. code-block:: console
 
