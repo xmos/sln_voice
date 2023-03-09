@@ -24,7 +24,7 @@ In a single controller solution, a user can populate the model runner manager ta
 
 This dummy thread receives only the ASR channel output, which has been downshifted to 16 bits.
 
-The user must ensure that the streambuffer is emptied at at least the rate of the audio pipeline, otherwise samples will be lost.
+The user must ensure the streambuffer is emptied at the rate of the audio pipeline at minimum, otherwise samples will be lost.
 
 Populate:
 
@@ -66,7 +66,7 @@ Populate:
 Design Architecture
 *******************
 
-The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over |I2S| or USB.
+The application consists of a PDM microphone input which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over |I2S| or USB.
 
 .. figure:: diagrams/ffva_diagram.drawio.png
    :align: center

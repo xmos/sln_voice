@@ -31,7 +31,7 @@ Then build the host application:
   cd build_host
   nmake install
 
-The host applications will be install at ``<USERPROFILE>\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
+The host applications will be installed at ``<USERPROFILE>\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
 Building the Firmware
 =====================
@@ -47,8 +47,7 @@ Run the following commands in the root folder to build the firmware:
 Running the Firmware
 ====================
 
-Before running the firmware, the filesystem and model must be flashed to the
-data partition.
+Before running the firmware, the filesystem and model must be flashed to the data partition.
 
 Within the root of the build folder, run:
 

@@ -24,14 +24,14 @@ This folder contains ASR output handling modules for the FFD application.
 Major Components
 ================
 
-The intent handling module provides the application with one API functions:
+The intent handling module provides the application with one API function:
 
 .. code-block:: c
     :caption: Intent Handler API (intent_handler.h)
 
     int32_t intent_handler_create(uint32_t priority, void *args);
 
-If replacing the existing handler code, this is the only functions that is required to be populated.
+If replacing the existing handler code, this is the only function that is required to be populated.
 
 
 intent_handler_create

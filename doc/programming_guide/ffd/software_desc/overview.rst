@@ -11,7 +11,7 @@ tolerances and any user added code and/or user added compile options.
 By default, the application will startup using a system frequency of 600 MHz
 which will consume around 141 mW. After startup, `tile[1]` clock divider is
 enabled and set to 3 bringing the tile's frequency down to 300 MHz, where it
-will consumer around 114 mW. Tile frequencies lower than this may lead to
+will consume around 114 mW. Tile frequencies lower than this may lead to
 application instability. When the application enters `POWER_STATE_LOW`,
 the `tile[0]` clock frequency will be divided by 600 and the switch clock
 frequency by 30 bringing the frequencies to 1 MHz and 20 MHz, respectively. This
