@@ -18,7 +18,7 @@ Pull the docker container:
 
 .. code-block:: console
 
-    docker pull ghcr.io/xmos/doc_builder:latest
+    docker pull ghcr.io/xmos/doc_builder:v2.0.0
 
 ========
 Building
@@ -28,4 +28,4 @@ To build the documentation, run the following command in the root of the reposit
 
 .. code-block:: console
 
-    docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/exclude_patterns.inc -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:latest
+    docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/exclude_patterns.inc -e DOXYGEN_INPUT=ignore ghcr.io/xmos/doc_builder:v2.0.0
