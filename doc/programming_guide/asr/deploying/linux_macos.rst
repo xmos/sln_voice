@@ -44,17 +44,23 @@ Run the following commands in the root folder to build the firmware:
 Flashing the Model
 ==================
 
-Run the following commands in the root folder to flash the model:
+Run the following commands in the build folder to flash the model:
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory build/example_asr.xe --boot-partition-size 0x100000 --target-file examples/speech_recognition/XCORE-AI-EXPLORER.xn --data examples/speech_recognition/asr/port/simple/simple_asr_model.dat
+    xflash --force --quad-spi-clock 50MHz --factory example_asr.xe --boot-partition-size 0x100000 --target-file ../examples/speech_recognition/XCORE-AI-EXPLORER.xn --data ../examples/speech_recognition/asr/port/simple/simple_asr_model.dat
 
 Running the Firmware
 ====================
 
-Return to the build folder and run:
+From the build folder run:
 
 .. code-block:: console
 
     make run_example_asr
+
+In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
+
+.. code-block:: console
+    
+    xscope_host_endpoint 12345

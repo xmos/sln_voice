@@ -29,12 +29,12 @@ asr_context_t asr_init(int32_t *model, int32_t *grammar) {
     //       To work around this, we simply need to init the swmem.
     rtos_swmem_init(0);
 
-    ASR_PRINTF("Wanson init\n");
+    asr_printf("Wanson init\n");
 
     Wanson_ASR_Init();
     wanson_asr.recog_count = 0;
 
-    ASR_PRINTF("Wanson init done\n");
+    asr_printf("Wanson init done\n");
 
     return (asr_context_t) &wanson_asr;
 }
@@ -59,12 +59,12 @@ asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
     if (ret == 1) {
         wanson_asr->recog_count++;
     } else if (ret < 0) {
-        ASR_PRINTF("Wanson recog: ret=%d\n", ret);
+        asr_printf("Wanson recog: ret=%d\n", ret);
         return ASR_ERROR;
     } 
 
     if (wanson_asr->recog_count > MAX_EVAL_RECOGNITIONS) {
-        ASR_PRINTF("Wanson eval expired\n");
+        asr_printf("Wanson eval expired\n");
         return ASR_EVALUATION_EXPIRED;
     }
 
@@ -98,9 +98,9 @@ asr_error_t asr_reset(asr_context_t *ctx)
     wanson_asr.recog_id = 0;
 
     // domain doesn't do anything right now, 0 is both wakeup and asr
-    ASR_PRINTF("Wanson reset for wakeup\n");
+    asr_printf("Wanson reset for wakeup\n");
     int ret = Wanson_ASR_Reset(0);
-    ASR_PRINTF("Wanson reset ret: %d\n", ret);
+    asr_printf("Wanson reset ret: %d\n", ret);
 
     return ASR_OK;
 }
