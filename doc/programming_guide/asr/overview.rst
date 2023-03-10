@@ -10,4 +10,3 @@ The example reads a 1 channel, 16-bit, 16kHz wav file, slices it up into bricks,
 
 An oversimplified ASR port example is provided.  This ASR port recognizes the "Hello XMOS" keyword if any acoustic activity 
 is observed in 75 consecutive bricks.
-
