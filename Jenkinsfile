@@ -198,6 +198,8 @@ pipeline {
     }
     post {
         cleanup {
+            // allow system to disengage xtag
+            sleep(time:3,unit:"SECONDS")
             // cleanWs removes all output and artifacts of the Jenkins pipeline
             //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent. 
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
