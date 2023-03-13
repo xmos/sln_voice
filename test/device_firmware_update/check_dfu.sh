@@ -71,3 +71,5 @@ sleep 5
 
 # get readback upgrade image
 dfu-util -e -d 20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
+
+sleep 3
