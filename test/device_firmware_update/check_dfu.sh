@@ -63,13 +63,13 @@ export_tools_version
 # create the upgrade firmware
 xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
+sleep 3
+
 # write the upgrade image
-dfu-util -e -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin --reset
+dfu-util -e -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin -E 2 --reset
 
 # wait for dust to gather
 sleep 5
 
 # get readback upgrade image
 dfu-util -e -d 20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
-
-sleep 3
