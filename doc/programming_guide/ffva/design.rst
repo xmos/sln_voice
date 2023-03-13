@@ -10,7 +10,7 @@ This example design can be integrated with existing solutions or modified to be 
 Out of the Box Integration
 ==========================
 
-Out of the box integration varies cased on configuration.
+Out of the box integration varies based on configuration.
 
 INT requires |I2S| connections to the host.  Refer to the schematic, connecting the host reference audio playback to the ADC |I2S| and the host input audio to the DAC |I2S|.  Out of the box, the INT configuration requires an externally generated MCLK of 12.288 MHz.  24.576 MHz is also supported and can be changed via the compile option MIC_ARRAY_CONFIG_MCLK_FREQ, found in ffva_int.cmake.
 
@@ -24,7 +24,7 @@ In a single controller solution, a user can populate the model runner manager ta
 
 This dummy thread receives only the ASR channel output, which has been downshifted to 16 bits.
 
-The user must ensure that the streambuffer is emptied at at least the rate of the audio pipeline, otherwise samples will be lost.
+The user must ensure the streambuffer is emptied at the rate of the audio pipeline at minimum, otherwise samples will be lost.
 
 Populate:
 
@@ -66,7 +66,7 @@ Populate:
 Design Architecture
 *******************
 
-The application consists of a PDM microphone input, which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over |I2S| or USB.
+The application consists of a PDM microphone input which is fed through the XMOS-VOICE DSP blocks.  The output ASR channel is then output over |I2S| or USB.
 
 .. figure:: diagrams/ffva_diagram.drawio.png
    :align: center

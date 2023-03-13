@@ -47,8 +47,7 @@ Run the following commands in the root folder to build the firmware:
 Running the Firmware
 ====================
 
-Before running the firmware, the filesystem and model must be flashed to the
-data partition.
+Before running the firmware, the filesystem and model must be flashed to the data partition.
 
 Within the root of the build folder, run:
 
@@ -58,9 +57,7 @@ Within the root of the build folder, run:
 
 After this command completes, the application will be running.
 
-After flashing the data partition, the application can be run without
-reflashing. If changes are made to the data partition components, the
-application must be reflashed.
+After flashing the data partition, the application can be run without reflashing. If changes are made to the data partition components, the application must be reflashed.
 
 From the build folder run:
 
