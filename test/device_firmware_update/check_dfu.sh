@@ -38,15 +38,15 @@ fi
 SLN_VOICE_ROOT=$(git rev-parse --show-toplevel)
 source "${SLN_VOICE_ROOT}"/tools/ci/helper_functions.sh
 
-# xflash erase
-xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+# # xflash erase
+# xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
-# flash the data partition
-# build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
+# # flash the data partition
+# # build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
+# xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
 
-# wait for device to reset (may not be necessary)
-sleep 3
+# # wait for device to reset (may not be necessary)
+# sleep 3
 
 # strip path and .xe from firmware
 FIRMWARE_NAME="${FIRMWARE#*dist/}"
@@ -63,10 +63,8 @@ export_tools_version
 # create the upgrade firmware
 xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
-sleep 3
-
 # write the upgrade image
-dfu-util -e -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin -E 2 --reset
+dfu-util -e -E 2 -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin --reset
 
 # wait for dust to gather
 sleep 5
