@@ -9,6 +9,7 @@
 
 #include "app_conf.h"
 #include "asr.h"
+#include "device_memory_impl.h"
 #include "wav_utils.h"
 #include "xscope_io_device.h"
 
@@ -44,14 +45,18 @@ void process_file() {
     uint32_t max_duration = 0;
     uint32_t avg_duration = 0;
 
-    asr_context_t asr_context = NULL;
+    devmem_manager_t devmem_mgr;
+    asr_port_t asr_port = NULL;
     asr_error_t asr_error;
     asr_result_t asr_result;
 
     printf("Opening %s\n", appconfINPUT_FILENAME);
 
+    // Initialize the device memory manager
+    devmem_init(&devmem_mgr);
+
     // TODO: Pass your model data here (and grammar data here if required)
-    asr_context = asr_init((int32_t *) model_data, (int32_t *) grammar_data);
+    asr_port = asr_init((int32_t *) model_data, (int32_t *) grammar_data, &devmem_mgr);
 
     printf("Opening %s\n", appconfINPUT_FILENAME);
 
@@ -82,7 +87,7 @@ void process_file() {
 
         // Process the audio samples, timing duration of the call to asr_process
         timer_start = get_reference_time();
-        asr_error = asr_process(asr_context, brick, BRICK_SIZE_SAMPLES);
+        asr_error = asr_process(asr_port, brick, BRICK_SIZE_SAMPLES);
         timer_end = get_reference_time();
         //printf("Duration: %lu (us)\n", timer_duration);
 
@@ -92,9 +97,9 @@ void process_file() {
             max_duration = timer_duration;
 
         if (asr_error == ASR_OK) {
-            asr_error = asr_get_result(asr_context, &asr_result);
+            asr_error = asr_get_result(asr_port, &asr_result);
             if (asr_error == ASR_OK) {
-                asr_keyword_t keyword = asr_get_keyword(asr_context, asr_result.keyword_id);
+                asr_keyword_t keyword = asr_get_keyword(asr_port, asr_result.keyword_id);
                 if (keyword != ASR_KEYWORD_UNKNOWN) {
                     printf("Keyword: %s\n", keyword2text(keyword));
                 }
@@ -112,7 +117,7 @@ void process_file() {
        printf("WARNING: Avg duration exceeds 15 (ms)\n");
     }
 
-    asr_release(asr_context);
+    asr_release(asr_port);
     xscope_close_all_files();
     _Exit(0);
 }

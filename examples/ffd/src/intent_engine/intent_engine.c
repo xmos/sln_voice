@@ -53,7 +53,7 @@ enum timeout_event {
 };
 
 static intent_state_t intent_state;
-static asr_context_t asr_ctx; 
+static asr_port_t asr_ctx; 
 
 #if appconfLOW_POWER_ENABLED
 static intent_power_state_t intent_power_state;
@@ -244,7 +244,7 @@ void intent_engine_task(void *args)
     requested_full_power = 0;
 #endif
 
-    asr_ctx = asr_init(NULL, NULL);
+    asr_ctx = asr_init(NULL, NULL, NULL);
 
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
     TimerHandle_t int_eng_tmr = xTimerCreate(

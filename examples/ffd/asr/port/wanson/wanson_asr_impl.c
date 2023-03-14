@@ -20,7 +20,7 @@ typedef struct wanson_asr_struct
 
 wanson_asr_t wanson_asr; 
 
-asr_context_t asr_init(int32_t *model, int32_t *grammar) {
+asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_ctx) {
     xassert(model == NULL);
     xassert(grammar == NULL);
 
@@ -36,16 +36,16 @@ asr_context_t asr_init(int32_t *model, int32_t *grammar) {
 
     asr_printf("Wanson init done\n");
 
-    return (asr_context_t) &wanson_asr;
+    return (asr_port_t) &wanson_asr;
 }
 
-asr_error_t asr_get_attributes(asr_context_t *ctx, asr_attributes_t *attributes) {
+asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes) {
     xassert(ctx);
 
     return ASR_NOT_SUPPORTED;
 }
 
-asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
+asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 {
     xassert(ctx);
     xassert(buf_len == 480); // Wanson engine requires 480 samples per block
@@ -71,7 +71,7 @@ asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
     return ASR_OK;
 }
 
-asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result) {
+asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result) {
     xassert(ctx);
 
     wanson_asr_t *wanson_asr = (wanson_asr_t *) ctx;
@@ -93,7 +93,7 @@ asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result) {
     return ASR_OK;
 }
 
-asr_error_t asr_reset(asr_context_t *ctx)
+asr_error_t asr_reset(asr_port_t *ctx)
 {
     wanson_asr.recog_id = 0;
 
@@ -105,7 +105,7 @@ asr_error_t asr_reset(asr_context_t *ctx)
     return ASR_OK;
 }
 
-asr_error_t asr_release(asr_context_t *ctx)
+asr_error_t asr_release(asr_port_t *ctx)
 {
     Wanson_ASR_Release();
     ctx = NULL;
@@ -113,7 +113,7 @@ asr_error_t asr_release(asr_context_t *ctx)
     return ASR_OK;
 }
 
-asr_keyword_t asr_get_keyword(asr_context_t *ctx, int16_t asr_id)
+asr_keyword_t asr_get_keyword(asr_port_t *ctx, int16_t asr_id)
 {
     switch (asr_id) {
         case 1:
@@ -128,7 +128,7 @@ asr_keyword_t asr_get_keyword(asr_context_t *ctx, int16_t asr_id)
 
     return ASR_KEYWORD_UNKNOWN;
 }
-asr_command_t asr_get_command(asr_context_t *ctx, int16_t asr_id)
+asr_command_t asr_get_command(asr_port_t *ctx, int16_t asr_id)
 {
     switch (asr_id) {
         case 3:

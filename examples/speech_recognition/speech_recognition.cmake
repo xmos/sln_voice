@@ -9,6 +9,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/asr/port/example/asr_example.cmake)
 file(GLOB_RECURSE APP_SOURCES 
     ${CMAKE_CURRENT_LIST_DIR}/src/*.xc 
     ${CMAKE_CURRENT_LIST_DIR}/src/*.c
+    ${CMAKE_CURRENT_LIST_DIR}/asr/api/*.c
 )
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/asr
