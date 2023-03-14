@@ -19,3 +19,5 @@ build_*
 modules/*/build
 modules/*/build_*
 modules/*/test
+modules/*/doc/shared/legal.rst
+**/*.md
