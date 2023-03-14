@@ -5,6 +5,7 @@ modules/core/modules/legacy_compat
 modules/core/modules/otpinfo
 modules/core/modules/random
 modules/core/modules/trycatch
+modules/rtos/modules/FreeRTOS
 modules/inferencing
 modules/io/modules/xud
 modules/io/doc/substitutions.rst
