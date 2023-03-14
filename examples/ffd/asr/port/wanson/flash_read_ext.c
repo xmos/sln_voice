@@ -13,10 +13,7 @@
 #include "platform/driver_instances.h"
 #include "flash_read_ext.h"
 #include "asr.h"
-
-#define IS_FLASH(a)                    \
-   (((uintptr_t)a >= XS1_SWMEM_BASE) && \
-   (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
+#include "device_memory.h"
 
 /* The offset in flash where the model(s) reside. */
 #ifndef QSPI_FLASH_MODEL_START_ADDRESS
