@@ -5,7 +5,6 @@
 
 #include "asr.h"
 
-
 typedef struct mock_asr_struct
 {
     int32_t *model;
@@ -14,29 +13,31 @@ typedef struct mock_asr_struct
     uint16_t score;
     uint16_t spotted_keyword_id;
     int8_t   *dynamic_memory;
+    devmem_manager_t *devmem_ctx;
 } mock_asr_t;
 
 mock_asr_t mock_asr; 
 
-asr_context_t asr_init(int32_t *model, int32_t *grammar) {
+asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_ctx) {
     xassert(model);
     xassert(grammar == NULL);
 
     int8_t scratch_data[8];
-
-    // example of how to read data from the model
-    asr_read_ext(scratch_data, model, 8); 
     
-    // do some other work 
+    // set port data 
     mock_asr.model = model;
     mock_asr.keyword_id[0] = 100;
     mock_asr.spotted_keyword_id = 0;
     mock_asr.count = 0;
     mock_asr.score = INT16_MAX;
+    mock_asr.devmem_ctx = devmem_ctx;
+
+    // example of how to read data from the model
+    devmem_read_ext(mock_asr.devmem_ctx, scratch_data, model, 8); 
 
     // example of how to allocate some mock dynamic memory 
     // using the asr_malloc function
-    mock_asr.dynamic_memory = (int8_t *)asr_malloc(1024);    
+    mock_asr.dynamic_memory = (int8_t *)devmem_malloc(mock_asr.devmem_ctx, 1024);    
 
     int ret = strncmp((char *)scratch_data, "SIMP-ASR", 8);
     if (ret !=0) {
@@ -44,16 +45,16 @@ asr_context_t asr_init(int32_t *model, int32_t *grammar) {
         return NULL;
     }
 
-    return (asr_context_t) &mock_asr;
+    return (asr_port_t) &mock_asr;
 }
 
-asr_error_t asr_get_attributes(asr_context_t *ctx, asr_attributes_t *attributes) {
+asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes) {
     xassert(ctx);
 
     return ASR_NOT_SUPPORTED;
 }
 
-asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
+asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 {
     xassert(ctx);
 
@@ -69,21 +70,21 @@ asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
     int32_t scratch_data[0];
 
     // read data from the model in another thread
-    wait_handle = asr_read_ext_async(scratch_data, (const void *)((unsigned)mock_asr->model+12), sizeof(int32_t));
+    wait_handle = devmem_read_ext_async(mock_asr->devmem_ctx, scratch_data, (const void *)((unsigned)mock_asr->model+12), sizeof(int32_t));
     
     // could do some other work here
 
     // block until read is finished, then do something with the data
-    asr_read_ext_wait(wait_handle);
+    devmem_read_ext_wait(mock_asr->devmem_ctx, wait_handle);
     int16_t sum_threshold = (int16_t)atoi((char *)scratch_data);
 
     // could do some other work here
 
     // read data from the model in another thread
-    wait_handle = asr_read_ext_async(scratch_data, (const void *)((unsigned)mock_asr->model+20), sizeof(int32_t));
+    wait_handle = devmem_read_ext_async(mock_asr->devmem_ctx, scratch_data, (const void *)((unsigned)mock_asr->model+20), sizeof(int32_t));
 
     // block until read is finished, then do something with the data
-    asr_read_ext_wait(wait_handle);
+    devmem_read_ext_wait(mock_asr->devmem_ctx, wait_handle);
     int16_t count_threshold = (int16_t)atoi((char *)scratch_data);
 
     // iterate over all samples and compute sum
@@ -109,7 +110,7 @@ asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len)
     return ASR_OK;
 }
 
-asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result) {
+asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result) {
     xassert(ctx);
 
     mock_asr_t *mock_asr = (mock_asr_t *) ctx;
@@ -120,7 +121,7 @@ asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result) {
     return ASR_OK;
 }
 
-asr_error_t asr_reset(asr_context_t *ctx)
+asr_error_t asr_reset(asr_port_t *ctx)
 {
     xassert(ctx);
 
@@ -130,21 +131,21 @@ asr_error_t asr_reset(asr_context_t *ctx)
     return ASR_OK;
 }
 
-asr_error_t asr_release(asr_context_t *ctx)
+asr_error_t asr_release(asr_port_t *ctx)
 {
     xassert(ctx);
 
     mock_asr_t *mock_asr = (mock_asr_t *) ctx;
 
     // free the mock dynamic memory
-    asr_free((void *)mock_asr->dynamic_memory);
+    devmem_free(mock_asr->devmem_ctx, (void *)mock_asr->dynamic_memory);
 
     ctx = NULL;
 
     return ASR_OK;
 }
 
-asr_keyword_t asr_get_keyword(asr_context_t *ctx, int16_t asr_id)
+asr_keyword_t asr_get_keyword(asr_port_t *ctx, int16_t asr_id)
 {
     switch (asr_id) {
         case 100:
@@ -157,7 +158,7 @@ asr_keyword_t asr_get_keyword(asr_context_t *ctx, int16_t asr_id)
     return ASR_KEYWORD_UNKNOWN;
 }
 
-asr_command_t asr_get_command(asr_context_t *ctx, int16_t asr_id)
+asr_command_t asr_get_command(asr_port_t *ctx, int16_t asr_id)
 {
     // This asr port does not support any commands
     return ASR_COMMAND_UNKNOWN;

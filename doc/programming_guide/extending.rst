@@ -71,3 +71,4 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - Adaptive Gain Control (AGC)
       - 5
       - 6
+      

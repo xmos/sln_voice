@@ -8,6 +8,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "device_memory.h"
+
 /**
  * \addtogroup asr_api asr_api
  *
@@ -16,70 +18,7 @@
  */
 
 /**
- * Memory allocation macro that allows the application 
- * to provide an alternative implementation.
- * 
- * ASR ports should call asr_malloc instead of malloc
- */
-__attribute__((weak))
-void * asr_malloc(size_t size) {
-    return malloc(size);
-}
-
-/**
- * Memory deallocation macro that allows the application 
- * to provide an alternative implementation.
- * 
- * ASR ports should call asr_free instead of free
- */
-__attribute__((weak))
-void asr_free(void *ptr) {
-    free(ptr);
-}
-
-// Extentended  macro that allows the application 
-// to provide an alternative implementation.
-//
-// ASR ports should call ASR_FREE instead of free
-
-/**
- * Synchronous extended memory read macro that allows the application  
- * to provide an alternative implementation.  Blocks the callers thread 
- * until the read is completed.
- * 
- * ASR ports should call asr_read_ext instead of any other
- * functions to read memory from flash, LPDDR or SDRAM. 
- * ASR ports are free to use memcpy if the dest and src 
- * are both SRAM addresses.  
- */
-__attribute__((weak))
-void asr_read_ext(void *dest, const void * src, size_t n) {
-    memcpy(dest, src, n);
-}
-
-/**
- * Asynchronous extended memory read macro that allows the application  
- * to provide an alternative implementation.
- * 
- * ASR ports should call asr_read_ext_async instead of any other
- * functions to read memory from flash, LPDDR or SDRAM. 
- */
-__attribute__((weak))
-int asr_read_ext_async(void *dest, const void * src, size_t n) {
-    memcpy(dest, src, n);
-    return 0;
-}
-
-/**
- * Wait in the caller's thread for an asynchronous extended memory read to finish.
- */
-__attribute__((weak))
-void asr_read_ext_wait(int handle) {
-    return;
-}
-
-/**
- * String output macro that allows the application  
+ * String output function that allows the application  
  * to provide an alternative implementation.
  * 
  * ASR ports should call asr_printf instead of printf
@@ -92,6 +31,7 @@ void asr_printf(const char * format, ...) {
     va_end(args);
 }
 
+
 /**
  * Typedef to the ASR port context struct.
  *
@@ -99,7 +39,7 @@ void asr_printf(const char * format, ...) {
  * The context pointer is passed to all API methods and 
  * can be cast to any struct defined by the ASR port.
  */
-typedef void* asr_context_t;
+typedef void* asr_port_t;
 
 /**
  * Typedef to the ASR port and model attributes
@@ -179,83 +119,85 @@ typedef enum asr_command_enum {
  *
  * \param model      A pointer to the model data.
  * \param grammar    A pointer to the grammar data (Optional).
+ * \param devmem_ctx A pointer to the device manager (Optional). 
+ *                   Save this pointer if calling any device manager API functions.
  *
- * \returns the ASR context.
+ * \returns the ASR port context.
  */
-asr_context_t asr_init(int32_t *model, int32_t *grammar);
+asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_ctx);
 
 /**
  * Get engine and model attributes.
  *
- * \param ctx         A pointer to the ASR context.
+ * \param ctx         A pointer to the ASR port context.
  * \param attributes  The attributes result.
  * 
  * \returns Success or error code.  
  */
-asr_error_t asr_get_attributes(asr_context_t *ctx, asr_attributes_t *attributes);
+asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes);
 
 /**
  * Process an audio buffer.
  *
- * \param ctx        A pointer to the ASR context.
+ * \param ctx        A pointer to the ASR port context.
  * \param audio_buf  A pointer to the 16-bit PCM samples.
  * \param buf_len    The number of PCM samples.
  * 
  * \returns Success or error code.  
  */
-asr_error_t asr_process(asr_context_t *ctx, int16_t *audio_buf, size_t buf_len);
+asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len);
 
 /**
  * Get the most recent results.
  *
- * \param ctx        A pointer to the ASR context.
+ * \param ctx        A pointer to the ASR port context.
  * \param result     The processed result.
  * 
  * \returns Success or error code.  
  */
-asr_error_t asr_get_result(asr_context_t *ctx, asr_result_t *result);
+asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result);
 
 /**
  * Reset ASR port (if necessary).
  * 
  * Called before the next call to asr_process.
  *
- * \param ctx        A pointer to the ASR context.
+ * \param ctx        A pointer to the ASR port context.
  * 
  * \returns Success or error code.  
  */
-asr_error_t asr_reset(asr_context_t *ctx);
+asr_error_t asr_reset(asr_port_t *ctx);
 
 /**
  * Release ASR port (if necessary).
  * 
  * The ASR port must deallocate any memory.
  *
- * \param ctx        A pointer to the ASR context.
+ * \param ctx        A pointer to the ASR port context.
  * 
  * \returns Success or error code.  
  */
-asr_error_t asr_release(asr_context_t *ctx);
+asr_error_t asr_release(asr_port_t *ctx);
 
 /**
  * Return the XCORE-VOICE supported keyword type.
  *
- * \param ctx        A pointer to the ASR context.
+ * \param ctx        A pointer to the ASR port context.
  * \param asr_id     The ASR port keyword identifier.
  * 
  * \returns XCORE-VOICE supported keyword type  
  */
-asr_keyword_t asr_get_keyword(asr_context_t *ctx, int16_t asr_id);
+asr_keyword_t asr_get_keyword(asr_port_t *ctx, int16_t asr_id);
 
 /**
  * Return the XCORE-VOICE supported command type.
  *
- * \param ctx        A pointer to the ASR context.
+ * \param ctx        A pointer to the ASR port context.
  * \param asr_id     The ASR port command identifier.
  * 
  * \returns XCORE-VOICE supported command type  
  */
-asr_command_t asr_get_command(asr_context_t *ctx, int16_t asr_id);
+asr_command_t asr_get_command(asr_port_t *ctx, int16_t asr_id);
 
 /**@}*/
 

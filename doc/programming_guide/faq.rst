@@ -4,6 +4,16 @@
 Frequently Asked Questions
 #############################
 
+******************************
+CMake hides XTC Tools commands
+******************************
+
+If you want to customize the XTC Tools commands like xflash and xrun, you can see what commands CMake is running by adding ``VERBOSE=1`` to your build command line.  For example:
+
+.. code-block:: console
+
+    make run_my_target VERBOSE=1
+
 ************************
 fatfs_mkimage: not found
 ************************
