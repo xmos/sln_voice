@@ -64,7 +64,7 @@ export_tools_version
 xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # write the upgrade image
-dfu-util -e -E 2 -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin --reset
+dfu-util -e -E 20 -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin -R
 
 # wait for dust to gather
 sleep 5
