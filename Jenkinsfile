@@ -132,6 +132,8 @@ pipeline {
                         script {
                             if (fileExists("$DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe")) {
                                 sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
+                                // debug
+                                echo $WORKSPACE
                                 withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                     sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $DOWNLOAD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
                                 }
@@ -201,7 +203,8 @@ pipeline {
             // cleanWs removes all output and artifacts of the Jenkins pipeline
             //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent. 
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
-            cleanWs()
+            
+            // debug
+            // cleanWs()
         }
     }    }
-    
