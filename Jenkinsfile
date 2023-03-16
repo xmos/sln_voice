@@ -203,4 +203,5 @@ pipeline {
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
             cleanWs()
         }
-    }    }
+    }
+}
