@@ -55,7 +55,7 @@ sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH2_WAV} synth ${L
 sox --combine merge ${TMP_CH1_WAV} ${TMP_CH2_WAV} ${INPUT_WAV}
 
 # flash the data partition
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_sample_rate_conv_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin 
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_sample_rate_conv_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
 
 # wait for device to reset (may not be necessary)
 sleep 3
