@@ -41,24 +41,21 @@ pipeline {
             steps {
                 checkout scm
                 sh "git clone git@github.com:xmos/sln_voice.git"
+                sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }        
         stage('Build artifacts') {
             steps {
-                withTools(params.TOOLS_VERSION) {
-                    dir("$BUILD_DIRNAME") {
-                        // host apps
-                        sh "docker pull ghcr.io/xmos/xcore_builder:latest"
-                        sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
-                        
-                        // example apps
+                // host apps
+                sh "docker pull ghcr.io/xmos/xcore_builder:latest"
+                sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
+                
+                // example apps
 
-                        // test apps
+                // test apps
 
-                        // List extracted files for log
-                        sh "ls -la"
-                    }
-                }
+                // List extracted files for log
+                sh "ls -la"
             }
         }
 
