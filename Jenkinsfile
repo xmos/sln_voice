@@ -40,7 +40,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh "git clone git@github.com:xmos/sln_voice.git"
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }        
