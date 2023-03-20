@@ -50,7 +50,7 @@ pipeline {
                 sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
                 
                 // test apps
-                sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_examples.sh tools/ci/main_examples.txt"
+                sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
 
                 // List extracted files for log
                 sh "ls -la"
