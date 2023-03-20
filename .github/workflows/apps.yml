@@ -92,6 +92,12 @@ jobs:
             echo "EXAMPLES_ARTIFACT_NAME=${{ inputs.examples_artifact_name }}" >> $GITHUB_ENV
           fi
 
+      - name: Save example app firmware artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.EXAMPLES_ARTIFACT_NAME }}
+          path: |
+            ./dist/*.*
 
   build_misc_examples:
     if: inputs.is_release == 'false'
