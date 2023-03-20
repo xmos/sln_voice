@@ -142,8 +142,9 @@ jobs:
       - name: Upload documentation
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ needs.event_configuration.outputs.pdf_docs_artifact_name_release }}
+          # name: ${{ needs.event_configuration.outputs.pdf_docs_artifact_name_release }}
           # path: ${{ env.RELEASE_PDF_DOCS_DIR }}
+          name: ${{ needs.event_configuration.outputs.docs_artifact_name }}
           path: ${{ env.RELEASE_DOCS_DIR }}
 
   release_sources:
