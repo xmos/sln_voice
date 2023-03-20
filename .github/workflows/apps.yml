@@ -31,6 +31,7 @@ on:
 
 env:
   XCORE_BUILDER: "ghcr.io/xmos/xcore_builder:latest"
+  HOST_APPS_ARTIFACT_NAME: "host_apps"
   EXAMPLES_ARTIFACT_NAME: "xcore_voice_examples"
 
 jobs:
@@ -50,6 +51,12 @@ jobs:
       - name: Build
         run: |
           docker run --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+          path: ./dist_host
 
   build_main_examples:
     name: Build main example applications
