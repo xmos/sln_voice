@@ -23,7 +23,7 @@ on:
         type: string
         required: true
         default: "false"
-      example_apps_artifact_name:
+      examples_artifact_name:
         description: 'The name to be given to the uploaded "example apps" artifact.'
         type: string
         required: true
@@ -81,8 +81,8 @@ jobs:
 
       - name: Determine artifact name
         run: |
-          if [ ! -z "${{ inputs.example_apps_artifact_name }}" ]; then
-            echo "EXAMPLES_ARTIFACT_NAME=${{ inputs.example_apps_artifact_name }}" >> $GITHUB_ENV
+          if [ ! -z "${{ inputs.examples_artifact_name }}" ]; then
+            echo "EXAMPLES_ARTIFACT_NAME=${{ inputs.examples_artifact_name }}" >> $GITHUB_ENV
           fi
 
 
