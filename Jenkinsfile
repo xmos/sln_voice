@@ -1,12 +1,5 @@
 @Library('xmos_jenkins_shared_library@v0.20.0') _
 
-// Wait here until specified artifacts appear
-def artifactUrls = getGithubArtifactUrls([
-    "host_apps",
-    "xcore_voice_example_apps",
-    "xcore_voice_test_apps"
-], 60)
-
 getApproval()
 
 pipeline {
@@ -48,12 +41,9 @@ pipeline {
                 sh "docker pull ghcr.io/xmos/xcore_builder:latest"
                 // host apps
                 sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
-                
                 // test apps
                 sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
-
-                // List extracted files for log
-                sh "ls -la"
+                // List built files for log
                 sh "ls -la dist_host/"
                 sh "ls -la dist/"
             }
@@ -134,8 +124,6 @@ pipeline {
                 }
             }
         }
-
-
     //     TODO the commands and pipeline tests require the testing suite sample files
     //     stage('Run Commands test') {
     //         steps {
@@ -158,7 +146,6 @@ pipeline {
     //                         sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffd_usb_audio_test.xe <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe> " + adapterIDs[0]
     //                         sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/test_output/results.csv"
     //                     }
-                        
     //                 }
     //             }
     //         }
