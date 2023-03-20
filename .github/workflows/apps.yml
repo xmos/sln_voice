@@ -31,9 +31,7 @@ on:
 
 env:
   XCORE_BUILDER: "ghcr.io/xmos/xcore_builder:latest"
-  HOST_APPS_ARTIFACT_NAME: "host_apps"
-  EXAMPLE_APPS_ARTIFACT_NAME: "xcore_voice_example_apps"
-  TEST_APPS_ARTIFACT_NAME: "xcore_voice_test_apps"
+  EXAMPLES_ARTIFACT_NAME: "xcore_voice_examples"
 
 jobs:
   build_host_apps:
@@ -51,13 +49,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --rm -w /xcore_sdk -v ${{github.workspace}}:/xcore_sdk ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
-          path: ./dist_host
+          docker run --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
 
   build_main_examples:
     name: Build main example applications
@@ -85,20 +77,14 @@ jobs:
 
       - name: Save metadata
         run: |
-          bash tools/ci/log_metadata.sh ./dist/main_examples_metadata.json
+          bash tools/ci/log_metadata.sh ./dist/build_metadata.json
 
       - name: Determine artifact name
         run: |
           if [ ! -z "${{ inputs.example_apps_artifact_name }}" ]; then
-            echo "EXAMPLE_APPS_ARTIFACT_NAME=${{ inputs.example_apps_artifact_name }}" >> $GITHUB_ENV
+            echo "EXAMPLES_ARTIFACT_NAME=${{ inputs.example_apps_artifact_name }}" >> $GITHUB_ENV
           fi
 
-      - name: Save example app firmware artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.EXAMPLE_APPS_ARTIFACT_NAME }}
-          path: |
-            ./dist/*.*
 
   build_misc_examples:
     if: inputs.is_release == 'false'
@@ -174,14 +160,3 @@ jobs:
       - name: Build
         run: |
           docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
-
-      - name: Save metadata
-        run: |
-          bash tools/ci/log_metadata.sh ./dist/tests_metadata.json
-
-      - name: Save example application firmware artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ env.TEST_APPS_ARTIFACT_NAME }}
-          path: |
-            ./dist/*.*
