@@ -79,13 +79,19 @@ It is recommended that you download and install the latest release of the `XTC T
 Application Demonstrations 
 **************************
 
-Pre-built example designs and other software can be downloaded from the |SOFTWARE_URL| product information page.  
+If you only want to run the example designs, pre-built firmware and other software can be downloaded from the |SOFTWARE_URL| product information page.  
 
 ***********
 Source Code
 ***********
 
-A zip archive of all source code can be downloaded from the |SOFTWARE_URL| product information page.  
+If you wish to modify the example designs, a zip archive of all source code can be downloaded from the |SOFTWARE_URL| product information page.  
+
+See the :ref:`Programming Guide <sln_voice_programming_guide>` for information on:
+
+- Prerequisites
+- Instructions for building, running, and debugging the example designs
+- Details on the software design and source code
 
 Cloning the Repository
 ======================
@@ -100,4 +106,4 @@ Run the following `git` command to clone the repository and all submodules:
 
 .. code-block:: console
 
-  git clone --recurse-submodules https://github.com/xmos/sln_voice.git
+  git clone --recurse-submodules git@github.com:xmos/sln_voice.git
