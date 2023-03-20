@@ -15,7 +15,7 @@ Docs             | ![CI](https://github.com/xmos/sln_voice/actions/workflows/doc
 
 Some dependent components are included as git submodules. These can be obtained by cloning this repository with the following command:
 
-    $ git clone --recurse-submodules https://github.com/xmos/sln_voice.git
+    $ git clone --recurse-submodules git@github.com:xmos/sln_voice.git
 
 ## Documentation
 

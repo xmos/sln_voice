@@ -78,11 +78,11 @@ jobs:
             else
               version="test"
             fi
-            echo "EXAMPLES_ARTIFACT_NAME=xcore_voice_example_apps_$version" >> $GITHUB_OUTPUT
-            echo "SOURCES_ARTIFACT_NAME=xcore_voice_sources_$version" >> $GITHUB_OUTPUT
-            echo "HTML_DOCS_ARTIFACT_NAME=xcore_voice_html_docs_$version" >> $GITHUB_OUTPUT
+            echo "EXAMPLES_ARTIFACT_NAME=XM-014871-SM_xcore_voice_example_apps_$version" >> $GITHUB_OUTPUT
+            echo "SOURCES_ARTIFACT_NAME=XM-014872-SM_xcore_voice_sources_$version" >> $GITHUB_OUTPUT
+            echo "HTML_DOCS_ARTIFACT_NAME=XM-014785-PC_xcore_voice_html_docs_$version" >> $GITHUB_OUTPUT
             echo "PDF_DOCS_ARTIFACT_NAME=$TMP_PDF_DOCS_ARTIFACT_NAME" >> $GITHUB_OUTPUT
-            echo "PDF_DOCS_ARTIFACT_NAME_RELEASE=xcore_voice_pdf_docs_$version" >> $GITHUB_OUTPUT
+            echo "PDF_DOCS_ARTIFACT_NAME_RELEASE=XM-014870-PC_xcore_voice_pdf_docs_$version" >> $GITHUB_OUTPUT
           else
             echo "EXAMPLES_ARTIFACT_NAME=xcore_voice_example_apps" >> $GITHUB_OUTPUT
             echo "SOURCES_ARTIFACT_NAME=xcore_voice_sources" >> $GITHUB_OUTPUT
