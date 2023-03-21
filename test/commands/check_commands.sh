@@ -99,5 +99,8 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 done 
 
+# reset board
+xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+
 # print results
 cat ${RESULTS}
