@@ -102,5 +102,8 @@ done
 # reset board
 xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 
+# wait a bit
+sleep 3
+
 # print results
 cat ${RESULTS}
