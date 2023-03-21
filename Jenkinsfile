@@ -48,6 +48,13 @@ pipeline {
                 sh "ls -la dist/"
             }
         }
+        stage('Mount test') {
+            steps {
+                withMounts([["totoro", "projects_mirror/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset/", "test_vectors"]]) {
+                    sh "ls -l test_vectors"
+                }
+            }
+        }
         stage('Create virtual environment') {
             steps {
                 // Create venv
