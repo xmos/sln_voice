@@ -14,9 +14,20 @@
 #include "platform_conf.h"
 #include "platform/driver_instances.h"
 #include "aic3204.h"
-#include "usb_support.h"
 
 extern void i2s_rate_conversion_enable(void);
+
+static void clock_control_start(void)
+{
+    rtos_clock_control_rpc_config(
+            cc_ctx_t0,
+            appconfCLOCK_CONTROL_PORT,
+            appconfCLOCK_CONTROL_RPC_HOST_PRIORITY);
+
+#if ON_TILE(0)
+    rtos_clock_control_start(cc_ctx_t0);
+#endif
+}
 
 static void gpio_start(void)
 {
@@ -75,7 +86,10 @@ static void mics_start(void)
 
 static void i2s_start(void)
 {
-#if appconfI2S_ENABLED && ON_TILE(I2S_TILE_NO)
+#if appconfI2S_ENABLED
+    rtos_i2s_rpc_config(i2s_ctx, appconfI2S_RPC_PORT, appconfI2S_RPC_PRIORITY);
+#if ON_TILE(I2S_TILE_NO)
+
     if (appconfI2S_AUDIO_SAMPLE_RATE == 3*appconfAUDIO_PIPELINE_SAMPLE_RATE) {
         i2s_rate_conversion_enable();
     }
@@ -88,12 +102,6 @@ static void i2s_start(void)
             1.2 * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME,
             appconfI2S_INTERRUPT_CORE);
 #endif
-}
-
-static void usb_start(void)
-{
-#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
-    usb_manager_start(appconfUSB_MGR_TASK_PRIORITY);
 #endif
 }
 
@@ -107,13 +115,14 @@ static void uart_start(void)
 void platform_start(void)
 {
     rtos_intertile_start(intertile_ctx);
+    rtos_intertile_start(intertile_ap_ctx);
 
+    clock_control_start();
     gpio_start();
     flash_start();
     i2c_master_start();
     audio_codec_start();
     mics_start();
     i2s_start();
-    usb_start();
     uart_start();
 }

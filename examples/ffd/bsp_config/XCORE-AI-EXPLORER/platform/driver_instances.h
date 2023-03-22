@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 #include "rtos_intertile.h"
+#include "rtos_clock_control.h"
 #include "rtos_qspi_flash.h"
 #include "rtos_gpio.h"
 #include "rtos_i2c_master.h"
@@ -31,8 +32,6 @@ extern "C" {
 /** TILE 0 Clock Blocks */
 #define FLASH_CLKBLK  XS1_CLKBLK_1
 #define MCLK_CLKBLK   XS1_CLKBLK_2
-#define XUD_CLKBLK_1  XS1_CLKBLK_4 /* Reserved for lib_xud */
-#define XUD_CLKBLK_2  XS1_CLKBLK_5 /* Reserved for lib_xud */
 
 /** TILE 1 Clock Blocks */
 #define PDM_CLKBLK_1  XS1_CLKBLK_1
@@ -43,6 +42,8 @@ extern "C" {
 #define PORT_MCLK     PORT_MCLK_IN
 
 extern rtos_intertile_t *intertile_ctx;
+extern rtos_intertile_t *intertile_ap_ctx;
+extern rtos_clock_control_t *cc_ctx_t0;
 extern rtos_qspi_flash_t *qspi_flash_ctx;
 extern rtos_gpio_t *gpio_ctx_t0;
 extern rtos_gpio_t *gpio_ctx_t1;

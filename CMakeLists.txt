@@ -6,22 +6,28 @@ if("${CMAKE_SOURCE_DIR}" STREQUAL "${CMAKE_BINARY_DIR}")
 endif()
 
 ## Project declaration
-project(solution_avona)
+project(solution_voice)
 
 ## Enable languages for project
 enable_language(CXX C ASM)
 
 ## Project options
-option(SOLUTION_AVONA_TESTS     "Enable solution avona tests"  OFF)
+option(XCORE_VOICE_TESTS     "Enable XCORE-VOICE tests"  OFF)
+
+## Setup a root path
+set(SOLUTION_VOICE_ROOT_PATH ${PROJECT_SOURCE_DIR} CACHE STRING "Root folder of sln_voice in this cmake project tree")
+
+## Import some helpful macros
+include(modules/rtos/tools/cmake_utils/xmos_macros.cmake)
 
 ## Add frameworks
-add_subdirectory(xcore_sdk)
+add_subdirectory(modules)
 
 ## Add top level project targets
 if(PROJECT_IS_TOP_LEVEL)
     include(examples/examples.cmake)
 endif()
 
-if(SOLUTION_AVONA_TESTS)
+if(XCORE_VOICE_TESTS)
     include(test/tests.cmake)
 endif()

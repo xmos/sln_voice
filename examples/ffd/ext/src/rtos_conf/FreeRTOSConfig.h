@@ -11,7 +11,7 @@ your application. */
 #define configCPU_CLOCK_HZ                      100000000
 
 #if ON_TILE(0)
-#define configNUM_CORES                         5
+#define configNUM_CORES                         7
 #endif
 #if ON_TILE(1)
 #define configNUM_CORES                         5
@@ -53,7 +53,7 @@ your application. */
 
 /* Hook function related definitions. */
 #define configUSE_IDLE_HOOK                     0
-#define configUSE_MINIMAL_IDLE_HOOK             1
+#define configUSE_MINIMAL_IDLE_HOOK             0
 #define configUSE_TICK_HOOK                     0
 #define configCHECK_FOR_STACK_OVERFLOW          0
 #define configUSE_MALLOC_FAILED_HOOK            1

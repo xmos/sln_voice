@@ -1,38 +1,20 @@
-############################
-XCORE-VOICE Functional Tests
-############################
+#################
+XCORE-VOICE Tests
+#################
 
 ************
 Requirements
 ************
 
-The following software is required for running many functional tests.  Install them using your operating systems package management system.
+The following software is required for running tests.
 
-* Linux or MacOS. Windows is not currently supported.
+* Linux, MacOS, or Windows Subsystem for Linux
 * `Python 3.8 <https://www.python.org/>`__
 
 Python Virtual Environment
 ==========================
 
-While not required, we recommend you setup a Python virtual environment, like `Anaconda <https://www.anaconda.com/products/individual/>`_. If necessary, download and follow Anaconda's installation instructions.
-
-Run the following command to create a Conda environment:
-
-.. code-block:: console
-
-    conda create --prefix sln_voice_venv python=3.8
-
-Run the following command to activate the Conda environment:
-
-.. code-block:: console
-
-    conda activate <path-to>/sln_voice_venv
-
-Run the following command to deactivate the Conda environment:
-
-.. code-block:: console
-
-    conda deactivate
+While not required, we recommend you setup a Python virtual environment, like `https://realpython.com/python-virtual-environments-a-primer/`
 
 Install Python Packages
 =======================
@@ -47,10 +29,13 @@ Install development packages with the Python virtual environment activated:
 Running Tests
 *************
 
-Functional tests exists for the following:
+Tests exists for the following:
 
 - Audio processing pipelines
 - Speech recognition command dictionaries
 - Sample rate conversion
+- DFU
+- GPIO
+- Low power mode's audio ring buffer
 
-To run tests, see the README files located in the directories containing the tests.
+To run tests, see the README files located in the directories containing each test group.

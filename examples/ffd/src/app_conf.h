@@ -10,59 +10,59 @@
 #define appconfGPIO_T1_RPC_PORT                   2
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
+#define appconfI2S_RPC_PORT                       5
 #define appconfCLOCK_CONTROL_PORT                 14
 #define appconfPOWER_CONTROL_PORT                 15
 
-#define appconfPOWER_STATE_PORT                   12
-#define appconfWANSON_READY_SYNC_PORT             16
+#define appconfPOWER_STATE_PORT                   8
+#define appconfINTENT_ENGINE_READY_SYNC_PORT      16
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
 #define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
-#define INFERENCE_TILE_NO       FLASH_TILE_NO
+#define ASR_TILE_NO             FLASH_TILE_NO
 #define FS_TILE_NO              FLASH_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
 #define appconfPDM_CLOCK_FREQUENCY              MIC_ARRAY_CONFIG_PDM_FREQ
-#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 4800 is not supported in FFD ext
+#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 48000 is not supported in FFD ext
 #define appconfAUDIO_PIPELINE_CHANNELS          MIC_ARRAY_CONFIG_MIC_COUNT
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
+/* Enable audio response output */
+#ifndef appconfAUDIO_PLAYBACK_ENABLED
+#define appconfAUDIO_PLAYBACK_ENABLED           1
+#endif
+
 /* Intent Engine Configuration */
-#define appconfINFERENCE_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
-#define appconfINFERENCE_SAMPLE_BLOCK_LENGTH    240
+#define appconfINTENT_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
+#define appconfINTENT_SAMPLE_BLOCK_LENGTH    240
 
 /* Enable inference engine */
-#ifndef appconfINFERENCE_ENABLED
-#define appconfINFERENCE_ENABLED   1
+#ifndef appconfINTENT_ENABLED
+#define appconfINTENT_ENABLED   1
 #endif
 
 /* Maximum delay between a wake up phrase and command phrase */
-#ifndef appconfINFERENCE_RESET_DELAY_MS
-#define appconfINFERENCE_RESET_DELAY_MS         4000
+#ifndef appconfINTENT_RESET_DELAY_MS
+#if appconfAUDIO_PLAYBACK_ENABLED
+#define appconfINTENT_RESET_DELAY_MS         5000
+#else
+#define appconfINTENT_RESET_DELAY_MS         4000
+#endif
 #endif
 
 /* Output raw inferences, if set to 0, a state machine requires a wake up phrase
  * before a command phrase */
-#ifndef appconfINFERENCE_RAW_OUTPUT
-#define appconfINFERENCE_RAW_OUTPUT   0
-#endif
-
-/* Enable audio response output */
-#ifndef appconfAUDIO_PLAYBACK_ENABLED
-#define appconfAUDIO_PLAYBACK_ENABLED   1
+#ifndef appconfINTENT_RAW_OUTPUT
+#define appconfINTENT_RAW_OUTPUT   0
 #endif
 
 /* Maximum number of detected intents to hold */
 #ifndef appconfINTENT_QUEUE_LEN
 #define appconfINTENT_QUEUE_LEN     10
-#endif
-
-/* Maximum number of detected intents to hold */
-#ifndef appconfWAKEUP_TRIGGER_LEN
-#define appconfWAKEUP_TRIGGER_LEN     1
 #endif
 
 /* External wakeup pin edge on intent found.  0 for rising edge, 1 for falling edge */
@@ -75,24 +75,20 @@
 #define appconfINTENT_TRANSPORT_DELAY_MS     50
 #endif
 
-#ifndef appconfINFERENCE_I2C_OUTPUT_ENABLED
-#define appconfINFERENCE_I2C_OUTPUT_ENABLED   1
+#ifndef appconfINTENT_I2C_OUTPUT_ENABLED
+#define appconfINTENT_I2C_OUTPUT_ENABLED   1
 #endif
 
-#ifndef appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR
-#define appconfINFERENCE_I2C_OUTPUT_DEVICE_ADDR 0x01
+#ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
+#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR 0x01
 #endif
 
-#ifndef appconfINFERENCE_UART_OUTPUT_ENABLED
-#define appconfINFERENCE_UART_OUTPUT_ENABLED   1
+#ifndef appconfINTENT_UART_OUTPUT_ENABLED
+#define appconfINTENT_UART_OUTPUT_ENABLED   1
 #endif
 
 #ifndef appconfUART_BAUD_RATE
 #define appconfUART_BAUD_RATE       9600
-#endif
-
-#ifndef appconfSSD1306_DISPLAY_ENABLED
-#define appconfSSD1306_DISPLAY_ENABLED   1
 #endif
 
 #ifndef appconfI2S_ENABLED
@@ -107,14 +103,36 @@
 #define appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE  1
 #endif
 
-#define appconfLOW_POWER_SWITCH_CLK_DIV         30  // Resulting clock freq >= 20MHz.
-#define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
-#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3   // Resulting clock freq >= 200MHz
+#ifndef appconfLOW_POWER_SWITCH_CLK_DIV
+/* Resulting clock freq: 20MHz */
+#define appconfLOW_POWER_SWITCH_CLK_DIV         30
+#endif
 
+#ifndef appconfLOW_POWER_OTHER_TILE_CLK_DIV
+#define appconfLOW_POWER_OTHER_TILE_CLK_DIV     600
+#endif
+
+#ifndef appconfLOW_POWER_CONTROL_TILE_CLK_DIV
+/* Resulting clock freq: 300MHz */
+#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2
+#endif
+
+#ifndef appconfPOWER_VNR_THRESHOLD
 #define appconfPOWER_VNR_THRESHOLD              (0.3f)
+#endif
+
+#ifndef appconfPOWER_LOW_ENERGY_THRESHOLD
 #define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
+#endif
+
+#ifndef appconfPOWER_HIGH_ENERGY_THRESHOLD
 #define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
-#define appconfPOWER_FULL_HOLD_DURATION         (appconfINFERENCE_RESET_DELAY_MS + 3000) // milliseconds
+#endif
+
+/* In Milliseconds*/
+#ifndef appconfPOWER_FULL_HOLD_DURATION
+#define appconfPOWER_FULL_HOLD_DURATION         (1000)
+#endif
 
 /* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
  * samples while in low power mode. */
@@ -122,10 +140,11 @@
 #define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
 #endif
 
-/* The number of frames (appconfAUDIO_PIPELINE_FRAME_ADVANCE) to store in a ring
- * buffer while in low power mode. This may be tuned to ensure that unvoiced
- * speech that is a pre-cursor to voiced speech in a wake-word such as "he" part
- * of "hello" is captured and relayed to the inference engine. */
+/* The number of frames to store in a ring buffer while in low power mode,
+ * where each frame contains appconfAUDIO_PIPELINE_FRAME_ADVANCE samples.
+ * This may be tuned to ensure that unvoiced speech that is a pre-cursor to
+ * voiced speech in a wake-word such as "he" part of "hello" is captured and
+ * relayed to the inference engine. */
 #ifndef appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
 #define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES 32
 #endif
@@ -187,8 +206,8 @@
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 5)
 #define appconfAUDIO_PIPELINE_TASK_PRIORITY    	    (configMAX_PRIORITIES / 2)
-#define appconfINFERENCE_MODEL_RUNNER_TASK_PRIORITY (configMAX_PRIORITIES - 2)
-#define appconfINFERENCE_HMI_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
+#define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY    (configMAX_PRIORITIES - 2)
+#define appconfINTENT_HMI_TASK_PRIORITY             (configMAX_PRIORITIES / 2)
 #define appconfGPIO_RPC_PRIORITY                    (configMAX_PRIORITIES / 2)
 #define appconfCLOCK_CONTROL_RPC_HOST_PRIORITY      (configMAX_PRIORITIES / 2)
 #define appconfPOWER_CONTROL_TASK_PRIORITY          (configMAX_PRIORITIES / 2)
@@ -196,10 +215,9 @@
 #define appconfI2C_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_MASTER_RPC_PRIORITY              (configMAX_PRIORITIES / 2)
 #define appconfUSB_MGR_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 1)
-#define appconfUSB_AUDIO_TASK_PRIORITY              (configMAX_PRIORITIES / 2 + 1)
+#define appconfUSB_AUDIO_TASK_PRIORITY              (configMAX_PRIORITIES - 1)
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
-#define appconfSSD1306_TASK_PRIORITY                (configMAX_PRIORITIES / 2 - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
 
 #include "app_conf_check.h"

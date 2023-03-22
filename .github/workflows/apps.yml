@@ -1,0 +1,175 @@
+# YAML schema for GitHub Actions:
+# https://help.github.com/en/actions/automating-your-workflow-with-github-actions/workflow-syntax-for-github-actions
+#
+# Helpful YAML parser to clarify YAML syntax:
+# https://yaml-online-parser.appspot.com/
+#
+# This workflow uses actions that are not certified by GitHub. They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support documentation.
+#
+# This file contains the workflows that are run prior to merging a pull request.
+
+name: Build Applications
+
+on:
+  # Allow manually triggering of the workflow.
+  workflow_dispatch:
+
+  # Allow workflow to be called from another.
+  workflow_call:
+    inputs:
+      is_release:
+        description: "Indicates whether this run is for a release or not."
+        type: string
+        required: true
+        default: "false"
+      examples_artifact_name:
+        description: 'The name to be given to the uploaded "example apps" artifact.'
+        type: string
+        required: true
+        default: ""
+
+env:
+  XCORE_BUILDER: "ghcr.io/xmos/xcore_builder:latest"
+  HOST_APPS_ARTIFACT_NAME: "host_apps"
+  EXAMPLES_ARTIFACT_NAME: "xcore_voice_examples"
+
+jobs:
+  build_host_apps:
+    name: Build host applications
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Pull SDK builder
+        run: |
+          docker pull ${XCORE_BUILDER}
+
+      - name: Build
+        run: |
+          docker run --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+          path: ./dist_host
+
+  build_main_examples:
+    name: Build main example applications
+    runs-on: ubuntu-latest
+    needs: build_host_apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Pull Docker builder
+        run: |
+          docker pull ${XCORE_BUILDER}
+
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+          path: ./dist_host
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/main_examples.txt
+
+      - name: Save metadata
+        run: |
+          bash tools/ci/log_metadata.sh ./dist/build_metadata.json
+
+      - name: Determine artifact name
+        run: |
+          if [ ! -z "${{ inputs.examples_artifact_name }}" ]; then
+            echo "EXAMPLES_ARTIFACT_NAME=${{ inputs.examples_artifact_name }}" >> $GITHUB_ENV
+          fi
+
+      - name: Save example app firmware artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.EXAMPLES_ARTIFACT_NAME }}
+          path: |
+            ./dist/*.*
+
+  build_misc_examples:
+    if: inputs.is_release == 'false'
+    name: Build misc example applications
+    runs-on: ubuntu-latest
+    needs: build_host_apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Pull Docker builder
+        run: |
+          docker pull ${XCORE_BUILDER}
+
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+          path: ./dist_host
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/misc_examples.txt
+
+  build_dev_examples:
+    if: inputs.is_release == 'false'
+    name: Build dev example applications
+    runs-on: ubuntu-latest
+    needs: build_host_apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Pull Docker builder
+        run: |
+          docker pull ${XCORE_BUILDER}
+
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+          path: ./dist_host
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/dev_examples.txt
+
+  build_tests:
+    if: inputs.is_release == 'false'
+    name: Build tests and test applications
+    runs-on: ubuntu-latest
+    needs: build_host_apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Pull Docker builder
+        run: |
+          docker pull ${XCORE_BUILDER}
+
+      - name: Download host build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+          path: ./dist_host
+
+      - name: Build
+        run: |
+          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh

@@ -19,8 +19,6 @@ target_link_libraries(sln_voice_app_ffd_board_support_xcore_ai_explorer
         rtos::freertos
         rtos::drivers::general
         rtos::drivers::audio
-        rtos::drivers::usb
-        rtos::freertos_usb
         sln_voice::app::ffd::dac::aic3204
 )
 target_compile_options(sln_voice_app_ffd_board_support_xcore_ai_explorer
@@ -38,8 +36,6 @@ target_compile_definitions(sln_voice_app_ffd_board_support_xcore_ai_explorer
         PLATFORM_SUPPORTS_TILE_1=1
         PLATFORM_SUPPORTS_TILE_2=0
         PLATFORM_SUPPORTS_TILE_3=0
-        USB_TILE_NO=0
-        USB_TILE=tile[USB_TILE_NO]
 
         MIC_ARRAY_CONFIG_MCLK_FREQ=24576000
         MIC_ARRAY_CONFIG_PDM_FREQ=3072000

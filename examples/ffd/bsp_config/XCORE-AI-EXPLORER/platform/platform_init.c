@@ -9,24 +9,33 @@
 #include "platform/app_pll_ctrl.h"
 #include "platform/driver_instances.h"
 #include "platform/platform_init.h"
-#include "adaptive_rate_adjust.h"
-#include "usb_support.h"
 
 static void mclk_init(chanend_t other_tile_c)
 {
 #if ON_TILE(1)
     app_pll_init();
 #endif
+}
+
+static void clock_control_init(void)
+{
+    static rtos_driver_rpc_t clock_control_rpc_config_t0;
+
 #if ON_TILE(0)
-#if appconfUSB_ENABLED && appconfUSB_AUDIO_ENABLED
-    adaptive_rate_adjust_init(other_tile_c, MCLK_CLKBLK);
+    rtos_intertile_t *client_intertile_ctx[] = {intertile_ctx};
+
+    rtos_clock_control_init(cc_ctx_t0);
+
+    rtos_clock_control_rpc_host_init(
+        cc_ctx_t0,
+        &clock_control_rpc_config_t0,
+        client_intertile_ctx,
+        sizeof(client_intertile_ctx) / sizeof(rtos_intertile_t *));
 #else
-    port_enable(PORT_MCLK_IN);
-    clock_enable(MCLK_CLKBLK);
-    clock_set_source_port(MCLK_CLKBLK, PORT_MCLK_IN);
-    port_set_clock(PORT_MCLK_IN, MCLK_CLKBLK);
-    clock_start(MCLK_CLKBLK);
-#endif
+    rtos_clock_control_rpc_client_init(
+            cc_ctx_t0,
+            &clock_control_rpc_config_t0,
+            intertile_ctx);
 #endif
 }
 
@@ -129,7 +138,7 @@ static void i2c_init(void)
             PORT_I2C_SCL, 0, 0,
             PORT_I2C_SDA, 0, 0,
             0,
-            100);
+            400);
 
     rtos_i2c_master_rpc_host_init(
             i2c_master_ctx,
@@ -156,7 +165,10 @@ static void mics_init(void)
 
 static void i2s_init(void)
 {
-#if appconfI2S_ENABLED && ON_TILE(I2S_TILE_NO)
+#if appconfI2S_ENABLED
+    static rtos_driver_rpc_t i2s_rpc_config;
+#if ON_TILE(I2S_TILE_NO)
+    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     port_t p_i2s_dout[1] = {
             PORT_I2S_DAC_DATA
     };
@@ -175,13 +187,18 @@ static void i2s_init(void)
             PORT_I2S_LRCLK,
             PORT_MCLK,
             I2S_CLKBLK);
-#endif
-}
 
-static void usb_init(void)
-{
-#if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
-    usb_manager_init();
+    rtos_i2s_rpc_host_init(
+            i2s_ctx,
+            &i2s_rpc_config,
+            client_intertile_ctx,
+            1);
+#else
+    rtos_i2s_rpc_client_init(
+            i2s_ctx,
+            &i2s_rpc_config,
+            intertile_ctx);
+#endif
 #endif
 }
 
@@ -204,13 +221,14 @@ static void uart_init(void)
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
+    rtos_intertile_init(intertile_ap_ctx, other_tile_c);
 
     mclk_init(other_tile_c);
+    clock_control_init();
     gpio_init();
     flash_init();
     i2c_init();
     mics_init();
     i2s_init();
-    usb_init();
     uart_init();
 }

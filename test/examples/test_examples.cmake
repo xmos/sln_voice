@@ -1,1 +1,0 @@
-include(${CMAKE_CURRENT_LIST_DIR}/stlp/test_stlp.cmake)
