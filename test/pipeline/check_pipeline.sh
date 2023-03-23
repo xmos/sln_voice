@@ -116,7 +116,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
 
     # wait for sox to stop
-    sleep 5
+    sleep 3
 
     # single out ASR channel
     sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1

@@ -2,6 +2,7 @@
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
 
 set -e
+set -x
 
 # help text
 help()
@@ -88,7 +89,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
 
     # wait for sox to stop
-    sleep 5
+    sleep 3
 
     # kill xrun
     kill -INT ${XRUN_PID}
