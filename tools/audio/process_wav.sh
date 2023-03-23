@@ -99,3 +99,7 @@ sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE
 
 # kill recording
 kill -TERM ${SOX_RECORDING_PID}
+
+# DEBUG
+echo "**************** is sox still here? ****************"
+ps aux | grep sox
