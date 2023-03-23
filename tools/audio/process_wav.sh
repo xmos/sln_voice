@@ -101,5 +101,6 @@ sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE
 kill -TERM ${SOX_RECORDING_PID}
 
 # DEBUG
+apt-get update && apt-get install -y procps
 echo "**************** is sox still here? ****************"
-bash ps aux | grep sox
+ps aux

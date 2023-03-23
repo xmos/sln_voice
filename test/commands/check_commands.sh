@@ -48,14 +48,14 @@ done < ${INPUT_LIST}
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
-# xflash erase
-xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+# # xflash erase
+# xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
-# flash the data partition
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_data_partition.bin
+# # flash the data partition
+# xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_data_partition.bin
 
-# wait for device to reset (may not be necessary)
-sleep 3
+# # wait for device to reset (may not be necessary)
+# sleep 3
 
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
@@ -84,10 +84,11 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
 
     # wait for app to load
     sleep 10
-
+    
     # DEBUG check for zombies
     echo "***************** zombies? *******************"
-    bash ps aux | grep sox
+    apt-get update && apt-get install -y procps
+    ps aux
 
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
