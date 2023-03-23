@@ -47,7 +47,9 @@ pipeline {
         }
         stage('Build applications and firmware') {
             steps {
+                // pull docker images
                 sh "docker pull ghcr.io/xmos/xcore_builder:latest"
+                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                 // host apps
                 sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
                 // test firmware and filesystems
@@ -123,7 +125,6 @@ pipeline {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
                         script {
-                            sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                 sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
                             }

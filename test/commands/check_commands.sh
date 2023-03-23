@@ -90,6 +90,12 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # kill xrun
     kill -INT ${XRUN_PID}
 
+    # reset board
+    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+
+    # pause after reset
+    sleep 3
+
     # count keyword occurrences in the log
     DETECTIONS=$(grep -o -I "KEYWORD:" ${OUTPUT_LOG} | wc -l)
     # trim whitespace
@@ -98,9 +104,6 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     echo "${INPUT_WAV}: ${DETECTIONS} detections"
     echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 done 
-
-# reset board
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 
 # wait a bit
 sleep 3
