@@ -40,7 +40,9 @@ pipeline {
         }
         stage('Set up sample suite') {
             steps {
-                sh "cp -r /projects_us/hydra_audio/xvf3510_no_processing_xmos_test_suite_subset $SAMPLE_SUITE"
+                sh "cp -r /projects_us/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $SAMPLE_SUITE"
+                // List samples for log
+                sh "ls -la $SAMPLE_SUITE"
             }
         }
         stage('Build applications and firmware') {
