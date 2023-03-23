@@ -102,4 +102,4 @@ kill -TERM ${SOX_RECORDING_PID}
 
 # DEBUG
 echo "**************** is sox still here? ****************"
-ps aux | grep sox
+bash ps aux | grep sox

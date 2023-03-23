@@ -87,7 +87,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
 
     # DEBUG check for zombies
     echo "***************** zombies? *******************"
-    ps aux | grep sox
+    bash ps aux | grep sox
 
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
