@@ -22,6 +22,9 @@ pipeline {
             defaultValue: '15.2.1',
             description: 'The XTC tools version'
         )
+        booleanParam(name: 'NIGHTLY_TEST_ONLY',
+            defaultValue: true,
+            description: 'Tests that only run during nightly builds.')
     }    
     environment {
         PYTHON_VERSION = "3.8.11"
