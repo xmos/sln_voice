@@ -97,8 +97,5 @@ SOX_RECORDING_PID=$!
 # play input
 sox $INPUT_FILE $SOX_PLAY_OPTS -t wav - $REMIX_PATTERN | sox -t wav - -t $DEVICE_DRIVER "$DEVICE_NAME"
 
-# avoid sox error 'No such device or address'
-sleep 5
-
 # kill recording
 kill -TERM ${SOX_RECORDING_PID}

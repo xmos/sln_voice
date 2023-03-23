@@ -87,6 +87,9 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
 
+    # wait for sox to stop
+    sleep 5
+
     # kill xrun
     kill -INT ${XRUN_PID}
 
@@ -103,10 +106,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     echo "${INPUT_WAV}: ${DETECTIONS} detections"
     echo "filename=${INPUT_WAV}, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
-done 
-
-# wait a bit
-sleep 3
+done
 
 # print results
 cat ${RESULTS}
