@@ -78,7 +78,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
 
-    # reset board
+    # reset board 
     xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 
     # DEBUG wait for system enum
