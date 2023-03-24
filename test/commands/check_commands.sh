@@ -85,11 +85,6 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # wait for app to load
     sleep 10
 
-    # DEBUG check for zombies
-    echo "***************** zombies? *******************"
-    apt-get update && apt-get install -y procps
-    ps aux | grep sox
-
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c1 ${INPUT_WAV} ${OUTPUT_WAV})
 
@@ -102,8 +97,8 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # reset board
     xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 
-    # pause after reset
-    sleep 3
+    # DEBUG wait for system enum
+    sleep 120
 
     # count keyword occurrences in the log
     DETECTIONS=$(grep -o -I "KEYWORD:" ${OUTPUT_LOG} | wc -l)
