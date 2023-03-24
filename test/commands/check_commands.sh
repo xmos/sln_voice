@@ -77,6 +77,12 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}.log"
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
+
+    # reset board
+    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+
+    # DEBUG wait for system enum
+    sleep 120
     
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope ${FIRMWARE} &> ${OUTPUT_LOG} &
@@ -93,12 +99,6 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
 
     # kill xrun
     kill -INT ${XRUN_PID}
-
-    # reset board
-    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
-
-    # DEBUG wait for system enum
-    sleep 120
 
     # count keyword occurrences in the log
     DETECTIONS=$(grep -o -I "KEYWORD:" ${OUTPUT_LOG} | wc -l)
