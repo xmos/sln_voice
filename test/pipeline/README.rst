@@ -22,7 +22,7 @@ Inputs
 The input wav files are listed in the test vector file lists: 
 
 - ffd_quick.txt
-- stlp_quick.txt
+- ffva_quick.txt
 
 The wav files are 2 minute subsets from the xvf3510_no_processing_xmos_test_suite test set.  Files can be copied from: `\\projects.xmos.local\projects\hydra_audio\xcore-voice_xvf3510_no_processing_xmos_test_suite_subset`
 
