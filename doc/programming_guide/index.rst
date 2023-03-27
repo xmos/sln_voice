@@ -11,5 +11,6 @@ XCORE-VOICE Programming Guide
    prerequisites
    example_designs
    extending
+   howto
    faq
    ../shared/legal
