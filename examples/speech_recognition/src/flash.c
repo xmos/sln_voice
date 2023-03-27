@@ -17,13 +17,10 @@ flash_ports_t flash_ports_0 =
   XS1_CLKBLK_5
 };
 
-flash_clock_config_t flash_clock_config =
-{
-  1,
-  8,
-  8,
-  1,
-  0,
+// use the flash clock config below to get 50MHz, ~23.8 MiB/s throughput
+static flash_clock_config_t flash_clock_config = {
+    flash_clock_reference,  0, 1, flash_clock_input_edge_plusone,
+    flash_port_pad_delay_1,
 };
 
 flash_qe_config_t flash_qe_config_0 =
