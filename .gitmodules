@@ -25,3 +25,6 @@
 [submodule "modules/inferencing/lib_nn"]
 	path = modules/inferencing/lib_nn
 	url = git@github.com:xmos/lib_nn.git
+[submodule "modules/lib_qspi_fast_read"]
+	path = modules/lib_qspi_fast_read
+	url = git@github.com:xmos/lib_qspi_fast_read.git
