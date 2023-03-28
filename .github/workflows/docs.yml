@@ -25,8 +25,9 @@ on:
         type: string
 
 env:
-  DOC_BUILDER_IMAGE: "ghcr.io/xmos/doc_builder:v2.0.0"
-  DOCS_ARTIFACT_NAME: "xcore_voice_docs"
+  DOC_BUILDER_IMAGE: "ghcr.io/xmos/doc_builder:v3.0.0"
+  HTML_DOCS_ARTIFACT_NAME: "xcore_voice_html_docs"
+  PDF_DOCS_ARTIFACT_NAME: "xcore_voice_pdf_docs"
 
 jobs:
   build_documentation:
