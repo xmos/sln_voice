@@ -85,48 +85,6 @@ pipeline {
                 sh "rm -f ~/.xtag/status.lock ~/.xtag/acquired"
             }
         }
-        // stage('Run Commands test') {
-        //     steps {
-        //         withTools(params.TOOLS_VERSION) {
-        //             withVenv {
-        //                 script {
-        //                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-        //                         sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/commands/check_commands.sh $BUILD_DIRNAME/example_ffd_usb_audio_test.xe $SAMPLE_SUITE test/commands/ffd.txt test/commands/test_output/ " + adapterIDs[0]
-        //                     }
-        //                     sh "pytest test/commands/test_commands.py --log test/commands/test_output/results.csv"
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }
-        stage('Run Pipeline FFD test') {
-            steps {
-                withTools(params.TOOLS_VERSION) {
-                    withVenv {
-                        script {
-                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffd_usb_audio_test.xe $SAMPLE_SUITE test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
-                            }
-                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffd_test_output/results.csv"
-                        }
-                    }
-                }
-            }
-        }
-        stage('Run Pipeline FFVA test') {
-            steps {
-                withTools(params.TOOLS_VERSION) {
-                    withVenv {
-                        script {
-                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
-                            }
-                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
-                        }
-                    }
-                }
-            }
-        }
         stage('Run Sample_Rate_Conversion test') {
             steps {
                 withTools(params.TOOLS_VERSION) {
@@ -174,6 +132,34 @@ pipeline {
                                 sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
                             }
                             sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/example_ffva_ua_adec_test_upgrade.bin"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Run Pipeline FFD test') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffd_usb_audio_test.xe $SAMPLE_SUITE test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
+                            }
+                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffd_test_output/results.csv"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Run Pipeline FFVA test') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
+                            }
+                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
                         }
                     }
                 }

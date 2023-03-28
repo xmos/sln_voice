@@ -81,13 +81,6 @@ rm -rf ${RESULTS}
 rm -f "${OUTPUT_DIR}/list.txt"
 echo "${AMAZON_WAV}" >> "${OUTPUT_DIR}/list.txt"
 
-# call xrun (in background)
-xrun ${ADAPTER_ID} --xscope ${FIRMWARE} &
-XRUN_PID=$!
-
-# wait for app to load
-(sleep 10)
-
 echo "***********************************"
 echo "Log file: ${RESULTS}"
 echo "***********************************"
@@ -110,9 +103,19 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
     MONO_OUTPUT_WAV="${OUTPUT_DIR}/mono_${FILE_NAME}.wav"
+
+    # call xrun (in background)
+    xrun ${ADAPTER_ID} --xscope ${FIRMWARE} &
+    XRUN_PID=$!
+
+    # wait for app to load
+    (sleep 10)
     
     # process the input wav
     (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
+
+    # wait for sox to stop
+    sleep 3
 
     # single out ASR channel
     sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
@@ -132,10 +135,16 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     DETECTIONS="${DETECTIONS//[[:space:]]/}"
     # log results
     echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
-done 
 
-# kill xrun
-kill -INT ${XRUN_PID}
+    # kill xrun
+    kill -INT ${XRUN_PID}
+
+    # reset board
+    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+
+    # wait a bit
+    sleep 3
+done 
 
 # clean up
 rm "${OUTPUT_DIR}/list.txt"
