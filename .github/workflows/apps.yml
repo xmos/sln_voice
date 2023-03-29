@@ -50,7 +50,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
+          docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
