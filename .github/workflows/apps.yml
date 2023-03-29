@@ -44,7 +44,7 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Pull SDK builder
+      - name: Pull XCORE builder
         run: |
           docker pull ${XCORE_BUILDER}
 
