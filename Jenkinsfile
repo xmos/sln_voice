@@ -45,11 +45,13 @@ pipeline {
                 }
                 stage('Build applications and firmware') {
                     steps {
+                        script {
+                            uid = sh(returnStdout: true, script: 'id -u').trim()
+                            gid = sh(returnStdout: true, script: 'id -g').trim()
+                        }
                         // pull docker images
                         sh "docker pull ghcr.io/xmos/xcore_builder:latest"
                         sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
-                        uid = sh(returnStdout: true, script: 'id -u').trim()
-                        gid = sh(returnStdout: true, script: 'id -g').trim()
                         // host apps
                         sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
                         // test firmware and filesystems
