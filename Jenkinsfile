@@ -49,7 +49,7 @@ pipeline {
                         sh "docker pull ghcr.io/xmos/xcore_builder:latest"
                         sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                         // host apps
-                        sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
+                        sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
                         // test firmware and filesystems
                         sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
                         // List built files for log
