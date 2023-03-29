@@ -80,7 +80,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/main_examples.txt
+          docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/main_examples.txt
 
       - name: Save metadata
         run: |
@@ -122,7 +122,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/misc_examples.txt
+          docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/misc_examples.txt
 
   build_dev_examples:
     if: inputs.is_release == 'false'
@@ -147,7 +147,7 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/dev_examples.txt
+          docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/dev_examples.txt
 
   build_tests:
     if: inputs.is_release == 'false'
@@ -172,4 +172,4 @@ jobs:
 
       - name: Build
         run: |
-          docker run --user $(id -u) --rm -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
+          docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
