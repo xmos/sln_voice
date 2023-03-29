@@ -45,13 +45,17 @@ pipeline {
                 }
                 stage('Build applications and firmware') {
                     steps {
+                        script {
+                            uid = sh(returnStdout: true, script: 'id -u').trim()
+                            gid = sh(returnStdout: true, script: 'id -g').trim()
+                        }
                         // pull docker images
                         sh "docker pull ghcr.io/xmos/xcore_builder:latest"
                         sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                         // host apps
-                        sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
+                        sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
                         // test firmware and filesystems
-                        sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
+                        sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
                         // List built files for log
                         sh "ls -la dist_host/"
                         sh "ls -la dist/"
@@ -133,8 +137,10 @@ pipeline {
                         withTools(params.TOOLS_VERSION) {
                             withVenv {
                                 script {
+                                    uid = sh(returnStdout: true, script: 'id -u').trim()
+                                    gid = sh(returnStdout: true, script: 'id -g').trim()
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
+                                        sh "docker run --rm -u $uid:$gid --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
                                     }
                                     sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/example_ffva_ua_adec_test_upgrade.bin"
                                 }

@@ -1,17 +1,17 @@
 ## Create custom ffva audiopipeline
-add_library(xcore_sdk_app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms INTERFACE)
-target_sources(xcore_sdk_app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms
+add_library(app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms INTERFACE)
+target_sources(app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/fixed_delay/audio_pipeline_t0.c
         ${CMAKE_CURRENT_LIST_DIR}/src/fixed_delay/audio_pipeline_t1.c
         ${CMAKE_CURRENT_LIST_DIR}/src/fixed_delay/aec/aec_process_frame_1thread.c
 )
-target_include_directories(xcore_sdk_app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms
+target_include_directories(app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/api
         ${CMAKE_CURRENT_LIST_DIR}/src/fixed_delay
 )
-target_link_libraries(xcore_sdk_app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms
+target_link_libraries(app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms
     INTERFACE
         core::general
         rtos::freertos
@@ -25,7 +25,7 @@ target_link_libraries(xcore_sdk_app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no
 )
 
 ## Create an alias
-add_library(sln_voice::app::ffva::ap::fixed_delay ALIAS xcore_sdk_app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms)
+add_library(sln_voice::app::ffva::ap::fixed_delay ALIAS app_ffva_audio_pipeline_fixed_delay_aec_2x_2y_no_comms)
 
 
 ## Create custom ffva audiopipeline
