@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
-   echo "Syntax: check_dfu.sh [-h] firmware data_partition_bin output_dir adapterID"
+   echo "Syntax: check_dfu.sh [-h] adapterID(optional)"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -23,16 +23,13 @@ do
     esac
 done
 
-# assign command line args
-if [ ! -z "${@:$OPTIND:1}" ] && [ ! -z "${@:$OPTIND+1:1}" ] && [ ! -z "${@:$OPTIND+2:1}" ]
+# assign vars
+FIRMWARE="dist/example_ffva_ua_adec_test.xe"
+DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
+OUTPUT_DIR=test/device_firmware_update/test_output
+if [ ! -z "${@:$OPTIND:1}" ]
 then
-    FIRMWARE=${@:$OPTIND:1}
-    DATA_PARTITION=${@:$OPTIND+1:1}
-    OUTPUT_DIR=${@:$OPTIND+2:1}
-fi
-if [ ! -z "${@:$OPTIND+3:1}" ]
-then
-    ADAPTER_ID="--adapter-id ${@:$OPTIND+3:1}"
+    ADAPTER_ID="--adapter-id ${@:$OPTIND:1}"
 fi
 
 # discern repository root
