@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
-   echo "Syntax: check_dfu.sh [-h] firmware output_dir adapterID"
+   echo "Syntax: check_dfu.sh [-h] firmware data_partition_bin output_dir adapterID"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -24,14 +24,15 @@ do
 done
 
 # assign command line args
-if [ ! -z "${@:$OPTIND:1}" ] && [ ! -z "${@:$OPTIND+1:1}" ]
+if [ ! -z "${@:$OPTIND:1}" ] && [ ! -z "${@:$OPTIND+1:1}" ] && [ ! -z "${@:$OPTIND+2:1}" ]
 then
     FIRMWARE=${@:$OPTIND:1}
-    OUTPUT_DIR=${@:$OPTIND+1:1}
+    DATA_PARTITION=${@:$OPTIND+1:1}
+    OUTPUT_DIR=${@:$OPTIND+2:1}
 fi
-if [ ! -z "${@:$OPTIND+2:1}" ]
+if [ ! -z "${@:$OPTIND+3:1}" ]
 then
-    ADAPTER_ID="--adapter-id ${@:$OPTIND+2:1}"
+    ADAPTER_ID="--adapter-id ${@:$OPTIND+3:1}"
 fi
 
 # discern repository root
@@ -43,7 +44,7 @@ xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/
 
 # flash the data partition
 # build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}
 
 # wait for device to reset (may not be necessary)
 sleep 3
