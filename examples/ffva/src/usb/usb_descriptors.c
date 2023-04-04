@@ -122,7 +122,7 @@ const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
 #define DFU_INTERFACE_STRING_INDEX   5
 
 uint8_t const desc_configuration[] = {
-    // Interface count, string index, total length, attribute, power in mA
+    // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 400),
 
     /* Standard Interface Association Descriptor (IAD) */

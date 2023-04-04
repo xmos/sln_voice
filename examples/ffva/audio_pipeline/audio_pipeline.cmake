@@ -95,3 +95,24 @@ target_link_libraries(sln_voice_app_ffva_audio_pipeline_adec_aec_2x_2y_no_comms_
 
 ## Create an alias
 add_library(sln_voice::app::ffva::ap::adec_altarch ALIAS sln_voice_app_ffva_audio_pipeline_adec_aec_2x_2y_no_comms_altarch)
+
+## Create custom ffva audiopipeline
+add_library(sln_voice_app_ffva_audio_pipeline_empty INTERFACE)
+target_sources(sln_voice_app_ffva_audio_pipeline_empty
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/src/empty/audio_pipeline.c
+)
+target_include_directories(sln_voice_app_ffva_audio_pipeline_empty
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/api
+        ${CMAKE_CURRENT_LIST_DIR}/src/empty
+)
+target_link_libraries(sln_voice_app_ffva_audio_pipeline_empty
+    INTERFACE
+        core::general
+        rtos::freertos
+        rtos::sw_services::generic_pipeline
+)
+
+## Create an alias
+add_library(sln_voice::app::ffva::ap::empty ALIAS sln_voice_app_ffva_audio_pipeline_empty)

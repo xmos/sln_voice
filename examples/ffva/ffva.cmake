@@ -59,12 +59,14 @@ if(ENABLE_ALL_FFVA_PIPELINES)
         fixed_delay
         adec
         adec_altarch
+        empty
     )
 
     set(FFVA_PIPELINES_UA
         fixed_delay
         adec
         adec_altarch
+        empty
     )
 else()
     set(FFVA_PIPELINES_INT
