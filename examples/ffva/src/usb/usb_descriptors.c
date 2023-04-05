@@ -69,7 +69,7 @@ uint8_t const* tud_descriptor_device_cb(void)
 //--------------------------------------------------------------------+
 
 const size_t uac2_interface_descriptors_length =
-        TUD_AUDIO_DESC_CLK_SRC_LEN +
+        TUD_AUDIO_DESC_CLK_SRC_LEN
 #if AUDIO_OUTPUT_ENABLED
         + TUD_AUDIO_DESC_INPUT_TERM_LEN
 #if 0
@@ -91,7 +91,7 @@ const size_t uac2_total_descriptors_length =
         TUD_AUDIO_DESC_IAD_LEN +
         TUD_AUDIO_DESC_STD_AC_LEN +
         TUD_AUDIO_DESC_CS_AC_LEN +
-        uac2_interface_descriptors_length +
+        uac2_interface_descriptors_length
 #if AUDIO_OUTPUT_ENABLED
         + TUD_AUDIO_DESC_STD_AS_INT_LEN
         + TUD_AUDIO_DESC_STD_AS_INT_LEN
