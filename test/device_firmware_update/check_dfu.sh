@@ -62,7 +62,7 @@ export_tools_version
 xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # write the upgrade image
-dfu-util -e -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
+dfu-util -e -d ,20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # reset board
 xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
@@ -71,4 +71,4 @@ xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 sleep 5
 
 # get readback upgrade image
-dfu-util -e -d 20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
+dfu-util -e -d ,20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin

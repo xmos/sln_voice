@@ -23,8 +23,6 @@ do
     esac
 done
 
-uname=`uname`
-
 # assign command line args
 if [ ! -z "${@:$OPTIND:1}" ] && [ "${@:$OPTIND+1:1}" ]
 then
@@ -38,7 +36,6 @@ fi
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
-source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
