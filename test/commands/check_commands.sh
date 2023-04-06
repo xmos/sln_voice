@@ -23,8 +23,6 @@ do
     esac
 done
 
-uname=`uname`
-
 # assign command line args
 FIRMWARE=${@:$OPTIND:1}
 INPUT_DIR=${@:$OPTIND+1:1}
@@ -45,7 +43,6 @@ done < ${INPUT_LIST}
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
-source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # xflash erase
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
