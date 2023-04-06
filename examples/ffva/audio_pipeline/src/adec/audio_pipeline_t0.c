@@ -27,6 +27,7 @@
 #include "app_conf.h"
 #include "audio_pipeline.h"
 #include "audio_pipeline_dsp.h"
+#include "platform/driver_instances.h"
 
 #if appconfAUDIO_PIPELINE_FRAME_ADVANCE != 240
 #error This pipeline is only configured for 240 frame advance
