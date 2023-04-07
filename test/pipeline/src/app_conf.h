@@ -59,9 +59,9 @@
 #define appconfOUTPUT_BRICK_SIZE_BYTES          (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
 
 /* Task Priorities */
-#define appconfSTARTUP_TASK_PRIORITY              (configMAX_PRIORITIES / 2)
-#define appconfAUDIO_PIPELINE_TASK_PRIORITY       (configMAX_PRIORITIES - 1)
-#define appconfXSCOPE_IO_TASK_PRIORITY            (configMAX_PRIORITIES - 1)
+#define appconfSTARTUP_TASK_PRIORITY            (configMAX_PRIORITIES / 2)
+#define appconfAUDIO_PIPELINE_TASK_PRIORITY     (configMAX_PRIORITIES - 1)
+#define appconfXSCOPE_IO_TASK_PRIORITY          (configMAX_PRIORITIES - 1)
 
 
 #endif /* APP_CONF_H_ */
