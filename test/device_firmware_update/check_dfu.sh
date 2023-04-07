@@ -8,11 +8,10 @@ help()
 {
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
-   echo "Syntax: check_dfu.sh [-h] adapterID(optional)"
-   echo
-   echo "options:"
-   echo "h     Print this Help."
-}
+   echo "Syntax: check_dfu.sh [-h] adapterID"
+   echo 
+   echo "Options:"
+   echo "   h     Print this Help."}
 
 # flag arguments
 while getopts h option

@@ -8,10 +8,10 @@ help()
 {
    echo "XCORE-VOICE Sample Rate Conversion test"
    echo
-   echo "Syntax: check_sample_rate_conversion.sh [-h] firmware output_directory adapterID_optional"
-   echo
-   echo "options:"
-   echo "h     Print this Help."
+   echo "Syntax: check_sample_rate_conversion.sh [-h] adapterID"
+   echo 
+   echo "Options:"
+   echo "   h     Print this Help."
 }
 
 # flag arguments
@@ -25,15 +25,13 @@ done
 
 uname=`uname`
 
-# assign command line args
-if [ ! -z "${@:$OPTIND:1}" ] && [ "${@:$OPTIND+1:1}" ]
+# assign vars
+FIRMWARE="dist/test_example_ffva_sample_rate_conv.xe"
+DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
+OUTPUT_DIR=test/sample_rate_conversion/test_output
+if [ ! -z "${@:$OPTIND:1}" ]
 then
-    FIRMWARE=${@:$OPTIND:1}
-    OUTPUT_DIR=${@:$OPTIND+1:1}
-fi
-if [ ! -z "${@:$OPTIND+2:1}" ]
-then
-    ADAPTER_ID="--adapter-id ${@:$OPTIND+2:1}"
+    ADAPTER_ID="--adapter-id ${@:$OPTIND:1}"
 fi
 
 # discern repository root
@@ -55,7 +53,7 @@ sox --null --channels=1 --bits=16 --rate=${SAMPLE_RATE} ${TMP_CH2_WAV} synth ${L
 sox --combine merge ${TMP_CH1_WAV} ${TMP_CH2_WAV} ${INPUT_WAV}
 
 # flash the data partition
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_sample_rate_conv_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}
 
 # wait for device to reset (may not be necessary)
 sleep 3

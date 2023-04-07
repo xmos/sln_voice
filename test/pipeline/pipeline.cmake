@@ -13,8 +13,10 @@ include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 #**********************
 # Setup pipeline test to build
 #**********************
-set(TEST_PIPELINE "FFVA_ADEC;FFD" CACHE STRING
-  "List of possible values for the TEST_PIPELINE variable")
+if(NOT DEFINED TEST_PIPELINE)
+    message(STATUS "No test pipeline specified")
+    return()
+endif()
 
 if(${TEST_PIPELINE} STREQUAL "FFVA_ADEC")
     message(STATUS "Building FFVA ADEC pipeline test")
