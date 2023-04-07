@@ -99,8 +99,8 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
     XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
 
-    # remix
-    sox ${INPUT_WAV} ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
+    # remix and convert to 32bit
+    sox ${INPUT_WAV} -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} & 
@@ -116,13 +116,13 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     sleep 1
 
     # the firmware saves output.wav, rename to the desired output name
-    cp ${XSCOPE_FILEIO_OUT_WAV} ${OUTPUT_WAV}
+    cp ${XSCOPE_FILEIO_OUTPUT_WAV} ${OUTPUT_WAV}
 
     # single out ASR channel
     sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
 
     # check wakeword detections
-    cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV}
+    sox ${MONO_OUTPUT_WAV} -b 16 ${OUTPUT_DIR}/${AMAZON_WAV}
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
