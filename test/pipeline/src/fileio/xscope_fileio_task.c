@@ -18,11 +18,16 @@
 #include "xscope_io_device.h"
 #include "wav_utils.h"
 
-static TaskHandle_t fileio_task_handle;
-static QueueHandle_t fileio_queue;
+#ifndef DWORD_ALIGNED
+#define DWORD_ALIGNED     __attribute__ ((aligned(8)))
+#endif
+
+static TaskHandle_t xscope_fileio_task_handle;
+static QueueHandle_t tx_to_host_queue;
 
 static xscope_file_t infile;
 static xscope_file_t outfile;
+//static int intertile_ready = 0;
 
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
 static SemaphoreHandle_t mutex_xscope_fileio;
@@ -47,12 +52,16 @@ void init_xscope_host_data_user_cb(chanend_t c_host) {
 
 size_t xscope_fileio_tx_to_host(uint8_t *buf, size_t size_bytes) {
     size_t ret = 0;
-    xQueueSend(fileio_queue, buf, portMAX_DELAY);
+    xQueueSend(tx_to_host_queue, buf, portMAX_DELAY);
 
     return ret;
 }
 
 size_t xscope_fileio_rx_from_host(void *input_app_data, int8_t **input_data_frame, size_t size_bytes) {
+
+    /* Alert other tile to start the audio pipeline */
+    // int ignored = 0;
+    // rtos_intertile_tx(intertile_ctx, appconfXSCOPE_FILEIO_READY_SYNC_PORT, &ignored, sizeof(ignored));
 
     size_t bytes_received = 0;
     bytes_received = rtos_intertile_rx_len(
@@ -71,7 +80,7 @@ size_t xscope_fileio_rx_from_host(void *input_app_data, int8_t **input_data_fram
 }
 
 void xscope_fileio_user_done(void) {
-    xTaskNotifyGive(fileio_task_handle);
+    xTaskNotifyGive(xscope_fileio_task_handle);
 }
 
 /* This task reads the input file in chunks and sends it through the data pipeline
@@ -88,17 +97,18 @@ void xscope_fileio_task(void *arg) {
     unsigned input_header_size;
     unsigned frame_count;
     unsigned brick_count;        
-    uint32_t __attribute__ ((aligned(8))) in_buf_raw[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfINPUT_CHANNELS];
-    uint32_t __attribute__ ((aligned(8))) in_buf_int[appconfINPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
-    uint32_t __attribute__ ((aligned(8))) out_buf_raw[appconfINPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
-    uint32_t __attribute__ ((aligned(8))) out_buf_int[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS];
+    uint32_t DWORD_ALIGNED in_buf_raw[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfINPUT_CHANNELS];
+    uint32_t DWORD_ALIGNED in_buf_int[appconfINPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    uint32_t DWORD_ALIGNED out_buf_raw[appconfOUTPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    uint32_t DWORD_ALIGNED out_buf_int[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS];
     size_t bytes_read = 0;
 
     /* Wait until xscope_fileio is initialized */
     while(xscope_fileio_is_initialized() == 0) {
         vTaskDelay(pdMS_TO_TICKS(1));
     }
-    fileio_queue = xQueueCreate(1, appconfINPUT_BRICK_SIZE_BYTES);
+
+    tx_to_host_queue = xQueueCreate(1, appconfOUTPUT_BRICK_SIZE_BYTES);
 
     rtos_printf("Opening files\n");
     state = rtos_osal_critical_enter();
@@ -146,10 +156,6 @@ void xscope_fileio_task(void *arg) {
 
     rtos_printf("Processing %d bricks\n", brick_count);
 
-    /* Alert other tile to start the audio pipeline */
-    // int ignored = 0;
-    // rtos_intertile_tx(intertile_ctx, appconfXSCOPE_FILEIO_READY_SYNC_PORT, &ignored, sizeof(ignored));
-
     // Iterate over frame blocks and send the data to the first pipeline stage on tile[1]
     for(unsigned b=0; b<brick_count; b++) {
         memset(in_buf_raw, 0, appconfINPUT_BRICK_SIZE_BYTES);
@@ -159,6 +165,7 @@ void xscope_fileio_task(void *arg) {
             rtos_printf("Processing brick %d of %d\n", b, brick_count);
         }
 
+        // REad from input wav file
         state = rtos_osal_critical_enter();
         {
             xscope_fseek(&infile, input_location, SEEK_SET);
@@ -166,29 +173,32 @@ void xscope_fileio_task(void *arg) {
         }
         rtos_osal_critical_exit(state);
 
-        // De-interleave
+        // De-interleave input
+        //  wav files are in frame-major order, pipeline expects sample-major order
         for(unsigned f=0; f<appconfAUDIO_PIPELINE_FRAME_ADVANCE; f++){
             for(unsigned ch=0; ch<appconfINPUT_CHANNELS; ch++) {
                 in_buf_int[ch * appconfAUDIO_PIPELINE_FRAME_ADVANCE + f] = in_buf_raw[f * appconfINPUT_CHANNELS + ch];
             }
         }
 
-        // Send audio
+        // Send audio to pipeline
         rtos_intertile_tx(intertile_ctx,
                         appconfXSCOPE_FILEIO_PORT,
                         &in_buf_int[0],
                         appconfINPUT_BRICK_SIZE_BYTES);
 
-        // read from queue here and write to file 
-        xQueueReceive(fileio_queue, &out_buf_raw[0], portMAX_DELAY);
+        // Read from tx_to_host queue 
+        xQueueReceive(tx_to_host_queue, &out_buf_raw[0], portMAX_DELAY);
 
-        // Create interleaved output that can be written to wav file
+        // Interleaved output
+        //  pipeline sample-major order, wav files are in frame-major order
         for (unsigned ch=0; ch<appconfOUTPUT_CHANNELS; ch++){
-            for(unsigned f=0; f<appconfAUDIO_PIPELINE_FRAME_ADVANCE; f++){
+            for(unsigned f=0; f<appconfAUDIO_PIPELINE_FRAME_ADVANCE; f++) {
                 out_buf_int[f * appconfOUTPUT_CHANNELS + ch] = out_buf_raw[ch * appconfAUDIO_PIPELINE_FRAME_ADVANCE + f];
             }
         }
 
+        // Write brick to output wav file
         xscope_fwrite(&outfile, (uint8_t *) &out_buf_int[0], appconfOUTPUT_BRICK_SIZE_BYTES);
     }
 
@@ -217,11 +227,11 @@ void xscope_fileio_tasks_create(unsigned priority, void* app_data) {
                 RTOS_THREAD_STACK_SIZE(xscope_fileio_task),
                 app_data,
                 priority,
-                &fileio_task_handle);
+                &xscope_fileio_task_handle);
     
     // Define the core affinity mask such that this task can only run on a specific core
     UBaseType_t uxCoreAffinityMask = 0x10;
 
     /* Set the core affinity mask for the task. */
-    vTaskCoreAffinitySet( fileio_task_handle, uxCoreAffinityMask );                
+    vTaskCoreAffinitySet( xscope_fileio_task_handle, uxCoreAffinityMask );                
 }

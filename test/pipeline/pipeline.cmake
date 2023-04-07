@@ -10,9 +10,10 @@ set(APP_INCLUDES
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 
-if(FFVA_PIPELINES)
-    include(${PROJECT_SOURCE_DIR}/examples/ffva/audio_pipeline/audio_pipeline.cmake)
-endif()
+#if(FFVA_PIPELINES)
+    set(AUDIO_PIPELINE_LIBRARY sln_voice::app::ffva::ap::adec)
+    set(AUDIO_PIPELINE_INPUT_CHANNELS 4)
+#endif()
 
 #**********************
 # Flags
@@ -34,6 +35,7 @@ set(APP_COMPILE_DEFINITIONS
     XUD_CORE_CLOCK=600
     XSCOPE_HOST_IO_ENABLED=1
     XSCOPE_HOST_IO_TILE=0
+    appconfINPUT_CHANNELS=${AUDIO_PIPELINE_INPUT_CHANNELS}
 )
 
 set(APP_LINK_OPTIONS
@@ -66,7 +68,7 @@ target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
 target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
-        sln_voice::app::ffva::ap::${FFVA_AP}
+        ${AUDIO_PIPELINE_LIBRARY}
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
@@ -84,7 +86,7 @@ target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
 target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
-        sln_voice::app::ffva::ap::${FFVA_AP}
+        ${AUDIO_PIPELINE_LIBRARY}
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)

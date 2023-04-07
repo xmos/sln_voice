@@ -13,18 +13,6 @@
 #include "platform/driver_instances.h"
 #define AUDIO_PIPELINE_TILE_NO         1
 
-/* xscope_fileio Configuration */
-#define appconfSAMPLE_BIT_DEPTH                 32
-#define appconfSAMPLE_SIZE_BYTES                (appconfSAMPLE_BIT_DEPTH / 8)
-
-#define appconfINPUT_FILENAME                   "input.wav\0"
-#define appconfINPUT_CHANNELS                   4
-#define appconfINPUT_BRICK_SIZE_BYTES           (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfINPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
-
-#define appconfOUTPUT_FILENAME                  "output.wav\0"
-#define appconfOUTPUT_CHANNELS                  2
-#define appconfOUTPUT_BRICK_SIZE_BYTES          (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
-
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000
 #define appconfAUDIO_PIPELINE_CHANNELS          2
@@ -57,6 +45,18 @@
 #ifndef appconfAUDIO_PIPELINE_SKIP_AGC
 #define appconfAUDIO_PIPELINE_SKIP_AGC           0
 #endif
+
+/* xscope_fileio Configuration */
+#define appconfSAMPLE_BIT_DEPTH                 32
+#define appconfSAMPLE_SIZE_BYTES                (appconfSAMPLE_BIT_DEPTH / 8)
+
+#define appconfINPUT_FILENAME                   "input.wav\0"
+//#define appconfINPUT_CHANNELS                 Set in pipeline.cmake
+#define appconfINPUT_BRICK_SIZE_BYTES           (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfINPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
+
+#define appconfOUTPUT_FILENAME                  "output.wav\0"
+#define appconfOUTPUT_CHANNELS                  2
+#define appconfOUTPUT_BRICK_SIZE_BYTES          (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
 
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY              (configMAX_PRIORITIES/2 + 5)
