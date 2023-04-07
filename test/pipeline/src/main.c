@@ -48,13 +48,13 @@ void vApplicationMallocFailedHook(void)
     for(;;);
 }
 
-static void mem_analysis(void)
-{
-    for (;;) {
-        rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-        vTaskDelay(pdMS_TO_TICKS(5000));
-    }
-}
+// static void mem_analysis(void)
+// {
+//     for (;;) {
+//         rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+//         vTaskDelay(pdMS_TO_TICKS(5000));
+//     }
+// }
 
 void startup_task(void *arg)
 {
@@ -62,21 +62,17 @@ void startup_task(void *arg)
 
     platform_start();
 
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
     xscope_fileio_tasks_create(appconfXSCOPE_IO_TASK_PRIORITY, NULL);
 #endif
 
-    // Wait until the xscope_fileio task is initialized before we start the
-    // audio pipeline.
-    // {
-    //     int ret = 0;
-    //     rtos_intertile_rx_len(intertile_ctx, appconfXSCOPE_FILEIO_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
-    //     rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
-    // }
-
     audio_pipeline_init(NULL, NULL);
 
-    mem_analysis();
+    //mem_analysis();
+    vTaskSuspend(NULL);
+    while(1){;} /* Trap */
 }
 
 void vApplicationMinimalIdleHook(void)

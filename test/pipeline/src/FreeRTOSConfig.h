@@ -14,7 +14,7 @@ your application. */
 #define configNUM_CORES                         5
 #endif
 #if ON_TILE(1)
-#define configNUM_CORES                         5
+#define configNUM_CORES                         8
 #endif
 
 #define configTICK_RATE_HZ                      1000
