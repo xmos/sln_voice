@@ -54,7 +54,6 @@ done < ${INPUT_LIST}
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
-source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 AMAZON_EXE="x86/amazon_ww_filesim"
 AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"

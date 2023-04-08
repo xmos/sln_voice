@@ -23,8 +23,6 @@ do
     esac
 done
 
-uname=`uname`
-
 # assign vars
 FIRMWARE="dist/test_example_ffva_sample_rate_conv.xe"
 DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
@@ -36,7 +34,6 @@ fi
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
-source ${SLN_VOICE_ROOT}/tools/ci/helper_functions.sh
 
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
