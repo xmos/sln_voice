@@ -24,7 +24,7 @@ do
 done
 
 # assign vars
-FIRMWARE="dist/test_example_ffva_sample_rate_conv.xe"
+FIRMWARE="dist/test_ffva_sample_rate_conv.xe"
 DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
 OUTPUT_DIR=test/sample_rate_conversion/test_output
 if [ ! -z "${@:$OPTIND:1}" ]
