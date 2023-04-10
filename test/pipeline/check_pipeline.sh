@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
-
-set -e
+set -e # exit on first error
+set -x # echo on
 
 # help text
 help()
@@ -102,7 +102,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     sox ${INPUT_WAV} -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
-    xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} & 
+    (xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &)
 
     # wait for app to load
     sleep 10
@@ -137,14 +137,16 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 
     # reset board
-    #xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+
+    # clean up
+    rm "${OUTPUT_DIR}/${AMAZON_WAV}"
+    rm ${XSCOPE_FILEIO_INPUT_WAV}
+    rm ${XSCOPE_FILEIO_OUTPUT_WAV}
 done 
 
 # clean up
 rm "${OUTPUT_DIR}/list.txt"
-rm "${OUTPUT_DIR}/${AMAZON_WAV}"
-rm ${XSCOPE_FILEIO_INPUT_WAV}
-rm ${XSCOPE_FILEIO_OUTPUT_WAV}
 
 # print results
 cat ${RESULTS}
