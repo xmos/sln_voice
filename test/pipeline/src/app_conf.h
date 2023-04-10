@@ -11,12 +11,23 @@
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
-#define AUDIO_PIPELINE_TILE_NO         1
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000
 #define appconfAUDIO_PIPELINE_CHANNELS          2
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     240
+
+#ifndef appconfAUDIO_PIPELINE_INPUT_CHANNELS
+#define appconfAUDIO_PIPELINE_INPUT_CHANNELS    4
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_USES_TILE_0
+#define appconfAUDIO_PIPELINE_USES_TILE_0       1
+#endif
+
+#ifndef appconfAUDIO_PIPELINE_USES_TILE_1
+#define appconfAUDIO_PIPELINE_USES_TILE_1       1
+#endif
 
 #ifdef appconfPIPELINE_BYPASS
 #define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  1
@@ -51,8 +62,8 @@
 #define appconfSAMPLE_SIZE_BYTES                (appconfSAMPLE_BIT_DEPTH / 8)
 
 #define appconfINPUT_FILENAME                   "input.wav\0"
-//#define appconfINPUT_CHANNELS                 Set in pipeline.cmake
-#define appconfINPUT_BRICK_SIZE_BYTES           (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfINPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
+//#define appconfAUDIO_PIPELINE_INPUT_CHANNELS                 Set in pipeline.cmake
+#define appconfINPUT_BRICK_SIZE_BYTES           (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_INPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
 
 #define appconfOUTPUT_FILENAME                  "output.wav\0"
 #define appconfOUTPUT_CHANNELS                  2

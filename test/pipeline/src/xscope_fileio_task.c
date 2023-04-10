@@ -23,7 +23,8 @@
 #endif
 
 static TaskHandle_t xscope_fileio_task_handle;
-static QueueHandle_t tx_to_host_queue;
+QueueHandle_t tx_to_host_queue;
+QueueHandle_t rx_from_host_queue;
 
 static xscope_file_t infile;
 static xscope_file_t outfile;
@@ -49,31 +50,6 @@ void init_xscope_host_data_user_cb(chanend_t c_host) {
 }
 #endif
 
-size_t xscope_fileio_tx_to_host(uint8_t *buf, size_t size_bytes) {
-    size_t ret = 0;
-    xQueueSend(tx_to_host_queue, buf, portMAX_DELAY);
-
-    return ret;
-}
-
-size_t xscope_fileio_rx_from_host(void *input_app_data, int8_t **input_data_frame, size_t size_bytes) {
-
-    size_t bytes_received = 0;
-    bytes_received = rtos_intertile_rx_len(
-            intertile_ctx,
-            appconfXSCOPE_FILEIO_PORT,
-            portMAX_DELAY);
-    
-    xassert(bytes_received == size_bytes);
-
-    rtos_intertile_rx_data(
-            intertile_ctx,
-            input_data_frame,
-            bytes_received);
-
-    return bytes_received;
-}
-
 void xscope_fileio_user_done(void) {
     xTaskNotifyGive(xscope_fileio_task_handle);
 }
@@ -92,8 +68,8 @@ void xscope_fileio_task(void *arg) {
     unsigned input_header_size;
     unsigned frame_count;
     unsigned brick_count;        
-    uint32_t DWORD_ALIGNED in_buf_raw[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfINPUT_CHANNELS];
-    uint32_t DWORD_ALIGNED in_buf_int[appconfINPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    uint32_t DWORD_ALIGNED in_buf_raw[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_INPUT_CHANNELS];
+    uint32_t DWORD_ALIGNED in_buf_int[appconfAUDIO_PIPELINE_INPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     uint32_t DWORD_ALIGNED out_buf_raw[appconfOUTPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     uint32_t DWORD_ALIGNED out_buf_int[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS];
     size_t bytes_read = 0;
@@ -103,6 +79,7 @@ void xscope_fileio_task(void *arg) {
         vTaskDelay(pdMS_TO_TICKS(1));
     }
 
+    rx_from_host_queue = xQueueCreate(1, appconfINPUT_BRICK_SIZE_BYTES);
     tx_to_host_queue = xQueueCreate(1, appconfOUTPUT_BRICK_SIZE_BYTES);
 
     rtos_printf("Opening files\n");
@@ -126,8 +103,8 @@ void xscope_fileio_task(void *arg) {
         _Exit(1);
     }
     // Ensure input wav file contains correct number of channels 
-    if(input_header_struct.num_channels != appconfINPUT_CHANNELS){
-        rtos_printf("Error: wav num channels(%d) does not match (%u)\n", input_header_struct.num_channels, appconfINPUT_CHANNELS);
+    if(input_header_struct.num_channels != appconfAUDIO_PIPELINE_INPUT_CHANNELS){
+        rtos_printf("Error: wav num channels(%d) does not match (%u)\n", input_header_struct.num_channels, appconfAUDIO_PIPELINE_INPUT_CHANNELS);
         _Exit(1);
     }
     
@@ -171,22 +148,23 @@ void xscope_fileio_task(void *arg) {
         // De-interleave input
         //  wav files are in frame-major order, pipeline expects sample-major order
         for(unsigned f=0; f<appconfAUDIO_PIPELINE_FRAME_ADVANCE; f++){
-            for(unsigned ch=0; ch<appconfINPUT_CHANNELS; ch++) {
-                in_buf_int[ch * appconfAUDIO_PIPELINE_FRAME_ADVANCE + f] = in_buf_raw[f * appconfINPUT_CHANNELS + ch];
+            for(unsigned ch=0; ch<appconfAUDIO_PIPELINE_INPUT_CHANNELS; ch++) {
+                in_buf_int[ch * appconfAUDIO_PIPELINE_FRAME_ADVANCE + f] = in_buf_raw[f * appconfAUDIO_PIPELINE_INPUT_CHANNELS + ch];
             }
         }
 
         // Send audio to pipeline
-        rtos_intertile_tx(intertile_ctx,
-                        appconfXSCOPE_FILEIO_PORT,
-                        &in_buf_int[0],
-                        appconfINPUT_BRICK_SIZE_BYTES);
+        size_t bytes_sent = 0;
+        bytes_sent = tx_to_audio_pipeline((uint8_t *)&in_buf_int[0], appconfINPUT_BRICK_SIZE_BYTES);
+        xassert(bytes_sent == appconfINPUT_BRICK_SIZE_BYTES);
 
-        // Read from tx_to_host queue 
-        xQueueReceive(tx_to_host_queue, &out_buf_raw[0], portMAX_DELAY);
+        // Receive audio from pipeline
+        size_t bytes_received = 0;
+        bytes_received = rx_from_audio_pipeline((uint8_t **)&out_buf_raw[0], appconfOUTPUT_BRICK_SIZE_BYTES);
+        xassert(bytes_received == appconfOUTPUT_BRICK_SIZE_BYTES);
 
         // Interleaved output
-        //  pipeline sample-major order, wav files are in frame-major order
+        //  pipeline outputs sample-major order, wav files are in frame-major order
         for (unsigned ch=0; ch<appconfOUTPUT_CHANNELS; ch++){
             for(unsigned f=0; f<appconfAUDIO_PIPELINE_FRAME_ADVANCE; f++) {
                 out_buf_int[f * appconfOUTPUT_CHANNELS + ch] = out_buf_raw[ch * appconfAUDIO_PIPELINE_FRAME_ADVANCE + f];

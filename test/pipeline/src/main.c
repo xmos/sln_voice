@@ -27,7 +27,7 @@ void audio_pipeline_input(void *input_app_data,
                         size_t frame_count)
 {
     (void) input_app_data;
-    xscope_fileio_rx_from_host(input_app_data, (int8_t **)input_audio_frames, appconfINPUT_BRICK_SIZE_BYTES);
+    rx_from_host((int8_t **)input_audio_frames, appconfINPUT_BRICK_SIZE_BYTES);
 }
 
 int audio_pipeline_output(void *output_app_data,
@@ -37,7 +37,7 @@ int audio_pipeline_output(void *output_app_data,
 {
     (void) output_app_data;
 
-    xscope_fileio_tx_to_host((uint8_t*)output_audio_frames, appconfOUTPUT_BRICK_SIZE_BYTES);
+    tx_to_host((uint8_t*)output_audio_frames, appconfOUTPUT_BRICK_SIZE_BYTES);
     return AUDIO_PIPELINE_FREE_FRAME;
 }
 
@@ -62,13 +62,24 @@ void startup_task(void *arg)
 
     platform_start();
 
+    // need to give the platform a moment to start
     vTaskDelay(pdMS_TO_TICKS(1000));
 
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
     xscope_fileio_tasks_create(appconfXSCOPE_IO_TASK_PRIORITY, NULL);
 #endif
 
+    // need to give the xscope_fileio tasks a moment to start
+    vTaskDelay(pdMS_TO_TICKS(1000));
+
+#if appconfAUDIO_PIPELINE_USES_TILE_0 && ON_TILE(0)
+    rtos_printf("Initializing audio pipeline on tile 0\n");
     audio_pipeline_init(NULL, NULL);
+#endif
+#if appconfAUDIO_PIPELINE_USES_TILE_1 && ON_TILE(1)
+    rtos_printf("Initializing audio pipeline on tile 1\n");
+    audio_pipeline_init(NULL, NULL);
+#endif
 
     //mem_analysis();
     vTaskSuspend(NULL);

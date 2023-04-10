@@ -2,7 +2,12 @@
 #**********************
 # Gather Sources
 #**********************
-file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+set(APP_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/src/main.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/xscope_fileio_task.c
+    ${CMAKE_CURRENT_LIST_DIR}/src/wav/wav_utils.c
+)
+
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/wav
@@ -20,18 +25,30 @@ endif()
 
 if(${TEST_PIPELINE} STREQUAL "FFVA_ADEC")
     message(STATUS "Building FFVA ADEC pipeline test")
+    set(APP_SOURCES
+        ${APP_SOURCES}
+        ${CMAKE_CURRENT_LIST_DIR}/src/ffva_adaptor.c
+    )
     set(AUDIO_PIPELINE_LIBRARY sln_voice::app::ffva::ap::adec)
     set(AUDIO_PIPELINE_INPUT_CHANNELS 4)
+    set(AUDIO_PIPELINE_USES_TILE_0 1)
+    set(AUDIO_PIPELINE_USES_TILE_1 1)
     set(TEST_PIPELINE_NAME test_pipeline_ffva_adec)
 elseif(${TEST_PIPELINE} STREQUAL "FFD")
     message(STATUS "Building FFD pipeline test")
     # The FFD pipeline needs other include paths set.  Gross!
+    set(APP_SOURCES
+        ${APP_SOURCES}
+        ${CMAKE_CURRENT_LIST_DIR}/src/ffd_adaptor.c
+    )
     set(APP_INCLUDES
         ${APP_INCLUDES}
         ${CMAKE_CURRENT_SOURCE_DIR}/examples/ffd/src
     )
     set(AUDIO_PIPELINE_LIBRARY sln_voice::app::ffd::ap)
     set(AUDIO_PIPELINE_INPUT_CHANNELS 2)
+    set(AUDIO_PIPELINE_USES_TILE_0 0)
+    set(AUDIO_PIPELINE_USES_TILE_1 1)
     set(TEST_PIPELINE_NAME test_pipeline_ffd)
 else()
     message(FATAL_ERROR "Unable to build ${TEST_PIPELINE} pipeline test")
@@ -57,7 +74,9 @@ set(APP_COMPILE_DEFINITIONS
     XUD_CORE_CLOCK=600
     XSCOPE_HOST_IO_ENABLED=1
     XSCOPE_HOST_IO_TILE=0
-    appconfINPUT_CHANNELS=${AUDIO_PIPELINE_INPUT_CHANNELS}
+    appconfAUDIO_PIPELINE_INPUT_CHANNELS=${AUDIO_PIPELINE_INPUT_CHANNELS}
+    appconfAUDIO_PIPELINE_USES_TILE_0=${AUDIO_PIPELINE_USES_TILE_0}
+    appconfAUDIO_PIPELINE_USES_TILE_1=${AUDIO_PIPELINE_USES_TILE_1}
 )
 
 set(APP_LINK_OPTIONS
