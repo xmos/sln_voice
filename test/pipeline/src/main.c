@@ -17,7 +17,7 @@
 /* App headers */
 #include "app_conf.h"
 #include "audio_pipeline.h"
-#include "fileio/xscope_fileio_task.h"
+#include "xscope_fileio_task.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
 

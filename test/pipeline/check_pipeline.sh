@@ -137,9 +137,6 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 
-    # reset board
-    #xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
-
     # clean up
     rm "${OUTPUT_DIR}/${AMAZON_WAV}"
     rm ${XSCOPE_FILEIO_INPUT_WAV}

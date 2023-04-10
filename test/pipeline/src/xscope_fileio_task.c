@@ -14,7 +14,7 @@
 
 #include "app_conf.h"
 #include "platform/driver_instances.h"
-#include "fileio/xscope_fileio_task.h"
+#include "xscope_fileio_task.h"
 #include "xscope_io_device.h"
 #include "wav_utils.h"
 
