@@ -102,14 +102,15 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     sox ${INPUT_WAV} -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
-    (xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &)
+    xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &
 
     # wait for app to load
     sleep 10
     
     # run xscope host in directory where the XSCOPE_FILEIO_INPUT_WAV resides
-    #   when this exits it will cause the xrun of the firmware to also exit
-    cd ${OUTPUT_DIR} ; xscope_host_endpoint 12345
+    #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
+    #   it exits, the xrun command above will also exit
+    (cd ${OUTPUT_DIR} ; xscope_host_endpoint 12345)
 
     # wait for xrun to exit
     sleep 1
@@ -137,7 +138,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 
     # reset board
-    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+    #xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 
     # clean up
     rm "${OUTPUT_DIR}/${AMAZON_WAV}"
