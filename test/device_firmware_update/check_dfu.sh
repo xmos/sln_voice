@@ -11,7 +11,8 @@ help()
    echo "Syntax: check_dfu.sh [-h] adapterID"
    echo 
    echo "Options:"
-   echo "   h     Print this Help."}
+   echo "   h     Print this Help."
+}
 
 # flag arguments
 while getopts h option
