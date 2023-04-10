@@ -20,6 +20,7 @@ fi
 # setup configurations
 # row format is: "name app_target run_data_partition_target flag BOARD toolchain"
 tests=(
+    "test_ffva_dfu   example_ffva_ua_adec   example_ffva_ua_adec   NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_pipeline_ffd   test_pipeline_ffd   NONE   TEST_PIPELINE=FFD   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_pipeline_ffva_adec   test_pipeline_ffva_adec   NONE   TEST_PIPELINE=FFVA_ADEC   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_ffva_sample_rate_conv   example_ffva_ua_adec   example_ffva_ua_adec   DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS=1   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"

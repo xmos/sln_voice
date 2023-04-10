@@ -24,7 +24,7 @@ do
 done
 
 # assign vars
-FIRMWARE="dist/test_ffva_ua_adec.xe"
+FIRMWARE="dist/test_ffva_dfu.xe"
 DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
 OUTPUT_DIR=test/device_firmware_update/test_output
 if [ ! -z "${@:$OPTIND:1}" ]
