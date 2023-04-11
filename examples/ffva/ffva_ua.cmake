@@ -1,6 +1,7 @@
 
 option(DEBUG_FFVA_USB_MIC_INPUT        "Enable ffva usb mic input"  OFF)
 option(DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS  "Enable ffva usb mic input and audio pipeline bypass"  OFF)
+option(DEBUG_FFVA_USB_VERBOSE_OUTPUT        "Enable ffva usb with mic, ref, and proc output"  OFF)
 
 set(FFVA_UA_COMPILE_DEFINITIONS
     ${APP_COMPILE_DEFINITIONS}
@@ -23,6 +24,10 @@ if(DEBUG_FFVA_USB_MIC_INPUT_PIPELINE_BYPASS)
     list(APPEND FFVA_UA_COMPILE_DEFINITIONS appconfUSB_AUDIO_MODE=appconfUSB_AUDIO_TESTING)
     list(APPEND FFVA_UA_COMPILE_DEFINITIONS appconfPIPELINE_BYPASS=1)
     list(APPEND FFVA_UA_COMPILE_DEFINITIONS appconfUSB_AUDIO_SAMPLE_RATE=48000)
+endif()
+
+if(DEBUG_FFVA_USB_VERBOSE_OUTPUT)
+    list(APPEND FFVA_UA_COMPILE_DEFINITIONS appconfUSB_AUDIO_MODE=appconfUSB_AUDIO_TESTING)
 endif()
 
 query_tools_version()
