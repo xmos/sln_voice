@@ -72,11 +72,11 @@ void startup_task(void *arg)
     // need to give the xscope_fileio tasks a moment to start
     vTaskDelay(pdMS_TO_TICKS(1000));
 
-#if appconfAUDIO_PIPELINE_USES_TILE_0 && ON_TILE(0)
+#if ((appconfAUDIO_PIPELINE_INPUT_TILE_NO == 0) || (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 0)) && ON_TILE(0)
     rtos_printf("Initializing audio pipeline on tile 0\n");
     audio_pipeline_init(NULL, NULL);
 #endif
-#if appconfAUDIO_PIPELINE_USES_TILE_1 && ON_TILE(1)
+#if ((appconfAUDIO_PIPELINE_INPUT_TILE_NO == 1) || (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 1)) && ON_TILE(1)
     rtos_printf("Initializing audio pipeline on tile 1\n");
     audio_pipeline_init(NULL, NULL);
 #endif

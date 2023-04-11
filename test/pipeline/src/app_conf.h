@@ -21,12 +21,12 @@
 #define appconfAUDIO_PIPELINE_INPUT_CHANNELS    4
 #endif
 
-#ifndef appconfAUDIO_PIPELINE_USES_TILE_0
-#define appconfAUDIO_PIPELINE_USES_TILE_0       1
+#ifndef appconfAUDIO_PIPELINE_INPUT_TILE_NO
+#define appconfAUDIO_PIPELINE_INPUT_TILE_NO     0
 #endif
 
-#ifndef appconfAUDIO_PIPELINE_USES_TILE_1
-#define appconfAUDIO_PIPELINE_USES_TILE_1       1
+#ifndef appconfAUDIO_PIPELINE_OUTPUT_TILE_NO
+#define appconfAUDIO_PIPELINE_OUTPUT_TILE_NO    0
 #endif
 
 #ifdef appconfPIPELINE_BYPASS

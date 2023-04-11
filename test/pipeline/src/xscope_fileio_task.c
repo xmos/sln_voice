@@ -128,7 +128,7 @@ void xscope_fileio_task(void *arg) {
 
     rtos_printf("Processing %d bricks\n", brick_count);
 
-    // Iterate over frame blocks and send the data to the first pipeline stage on tile[1]
+    // Iterate over audio bricks
     for(unsigned b=0; b<brick_count; b++) {
         memset(in_buf_raw, 0, appconfINPUT_BRICK_SIZE_BYTES);
         long input_location =  wav_get_frame_start(&input_header_struct, b * appconfAUDIO_PIPELINE_FRAME_ADVANCE, input_header_size);
