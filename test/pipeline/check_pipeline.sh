@@ -1,7 +1,7 @@
 #!/bin/bash
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
-
-set -e
+set -e # exit on first error
+set -x # echo on
 
 # help text
 help()
@@ -10,8 +10,16 @@ help()
    echo
    echo "Syntax: check_pipeline.sh [-h] firmware input_directory input_list output_directory amazon_wwe_directory adapterID"
    echo
-   echo "options:"
-   echo "h     Print this Help."
+   echo "Arguments:"
+   echo "   firmware               Absolute path to .xe file"
+   echo "   input_directory        Absolute path to directory with test vectors"
+   echo "   input_list             Absolute path test vector input list file"
+   echo "   output_directory       Absolute path to output directory"
+   echo "   amazon_wwe_directory   Absolute path to amazon_wwe repository"
+   echo "   adapterID              Optional XTAG adaptor ID"
+   echo
+   echo "Options:"
+   echo "   h     Print this Help."
 }
 
 # flag arguments
@@ -52,23 +60,6 @@ AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"
 AMAZON_WAV="amazon_ww_input.wav"
 AMAZON_THRESH="500"
 
-# xflash erase
-xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
-
-# flash the data partition
-if [[ ${FIRMWARE} == *"example_ffd_usb_audio_test"* ]]
-then
-    # build_tests.sh creates example_ffd_data_partition.bin used here
-    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffd_usb_audio_test.xe --boot-partition-size 0x100000 --data dist/example_ffd_data_partition.bin
-elif [[ ${FIRMWARE} == *"example_ffva_ua_adec_test"* ]]
-then
-    # build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
-    xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
-fi
-
-# wait for device to reset (may not be necessary)
-sleep 3
-
 # Create output folder
 mkdir -p ${OUTPUT_DIR}
 
@@ -91,36 +82,47 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     MIN=${FIELDS[2]}
     MAX=${FIELDS[3]}
 
-    # determine AEC flag
+    # determine input remix pattern
+    #  the standard test vector input channel order is: Mic 1, Mic 0, Ref L, Ref R
+    #  XCORE-VOICE's input channel order is: Ref L, Ref R, Mic 0, Mic 1
     if [ "${AEC}" == "Y" ] ; then
-        AEC_FLAG="-a"
+        REMIX_PATTERN="remix 3 4 2 1"
     else
-        AEC_FLAG=""
+        REMIX_PATTERN="remix 2 1"
     fi
 
     OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}.log"
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
     MONO_OUTPUT_WAV="${OUTPUT_DIR}/mono_${FILE_NAME}.wav"
+    XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
+    XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
+
+    # remix and convert to 32bit
+    sox ${INPUT_WAV} -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
-    xrun ${ADAPTER_ID} --xscope ${FIRMWARE} &
-    XRUN_PID=$!
+    xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &
 
     # wait for app to load
-    (sleep 10)
+    sleep 10
     
-    # process the input wav
-    (bash ${SLN_VOICE_ROOT}/tools/audio/process_wav.sh -c4 ${AEC_FLAG} ${INPUT_WAV} ${OUTPUT_WAV})
+    # run xscope host in directory where the XSCOPE_FILEIO_INPUT_WAV resides
+    #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
+    #   it exits, the xrun command above will also exit
+    (cd ${OUTPUT_DIR} ; xscope_host_endpoint 12345)
 
-    # wait for sox to stop
-    sleep 3
+    # wait for xrun to exit
+    sleep 1
+
+    # the firmware saves output.wav, rename to the desired output name
+    cp ${XSCOPE_FILEIO_OUTPUT_WAV} ${OUTPUT_WAV}
 
     # single out ASR channel
     sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
 
     # check wakeword detections
-    cp ${MONO_OUTPUT_WAV} ${OUTPUT_DIR}/${AMAZON_WAV}
+    sox ${MONO_OUTPUT_WAV} -b 16 ${OUTPUT_DIR}/${AMAZON_WAV}
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
@@ -135,19 +137,14 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     echo "filename=${INPUT_WAV}, keyword=alexa, detected=${DETECTIONS}, min=${MIN}, max=${MAX}" >> ${RESULTS}
 
-    # kill xrun
-    kill -INT ${XRUN_PID}
-
-    # reset board
-    xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
-
-    # wait a bit
-    sleep 3
+    # clean up
+    rm "${OUTPUT_DIR}/${AMAZON_WAV}"
+    rm ${XSCOPE_FILEIO_INPUT_WAV}
+    rm ${XSCOPE_FILEIO_OUTPUT_WAV}
 done 
 
 # clean up
 rm "${OUTPUT_DIR}/list.txt"
-rm "${OUTPUT_DIR}/${AMAZON_WAV}"
 
 # print results
 cat ${RESULTS}

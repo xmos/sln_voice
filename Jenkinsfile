@@ -100,7 +100,7 @@ pipeline {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/sample_rate_conversion/check_sample_rate_conversion.sh $BUILD_DIRNAME/example_ffva_sample_rate_conv_test.xe test/sample_rate_conversion/test_output " + adapterIDs[0]
+                                        sh "test/sample_rate_conversion/check_sample_rate_conversion.sh " + adapterIDs[0]
                                     }
                                     sh "pytest test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file test/sample_rate_conversion/test_output/sample_rate_conversion_output.wav --wav_duration 10"
                                 }
@@ -142,7 +142,7 @@ pipeline {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                         sh "docker run --rm -u $uid:$gid --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
                                     }
-                                    sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/example_ffva_ua_adec_test_upgrade.bin"
+                                    sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/test_ffva_dfu_upgrade.bin"
                                 }
                             }
                         }
@@ -178,15 +178,29 @@ pipeline {
                         sh "ls -la $SAMPLE_SUITE"
                     }
                 }
-                stage('Run Pipeline FFVA test') {
+                stage('Run FFVA Pipeline test') {
                     steps {
                         withTools(params.TOOLS_VERSION) {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
+                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
                                     }
                                     sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
+                                }
+                            }
+                        }
+                    }
+                }
+                stage('Run FFD Pipeline test') {
+                    steps {
+                        withTools(params.TOOLS_VERSION) {
+                            withVenv {
+                                script {
+                                    withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $SAMPLE_SUITE test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
+                                    }
+                                    sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffd_test_output/results.csv"
                                 }
                             }
                         }

@@ -22,7 +22,7 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "audio_pipeline/audio_pipeline.h"
+#include "audio_pipeline.h"
 #include "power/power_state.h"
 
 #define VNR_AGC_THRESHOLD (0.5)

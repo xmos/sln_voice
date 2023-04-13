@@ -8,10 +8,10 @@ help()
 {
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
-   echo "Syntax: check_dfu.sh [-h] adapterID(optional)"
-   echo
-   echo "options:"
-   echo "h     Print this Help."
+   echo "Syntax: check_dfu.sh [-h] adapterID"
+   echo 
+   echo "Options:"
+   echo "   h     Print this Help."
 }
 
 # flag arguments
@@ -24,7 +24,7 @@ do
 done
 
 # assign vars
-FIRMWARE="dist/example_ffva_ua_adec_test.xe"
+FIRMWARE="dist/test_ffva_dfu.xe"
 DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
 OUTPUT_DIR=test/device_firmware_update/test_output
 if [ ! -z "${@:$OPTIND:1}" ]

@@ -6,7 +6,6 @@ set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
-    ${CMAKE_CURRENT_LIST_DIR}/src/audio_pipeline
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_engine
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
@@ -18,6 +17,7 @@ set(RTOS_CONF_INCLUDES
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/audio_pipeline/audio_pipeline.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/asr/asr.cmake)
 
 #**********************
@@ -83,12 +83,8 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
+    sln_voice::app::ffd::ap
     sln_voice::app::ffd::asr::wanson
-    fwk_voice::agc
-    fwk_voice::ic
-    fwk_voice::ns
-    fwk_voice::vnr::features
-    fwk_voice::vnr::inference
     rtos::drivers::clock_control
 )
 

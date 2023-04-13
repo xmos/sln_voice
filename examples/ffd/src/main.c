@@ -22,7 +22,7 @@
 #include "platform/platform_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
-#include "audio_pipeline/audio_pipeline.h"
+#include "audio_pipeline.h"
 #include "intent_engine/intent_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"

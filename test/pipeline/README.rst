@@ -75,7 +75,7 @@ To build the test application firmware and filesystem files, run the following c
 
     bash tools/ci/build_tests.sh
 
-The `build_test.sh` script will copy the test applications and filesystem files to the `dist` folder.  
+The `build_test.sh` script will copy the test applications and data partition files to the `dist` folder.  
 
 *************
 Running Tests
