@@ -7,6 +7,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
 endif()
 
 add_subdirectory(io)
+add_subdirectory(lib_qspi_fast_read)
 add_subdirectory(rtos)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)

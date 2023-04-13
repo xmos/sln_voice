@@ -47,29 +47,16 @@ static void clock_control_init(void)
 static void flash_init(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
-    rtos_qspi_flash_init(
+    rtos_qspi_flash_fast_read_init(
             qspi_flash_ctx,
             FLASH_CLKBLK,
             PORT_SQI_CS,
             PORT_SQI_SCLK,
             PORT_SQI_SIO,
-
-            /** Derive QSPI clock from the 600 MHz xcore clock **/
-            qspi_io_source_clock_xcore,
-
-            /** Full speed clock configuration **/
-            5, // 600 MHz / (2*5) -> 60 MHz,
-            1,
-            qspi_io_sample_edge_rising,
-            0,
-
-            /** SPI read clock configuration **/
-            12, // 600 MHz / (2*12) -> 25 MHz
-            0,
-            qspi_io_sample_edge_falling,
-            0,
-
-            qspi_flash_page_program_1_4_4);
+            NULL,
+            qspi_fast_flash_read_transfer_raw,
+            3,
+            QSPI_FLASH_CALIBRATION_ADDRESS);
 #endif
 }
 
