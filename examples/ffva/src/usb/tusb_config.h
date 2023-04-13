@@ -97,7 +97,7 @@ extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                  2
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX                  2
 #else
-#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                  6
+#define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX                  16
 #define CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX                  4
 #endif
 
