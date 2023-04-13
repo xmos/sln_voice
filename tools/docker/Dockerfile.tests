@@ -1,4 +1,4 @@
-FROM ghcr.io/xmos/xcore_builder:latest
+FROM ghcr.io/xmos/xcore_builder:v3.0.0
 
 # This Dockerfile is for use by the XMOS XCORE-VOICE CI system
 # It provides a minimal environment needed to build applications and run tests

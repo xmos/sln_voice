@@ -31,7 +31,7 @@ A [Github issue](https://github.com/xmos/sln_voice/issues/new/choose) should be 
 
 ## License
 
-This Software is subject to the terms of the [XMOS Public Licence: Version 1](https://github.com/xmos/xcore_sdk/blob/develop/LICENSE.rst)
+This Software is subject to the terms of the [XMOS Public Licence: Version 1](https://github.com/xmos/sln_voice/blob/develop/LICENSE.rst)
 
 Additional third party copyrighted code is included under the following licenses:
 

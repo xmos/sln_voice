@@ -83,8 +83,8 @@ void devmem_free(devmem_manager_t *ctx, void *ptr);
  * are both SRAM addresses.
  * 
  * \param ctx      A pointer to the device memory context.
- * \param dest     A Pointer to the destination array where the content is to be read.
- * \param src      A Pointer to the source of data to be read.
+ * \param dest     A pointer to the destination array where the content is to be read.
+ * \param src      A pointer to the word-aligned address of data to be read.
  * \param n        Number of bytes to read.
  */
 void devmem_read_ext(devmem_manager_t *ctx, void *dest, const void * src, size_t n);
@@ -97,8 +97,8 @@ void devmem_read_ext(devmem_manager_t *ctx, void *dest, const void * src, size_t
  * from flash, LPDDR or SDRAM. 
  * 
  * \param ctx      A pointer to the device memory context.
- * \param dest     A Pointer to the destination array where the content is to be read.
- * \param src      A Pointer to the source of data to be read.
+ * \param dest     A pointer to the destination array where the content is to be read.
+ * \param src      A pointer to the word-aligned address of data to be read.
  * \param n        Number of bytes to read.
  * 
  * \returns        A handle that can be used in a call to devmem_read_ext_wait.

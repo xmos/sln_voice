@@ -69,7 +69,7 @@ uint8_t const* tud_descriptor_device_cb(void)
 //--------------------------------------------------------------------+
 
 const size_t uac2_interface_descriptors_length =
-        TUD_AUDIO_DESC_CLK_SRC_LEN +
+        TUD_AUDIO_DESC_CLK_SRC_LEN
 #if AUDIO_OUTPUT_ENABLED
         + TUD_AUDIO_DESC_INPUT_TERM_LEN
 #if 0
@@ -91,7 +91,7 @@ const size_t uac2_total_descriptors_length =
         TUD_AUDIO_DESC_IAD_LEN +
         TUD_AUDIO_DESC_STD_AC_LEN +
         TUD_AUDIO_DESC_CS_AC_LEN +
-        uac2_interface_descriptors_length +
+        uac2_interface_descriptors_length
 #if AUDIO_OUTPUT_ENABLED
         + TUD_AUDIO_DESC_STD_AS_INT_LEN
         + TUD_AUDIO_DESC_STD_AS_INT_LEN
@@ -122,7 +122,7 @@ const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO] = {
 #define DFU_INTERFACE_STRING_INDEX   5
 
 uint8_t const desc_configuration[] = {
-    // Interface count, string index, total length, attribute, power in mA
+    // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP, 400),
 
     /* Standard Interface Association Descriptor (IAD) */

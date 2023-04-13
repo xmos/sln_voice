@@ -79,7 +79,7 @@ typedef struct {
 } ssd1306_context;
 
 /**
- * Implements an ssd1306 on an xcore_sdk hil I2C interface.
+ * Implements an ssd1306 on an I2C interface.
  *
  * \param app_ctx             A pointer to an application context that will be passed to the
  *                            transport write function. Default implementations of the transport

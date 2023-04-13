@@ -8,7 +8,7 @@ help()
 {
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
-   echo "Syntax: check_dfu.sh [-h] firmware output_dir adapterID"
+   echo "Syntax: check_dfu.sh [-h] adapterID(optional)"
    echo
    echo "options:"
    echo "h     Print this Help."
@@ -23,15 +23,13 @@ do
     esac
 done
 
-# assign command line args
-if [ ! -z "${@:$OPTIND:1}" ] && [ ! -z "${@:$OPTIND+1:1}" ]
+# assign vars
+FIRMWARE="dist/example_ffva_ua_adec_test.xe"
+DATA_PARTITION="dist/example_ffva_ua_adec_data_partition.bin"
+OUTPUT_DIR=test/device_firmware_update/test_output
+if [ ! -z "${@:$OPTIND:1}" ]
 then
-    FIRMWARE=${@:$OPTIND:1}
-    OUTPUT_DIR=${@:$OPTIND+1:1}
-fi
-if [ ! -z "${@:$OPTIND+2:1}" ]
-then
-    ADAPTER_ID="--adapter-id ${@:$OPTIND+2:1}"
+    ADAPTER_ID="--adapter-id ${@:$OPTIND:1}"
 fi
 
 # discern repository root
@@ -43,7 +41,7 @@ xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/
 
 # flash the data partition
 # build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
-xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory dist/example_ffva_ua_adec_test.xe --boot-partition-size 0x100000 --data dist/example_ffva_ua_adec_data_partition.bin
+xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}
 
 # wait for device to reset (may not be necessary)
 sleep 3
@@ -64,7 +62,7 @@ export_tools_version
 xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # write the upgrade image
-dfu-util -e -d 20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
+dfu-util -e -d ,20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # reset board
 xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
@@ -73,4 +71,4 @@ xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 sleep 5
 
 # get readback upgrade image
-dfu-util -e -d 20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
+dfu-util -e -d ,20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
