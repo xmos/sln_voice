@@ -136,20 +136,20 @@ void usb_audio_send(rtos_intertile_t *intertile_ctx,
             // if (ch < num_chans) {
             usb_audio_in_frame[i][0] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 0);
             usb_audio_in_frame[i][1] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 0);
-            usb_audio_in_frame[i][2] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 1);
-            usb_audio_in_frame[i][3] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 1);
-            usb_audio_in_frame[i][4] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 2);
-            usb_audio_in_frame[i][5] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 2);
-            usb_audio_in_frame[i][6] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 3);
-            usb_audio_in_frame[i][7] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 3);
-            usb_audio_in_frame[i][8] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 4);
-            usb_audio_in_frame[i][9] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 4);
-            usb_audio_in_frame[i][10] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 5);
-            usb_audio_in_frame[i][11] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 5);
-            usb_audio_in_frame[i][12] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 6);
-            usb_audio_in_frame[i][13] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 6);
-            usb_audio_in_frame[i][14] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift + 7);
-            usb_audio_in_frame[i][15] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift + 7);
+            usb_audio_in_frame[i][2] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 1);
+            usb_audio_in_frame[i][3] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 1);
+            usb_audio_in_frame[i][4] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 2);
+            usb_audio_in_frame[i][5] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 2);
+            usb_audio_in_frame[i][6] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 3);
+            usb_audio_in_frame[i][7] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 3);
+            usb_audio_in_frame[i][8] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 4);
+            usb_audio_in_frame[i][9] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 4);
+            usb_audio_in_frame[i][10] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 5);
+            usb_audio_in_frame[i][11] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 5);
+            usb_audio_in_frame[i][12] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 6);
+            usb_audio_in_frame[i][13] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 6);
+            usb_audio_in_frame[i][14] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*0)] >> (src_32_shift - 7);
+            usb_audio_in_frame[i][15] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*1)] >> (src_32_shift - 7);
             // }
         }
     // }
