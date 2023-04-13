@@ -26,7 +26,6 @@ done
 
 # get input list file
 INPUT_LIST=${@:$OPTIND:1}
-FILE=/etc/resolv.conf
 if [ ! -f "$INPUT_LIST" ]; then
     echo "ERROR: $INPUT_LIST does not exist"
     exit
