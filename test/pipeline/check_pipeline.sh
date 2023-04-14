@@ -86,10 +86,13 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     #  the standard test vector input channel order is: Mic 1, Mic 0, Ref L, Ref R
     #  XCORE-VOICE's input channel order is: Ref L, Ref R, Mic 0, Mic 1
     if [ "${AEC}" == "Y" ] ; then
-        REMIX_PATTERN="remix 3 4 2 1"
+        # NOTE: we are remixing the mics in [Mic 1, Mic 0] order to be consistent
+        #       with the order used in fwk_voice testing
+        REMIX_PATTERN="remix 3 4 1 2"
     else
         REMIX_PATTERN="remix 2 1"
     fi
+
 
     OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}.log"
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
