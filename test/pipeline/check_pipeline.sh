@@ -94,12 +94,11 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}.log"
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
-    MONO_OUTPUT_WAV="${OUTPUT_DIR}/mono_${FILE_NAME}.wav"
     XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
     XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
 
-    # remix and convert to 32bit
-    sox ${INPUT_WAV} -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
+    # remix and create input wav to the filename expected for xscope_fileio (input.wav)
+    sox --no-dither ${INPUT_WAV} ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &
@@ -118,11 +117,9 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # the firmware saves output.wav, rename to the desired output name
     cp ${XSCOPE_FILEIO_OUTPUT_WAV} ${OUTPUT_WAV}
 
-    # single out ASR channel
-    sox ${OUTPUT_WAV} ${MONO_OUTPUT_WAV} remix 1
-
     # check wakeword detections
-    sox ${MONO_OUTPUT_WAV} -b 16 ${OUTPUT_DIR}/${AMAZON_WAV}
+    # amazon_ww_filesim wants a 16bit, single channel input file
+    sox ${OUTPUT_WAV} --no-dither -b 16 ${OUTPUT_DIR}/${AMAZON_WAV} remix 1
     if [ "$uname" == "Linux" ] ; then
         (${AMAZON_DIR}/${AMAZON_EXE} -t ${AMAZON_THRESH} -m ${AMAZON_DIR}/${AMAZON_MODEL} ${OUTPUT_DIR}/list.txt 2>&1 | tee ${OUTPUT_LOG})
     elif [ "$uname" == "Darwin" ] ; then
