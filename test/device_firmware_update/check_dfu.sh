@@ -39,6 +39,9 @@ source "${SLN_VOICE_ROOT}"/tools/ci/helper_functions.sh
 # xflash erase
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 
+# reset board
+xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+
 # flash the data partition
 # build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
 xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}

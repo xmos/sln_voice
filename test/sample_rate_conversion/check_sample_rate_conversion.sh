@@ -79,3 +79,6 @@ rm ${TMP_CH2_WAV}
 echo "Arguments for pytest:"
 echo "  OUTPUT_WAV="${OUTPUT_WAV}
 echo "  LENGTH="${LENGTH}
+
+# reset board for the next test
+xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
