@@ -5,7 +5,7 @@ file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
 list(APPEND APP_SOURCES ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/src/intent_handler/intent_handler.c)
 set(APP_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/src
                  ${CMAKE_CURRENT_LIST_DIR}/src/dummy_headers
-                 ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/asr/api
+                 ${SOLUTION_VOICE_ROOT_PATH}/modules/asr
                  ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/src)
 
 #**********************
