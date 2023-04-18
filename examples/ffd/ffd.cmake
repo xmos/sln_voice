@@ -17,7 +17,6 @@ set(RTOS_CONF_INCLUDES
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/asr/asr.cmake)
 
 #**********************
 # QSPI Flash Layout
@@ -83,7 +82,7 @@ set(APP_LINK_OPTIONS
 
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
-    sln_voice::app::ffd::asr::wanson
+    sln_voice::app::asr::wanson
     rtos::drivers::clock_control
 )
 
