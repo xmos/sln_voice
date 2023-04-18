@@ -83,21 +83,8 @@ static void stage_vnr_and_ic(frame_data_t *frame_data)
               frame_data->samples[1],
               ic_output);
 
-    // VNR
-    bfp_s32_t feature_patch;
-    int32_t feature_patch_data[VNR_PATCH_WIDTH * VNR_MEL_FILTERS];
-    float_s32_t ie_output;
     vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
-
-    vnr_extract_features(&vnr_pred_state->feature_state[0], &feature_patch, 
-                         feature_patch_data, &ic_stage_state.state.Y_bfp[0]);
-    vnr_inference(&ie_output, &feature_patch);
-    vnr_pred_state->input_vnr_pred = float_s32_ema(vnr_pred_state->input_vnr_pred, ie_output, vnr_pred_state->pred_alpha_q30); 
-    
-    vnr_extract_features(&vnr_pred_state->feature_state[1], &feature_patch,
-                         feature_patch_data, &ic_stage_state.state.Error_bfp[0]);
-    vnr_inference(&ie_output, &feature_patch);
-    vnr_pred_state->output_vnr_pred = float_s32_ema(vnr_pred_state->output_vnr_pred, ie_output, vnr_pred_state->pred_alpha_q30);
+    ic_calc_vnr_pred(&ic_stage_state.state, &vnr_pred_state->input_vnr_pred, &vnr_pred_state->output_vnr_pred);
 
     float_s32_t agc_vnr_threshold = f32_to_float_s32(VNR_AGC_THRESHOLD);
     frame_data->vnr_pred_flag = float_s32_gt(vnr_pred_stage_state.vnr_pred_state.output_vnr_pred, agc_vnr_threshold);
@@ -146,14 +133,6 @@ static void stage_agc(frame_data_t *frame_data)
 static void initialize_pipeline_stages(void)
 {
     ic_init(&ic_stage_state.state);
-
-    vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
-    vnr_feature_state_init(&vnr_pred_state->feature_state[0]);
-    vnr_feature_state_init(&vnr_pred_state->feature_state[1]);
-    vnr_inference_init();
-    vnr_pred_state->pred_alpha_q30 = Q30(0.97);
-    vnr_pred_state->input_vnr_pred = f32_to_float_s32(0.5);
-    vnr_pred_state->output_vnr_pred = f32_to_float_s32(0.5); 
 
     ns_init(&ns_stage_state.state);
 

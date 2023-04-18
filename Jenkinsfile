@@ -184,7 +184,7 @@ pipeline {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
+                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output/ $WORKSPACE/amazon_wwe/ " + adapterIDs[0]
                                     }
                                     sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
                                 }
