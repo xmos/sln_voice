@@ -21,5 +21,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
 endif()
 
 ## Add additional modules
+add_subdirectory(audio_pipelines)
 add_subdirectory(sample_rate_conversion)
 add_subdirectory(xscope_fileio)
