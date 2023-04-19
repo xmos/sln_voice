@@ -90,7 +90,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
         #       with the order used in fwk_voice testing
         REMIX_PATTERN="remix 3 4 1 2"
     else
-        REMIX_PATTERN="remix 2 1"
+        REMIX_PATTERN="remix 1 2"
     fi
 
 

@@ -49,6 +49,9 @@ fi
 #  XCORE-VOICE's input channel order is: Ref L, Ref R, Mic 0, Mic 1
 #  XCORE-VOICE's output channel order is: ASR, Comms, Ref L, Ref R, Mic 0, Mic 1
 #  XVF3510 output channel order is: Ref L, Ref R, Mic 1, Mic 0, ASR, Comms
+#
+# NOTE: we are remixing the mics in [Mic 1, Mic 0] order to be consistent
+#       with the order used in fwk_voice testing
 if [[ $CHANNELS == 1 ]]; then # reference-less test vector
     # file only has 1 microphone channel
     if [[ $AEC == true ]]; then
@@ -62,18 +65,18 @@ elif [[ "$CHANNELS" == 2 ]]; then # reference-less test vector
     # file only has microphone channels
     if [[ $AEC == true ]]; then
         # need to insert 2 silent reference channels
-        REMIX_PATTERN="remix 0 0 2 1"
+        REMIX_PATTERN="remix 0 0 1 2"
     else
         # just include mic channels
-        REMIX_PATTERN="remix 2 1"
+        REMIX_PATTERN="remix 1 2"
     fi
 elif [[ $CHANNELS == 4 ]]; then # standard test vector, just include mic channels
     if [[ $AEC == true ]]; then
         # reorder mic and reference channels
-        REMIX_PATTERN="remix 3 4 2 1"
+        REMIX_PATTERN="remix 3 4 1 2"
     else
         # just include mic channels
-        REMIX_PATTERN="remix 2 1"
+        REMIX_PATTERN="remix 1 2"
     fi
 elif [[ $CHANNELS == 6 ]]; then  # assuming test vector from XCORE-VOICE
     if [[ $AEC == true ]]; then
