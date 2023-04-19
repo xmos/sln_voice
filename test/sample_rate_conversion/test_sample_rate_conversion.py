@@ -6,8 +6,8 @@ import soundfile as sf
 
 from thdncalculator import THDN_and_freq
 
-TEST_CHAN = 0    # Note, the mic channels are swapped on the output
-TEST_FREQ = [2000, 1000]  # Note, the mic channels are swapped on the output
+TEST_CHAN = 0
+TEST_FREQ = [1000, 2000]
 TEST_SAMPLE_RATE = 48000
 
 def test_48k_output(wav_file, wav_duration):
