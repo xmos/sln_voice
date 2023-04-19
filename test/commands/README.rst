@@ -33,18 +33,6 @@ The minimum number of recognition events is specified in the test vector file li
 
 Intermediate and output `wav` files are saved in the output directory for manual inspection if necessary.
 
-******************
-Building the Tests
-******************
-
-To build the test application firmware and filesystem files, run the following command from the top of the repository: 
-
-.. code-block:: console
-
-    bash tools/ci/build_tests.sh
-
-The `build_test.sh` script will copy the test applications and filesystem files to the `dist` folder.  
-
 *************
 Running Tests
 *************

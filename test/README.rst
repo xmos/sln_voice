@@ -25,6 +25,30 @@ Install development packages with the Python virtual environment activated:
 
     pip install -r test/requirements.txt
 
+**************************
+Building Host Applications
+**************************
+
+To build the host applications, run the following command from the top of the repository: 
+
+.. code-block:: console
+
+    bash tools/ci/build_host.sh
+
+The ```build_host.sh``` script will copy the host applications to the ``dist_host`` folder.
+
+**********************
+Building Test Firmware
+**********************
+
+To build the test application firmware and filesystem files, run the following command from the top of the repository: 
+
+.. code-block:: console
+
+    bash tools/ci/build_tests.sh
+
+The ``build_test.sh`` script will copy the test applications and filesystem files to the ``dist`` folder.
+
 *************
 Running Tests
 *************
