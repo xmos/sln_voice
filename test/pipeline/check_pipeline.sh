@@ -55,6 +55,8 @@ done < ${INPUT_LIST}
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 
+DIST_HOST="dist_host"
+
 AMAZON_EXE="x86/amazon_ww_filesim"
 AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"
 AMAZON_WAV="amazon_ww_input.wav"
@@ -112,7 +114,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # run xscope host in directory where the XSCOPE_FILEIO_INPUT_WAV resides
     #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
     #   it exits, the xrun command above will also exit
-    (cd ${OUTPUT_DIR} ; xscope_host_endpoint 12345)
+    (cd ${OUTPUT_DIR} ; ${DIST_HOST}/xscope_host_endpoint 12345)
 
     # wait for xrun to exit
     sleep 1

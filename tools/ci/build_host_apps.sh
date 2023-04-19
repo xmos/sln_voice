@@ -24,6 +24,7 @@ echo '******************************************************'
 host_apps=(
     "fatfs_mkimage              modules/rtos/tools/fatfs_mkimage"
     "datapartition_mkimage      modules/rtos/tools/datapartition_mkimage"
+    "xscope_host_endpoint       modules/xscope_fileio/xscope_fileio/host"
 )
 
 # copy applications to dist
