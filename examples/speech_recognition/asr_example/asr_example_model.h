@@ -3,6 +3,8 @@
 #ifndef SIMPLE_ASR_MODEL_H
 #define SIMPLE_ASR_MODEL_H
 
+#include <platform.h>
+
 // TODO: Set your model (and optional grammar) data here
 
 // Use this to define where your model is placed in flash

@@ -25,8 +25,8 @@
 
 #if ON_TILE(ASR_TILE_NO)
 
-#define IS_KEYWORD(id)    (id != ASR_KEYWORD_UNKNOWN)
-#define IS_COMMAND(id)    (id != ASR_COMMAND_UNKNOWN)
+#define IS_KEYWORD(id)    (id == 1 || id == 2)
+#define IS_COMMAND(id)    (id > 2)
 
 #define SAMPLES_PER_ASR    (2 * appconfINTENT_SAMPLE_BLOCK_LENGTH)
 
@@ -265,8 +265,7 @@ void intent_engine_task(void *args)
 
     asr_error_t asr_error;
     asr_result_t asr_result;
-    asr_keyword_t asr_keyword;
-    asr_command_t asr_command;
+    int word_id;
 
     size_t buf_short_index = 0;
 
@@ -296,36 +295,36 @@ void intent_engine_task(void *args)
         asr_error = asr_get_result(asr_ctx, &asr_result);
         if (asr_error != ASR_OK) continue; 
 
-        asr_keyword = asr_get_keyword(asr_ctx, asr_result.keyword_id);
-        asr_command = asr_get_command(asr_ctx, asr_result.command_id);
-        if (!IS_KEYWORD(asr_keyword) && !IS_COMMAND(asr_command)) continue; 
+        word_id = asr_result.id;
+
+        if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue; 
 
     #if appconfINTENT_RAW_OUTPUT
     #if appconfLOW_POWER_ENABLED
         hold_intent_state(int_eng_tmr);
     #endif
-        intent_engine_process_asr_result(asr_keyword, asr_command);
+        intent_engine_process_asr_result(word_id);
     #else
-        if (intent_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(asr_keyword)) {
+        if (intent_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(word_id)) {
             led_indicate_listening();
             hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(asr_keyword, asr_command);
+            intent_engine_process_asr_result(word_id);
             intent_state = STATE_EXPECTING_COMMAND;
-        } else if (intent_state == STATE_EXPECTING_COMMAND && IS_COMMAND(asr_command)) {
+        } else if (intent_state == STATE_EXPECTING_COMMAND && IS_COMMAND(word_id)) {
             hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(asr_keyword, asr_command);
+            intent_engine_process_asr_result(word_id);
             intent_state = STATE_PROCESSING_COMMAND;
-        } else if (intent_state == STATE_EXPECTING_COMMAND && IS_KEYWORD(asr_keyword)) {
+        } else if (intent_state == STATE_EXPECTING_COMMAND && IS_KEYWORD(word_id)) {
             hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(asr_keyword, asr_command);
+            intent_engine_process_asr_result(word_id);
             // remain in STATE_EXPECTING_COMMAND state
-        } else if (intent_state == STATE_PROCESSING_COMMAND && IS_KEYWORD(asr_keyword)) {
+        } else if (intent_state == STATE_PROCESSING_COMMAND && IS_KEYWORD(word_id)) {
             hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(asr_keyword, asr_command);
+            intent_engine_process_asr_result(word_id);
             intent_state = STATE_EXPECTING_COMMAND;
-        } else if (intent_state == STATE_PROCESSING_COMMAND && IS_COMMAND(asr_command)) {
+        } else if (intent_state == STATE_PROCESSING_COMMAND && IS_COMMAND(word_id)) {
             hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(asr_keyword, asr_command);
+            intent_engine_process_asr_result(word_id);
             // remain in STATE_PROCESSING_COMMAND state
         }
     #endif

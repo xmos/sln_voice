@@ -82,7 +82,7 @@ set(APP_LINK_OPTIONS
 
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
-    sln_voice::app::asr::wanson
+    sln_voice::app::asr::sensory
     rtos::drivers::clock_control
 )
 

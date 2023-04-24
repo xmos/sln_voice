@@ -30,7 +30,7 @@ int32_t intent_engine_keyword_queue_count(void);
 void intent_engine_keyword_queue_complete(void);
 void intent_engine_stream_buf_reset(void);
 void intent_engine_play_response(int wav_id);
-void intent_engine_process_asr_result(asr_keyword_t keyword, asr_command_t command);
+void intent_engine_process_asr_result(int word_id);
 
 uint8_t intent_engine_low_power_ready(void);
 void intent_engine_low_power_reset(void);

@@ -14,15 +14,15 @@
 #include "xscope_io_device.h"
 
 // Include the example port model data
-#include "port/example/asr_example_model.h"
+#include "asr_example/asr_example_model.h"
 
 #define MAX_CHANNELS         (1)
 #define BRICK_SIZE_SAMPLES   (240) 
 #define BRICK_SIZE_BYTES     (BRICK_SIZE_SAMPLES*sizeof(int16_t))
 
-const char* keyword2text(asr_keyword_t keyword) {
-    switch (keyword) {
-        case ASR_KEYWORD_HELLO_XMOS:
+const char* word_id2text(int word_id) {
+    switch (word_id) {
+        case 100:
             return "Hello XMOS";
             break;
         default:
@@ -99,10 +99,7 @@ void process_file() {
         if (asr_error == ASR_OK) {
             asr_error = asr_get_result(asr_port, &asr_result);
             if (asr_error == ASR_OK) {
-                asr_keyword_t keyword = asr_get_keyword(asr_port, asr_result.keyword_id);
-                if (keyword != ASR_KEYWORD_UNKNOWN) {
-                    printf("Keyword: %s\n", keyword2text(keyword));
-                }
+                printf("Keyword: %s\n", word_id2text(asr_result.id));
             }
         }
 
@@ -121,4 +118,3 @@ void process_file() {
     xscope_close_all_files();
     _Exit(0);
 }
-
