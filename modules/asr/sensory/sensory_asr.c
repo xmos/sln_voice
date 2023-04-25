@@ -3,6 +3,7 @@
 
 #include <string.h>
 #include <xcore/assert.h>
+#include <xcore/hwtimer.h>
 
 #include <sensorytypes.h>
 #include <sensorylib.h>
@@ -27,6 +28,7 @@ static sensory_asr_t sensory_asr;
 /**
  * Wrapper for devmem_read_ext called by libTHFMicro.
 **/
+__attribute__((fptrgroup("sensory_asr_xcore_memcpy_fptr_grp")))
 static void xcore_memcpy(void * dst, const void * src, size_t size) \
 {
     devmem_read_ext(devmem_ctx, dst, src, size); 
@@ -35,6 +37,7 @@ static void xcore_memcpy(void * dst, const void * src, size_t size) \
 /**
  * Return TRUE if ptr is in SwMem (flash) address range.
 **/
+__attribute__((fptrgroup("sensory_asr_xcore_is_flash_fptr_grp")))
 static BOOL xcore_is_flash(const void * ptr) 
 {
     if (IS_FLASH((intptr_t) ptr)) return TRUE;
@@ -47,14 +50,13 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     appStruct_T *app = &(sensory_asr.app);
     t2siStruct *t = &(app->_t);
     unsigned int sppSize;
-
     sensory_asr.brick_count = 0;
     devmem_ctx = devmem;
 
     memset((void *) app, 0, sizeof(appStruct_T)); // Most app parameters can be zero
 
     if (xcore_is_flash(grammar)) {
-        asr_printf("Search part (-search.BIN file) should be in RAM.\n");
+        asr_printf("ERROR: Search part (-search.BIN file) should be in SRAM.\n");
         return NULL;
     }
 
@@ -65,7 +67,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     // Both these functions MUST be set for xcore if model is in ROM (must copy from ROM to work at all)
     t->devMemCpy = xcore_memcpy;
     t->devIsFlash = xcore_is_flash;
-    t->romCacheSize = SENSORY_ASR_ADDITIONAL_ROM_CACHE; 
+    t->romCacheSize = SENSORY_ASR_ADDITIONAL_ROM_CACHE;
 
     // initialize audio buffer items
     app->audioBufferLen = AUDIO_BUFFER_LEN;
@@ -74,35 +76,37 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     app->audioBufferStart = devmem_malloc(devmem_ctx, AUDIO_BUFFER_LEN * sizeof(s16));
     if (app->audioBufferStart == NULL)
     {
-        asr_printf("Audio buffer out of memory\n");
+        asr_printf("ERROR: Audio buffer out of memory\n");
         return NULL;
     }
+
 
     t->net = (intptr_t) model;
     t->gram = (intptr_t) grammar;
 
     error = SensoryAlloc(app, &sppSize);  // Find size needed
     if (error) {
-        asr_printf("SensoryAlloc failed with error 0x%x\n", error);
+        asr_printf("ERROR: SensoryAlloc failed with error 0x%x\n", error);
         return NULL;
     }
-    asr_printf("SPP size = %u\n", sppSize);
+    asr_printf("Sensory SPP size=%u (bytes)\n", sppSize);
 
     // Allocate a single block of memory for all dynamic persistent data
     t->spp = (void *)devmem_malloc(devmem_ctx, sppSize);
     if (t->spp == NULL)
     {
-        asr_printf("No memory left for SPP\n");
+        asr_printf("ERROR: No memory left for SPP\n");
         return NULL;
     }
 
     // initialize
     error = SensoryProcessInit(app);
     if (error) {
-        asr_printf("SensoryProcessInit failed with error 0x%x\n", error);
+        asr_printf("ERROR: SensoryProcessInit failed with error 0x%x\n", error);
         return NULL;
     }
 
+    asr_printf("SensoryProcessInit succeeded\n");
     return (asr_port_t) &sensory_asr;
 }
 
@@ -118,32 +122,37 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 
     sensory_asr->brick_count++;
 
+    //uint32_t timer_start = get_reference_time();
+
     error = SensoryProcessData((s16 *) audio_buf, app);
 
-    if (t->tokensPruned) {
-        asr_printf("Search for recognizer was limited by maxTokens count %d\n"
-                   "You may wish to increase it.\n",  t->maxTokens);
-    }
-    if (error == ASR_ERROR) {
+    //uint32_t timer_end = get_reference_time();
+    //asr_printf("Duration: %lu (us)\n", (timer_end - timer_start) / 100);
+
+    // if (t->tokensPruned) {
+    //     asr_printf("Search for recognizer was limited by maxTokens count %d\n"
+    //                "You may wish to increase it.\n",  t->maxTokens);
+    // }
+    if (error == ERR_OK) {
         if (t->wordID) {
             AUDIOINDEX epIndex, stIndex, tailCount, startBackupFrames, endBackupFrames;
 
-            asr_printf("*** Recognizer found wordID= %d, score= %d, ", t->wordID, t->finalScore);
-            if (t->svScore >= 0) asr_printf("svscore= %d", t->svScore);
-            if (t->nnpqScore > 0) asr_printf("\nNNPQ score = %d, NNPQ threshold = %d, NNPQ check pass = %d",
-                t->nnpqScore, t->nnpqThreshold, t->nnpqPass);
-            asr_printf("\brick count= %d, duration= %d\n", sensory_asr->brick_count, t->duration);
+            asr_printf("Sensory Recognizer found wordID=%d  score=%d\n", t->wordID, t->finalScore);
+            // if (t->svScore >= 0) asr_printf("svscore= %d", t->svScore);
+            // if (t->nnpqScore > 0) asr_printf("\nNNPQ score = %d, NNPQ threshold = %d, NNPQ check pass = %d",
+            //     t->nnpqScore, t->nnpqThreshold, t->nnpqPass);
+            // asr_printf("\brick count= %d, duration= %d\n", sensory_asr->brick_count, t->duration);
 
             startBackupFrames = SensoryFindStartpoint(app, &stIndex);
             endBackupFrames = SensoryFindEndpoint(app, &epIndex, &tailCount);
-            asr_printf("startBackupFrames: %d, endBackupFrames: %d\n", (int) startBackupFrames, (int) endBackupFrames);
-            if (stIndex < 0)
-                asr_printf("Start point is not in the audio buffer\n");
+            // asr_printf("startBackupFrames: %d, endBackupFrames: %d\n", (int) startBackupFrames, (int) endBackupFrames);
+            // if (stIndex < 0)
+            //     asr_printf("Start point is not in the audio buffer\n");
 
             sensory_asr->start_index = (sensory_asr->brick_count - startBackupFrames) * FRAME_LEN;
             sensory_asr->end_index = (sensory_asr->brick_count - endBackupFrames) * FRAME_LEN;
             sensory_asr->duration = t->duration * FRAME_LEN;
-            asr_printf("start point = %d; end point = %d, duration = %d\n", sensory_asr->start_index, sensory_asr->end_index, sensory_asr->duration);
+            // asr_printf("start point = %d; end point = %d, duration = %d\n", sensory_asr->start_index, sensory_asr->end_index, sensory_asr->duration);
 
         } else {
             // Should not get here
@@ -156,10 +165,10 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
         }
     } else if (error != ERR_NOT_FINISHED) {
         if (error == ERR_LICENSE) {
-            asr_printf("Sensory Lib license error\n");
+            asr_printf("ERROR: Sensory Lib license error\n");
             return ASR_EVALUATION_EXPIRED;
         } else {
-            asr_printf("SensoryProcessData returned error code 0x%x, wordID= %d\n", error, t->wordID);
+            asr_printf("ERROR: SensoryProcessData returned error code 0x%x, wordID= %d\n", error, t->wordID);
             return ASR_ERROR;
         }
     }
@@ -182,7 +191,14 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
         result->start_index = sensory_asr->start_index;
         result->end_index = sensory_asr->end_index;
         result->duration = sensory_asr->duration;
+    } else {
+        result->id = 0;
+        result->score = 0;
+        result->start_index = -1;
+        result->end_index = -1;
+        result->duration = -1;
     }
+
 
     return ASR_OK;
 }

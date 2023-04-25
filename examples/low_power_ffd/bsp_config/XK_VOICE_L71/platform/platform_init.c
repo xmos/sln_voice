@@ -49,7 +49,7 @@ static void flash_init(void)
             PORT_SQI_SCLK,
             PORT_SQI_SIO,
             NULL,
-            qspi_fast_flash_read_transfer_nibble_swap,
+            qspi_fast_flash_read_transfer_raw,
             3,
             QSPI_FLASH_CALIBRATION_ADDRESS);
 #endif

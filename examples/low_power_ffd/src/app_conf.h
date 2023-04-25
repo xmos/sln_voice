@@ -31,11 +31,6 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
-/* Enable audio response output */
-#ifndef appconfAUDIO_PLAYBACK_ENABLED
-#define appconfAUDIO_PLAYBACK_ENABLED           1
-#endif
-
 /* Intent Engine Configuration */
 #define appconfINTENT_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINTENT_SAMPLE_BLOCK_LENGTH    240

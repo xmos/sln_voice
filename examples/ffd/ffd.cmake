@@ -167,14 +167,14 @@ add_custom_command(
     VERBATIM
 )
 
-list(APPEND DATA_PARTITION_FILE_LIST
+set(DATA_PARTITION_FILE_LIST
     ${DATA_PARTITION_FILE}
     ${MODEL_FILE}
     ${FATFS_FILE}
     ${FLASH_CAL_FILE}
 )
 
-list(APPEND DATA_PARTITION_DEPENDS_LIST
+set(DATA_PARTITION_DEPENDS_LIST
     ${DATA_PARTITION_FILE}
     ${MODEL_FILE}
     make_fs_${TARGET_NAME}
@@ -196,6 +196,7 @@ create_flash_app_target(
 )
 
 unset(DATA_PARTITION_FILE_LIST)
+unset(DATA_PARTITION_DEPENDS_LIST)
 
 #**********************
 # Include FFD Debug and Extension targets

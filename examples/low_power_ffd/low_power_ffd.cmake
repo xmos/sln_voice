@@ -1,9 +1,19 @@
-set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+set(LOW_POWER_FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+
+#****************************
+# Set Sensory model variables
+#****************************
+set(SENSORY_SEARCH_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-search.c)
+set(SENSORY_NET_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-net.bin)
 
 #**********************
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+set(APP_SOURCES 
+    ${APP_SOURCES}
+    ${SENSORY_SEARCH_FILE}
+)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
@@ -130,20 +140,10 @@ set(FATFS_FILE ${TARGET_NAME}_fat.fs)
 set(FLASH_CAL_FILE ${LIB_QSPI_FAST_READ_ROOT_PATH}/lib_qspi_fast_read/calibration_pattern_nibble_swap.bin)
 
 add_custom_target(${MODEL_FILE} ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_NAME}_split
-    COMMAND xobjdump --strip ${TARGET_NAME}.xe > ${TARGET_NAME}_split/output.log
-    COMMAND xobjdump --split --split-dir ${TARGET_NAME}_split ${TARGET_NAME}.xb >> ${TARGET_NAME}_split/output.log
-    COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_NAME}_split/image_n0c0.swmem ${MODEL_FILE}
-    DEPENDS ${TARGET_NAME}
-    BYPRODUCTS
-        ${TARGET_NAME}.xb
+    COMMAND ${CMAKE_COMMAND} -E copy ${SENSORY_NET_FILE} ${MODEL_FILE}
     COMMENT
-        "Extract swmem"
+        "Copy Sensory NET file"
     VERBATIM
-)
-
-set_target_properties(${MODEL_FILE} PROPERTIES
-    ADDITIONAL_CLEAN_FILES "${TARGET_NAME}_split;${MODEL_FILE}"
 )
 
 create_filesystem_target(
@@ -167,14 +167,14 @@ add_custom_command(
     VERBATIM
 )
 
-list(APPEND DATA_PARTITION_FILE_LIST
+set(DATA_PARTITION_FILE_LIST
     ${DATA_PARTITION_FILE}
     ${MODEL_FILE}
     ${FATFS_FILE}
     ${FLASH_CAL_FILE}
 )
 
-list(APPEND DATA_PARTITION_DEPENDS_LIST
+set(DATA_PARTITION_DEPENDS_LIST
     ${DATA_PARTITION_FILE}
     ${MODEL_FILE}
     make_fs_${TARGET_NAME}
@@ -196,3 +196,4 @@ create_flash_app_target(
 )
 
 unset(DATA_PARTITION_FILE_LIST)
+unset(DATA_PARTITION_DEPENDS_LIST)

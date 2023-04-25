@@ -131,7 +131,11 @@ void startup_task(void *arg)
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
     platform_start();
-
+#if ON_TILE(0)
+    rtos_printf("KAM: FIXME!\n");
+    int temp;
+    rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)&temp, (unsigned)(0), 4);
+#endif
 #if ON_TILE(1)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
@@ -176,7 +180,7 @@ void startup_task(void *arg)
     set_local_tile_processor_clk_div(appconfLOW_POWER_CONTROL_TILE_CLK_DIV);
 #endif
 
-    // mem_analysis();
+    //mem_analysis();
     vTaskSuspend(NULL);
     while(1){;} /* Trap */
 }

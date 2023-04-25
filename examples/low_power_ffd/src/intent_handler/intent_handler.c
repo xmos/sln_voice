@@ -15,9 +15,6 @@
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "intent_handler/intent_handler.h"
-#include "fs_support.h"
-#include "ff.h"
-#include "audio_response.h"
 #include "intent_engine/intent_engine.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
@@ -40,9 +37,6 @@ static void proc_keyword_res(void *args) {
 
     rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
 
-#if appconfAUDIO_PLAYBACK_ENABLED
-    audio_response_init();
-#endif
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
 
@@ -75,9 +69,6 @@ static void proc_keyword_res(void *args) {
 #if appconfINTENT_UART_OUTPUT_ENABLED && (UART_TILE_NO == ASR_TILE_NO)
         uint32_t buf_uart = id;
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
-#endif
-#if appconfAUDIO_PLAYBACK_ENABLED
-        audio_response_play(id);
 #endif
 #if appconfLOW_POWER_ENABLED
         if (intent_engine_keyword_queue_count() == 0) {

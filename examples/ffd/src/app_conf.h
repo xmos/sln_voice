@@ -96,7 +96,7 @@
 #endif
 
 #ifndef appconfLOW_POWER_ENABLED
-#define appconfLOW_POWER_ENABLED                0
+#define appconfLOW_POWER_ENABLED                1
 #endif
 
 #ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE

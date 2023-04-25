@@ -59,7 +59,7 @@ typedef struct asr_attributes_struct
 typedef struct asr_result_struct
 {
     uint16_t id;             ///< Keyword or command ID
-    int16_t  score;          ///< The confidence score of the detection
+    uint16_t score;          ///< The confidence score of the detection
     uint16_t gscore;         ///< The garbage score
     int32_t  start_index;    ///< The audio sample index that corresponds to the start of the utterance
     int32_t  end_index;      ///< The audio sample index that corresponds to the end of the utterance
