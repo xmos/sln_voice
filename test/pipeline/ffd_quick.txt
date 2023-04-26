@@ -3,4 +3,4 @@ InHouse_XVF3510v080_v1.2_20190423_Loc3_Noise1_60dB__Take1            N       20 
 InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1            N       24      25
 InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_65dB__Take1            N       20      25
 InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_70dB__Take1            N       20      25
-InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise1_80dB__Take1            N       20      25
+InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise1_80dB__Take1            N       18      25

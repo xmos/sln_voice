@@ -55,7 +55,7 @@ done < ${INPUT_LIST}
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 
-DIST_HOST="dist_host"
+DIST_HOST="${SLN_VOICE_ROOT}/dist_host"
 
 AMAZON_EXE="x86/amazon_ww_filesim"
 AMAZON_MODEL="models/common/WR_250k.en-US.alexa.bin"
@@ -101,6 +101,12 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     OUTPUT_WAV="${OUTPUT_DIR}/processed_${FILE_NAME}.wav"
     XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
     XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
+
+    # ensure input file exists
+    if [ ! -f "${INPUT_WAV}" ]; then
+        echo "${INPUT_WAV} does not exist."
+        exit 1
+    fi
 
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
     sox --no-dither ${INPUT_WAV} ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
