@@ -25,6 +25,7 @@ host_apps=(
     "fatfs_mkimage              modules/rtos/tools/fatfs_mkimage"
     "datapartition_mkimage      modules/rtos/tools/datapartition_mkimage"
     "xscope_host_endpoint       modules/xscope_fileio/xscope_fileio/host"
+    "nibble_swap                modules/lib_qspi_fast_read/tools/nibble_swap"
 )
 
 # copy applications to dist

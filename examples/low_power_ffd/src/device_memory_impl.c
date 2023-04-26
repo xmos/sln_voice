@@ -45,7 +45,7 @@ void devmem_read_ext_local(void *dest, const void *src, size_t n) {
     if (IS_FLASH(src)) {
         // Need to subtract off XS1_SWMEM_BASE because qspi flash driver accounts for the offset
         //uint32_t s = get_reference_time();
-        rtos_qspi_flash_fast_read_ll(qspi_flash_ctx, (uint8_t *)dest, (unsigned)(src - XS1_SWMEM_BASE), n);
+        rtos_qspi_flash_fast_read_mode_ll(qspi_flash_ctx, (uint8_t *)dest, (unsigned)(src - XS1_SWMEM_BASE), n, qspi_fast_flash_read_transfer_raw);
         //uint32_t d = get_reference_time() - s;
         //printf("%d, %0.01f (us), %0.04f (M/s)\n", n, d / 100.0f, (n / 1000000.0f ) / (d / 100000000.0f));
     } else {

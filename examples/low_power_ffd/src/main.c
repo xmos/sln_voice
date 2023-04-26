@@ -132,9 +132,9 @@ void startup_task(void *arg)
 
     platform_start();
 #if ON_TILE(0)
-    rtos_printf("KAM: FIXME!\n");
-    int temp;
-    rtos_qspi_flash_read(qspi_flash_ctx, (uint8_t *)&temp, (unsigned)(0), 4);
+    // Setup flash low-level mode
+    //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
+    rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
 #if ON_TILE(1)
     gpio_gpi_init(gpio_ctx_t0);

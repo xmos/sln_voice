@@ -4,7 +4,7 @@ set(LOW_POWER_FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 # Set Sensory model variables
 #****************************
 set(SENSORY_SEARCH_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-search.c)
-set(SENSORY_NET_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-net.bin)
+set(SENSORY_NET_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-net.bin.nibble_swapped)
 
 #**********************
 # Gather Sources
