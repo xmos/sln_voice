@@ -1,7 +1,7 @@
 set(TARGET_FILE ${CMAKE_CURRENT_LIST_DIR}/XCORE-AI-EXPLORER.xn)
 set(XSCOPE_PORT localhost:12345)
 
-include(${CMAKE_CURRENT_LIST_DIR}/asr/port/example/asr_example.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/asr_example/asr_example.cmake)
 
 #**********************
 # Gather Sources
@@ -9,11 +9,9 @@ include(${CMAKE_CURRENT_LIST_DIR}/asr/port/example/asr_example.cmake)
 file(GLOB_RECURSE APP_SOURCES 
     ${CMAKE_CURRENT_LIST_DIR}/src/*.xc 
     ${CMAKE_CURRENT_LIST_DIR}/src/*.c
-    ${CMAKE_CURRENT_LIST_DIR}/asr/api/*.c
 )
 set(APP_INCLUDES
-    ${CMAKE_CURRENT_LIST_DIR}/asr
-    ${CMAKE_CURRENT_LIST_DIR}/asr/api
+    ${CMAKE_CURRENT_LIST_DIR}/
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
@@ -42,7 +40,7 @@ set(APP_LINK_OPTIONS
 
 set(APP_LINK_LIBRARIES
     -lquadspi
-    sln_voice::asr_example
+    sln_voice::app::asr::example
     lib_xcore_math
     xscope_fileio
 )

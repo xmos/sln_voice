@@ -13,10 +13,11 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "platform/driver_instances.h"
-#include "intent_engine/intent_engine.h"
 #include "asr.h"
+#include "device_memory_impl.h"
 #include "gpio_ctrl/leds.h"
+#include "intent_engine/intent_engine.h"
+#include "platform/driver_instances.h"
 
 #if appconfLOW_POWER_ENABLED
 #include "power/power_state.h"
@@ -25,10 +26,10 @@
 
 #if ON_TILE(ASR_TILE_NO)
 
-#define IS_KEYWORD(id)    (id == 1 || id == 2)
-#define IS_COMMAND(id)    (id > 2)
+#define IS_KEYWORD(id)    (id == 17)
+#define IS_COMMAND(id)    (id > 0 && !IS_KEYWORD(id))
 
-#define SAMPLES_PER_ASR    (2 * appconfINTENT_SAMPLE_BLOCK_LENGTH)
+#define SAMPLES_PER_ASR    (appconfINTENT_SAMPLE_BLOCK_LENGTH)
 
 #define STOP_LISTENING_SOUND_WAV_ID     (0)
 
@@ -52,8 +53,16 @@ enum timeout_event {
     TIMEOUT_EVENT_FULL_POWER = 2
 };
 
+// Sensory SEARCH model file is specified in the CMakeLists SENSORY_SEARCH_FILE variable
+extern const unsigned short gs_grammarLabel[];
+// Sensory NET model file is in flash at the offset specified in the CMakeLists
+// QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
+// to be added so the address in in the SwMem range.  
+uint16_t *dnn_netLabel = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
+
 static intent_state_t intent_state;
 static asr_port_t asr_ctx; 
+devmem_manager_t devmem_ctx;
 
 #if appconfLOW_POWER_ENABLED
 static intent_power_state_t intent_power_state;
@@ -116,7 +125,6 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
 {
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
-        intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
         led_indicate_waiting();
         intent_state = STATE_EXPECTING_WAKEWORD;
 #if appconfLOW_POWER_ENABLED
@@ -244,7 +252,8 @@ void intent_engine_task(void *args)
     requested_full_power = 0;
 #endif
 
-    asr_ctx = asr_init(NULL, NULL, NULL);
+    devmem_init(&devmem_ctx);
+    asr_ctx = asr_init((void *) dnn_netLabel, (void *) gs_grammarLabel, &devmem_ctx);
 
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
     TimerHandle_t int_eng_tmr = xTimerCreate(
@@ -268,6 +277,8 @@ void intent_engine_task(void *args)
     int word_id;
 
     size_t buf_short_index = 0;
+
+    memset(&asr_error, 0, sizeof(asr_error_t));
 
     while (1)
     {

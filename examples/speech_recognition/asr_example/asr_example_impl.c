@@ -8,10 +8,10 @@
 typedef struct mock_asr_struct
 {
     int32_t *model;
-    uint16_t keyword_id[1];
+    uint16_t word_id[1];
     int16_t  count;
     uint16_t score;
-    uint16_t spotted_keyword_id;
+    uint16_t spotted_word_id;
     int8_t   *dynamic_memory;
     devmem_manager_t *devmem_ctx;
 } mock_asr_t;
@@ -26,8 +26,8 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_c
     
     // set port data 
     mock_asr.model = model;
-    mock_asr.keyword_id[0] = 100;
-    mock_asr.spotted_keyword_id = 0;
+    mock_asr.word_id[0] = 100;
+    mock_asr.spotted_word_id = 0;
     mock_asr.count = 0;
     mock_asr.score = INT16_MAX;
     mock_asr.devmem_ctx = devmem_ctx;
@@ -101,9 +101,9 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     }
 
     // return keyword if count exceeds threshold
-    mock_asr->spotted_keyword_id = 0;
+    mock_asr->spotted_word_id = 0;
     if (mock_asr->count > count_threshold) {
-        mock_asr->spotted_keyword_id = mock_asr->keyword_id[0]; // 0 is the only supported ID in this oversimplified example
+        mock_asr->spotted_word_id = mock_asr->word_id[0]; // 0 is the only supported ID in this oversimplified example
         mock_asr->count = 0;
     }
 
@@ -115,9 +115,15 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result) {
 
     mock_asr_t *mock_asr = (mock_asr_t *) ctx;
 
-    result->keyword_id = mock_asr->spotted_keyword_id;
-    result->command_id = 0;
+    result->id = mock_asr->spotted_word_id;
 
+    // The following result fields are not implemented
+    result->score = 0;
+    result->gscore = 0;
+    result->start_index = -1;
+    result->end_index = -1;
+    result->duration = -1;
+    
     return ASR_OK;
 }
 
@@ -144,23 +150,3 @@ asr_error_t asr_release(asr_port_t *ctx)
 
     return ASR_OK;
 }
-
-asr_keyword_t asr_get_keyword(asr_port_t *ctx, int16_t asr_id)
-{
-    switch (asr_id) {
-        case 100:
-            return ASR_KEYWORD_HELLO_XMOS;
-            break;
-        default:
-            break ;
-    }
-
-    return ASR_KEYWORD_UNKNOWN;
-}
-
-asr_command_t asr_get_command(asr_port_t *ctx, int16_t asr_id)
-{
-    // This asr port does not support any commands
-    return ASR_COMMAND_UNKNOWN;
-}
-

@@ -22,13 +22,15 @@ void devmem_free(devmem_manager_t *ctx, void *ptr) {
 
 void devmem_read_ext(devmem_manager_t *ctx, void *dest, const void * src, size_t n) {
     xassert(ctx);    
-    xassert(ctx->read_ext);    
+    xassert(ctx->read_ext);
+    xassert((intptr_t)src % 4 == 0);
     ctx->read_ext(dest, src, n);
 }
 
 int devmem_read_ext_async(devmem_manager_t *ctx, void *dest, const void * src, size_t n) {
     xassert(ctx);    
     xassert(ctx->read_ext);    
+    xassert((intptr_t)src % 4 == 0);
     return ctx->read_ext_async(dest, src, n);
 }
 

@@ -1,9 +1,19 @@
-set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+set(LOW_POWER_FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+
+#****************************
+# Set Sensory model variables
+#****************************
+set(SENSORY_SEARCH_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-search.c)
+set(SENSORY_NET_FILE ${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.4.0-op10-dev-net.bin.nibble_swapped)
 
 #**********************
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+set(APP_SOURCES 
+    ${APP_SOURCES}
+    ${SENSORY_SEARCH_FILE}
+)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
@@ -82,68 +92,58 @@ set(APP_LINK_OPTIONS
 
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
-    sln_voice::app::asr::wanson
+    sln_voice::app::asr::sensory
     rtos::drivers::clock_control
 )
 
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_example_ffd)
+set(TARGET_NAME tile0_example_low_power_ffd)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=0)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::ffd::xk_voice_l71)
+target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::low_power_ffd::xk_voice_l71)
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_example_ffd)
+set(TARGET_NAME tile1_example_low_power_ffd)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=1)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::ffd::xk_voice_l71)
+target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::low_power_ffd::xk_voice_l71)
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(example_ffd tile0_example_ffd tile1_example_ffd 1)
+merge_binaries(example_low_power_ffd tile0_example_low_power_ffd tile1_example_low_power_ffd 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(example_ffd)
-create_debug_target(example_ffd)
+create_run_target(example_low_power_ffd)
+create_debug_target(example_low_power_ffd)
 
 #**********************
 # Create data partition support targets
 #**********************
-set(TARGET_NAME example_ffd)
+set(TARGET_NAME example_low_power_ffd)
 set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
 set(MODEL_FILE ${TARGET_NAME}_model.bin)
 set(FATFS_FILE ${TARGET_NAME}_fat.fs)
 set(FLASH_CAL_FILE ${LIB_QSPI_FAST_READ_ROOT_PATH}/lib_qspi_fast_read/calibration_pattern_nibble_swap.bin)
 
 add_custom_target(${MODEL_FILE} ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_NAME}_split
-    COMMAND xobjdump --strip ${TARGET_NAME}.xe > ${TARGET_NAME}_split/output.log
-    COMMAND xobjdump --split --split-dir ${TARGET_NAME}_split ${TARGET_NAME}.xb >> ${TARGET_NAME}_split/output.log
-    COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_NAME}_split/image_n0c0.swmem ${MODEL_FILE}
-    DEPENDS ${TARGET_NAME}
-    BYPRODUCTS
-        ${TARGET_NAME}.xb
+    COMMAND ${CMAKE_COMMAND} -E copy ${SENSORY_NET_FILE} ${MODEL_FILE}
     COMMENT
-        "Extract swmem"
+        "Copy Sensory NET file"
     VERBATIM
-)
-
-set_target_properties(${MODEL_FILE} PROPERTIES
-    ADDITIONAL_CLEAN_FILES "${TARGET_NAME}_split;${MODEL_FILE}"
 )
 
 create_filesystem_target(
@@ -197,8 +197,3 @@ create_flash_app_target(
 
 unset(DATA_PARTITION_FILE_LIST)
 unset(DATA_PARTITION_DEPENDS_LIST)
-
-#**********************
-# Include FFD Debug and Extension targets
-#**********************
-include(${CMAKE_CURRENT_LIST_DIR}/ext/ffd_ext.cmake)
