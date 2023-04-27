@@ -4,7 +4,7 @@ This is the XCORE-VOICE automated speech recognition (ASR) porting example appli
 
 ## Supported Hardware
 
-This example is supported on the XCORE-AI-EXPLORER board.  However, the XK_VOICE_L71 board can be supported with a couple minor modifications.
+This example is supported on the XK_VOICE_L71 board.  However, the XCORE-AI-EXPLORER board can be supported with a couple minor modifications.
 
 ## Building the host server
 

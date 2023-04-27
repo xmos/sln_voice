@@ -2,15 +2,15 @@
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <xcore/lock.h>
 #include <xcore/thread.h>
 #include <xcore/assert.h>
 
-#include "flash.h"
-
 #include "device_memory.h"
 #include "device_memory_impl.h"
+#include "flash.h"
 
 typedef struct read_ext_async_thread_data {
   lock_t lock;
@@ -33,6 +33,7 @@ void read_ext_async_thread(void* context) {
     // depending on src address location, perform the flash read or memory copy
     if IS_FLASH(td->src) {
         flash_read_wrapper((unsigned *)td->dest, (unsigned)td->src, td->n);
+
     } else {
         memcpy(td->dest, td->src, td->n);
     }
@@ -55,7 +56,7 @@ void devmem_free_local(void *ptr) {
 __attribute__((fptrgroup("devmem_read_ext_fptr_grp")))
 void devmem_read_ext_local(void *dest, const void *src, size_t n) {
     if IS_FLASH(src) {
-        flash_read_wrapper((unsigned *)dest, (unsigned)src, n);
+        flash_read_wrapper((unsigned *)dest, (unsigned)(src-XS1_SWMEM_BASE), n);
     } else {
         memcpy(dest, src, n);
     }
