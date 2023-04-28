@@ -1,6 +1,7 @@
 // Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
 // XMOS Public License: Version 1
 #include <string.h>
+
 #include <xcore/assert.h>
 
 #include "asr.h"
@@ -19,7 +20,6 @@ typedef struct mock_asr_struct
 mock_asr_t mock_asr; 
 
 asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_ctx) {
-    xassert(model);
     xassert(grammar == NULL);
 
     int8_t scratch_data[8];
@@ -33,7 +33,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_c
     mock_asr.devmem_ctx = devmem_ctx;
 
     // example of how to read data from the model
-    devmem_read_ext(mock_asr.devmem_ctx, scratch_data, model, 8); 
+    devmem_read_ext(mock_asr.devmem_ctx, scratch_data, model, 8);
 
     // example of how to allocate some mock dynamic memory 
     // using the asr_malloc function

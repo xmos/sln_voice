@@ -98,7 +98,7 @@ void process_file() {
 
         if (asr_error == ASR_OK) {
             asr_error = asr_get_result(asr_port, &asr_result);
-            if (asr_error == ASR_OK) {
+            if ((asr_error == ASR_OK) && (asr_result.id > 0)) {
                 printf("Keyword: %s\n", word_id2text(asr_result.id));
             }
         }

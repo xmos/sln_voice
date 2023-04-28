@@ -7,7 +7,7 @@ add_library(asr_sensory INTERFACE)
 target_sources(asr_sensory
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/device_memory.c
-        ${CMAKE_CURRENT_LIST_DIR}/sensory/lib/appAudio.c
+        ${CMAKE_CURRENT_LIST_DIR}/sensory/appAudio.c
         ${CMAKE_CURRENT_LIST_DIR}/sensory/sensory_asr.c
 )
 target_include_directories(asr_sensory
