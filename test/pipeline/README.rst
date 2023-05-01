@@ -14,7 +14,7 @@ This test is a verification of the FFD or FFVA audio pipelines.  It verifies tha
 Method
 ======
 
-Play test recordings to a test configuration built to use two USB audio input channels as microphone inputs.  Process the two channel inputs with the full pipeline (AEC (optional) + IC/VNR + NS + AGC) and record the processed ASR output channel.  Process with output wav with the `x86/amazon_ww_filesim` application from the Amazon WWE using the `models/common/WR_250k.en-US.alexa.bin`` model.  Count the number of recognized “alexa” utterances.  
+Play test recordings to a test configuration built to read input microphone and reference audion from WAV files using xscope_fileio.  Process the inputs WAV files with a configured pipeline (AEC (optional) + IC/VNR + NS + AGC) and save the processed output channels.  Process with output wav with the `x86/amazon_ww_filesim` application from the Amazon WWE using the `models/common/WR_250k.en-US.alexa.bin`` model.  Count the number of recognized “alexa” utterances.  
 
 Inputs
 ======
