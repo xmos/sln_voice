@@ -24,20 +24,27 @@
 #define DWORD_ALIGNED     __attribute__ ((aligned(8)))
 #endif
 
-// Options GRAMMAR model file is specified in the CMakeLists GRAMMAR_FILE variable
-extern const unsigned short gs_grammarLabel[];
-// Model file is in flash at the offset specified in the CMakeLists
-// QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
-// to be added so the address in in the SwMem range.  
-uint16_t *dnn_netLabel = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
+#if (appconfASR_LIBRARY_ID == 0)
+    // Sensory
+    // GRAMMAR file is appended to the CMakeLists APP_SOURCES variable
+    extern const unsigned short gs_grammarLabel[];
+    void* grammar = (void *)gs_grammarLabel;
+    // Model file is in flash at the offset specified in the CMakeLists
+    // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
+    // to be added so the address in in the SwMem range.  
+    uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
+#elif (appconfASR_LIBRARY_ID == 1)
+    // Wanson
+    void* grammar = NULL;
+    void* model = NULL;
+#endif
 
 static TaskHandle_t xscope_fileio_task_handle;
-
 static xscope_file_t infile;
 static xscope_file_t outfile;
-
 static asr_port_t asr_ctx; 
-devmem_manager_t devmem_ctx;
+static devmem_manager_t devmem_ctx;
+static char log_buffer[1024];
 
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
 static SemaphoreHandle_t mutex_xscope_fileio;
@@ -81,25 +88,25 @@ void xscope_fileio_task(void *arg) {
     unsigned brick_count;        
     uint32_t DWORD_ALIGNED in_buf_raw_32[appconfASR_BRICK_SIZE_SAMPLES * appconfINPUT_CHANNELS];
     int16_t DWORD_ALIGNED in_buf_int_16[appconfINPUT_CHANNELS * appconfASR_BRICK_SIZE_SAMPLES];
-    char LOG_BUFFER[1024];
     size_t bytes_read = 0;
 
     /* Wait until xscope_fileio is initialized */
     while(xscope_fileio_is_initialized() == 0) {
-        vTaskDelay(pdMS_TO_TICKS(1));
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 
     rtos_printf("Opening files\n");
     state = rtos_osal_critical_enter();
     {
         infile = xscope_open_file(appconfINPUT_FILENAME, "rb");
-        outfile = xscope_open_file(appconfOUTPUT_FILENAME, "wt");
         // Validate input wav file
         if(get_wav_header_details(&infile, &input_header_struct, &input_header_size) != 0){
             rtos_printf("Error: error in get_wav_header_details()\n");
             _Exit(1);
         }
         xscope_fseek(&infile, input_header_size, SEEK_SET);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        outfile = xscope_open_file(appconfOUTPUT_FILENAME, "wt");
     }
     rtos_osal_critical_exit(state);
 
@@ -121,7 +128,7 @@ void xscope_fileio_task(void *arg) {
 
     // Init ASR library
     devmem_init(&devmem_ctx);
-    asr_ctx = asr_init((void *) dnn_netLabel, (void *) gs_grammarLabel, &devmem_ctx);
+    asr_ctx = asr_init((void *) model, (void *) grammar, &devmem_ctx);
     asr_reset(asr_ctx);
 
     asr_error_t asr_error;
@@ -165,14 +172,14 @@ void xscope_fileio_task(void *arg) {
 
         // log result
         if (asr_result.id > 0) {
-            sprintf(LOG_BUFFER, "RECOGNIZED: id=%d, start=%d, end=%d, duration=%d\n", 
+            sprintf(log_buffer, "RECOGNIZED: id=%d, start=%d, end=%d, duration=%d\n", 
                 asr_result.id,
                 asr_result.start_index,
                 asr_result.end_index,
                 asr_result.duration
             );
-            rtos_printf(LOG_BUFFER);
-            xscope_fwrite(&outfile, (uint8_t *)&LOG_BUFFER[0], strlen(LOG_BUFFER));
+            rtos_printf(log_buffer);
+            xscope_fwrite(&outfile, (uint8_t *)&log_buffer[0], strlen(log_buffer));
         }
     }
 

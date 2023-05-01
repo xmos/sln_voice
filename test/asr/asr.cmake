@@ -46,11 +46,14 @@ if(${TEST_ASR} STREQUAL "SENSORY")
         ${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-search.c
     )
     set(MODEL_FILE ${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-net.bin.nibble_swapped)    
+    set(TEST_ASR_LIBRARY_ID 0)
     set(TEST_ASR_NAME test_asr_sensory)
 elseif(${TEST_ASR} STREQUAL "WANSON")
-    message(FATAL_ERROR "Wanson ASR test not supported yet!")
     message(STATUS "Building Wanson ASR test")
     set(ASR_LIBRARY sln_voice::app::asr::wanson)
+    set(ASR_BRICK_SIZE_SAMPLES 480)
+    set(MODEL_FILE ${CMAKE_CURRENT_LIST_DIR}/model/wanson_model_en_20220923.bin)    
+    set(TEST_ASR_LIBRARY_ID 1)
     set(TEST_ASR_NAME test_asr_wanson)
 else()
     message(FATAL_ERROR "Unable to build ${TEST_ASR} test")
@@ -78,6 +81,7 @@ set(APP_COMPILE_DEFINITIONS
     XSCOPE_HOST_IO_TILE=0
     QSPI_FLASH_CALIBRATION_ADDRESS=${CALIBRATION_PATTERN_START_ADDRESS}
     QSPI_FLASH_MODEL_START_ADDRESS=${MODEL_START_ADDRESS}
+    appconfASR_LIBRARY_ID=${TEST_ASR_LIBRARY_ID}
     appconfASR_BRICK_SIZE_SAMPLES=${ASR_BRICK_SIZE_SAMPLES}
 )
 
