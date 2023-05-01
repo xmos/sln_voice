@@ -38,7 +38,7 @@ Run the test with the following command from the top of the repository:
 
 .. code-block:: console
 
-    bash test/asr/check_asr.sh <firmware> <path-to-input-dir> <path-to-input-list> <path-to-output-dir>
+    bash test/asr/check_asr.sh <asr-library> <path-to-input-dir> <path-to-input-list> <path-to-output-dir>
 
 All paths must be absolute.  Relative paths may cause errors.  
 

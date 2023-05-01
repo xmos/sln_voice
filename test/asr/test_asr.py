@@ -13,12 +13,12 @@ def test_results(log):
                 values.append(field.split('=', 1)[-1])
             # strip quotes
             filename = values[0].replace('"', '')
-            detections = int(values[1])
-            min_detect = int(values[2])
-            max_detect = int(values[3])
-            if not min_detect <= detections:
-                errors.append(filename + " failed with " + str(detections) + " detections.")
-            if not detections <= max_detect:
-                errors.append(filename + " failed with " + str(detections) + " detections.")
+            recognitions = int(values[1])
+            min_recognitions = int(values[2])
+            max_recognitions = int(values[3])
+            if not min_recognitions <= recognitions:
+                errors.append(filename + " failed with " + str(recognitions) + " recognitions.")
+            if not recognitions <= max_recognitions:
+                errors.append(filename + " failed with " + str(recognitions) + " recognitions.")
 
     assert not errors, "Test failed:\n{}".format("\n".join(errors))
