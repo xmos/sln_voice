@@ -55,6 +55,7 @@ size_t rx_from_host(int8_t **buf, size_t size_bytes) {
 size_t tx_to_audio_pipeline(uint8_t *buf, size_t size_bytes) {
     rtos_printf("NOT IMPLEMENTED\n");
     xassert(1);
+    return 0;
 }
 #elif (appconfAUDIO_PIPELINE_INPUT_TILE_NO == 1)
 size_t tx_to_audio_pipeline(uint8_t *buf, size_t size_bytes) {

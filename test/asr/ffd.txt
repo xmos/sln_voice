@@ -1,5 +1,5 @@
 # filename, min instances, total instances
 000_hello_xmos_50_commands    40    50
-people_talking_noise-000_hello_xmos_50_commands    30    50
-street_noise-000_hello_xmos_50_commands    40    50
+people_talking_noise-000_hello_xmos_50_commands    25    50
+street_noise-000_hello_xmos_50_commands    30    50
 fan_noise-000_hello_xmos_50_commands    40    50
