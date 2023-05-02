@@ -21,6 +21,10 @@
 #include "power/power_control.h"
 #include "intent_engine.h"
 
+#ifndef DEBUG_LOW_POWER_TASK
+#define DEBUG_LOW_POWER_TASK             0
+#endif
+
 #define TASK_NOTIF_MASK_LP_ENTER         1  // Used by tile: !POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_EXIT          2  // Used by tile: POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_IND_COMPLETE  4  // Used by tile: !POWER_CONTROL_TILE_NO
@@ -298,7 +302,14 @@ static void power_control_task(void *arg)
 {
     power_control_state_t state = PWR_CTRL_STATE_LOW_POWER_REQUEST;
 
+#if DEBUG_LOW_POWER_TASK
+    debug_printf("Starting power_control_task() on tile %d\n", THIS_XCORE_TILE);
+#endif
+
     while (1) {
+#if DEBUG_LOW_POWER_TASK
+        debug_printf("power_control_task() on tile %d entered: %d\n", THIS_XCORE_TILE, state);
+#endif
         switch (state) {
         case PWR_CTRL_STATE_LOW_POWER_REQUEST:
             low_power_request();
