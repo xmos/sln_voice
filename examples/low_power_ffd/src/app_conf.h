@@ -1,11 +1,10 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 #ifndef APP_CONF_H_
 #define APP_CONF_H_
 
 /* Intertile port settings */
-#define appconfUSB_AUDIO_PORT                     0
 #define appconfGPIO_T0_RPC_PORT                   1
 #define appconfGPIO_T1_RPC_PORT                   2
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
@@ -26,7 +25,7 @@
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
 #define appconfPDM_CLOCK_FREQUENCY              MIC_ARRAY_CONFIG_PDM_FREQ
-#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 48000 is not supported in FFD ext
+#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000  // NOTE: 48000 is not supported
 #define appconfAUDIO_PIPELINE_CHANNELS          MIC_ARRAY_CONFIG_MIC_COUNT
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
@@ -42,17 +41,7 @@
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINTENT_RESET_DELAY_MS
-#if appconfAUDIO_PLAYBACK_ENABLED
-#define appconfINTENT_RESET_DELAY_MS         5000
-#else
 #define appconfINTENT_RESET_DELAY_MS         4000
-#endif
-#endif
-
-/* Output raw inferences, if set to 0, a state machine requires a wake up phrase
- * before a command phrase */
-#ifndef appconfINTENT_RAW_OUTPUT
-#define appconfINTENT_RAW_OUTPUT   0
 #endif
 
 /* Maximum number of detected intents to hold */
@@ -90,10 +79,6 @@
 #define appconfI2S_ENABLED   1
 #endif
 
-#ifndef appconfLOW_POWER_ENABLED
-#define appconfLOW_POWER_ENABLED                0
-#endif
-
 #ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
 #define appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE  1
 #endif
@@ -112,36 +97,9 @@
 #define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2
 #endif
 
-#ifndef appconfPOWER_VNR_THRESHOLD
-#define appconfPOWER_VNR_THRESHOLD              (0.3f)
-#endif
-
-#ifndef appconfPOWER_LOW_ENERGY_THRESHOLD
-#define appconfPOWER_LOW_ENERGY_THRESHOLD       (0.01f)
-#endif
-
-#ifndef appconfPOWER_HIGH_ENERGY_THRESHOLD
-#define appconfPOWER_HIGH_ENERGY_THRESHOLD      (4.0f)
-#endif
-
 /* In Milliseconds*/
 #ifndef appconfPOWER_FULL_HOLD_DURATION
 #define appconfPOWER_FULL_HOLD_DURATION         (1000)
-#endif
-
-/* Enable/disable the use of a ring buffer to hold onto pre-trigger audio
- * samples while in low power mode. */
-#ifndef appconfAUDIO_PIPELINE_BUFFER_ENABLED
-#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
-#endif
-
-/* The number of frames to store in a ring buffer while in low power mode,
- * where each frame contains appconfAUDIO_PIPELINE_FRAME_ADVANCE samples.
- * This may be tuned to ensure that unvoiced speech that is a pre-cursor to
- * voiced speech in a wake-word such as "he" part of "hello" is captured and
- * relayed to the inference engine. */
-#ifndef appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
-#define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES 32
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
@@ -160,36 +118,8 @@
 #define appconfI2S_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
 #endif
 
-#ifndef appconfUSB_ENABLED
-#define appconfUSB_ENABLED   0
-#endif
-
-#ifndef appconfUSB_AUDIO_SAMPLE_RATE
-#define appconfUSB_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
-#endif
-
-#ifndef appconfUSB_AUDIO_ENABLED
-#define appconfUSB_AUDIO_ENABLED 0
-#endif
-
-#define appconfUSB_AUDIO_RELEASE   0
-#define appconfUSB_AUDIO_TESTING   1
-#ifndef appconfUSB_AUDIO_MODE
-#define appconfUSB_AUDIO_MODE      appconfUSB_AUDIO_RELEASE
-#endif
-
-#define appconfMIC_SRC_MICS        0
-#define appconfMIC_SRC_USB         1
-#ifndef appconfMIC_SRC_DEFAULT
-#define appconfMIC_SRC_DEFAULT     appconfMIC_SRC_MICS
-#endif
-
 /* I/O and interrupt cores for Tile 0 */
-/* Note, USB and SPI are mutually exclusive */
-#define appconfXUD_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */
 #define appconfSPI_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */
-#define appconfUSB_INTERRUPT_CORE               2 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
-#define appconfUSB_SOF_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off cores with other ISRs. */
 #define appconfSPI_INTERRUPT_CORE               2 /* Must be kept off I/O cores. */
 
 /* I/O and interrupt cores for Tile 1 */
@@ -209,8 +139,6 @@
 #define appconfGPIO_TASK_PRIORITY                   (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 2)
 #define appconfI2C_MASTER_RPC_PRIORITY              (configMAX_PRIORITIES / 2)
-#define appconfUSB_MGR_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 1)
-#define appconfUSB_AUDIO_TASK_PRIORITY              (configMAX_PRIORITIES - 1)
 #define appconfSPI_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)

@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* STD headers */
 #include <platform.h>
@@ -31,10 +31,8 @@ void power_state_set(power_state_t state) {
     if (state != power_state) {
         power_state = state;
 
-#if appconfLOW_POWER_ENABLED
         if (power_state == POWER_STATE_FULL)
             power_control_exit_low_power();
-#endif
     }
 }
 

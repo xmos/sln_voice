@@ -35,10 +35,6 @@
 extern void startup_task(void *arg);
 extern void tile_common_init(chanend_t c);
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
-static power_data_t wakeup_app_data;
-#endif
-
 __attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,
@@ -75,15 +71,11 @@ int audio_pipeline_output(void *output_app_data,
                           size_t ch_count,
                           size_t frame_count)
 {
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && (appconfLOW_POWER_ENABLED || appconfINTENT_ENABLED)
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     power_state_t power_state = POWER_STATE_FULL;
-#endif
-
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfLOW_POWER_ENABLED
     power_state = power_state_data_add((power_data_t *)output_app_data);
-#endif
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINTENT_ENABLED
+#if appconfINTENT_ENABLED
     if (power_state == POWER_STATE_FULL) {
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
         const uint32_t max_dequeue_packets = 1;
@@ -105,7 +97,8 @@ int audio_pipeline_output(void *output_app_data,
         low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
     }
 #endif // LOW_POWER_AUDIO_BUFFER_ENABLED
-#endif // ON_TILE(AUDIO_PIPELINE_TILE_NO) && appconfINTENT_ENABLED
+#endif // appconfINTENT_ENABLED
+#endif // ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
     return AUDIO_PIPELINE_FREE_FRAME;
 }
@@ -154,9 +147,7 @@ void startup_task(void *arg)
     led_task_create(appconfLED_TASK_PRIORITY, NULL);
 #endif
 
-#if appconfLOW_POWER_ENABLED
     power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
-#endif
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 #if appconfINTENT_ENABLED
@@ -168,13 +159,11 @@ void startup_task(void *arg)
         rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
     }
 #endif
-    audio_pipeline_init(NULL, &wakeup_app_data);
-#if appconfLOW_POWER_ENABLED
+    audio_pipeline_init(NULL, NULL);
     power_state_init();
 #endif
-#endif
 
-#if appconfLOW_POWER_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     set_local_tile_processor_clk_div(1);
     enable_local_tile_processor_clock_divider();
     set_local_tile_processor_clk_div(appconfLOW_POWER_CONTROL_TILE_CLK_DIV);

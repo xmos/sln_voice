@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 #ifndef INTENT_ENGINE_H_
 #define INTENT_ENGINE_H_
@@ -13,18 +13,13 @@
 int32_t intent_engine_create(uint32_t priority, void *args);
 
 void intent_engine_task(void *args);
-void intent_engine_task_create(unsigned priority);
 void intent_engine_intertile_task_create(uint32_t priority);
 
 int32_t intent_engine_sample_push(int32_t *buf, size_t frames);
-void intent_engine_samples_send_local(
-        size_t frame_count,
-        int32_t *processed_audio_frame);
 void intent_engine_samples_send_remote(
         rtos_intertile_t *intertile,
         size_t frame_count,
         int32_t *processed_audio_frame);
-
 
 int32_t intent_engine_keyword_queue_count(void);
 void intent_engine_keyword_queue_complete(void);

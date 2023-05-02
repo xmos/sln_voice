@@ -15,7 +15,6 @@
 #include "app_conf.h"
 
 #define LOW_POWER_AUDIO_BUFFER_ENABLED ( \
-    appconfLOW_POWER_ENABLED && \
     appconfAUDIO_PIPELINE_BUFFER_ENABLED && \
     ON_TILE(AUDIO_PIPELINE_TILE_NO) )
 

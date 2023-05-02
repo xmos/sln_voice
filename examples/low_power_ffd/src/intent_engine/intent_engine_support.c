@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* STD headers */
 #include <platform.h>
@@ -29,7 +29,6 @@ void intent_engine_stream_buf_reset(void)
 
 #endif /* ON_TILE(ASR_TILE_NO) */
 
-#if ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
 void intent_engine_samples_send_remote(
@@ -94,40 +93,3 @@ void intent_engine_intertile_task_create(uint32_t priority)
 }
 
 #endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
-#endif /* ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO */
-
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
-#if ON_TILE(ASR_TILE_NO)
-
-void intent_engine_samples_send_local(
-        size_t frame_count,
-        int32_t *processed_audio_frame)
-{
-    configASSERT(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-
-    if(samples_to_engine_stream_buf != NULL) {
-        size_t bytes_to_send = sizeof(int32_t) * frame_count;
-        if (xStreamBufferSend(samples_to_engine_stream_buf, processed_audio_frame, bytes_to_send, 0) != bytes_to_send) {
-            rtos_printf("lost local output samples for intent\n");
-        }
-    } else {
-        rtos_printf("intent engine streambuffer not ready\n");
-    }
-}
-
-void intent_engine_task_create(unsigned priority)
-{
-    samples_to_engine_stream_buf = xStreamBufferCreate(
-                                           appconfINTENT_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                                           appconfINTENT_SAMPLE_BLOCK_LENGTH);
-
-    xTaskCreate((TaskFunction_t)intent_engine_task,
-                "intent_eng",
-                RTOS_THREAD_STACK_SIZE(intent_engine_task),
-                samples_to_engine_stream_buf,
-                uxTaskPriorityGet(NULL),
-                NULL);
-}
-
-#endif /* ON_TILE(ASR_TILE_NO) */
-#endif /* ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO */

@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* STD headers */
 #include <platform.h>
@@ -65,10 +65,10 @@ void intent_engine_process_asr_result(int word_id)
             rtos_printf("Lost ASR result.  Queue was full.\n");
             keyword_proc_busy = 0;
         }
-    }    
+    }
 }
 
-#if appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO)
+#if ON_TILE(ASR_TILE_NO)
 
 uint8_t intent_engine_low_power_ready(void)
 {
@@ -90,18 +90,14 @@ void intent_engine_keyword_queue_complete(void)
 {
     keyword_proc_busy = 0;
 }
-#endif /* appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO) */
+
+#endif /* ON_TILE(ASR_TILE_NO) */
 
 #if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
 int32_t intent_engine_create(uint32_t priority, void *args)
 {
     q_intent = (QueueHandle_t) args;
-
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
-    intent_engine_task_create(priority);
-#else
     intent_engine_intertile_task_create(priority);
-#endif
     return 0;
 }
 #endif /* appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO) */
@@ -109,16 +105,10 @@ int32_t intent_engine_create(uint32_t priority, void *args)
 int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
 {
 #if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
-    intent_engine_samples_send_local(
-            frames,
-            buf);
-#else
     intent_engine_samples_send_remote(
             intertile_ap_ctx,
             frames,
             buf);
-#endif
 #endif
     return 0;
 }

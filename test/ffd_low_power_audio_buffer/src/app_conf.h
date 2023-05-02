@@ -15,7 +15,6 @@
 #endif /* __XC__ */
 
 #define AUDIO_PIPELINE_TILE_NO                      1
-#define appconfLOW_POWER_ENABLED                    1
 #define appconfAUDIO_PIPELINE_BUFFER_ENABLED        1
 #define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES     32
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE         240

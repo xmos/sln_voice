@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* System headers */
 #include <platform.h>
@@ -21,8 +21,6 @@
 #include "power/power_control.h"
 #include "intent_engine.h"
 
-#if appconfLOW_POWER_ENABLED
-
 #define TASK_NOTIF_MASK_LP_ENTER         1  // Used by tile: !POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_EXIT          2  // Used by tile: POWER_CONTROL_TILE_NO
 #define TASK_NOTIF_MASK_LP_IND_COMPLETE  4  // Used by tile: !POWER_CONTROL_TILE_NO
@@ -34,8 +32,6 @@ typedef enum power_control_state {
     PWR_CTRL_STATE_LOW_POWER_READY,
     PWR_CTRL_STATE_FULL_POWER
 } power_control_state_t;
-
-extern rtos_osal_mutex_t aud_rsp_lock;
 
 static const uint32_t bits_to_clear_on_entry = 0x00000000UL;
 static const uint32_t bits_to_clear_on_exit = 0xFFFFFFFFUL;
@@ -58,9 +54,6 @@ static void driver_control_lock(void)
     rtos_osal_mutex_get(&qspi_flash_ctx->mutex, RTOS_OSAL_WAIT_FOREVER);
     rtos_osal_mutex_get(&i2c_master_ctx->lock, RTOS_OSAL_WAIT_FOREVER);
     rtos_osal_mutex_get(&uart_tx_ctx->lock, RTOS_OSAL_WAIT_FOREVER);
-#if appconfAUDIO_PLAYBACK_ENABLED
-    rtos_osal_mutex_get(&aud_rsp_lock, RTOS_OSAL_PORT_WAIT_FOREVER);
-#endif
 #endif
 }
 
@@ -69,9 +62,6 @@ static void driver_control_unlock(void)
 #if ON_TILE(POWER_CONTROL_TILE_NO)
     rtos_osal_mutex_put(&gpio_ctx_t0->lock);
 #else
-#if appconfAUDIO_PLAYBACK_ENABLED
-    rtos_osal_mutex_put(&aud_rsp_lock);
-#endif
     rtos_osal_mutex_put(&uart_tx_ctx->lock);
     rtos_osal_mutex_put(&i2c_master_ctx->lock);
     rtos_osal_mutex_put(&qspi_flash_ctx->mutex);
@@ -364,4 +354,3 @@ void power_control_ind_complete(void)
 }
 
 #endif /* ON_TILE(POWER_CONTROL_TILE_NO) */
-#endif /* appconfLOW_POWER_ENABLED */
