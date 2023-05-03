@@ -43,17 +43,17 @@ then
 fi
 
 # discern repository root
-SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
+#SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
 
 # determine firmware and data partition file
 if [[ ${ASR_LIBRARY} == "Sensory" ]]
 then
-    ASR_FIRMWARE="${SLN_VOICE_ROOT}/dist/test_asr_sensory.xe"
-    DATA_PARTITION="${SLN_VOICE_ROOT}/dist/test_asr_sensory_data_partition.bin"
+    ASR_FIRMWARE="dist/test_asr_sensory.xe"
+    DATA_PARTITION="dist/test_asr_sensory_data_partition.bin"
 elif [[ ${ASR_LIBRARY} == "Wanson" ]]
 then
-    ASR_FIRMWARE="${SLN_VOICE_ROOT}/dist/test_asr_wanson.xe"
-    DATA_PARTITION="${SLN_VOICE_ROOT}/dist/test_asr_wanson_data_partition.bin"
+    ASR_FIRMWARE="dist/test_asr_wanson.xe"
+    DATA_PARTITION="dist/test_asr_wanson_data_partition.bin"
 fi
 
 # flash the data partition file
@@ -67,8 +67,8 @@ while IFS= read -r line || [[ "$line" ]]; do
     fi
 done < ${INPUT_LIST}
 
-DIST_HOST="${SLN_VOICE_ROOT}/dist_host"
-PIPELINE_FIRMWARE="${SLN_VOICE_ROOT}/dist/test_pipeline_ffd.xe"
+DIST_HOST="dist_host"
+PIPELINE_FIRMWARE="dist/test_pipeline_ffd.xe"
 
 # create output folder
 mkdir -p ${OUTPUT_DIR}
