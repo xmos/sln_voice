@@ -13,7 +13,6 @@ typedef enum power_state {
 
 void power_state_init();
 void power_state_set(power_state_t state);
-power_state_t power_state_data_add(power_data_t *data);
 uint8_t power_state_timer_expired_get(void);
 
 #endif /* POWER_STATE_H_ */

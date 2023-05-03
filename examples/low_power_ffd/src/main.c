@@ -24,6 +24,7 @@
 #include "platform/driver_instances.h"
 #include "audio_pipeline.h"
 #include "intent_engine/intent_engine.h"
+#include "intent_engine/wake_word_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
@@ -32,8 +33,8 @@
 #include "power/power_control.h"
 #include "power/low_power_audio_buffer.h"
 
-extern void startup_task(void *arg);
-extern void tile_common_init(chanend_t c);
+void startup_task(void *arg);
+void tile_common_init(chanend_t c);
 
 __attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
@@ -72,31 +73,12 @@ int audio_pipeline_output(void *output_app_data,
                           size_t frame_count)
 {
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
-    power_state_t power_state = POWER_STATE_FULL;
-    power_state = power_state_data_add((power_data_t *)output_app_data);
+    wake_word_engine_handler((int32_t *)output_audio_frames, frame_count);
 
 #if appconfINTENT_ENABLED
-    if (power_state == POWER_STATE_FULL) {
-#if LOW_POWER_AUDIO_BUFFER_ENABLED
-        const uint32_t max_dequeue_packets = 1;
-        const uint32_t max_dequeued_samples = (max_dequeue_packets * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-
-        if (power_control_state_get() != POWER_STATE_FULL) {
-            low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-        } else if (low_power_audio_buffer_dequeue(max_dequeue_packets) == max_dequeued_samples) {
-            // Max data has been dequeued, enqueue the newest data.
-            low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-        } else // More data can be sent.
-#endif // LOW_POWER_AUDIO_BUFFER_ENABLED
-        {
-            intent_engine_sample_push((int32_t *)output_audio_frames, frame_count);
-        }
+    if (power_control_state_get() == POWER_STATE_FULL) {
+        intent_engine_sample_push((int32_t *)output_audio_frames, frame_count);
     }
-#if LOW_POWER_AUDIO_BUFFER_ENABLED
-    else {
-        low_power_audio_buffer_enqueue((int32_t *)output_audio_frames, frame_count);
-    }
-#endif // LOW_POWER_AUDIO_BUFFER_ENABLED
 #endif // appconfINTENT_ENABLED
 #endif // ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
@@ -137,6 +119,10 @@ void startup_task(void *arg)
     rtos_fatfs_init(qspi_flash_ctx);
 #endif
 
+#if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    wake_word_engine_init();
+#endif
+
 #if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
     QueueHandle_t q_intent = xQueueCreate(appconfINTENT_QUEUE_LEN, sizeof(int32_t));
     intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
@@ -151,7 +137,7 @@ void startup_task(void *arg)
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 #if appconfINTENT_ENABLED
-    // Wait until the Wanson engine is initialized before we start the
+    // Wait until the intent engine is initialized before starting the
     // audio pipeline.
     {
         int ret = 0;

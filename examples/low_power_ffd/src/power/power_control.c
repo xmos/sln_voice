@@ -200,7 +200,7 @@ static void low_power_ready(void)
     rtos_intertile_rx_data(intertile_ctx, &low_pwr_ready, sizeof(low_pwr_ready));
     configASSERT(low_pwr_ready == 1);
 
-    power_state_set(power_state);
+    power_state_set(POWER_STATE_LOW);
     driver_control_lock();
     low_power_clocks_enable();
     debug_printf("Entered low power.\n");
@@ -327,6 +327,9 @@ static void power_control_task(void *arg)
         case PWR_CTRL_STATE_FULL_POWER:
             full_power();
             state = PWR_CTRL_STATE_LOW_POWER_REQUEST;
+            break;
+        default:
+            xassert(0);
             break;
         }
     }
