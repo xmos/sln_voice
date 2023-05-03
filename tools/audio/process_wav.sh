@@ -12,8 +12,8 @@ help()
    echo "options:"
    echo "   h   Print this Help."
    echo "   c   Number of channels in input wav"
-   echo "   r   Sample rate (defaut=16000)"
-   echo "   a   Audio pipeline includes AEC (defaut=true)"
+   echo "   r   Sample rate (default=16000)"
+   echo "   a   Audio pipeline includes AEC (default=true)"
 }
 
 # flag arguments
