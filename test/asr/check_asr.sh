@@ -39,7 +39,7 @@ INPUT_LIST=${@:$OPTIND+2:1}
 OUTPUT_DIR=${@:$OPTIND+3:1}
 if [ ! -z "${@:$OPTIND+4:1}" ]
 then
-    ADAPTER_ID="--adapter-id ${@:$OPTIND+5:1}"
+    ADAPTER_ID="--adapter-id ${@:$OPTIND+4:1}"
 fi
 
 # discern repository root
