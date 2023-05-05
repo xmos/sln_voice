@@ -43,7 +43,8 @@ then
 fi
 
 # discern repository root
-#SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
+SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
+DIST_HOST="${SLN_VOICE_ROOT}/dist_host"
 
 # determine firmware and data partition file
 if [[ ${ASR_LIBRARY} == "Sensory" ]]
