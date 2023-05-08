@@ -47,7 +47,7 @@ your application. */
 #define configTOTAL_HEAP_SIZE                   (304 * 1024)
 #endif
 #if ON_TILE(1)
-#define configTOTAL_HEAP_SIZE                   (100 * 1024)
+#define configTOTAL_HEAP_SIZE                   (110 * 1024)
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
