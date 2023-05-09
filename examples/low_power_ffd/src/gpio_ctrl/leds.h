@@ -1,4 +1,4 @@
-// Copyright 2022 XMOS LIMITED.
+// Copyright 2022-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef LEDS_H_
@@ -25,14 +25,14 @@ void led_indicate_asleep(void);
 void led_indicate_awake(void);
 
 /**
- * @brief To be called when waiting for the wake word or after a timeout period
- * waiting for a spoken command.
+ * @brief To be called when no command is executing and is ready to receive
+ * a spoken command.
  */
-void led_indicate_waiting(void);
+void led_indicate_idle(void);
 
 /**
- * @brief To be called when listening for a command.
+ * @brief To be called when a command is executing.
  */
-void led_indicate_listening(void);
+void led_indicate_busy(void);
 
 #endif /* LEDS_H_ */

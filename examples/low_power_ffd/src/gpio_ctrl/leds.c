@@ -23,8 +23,8 @@
 #define TASK_NOTIF_MASK_HBEAT_TIMER     0x00000010
 #define TASK_NOTIF_MASK_ASLEEP          0x00000020
 #define TASK_NOTIF_MASK_AWAKE           0x00000040
-#define TASK_NOTIF_MASK_WAITING         0x00000080
-#define TASK_NOTIF_MASK_LISTEN          0x00000100
+#define TASK_NOTIF_MASK_IDLE            0x00000080
+#define TASK_NOTIF_MASK_BUSY            0x00000100
 
 typedef enum led_state {
     LED_OFF,
@@ -157,18 +157,18 @@ static void led_task(void *args)
          * Process the notification event data.
          */
         if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
-            // Below VNR threshold; in low power mode.
+            // In low power mode.
             xTimerStop(tmr_hbeat, 0);
             color = LED_RED;
             state = LED_ON;
         } else if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
-                   (notif_value & TASK_NOTIF_MASK_WAITING)) {
-            // Above VNR threshold; normal operation (heartbeat).
+                   (notif_value & TASK_NOTIF_MASK_IDLE)) {
+            // Normal operation (heartbeat).
             color = LED_GREEN;
             state = LED_TOGGLE;
             xTimerStart(tmr_hbeat, 0);
-        } else if (notif_value & TASK_NOTIF_MASK_LISTEN) {
-            // Above VNR threshold; wake word detected, listening for command.
+        } else if (notif_value & TASK_NOTIF_MASK_BUSY) {
+            // Processing command.
             xTimerStop(tmr_hbeat, 0);
             color = LED_YELLOW;
             state = LED_ON;
@@ -245,14 +245,14 @@ void led_indicate_awake(void)
     xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_AWAKE, eSetBits);
 }
 
-void led_indicate_waiting(void)
+void led_indicate_idle(void)
 {
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_WAITING, eSetBits);
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_IDLE, eSetBits);
 }
 
-void led_indicate_listening(void)
+void led_indicate_busy(void)
 {
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_LISTEN, eSetBits);
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_BUSY, eSetBits);
 }
 
 #endif /* ON_TILE(0) */
