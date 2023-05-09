@@ -44,7 +44,9 @@ fi
 
 # discern repository root
 SLN_VOICE_ROOT=`git rev-parse --show-toplevel`
+
 DIST_HOST="${SLN_VOICE_ROOT}/dist_host"
+PIPELINE_FIRMWARE="dist/test_pipeline_ffd.xe"
 
 # determine firmware and data partition file
 if [[ ${ASR_LIBRARY} == "Sensory" ]]
@@ -67,9 +69,6 @@ while IFS= read -r line || [[ "$line" ]]; do
         INPUT_ARRAY+=("$line")
     fi
 done < ${INPUT_LIST}
-
-DIST_HOST="dist_host"
-PIPELINE_FIRMWARE="dist/test_pipeline_ffd.xe"
 
 # create output folder
 mkdir -p ${OUTPUT_DIR}
