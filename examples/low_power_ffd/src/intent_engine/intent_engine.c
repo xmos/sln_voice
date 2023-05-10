@@ -23,16 +23,25 @@
 
 #if ON_TILE(ASR_TILE_NO)
 
-#define IS_KEYWORD(id)    (id == 17)
-#define IS_COMMAND(id)    (id > 0 && !IS_KEYWORD(id))
+// This define is referenced by the model source/header files.
+#ifndef ALIGNED
+#define ALIGNED(x) __attribute__ ((aligned((x))))
+#endif
 
-#define SAMPLES_PER_ASR    (appconfINTENT_SAMPLE_BLOCK_LENGTH)
+#define SEARCH_VAR gs_command_grammarLabel
 
-typedef enum intent_state {
-    STATE_EXPECTING_WAKEWORD,
-    STATE_EXPECTING_COMMAND,
-    STATE_PROCESSING_COMMAND
-} intent_state_t;
+#ifdef COMMAND_SEARCH_HEADER_FILE
+#include COMMAND_SEARCH_HEADER_FILE
+#endif
+
+#ifdef COMMAND_SEARCH_SOURCE_FILE
+#include COMMAND_SEARCH_SOURCE_FILE
+#else
+extern const unsigned short SEARCH_VAR[];
+#endif
+
+#define IS_COMMAND(id)      ((id) > 0)
+#define SAMPLES_PER_ASR     (appconfINTENT_SAMPLE_BLOCK_LENGTH)
 
 typedef enum intent_power_state {
     STATE_REQUESTING_LOW_POWER,
@@ -44,20 +53,16 @@ typedef enum intent_power_state {
 
 enum timeout_event {
     TIMEOUT_EVENT_NONE = 0,
-    TIMEOUT_EVENT_INTENT = 1,
-    TIMEOUT_EVENT_FULL_POWER = 2
+    TIMEOUT_EVENT_INTENT = 1
 };
 
-// Sensory SEARCH model file is specified in the CMakeLists SENSORY_SEARCH_FILE variable
-extern const unsigned short gs_grammarLabel[];
 // Sensory NET model file is in flash at the offset specified in the CMakeLists
 // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
 // to be added so the address in in the SwMem range.
 uint16_t *dnn_netLabel = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
 
-static intent_state_t intent_state;
 static asr_port_t asr_ctx;
-devmem_manager_t devmem_ctx;
+static devmem_manager_t devmem_ctx;
 
 static intent_power_state_t intent_power_state;
 static uint8_t requested_full_power;
@@ -72,16 +77,11 @@ static void hold_intent_state(TimerHandle_t pxTimer);
 static void hold_full_power(TimerHandle_t pxTimer);
 static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
                                  int16_t *buf_short, size_t *buf_short_index);
-static void proc_keyword_wait_for_completion(void);
+static void wait_for_keyword_queue_completion(void);
 
 static void vIntentTimerCallback(TimerHandle_t pxTimer)
 {
-    if (intent_state == STATE_EXPECTING_WAKEWORD) {
-        timeout_event |= TIMEOUT_EVENT_FULL_POWER;
-    } else if ((intent_state == STATE_EXPECTING_COMMAND) ||
-               (intent_state == STATE_PROCESSING_COMMAND)) {
-        timeout_event |= TIMEOUT_EVENT_INTENT;
-    }
+    timeout_event |= TIMEOUT_EVENT_INTENT;
 }
 
 static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
@@ -108,17 +108,6 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
 {
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
-        led_indicate_waiting();
-        intent_state = STATE_EXPECTING_WAKEWORD;
-        /* Restart the timer for the "hold" full power period. If the device,
-         * remains in STATE_EXPECTING_WAKEWORD for this period of time, this
-         * will result in the assertion of TIMEOUT_EVENT_FULL_POWER which may
-         * request the device to enter low power. */
-        hold_full_power(pxTimer);
-    } else if (timeout_event & TIMEOUT_EVENT_FULL_POWER) {
-        timeout_event &= ~TIMEOUT_EVENT_FULL_POWER;
-        /* Determine if the tile should request low power or extend full power
-         * operation based on whether there are more keywords to process. */
         if (intent_engine_low_power_ready()) {
             intent_power_state = STATE_REQUESTING_LOW_POWER;
             power_control_req_low_power();
@@ -136,24 +125,19 @@ static void hold_intent_state(TimerHandle_t pxTimer)
     xTimerReset(pxTimer, 0);
 }
 
-static void proc_keyword_wait_for_completion(void)
+static void wait_for_keyword_queue_completion(void)
 {
-    const uint32_t bits_to_clear_on_entry = 0x00000000UL;
-    const uint32_t bits_to_clear_on_exit = 0xFFFFFFFFUL;
-    uint32_t notif_value;
+    const TickType_t poll_interval = pdMS_TO_TICKS(100);
 
-    if (intent_engine_keyword_queue_count()) {
-        xTaskNotifyWait(bits_to_clear_on_entry,
-                        bits_to_clear_on_exit,
-                        &notif_value,
-                        portMAX_DELAY);
+    while (!intent_engine_low_power_ready()) {
+        vTaskDelay(poll_interval);
     }
 }
 
 static void hold_full_power(TimerHandle_t pxTimer)
 {
     xTimerStop(pxTimer, 0);
-    xTimerChangePeriod(pxTimer, pdMS_TO_TICKS(appconfPOWER_FULL_HOLD_DURATION), 0);
+    xTimerChangePeriod(pxTimer, pdMS_TO_TICKS(appconfLOW_POWER_INHIBIT_MS), 0);
     timeout_event = TIMEOUT_EVENT_NONE;
     xTimerReset(pxTimer, 0);
 }
@@ -174,24 +158,28 @@ static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
         }
         break;
     case STATE_ENTERING_LOW_POWER:
-        /* Reset the tasks internal buffers. The keyword/audio buffers are
-         * to be reset after the the power control takes driver locks. */
+        /* Prior to entering this state, the other tile is to cease pushing
+         * samples to the stream buffer. */
         memset(buf, 0, appconfINTENT_SAMPLE_BLOCK_LENGTH);
         memset(buf_short, 0, SAMPLES_PER_ASR);
         *buf_short_index = 0;
-
-        proc_keyword_wait_for_completion();
+        intent_engine_stream_buf_reset();
+        wait_for_keyword_queue_completion();
         intent_power_state = STATE_ENTERED_LOW_POWER;
         break;
     case STATE_ENTERED_LOW_POWER:
         low_power = 1;
         if (requested_full_power) {
             requested_full_power = 0;
+            /* Reset ASR here instead of STATE_EXITING_LOW_POWER to avoid
+             * a reset when STATE_REQUESTING_LOW_POWER is NAK'd, suggesting
+             * that a wake word may have been spoken. */
+            asr_reset(asr_ctx);
             intent_power_state = STATE_EXITING_LOW_POWER;
         }
         break;
     case STATE_EXITING_LOW_POWER:
-        hold_full_power(pxTimer);
+        hold_intent_state(pxTimer);
         intent_power_state = STATE_EXITED_LOW_POWER;
         break;
     case STATE_EXITED_LOW_POWER:
@@ -216,17 +204,13 @@ void intent_engine_low_power_accept(void)
 #pragma stackfunction 1500
 void intent_engine_task(void *args)
 {
-    intent_state = STATE_EXPECTING_WAKEWORD;
-
-    /* This state will trigger the start of the full power timer needed for
-     * low power logic to behave correctly at startup. */
-    intent_power_state = STATE_EXITING_LOW_POWER;
-    requested_full_power = 0;
-
-    devmem_init(&devmem_ctx);
-    asr_ctx = asr_init((void *) dnn_netLabel, (void *) gs_grammarLabel, &devmem_ctx);
-
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
+    int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
+    int16_t buf_short[SAMPLES_PER_ASR] = {0};
+    size_t buf_short_index = 0;
+    asr_error_t asr_error = ASR_OK;
+    asr_result_t asr_result;
+
     TimerHandle_t int_eng_tmr = xTimerCreate(
         "int_eng_tmr",
         pdMS_TO_TICKS(appconfINTENT_RESET_DELAY_MS),
@@ -234,22 +218,23 @@ void intent_engine_task(void *args)
         NULL,
         vIntentTimerCallback);
 
-    int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
-    int16_t buf_short[SAMPLES_PER_ASR] = {0};
+    devmem_init(&devmem_ctx);
+    asr_ctx = asr_init((int32_t *)dnn_netLabel, (int32_t *)SEARCH_VAR, &devmem_ctx);
 
+    /* Immediately signal intent timeout, to start a request to enter low power.
+     * This is to help prevent commands from being detected at startup
+     * (without a wake-word event). */
+    timeout_event |= TIMEOUT_EVENT_INTENT;
+    requested_full_power = 0;
+
+    /* Reset the ASR and set LED indication, in case the other tile NAKs the
+     * low power request at startup. */
     asr_reset(asr_ctx);
+    led_indicate_idle();
 
     /* Alert other tile to start the audio pipeline */
     int dummy = 0;
     rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &dummy, sizeof(dummy));
-
-    asr_error_t asr_error;
-    asr_result_t asr_result;
-    int word_id;
-
-    size_t buf_short_index = 0;
-
-    memset(&asr_error, 0, sizeof(asr_error_t));
 
     while (1)
     {
@@ -270,42 +255,20 @@ void intent_engine_task(void *args)
                              // This is handled in the ASR ports.
 
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
-        if (asr_error != ASR_OK) continue;
 
-        asr_error = asr_get_result(asr_ctx, &asr_result);
-        if (asr_error != ASR_OK) continue;
-
-        word_id = asr_result.id;
-
-        if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue;
-
-    #if appconfINTENT_RAW_OUTPUT
-        hold_intent_state(int_eng_tmr);
-        intent_engine_process_asr_result(word_id);
-    #else
-        if (intent_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(word_id)) {
-            led_indicate_listening();
-            hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(word_id);
-            intent_state = STATE_EXPECTING_COMMAND;
-        } else if (intent_state == STATE_EXPECTING_COMMAND && IS_COMMAND(word_id)) {
-            hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(word_id);
-            intent_state = STATE_PROCESSING_COMMAND;
-        } else if (intent_state == STATE_EXPECTING_COMMAND && IS_KEYWORD(word_id)) {
-            hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(word_id);
-            // remain in STATE_EXPECTING_COMMAND state
-        } else if (intent_state == STATE_PROCESSING_COMMAND && IS_KEYWORD(word_id)) {
-            hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(word_id);
-            intent_state = STATE_EXPECTING_COMMAND;
-        } else if (intent_state == STATE_PROCESSING_COMMAND && IS_COMMAND(word_id)) {
-            hold_intent_state(int_eng_tmr);
-            intent_engine_process_asr_result(word_id);
-            // remain in STATE_PROCESSING_COMMAND state
+        if (asr_error == ASR_OK) {
+            asr_error = asr_get_result(asr_ctx, &asr_result);
         }
-    #endif
+
+        if (asr_error != ASR_OK) {
+            debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
+            continue;
+        }
+
+        if (IS_COMMAND(asr_result.id)) {
+            hold_intent_state(int_eng_tmr);
+            intent_engine_process_asr_result(asr_result.id);
+        }
     }
 }
 

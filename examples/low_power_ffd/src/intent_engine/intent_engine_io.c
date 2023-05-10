@@ -17,11 +17,13 @@
 #include "platform/driver_instances.h"
 #include "intent_engine.h"
 
+#if ON_TILE(ASR_TILE_NO)
+
 static QueueHandle_t q_intent = 0;
 static uint8_t keyword_proc_busy = 0;
 
 // look up table to converting ASR IDs to wav file IDs or strings
-#define ASR_NUMBER_OF_COMMANDS  (17)
+#define ASR_NUMBER_OF_COMMANDS  (16)
 
 typedef struct asr_lut_struct
 {
@@ -45,39 +47,36 @@ static asr_lut_t asr_lut[ASR_NUMBER_OF_COMMANDS] = {
     {13, "Slow down the fan"},
     {14, "Set higher temperature"},
     {15, "Set lower temperature"},
-    {16, "Switch off the fan"},
-    {17, "Hello XMOS"}
+    {16, "Switch off the fan"}
 };
 
 void intent_engine_process_asr_result(int word_id)
 {
-    const char* text = "";
+    const char* text = "UNKNOWN";
 
-    for (int i=0; i<ASR_NUMBER_OF_COMMANDS; i++) {
+    for (int i = 0; i < ASR_NUMBER_OF_COMMANDS; i++) {
         if (asr_lut[i].asr_id == word_id) {
             text = asr_lut[i].text;
+            break;
         }
     }
     rtos_printf("KEYWORD: 0x%x, %s\n", (int) word_id, (char*)text);
-    if(q_intent != 0) {
+    if (q_intent != 0) {
         keyword_proc_busy = 1;
-        if(xQueueSend(q_intent, (void *)&word_id, (TickType_t)0) != pdPASS) {
+        if (xQueueSend(q_intent, (void *)&word_id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost ASR result.  Queue was full.\n");
             keyword_proc_busy = 0;
         }
     }
 }
 
-#if ON_TILE(ASR_TILE_NO)
-
 uint8_t intent_engine_low_power_ready(void)
 {
     return (keyword_proc_busy == 0);
 }
 
-void intent_engine_low_power_reset(void)
+void intent_engine_keyword_queue_reset(void)
 {
-    intent_engine_stream_buf_reset();
     xQueueReset(q_intent);
 }
 

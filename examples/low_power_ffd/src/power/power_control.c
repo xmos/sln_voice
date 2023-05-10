@@ -220,7 +220,7 @@ static void low_power_ready(void)
     configASSERT(notif_value == TASK_NOTIF_MASK_LP_IND_COMPLETE);
 
     driver_control_lock();
-    intent_engine_low_power_reset();
+    intent_engine_keyword_queue_reset();
 
     /*
      * Signal to the other tile that it is ready to enter low power mode.

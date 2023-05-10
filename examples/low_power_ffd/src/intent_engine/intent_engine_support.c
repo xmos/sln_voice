@@ -20,13 +20,6 @@
 
 static StreamBufferHandle_t samples_to_engine_stream_buf = 0;
 
-void intent_engine_stream_buf_reset(void)
-{
-    if (samples_to_engine_stream_buf)
-        while (xStreamBufferReset(samples_to_engine_stream_buf) == pdFAIL)
-            vTaskDelay(pdMS_TO_TICKS(1));
-}
-
 #endif /* ON_TILE(ASR_TILE_NO) */
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
@@ -70,6 +63,13 @@ static void intent_engine_intertile_samples_in_task(void *arg)
             rtos_printf("lost output samples for intent\n");
         }
     }
+}
+
+void intent_engine_stream_buf_reset(void)
+{
+    if (samples_to_engine_stream_buf)
+        while (xStreamBufferReset(samples_to_engine_stream_buf) == pdFAIL)
+            vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 void intent_engine_intertile_task_create(uint32_t priority)

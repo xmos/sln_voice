@@ -97,9 +97,8 @@
 #define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2
 #endif
 
-/* In Milliseconds*/
-#ifndef appconfPOWER_FULL_HOLD_DURATION
-#define appconfPOWER_FULL_HOLD_DURATION         (1000)
+#ifndef appconfLOW_POWER_INHIBIT_MS
+#define appconfLOW_POWER_INHIBIT_MS         1000
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
