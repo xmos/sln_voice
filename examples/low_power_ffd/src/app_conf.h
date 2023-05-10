@@ -22,6 +22,15 @@
 #define ASR_TILE_NO             FLASH_TILE_NO
 #define FS_TILE_NO              FLASH_TILE_NO
 
+/* Sensory specific settings */
+#if ON_TILE(ASR_TILE_NO)
+#define SENSORY_ASR_MAX_TOKENS                  500
+#define SENSORY_ASR_MAX_RESULTS                 6
+#else
+#define SENSORY_ASR_MAX_TOKENS                  100
+#define SENSORY_ASR_MAX_RESULTS                 3
+#endif
+
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
 #define appconfPDM_CLOCK_FREQUENCY              MIC_ARRAY_CONFIG_PDM_FREQ
