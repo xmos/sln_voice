@@ -68,6 +68,7 @@ static intent_power_state_t intent_power_state;
 static uint8_t requested_full_power;
 
 static uint32_t timeout_event = TIMEOUT_EVENT_NONE;
+static uint32_t asr_halted = 0;
 
 static void vIntentTimerCallback(TimerHandle_t pxTimer);
 static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
@@ -191,6 +192,12 @@ static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
     return low_power;
 }
 
+void intent_engine_halt(void)
+{
+    requested_full_power = 1;
+    asr_halted = 1;
+}
+
 void intent_engine_full_power_request(void)
 {
     requested_full_power = 1;
@@ -234,8 +241,8 @@ void intent_engine_task(void *args)
     led_indicate_idle();
 
     /* Alert other tile to start the audio pipeline */
-    int dummy = 0;
-    rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &dummy, sizeof(dummy));
+    int run_asr = 1;
+    rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &run_asr, sizeof(run_asr));
 
     while (1)
     {
@@ -255,18 +262,25 @@ void intent_engine_task(void *args)
                              // Note, we do not need to overlap the window of samples.
                              // This is handled in the ASR ports.
 
+        if (run_asr == 0)
+            continue;
+
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
 
         if (asr_error == ASR_OK) {
             asr_error = asr_get_result(asr_ctx, &asr_result);
         }
 
-        if (asr_error != ASR_OK) {
+        if (asr_error == ASR_EVALUATION_EXPIRED || asr_halted) {
+            xTimerStop(int_eng_tmr, 0);
+            timeout_event = TIMEOUT_EVENT_NONE;
+            asr_halted = 1;
+            run_asr = 0;
+            led_indicate_end_of_demo();
+            debug_printf("ASR evaluation ended. Restart device to restore operation.\n");
+        } else if (asr_error != ASR_OK) {
             debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
-            continue;
-        }
-
-        if (IS_COMMAND(asr_result.id)) {
+        } else if (IS_COMMAND(asr_result.id)) {
             hold_intent_state(int_eng_tmr);
             intent_engine_process_asr_result(asr_result.id);
         }

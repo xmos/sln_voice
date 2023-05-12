@@ -34,8 +34,15 @@ typedef enum power_control_state {
     PWR_CTRL_STATE_LOW_POWER_REQUEST,
     PWR_CTRL_STATE_LOW_POWER_RESPONSE,
     PWR_CTRL_STATE_LOW_POWER_READY,
-    PWR_CTRL_STATE_FULL_POWER
+    PWR_CTRL_STATE_FULL_POWER,
+    PWR_CTRL_STATE_FULL_POWER_LOCKED
 } power_control_state_t;
+
+typedef enum low_power_response {
+    LOW_POWER_NAK,
+    LOW_POWER_ACK,
+    LOW_POWER_HALT
+} low_power_response_t;
 
 static const uint32_t bits_to_clear_on_entry = 0x00000000UL;
 static const uint32_t bits_to_clear_on_exit = 0xFFFFFFFFUL;
@@ -47,6 +54,7 @@ static TaskHandle_t ctx_power_control_task = NULL;
 static power_state_t power_state = POWER_STATE_FULL;
 static unsigned tile0_div;
 static unsigned switch_div;
+static unsigned low_power_halt = 0;
 
 #endif
 
@@ -137,27 +145,27 @@ static void low_power_request(void)
 #endif
 }
 
-static uint8_t low_power_response(void)
+static low_power_response_t low_power_response(void)
 {
-    uint8_t full_pwr_time_expired;
+    low_power_response_t response;
 
 #if ON_TILE(POWER_CONTROL_TILE_NO)
-    /*
-     * Send an ACK/NAK based on whether the power state timer has expired.
-     */
-    full_pwr_time_expired = power_state_timer_expired_get();
+
+    response = (low_power_halt) ? LOW_POWER_HALT :
+               (power_state_timer_expired_get()) ? LOW_POWER_ACK :
+                LOW_POWER_NAK;
 
     /* The power state is updated during the response instead of during
      * "low_power_ready()" in order to avoid reports of "lost output samples
      * for inference" */
-    power_state = (full_pwr_time_expired) ?
+    power_state = (response == LOW_POWER_ACK) ?
         POWER_STATE_LOW :
         POWER_STATE_FULL;
 
     rtos_intertile_tx(intertile_ctx,
                       appconfPOWER_CONTROL_PORT,
-                      &full_pwr_time_expired,
-                      sizeof(full_pwr_time_expired));
+                      &response,
+                      sizeof(response));
 #else
     /*
      * Wait for ACK/NAK, based on whether the full power timer has elapsed.
@@ -165,22 +173,30 @@ static uint8_t low_power_response(void)
     size_t len_rx = rtos_intertile_rx_len(intertile_ctx,
                                           appconfPOWER_CONTROL_PORT,
                                           RTOS_OSAL_WAIT_FOREVER);
-    configASSERT(len_rx == sizeof(full_pwr_time_expired));
+    configASSERT(len_rx == sizeof(response));
 
     rtos_intertile_rx_data(intertile_ctx,
-                           &full_pwr_time_expired,
-                           sizeof(full_pwr_time_expired));
+                           &response,
+                           sizeof(response));
 
-    if (full_pwr_time_expired == 0) {
-        // Timer has not expired, NAK the request to continue in full power.
-        intent_engine_full_power_request();
-    } else {
+    switch (response) {
+    case LOW_POWER_ACK:
         debug_printf("Entering low power...\n");
         intent_engine_low_power_accept();
+        break;
+    case LOW_POWER_NAK:
+        // Timer has not expired, continue in full power.
+        intent_engine_full_power_request();
+        break;
+    case LOW_POWER_HALT:
+        /* The other tile, requested to halt (the demo). This event is mainly
+         * for indication that the ASR evaluation period has ended. */
+        intent_engine_halt();
+        break;
     }
 #endif
 
-    return full_pwr_time_expired;
+    return response;
 }
 
 static void low_power_ready(void)
@@ -300,13 +316,14 @@ static void full_power(void)
 
 static void power_control_task(void *arg)
 {
+    unsigned run = 1;
     power_control_state_t state = PWR_CTRL_STATE_LOW_POWER_REQUEST;
 
 #if DEBUG_LOW_POWER_TASK
     debug_printf("Starting power_control_task() on tile %d\n", THIS_XCORE_TILE);
 #endif
 
-    while (1) {
+    while (run) {
 #if DEBUG_LOW_POWER_TASK
         debug_printf("power_control_task() on tile %d entered: %d\n", THIS_XCORE_TILE, state);
 #endif
@@ -316,10 +333,13 @@ static void power_control_task(void *arg)
             state = PWR_CTRL_STATE_LOW_POWER_RESPONSE;
             break;
         case PWR_CTRL_STATE_LOW_POWER_RESPONSE:
-            state = (low_power_response()) ?
-                    PWR_CTRL_STATE_LOW_POWER_READY :
-                    PWR_CTRL_STATE_LOW_POWER_REQUEST;
+        {
+            low_power_response_t response = low_power_response();
+            state = (response == LOW_POWER_HALT) ? PWR_CTRL_STATE_FULL_POWER_LOCKED :
+                    (response == LOW_POWER_ACK) ? PWR_CTRL_STATE_LOW_POWER_READY :
+                        PWR_CTRL_STATE_LOW_POWER_REQUEST;
             break;
+        }
         case PWR_CTRL_STATE_LOW_POWER_READY:
             low_power_ready();
             state = PWR_CTRL_STATE_FULL_POWER;
@@ -328,11 +348,20 @@ static void power_control_task(void *arg)
             full_power();
             state = PWR_CTRL_STATE_LOW_POWER_REQUEST;
             break;
+        case PWR_CTRL_STATE_FULL_POWER_LOCKED:
+            run = 0;
+            break;
         default:
             xassert(0);
             break;
         }
     }
+
+#if DEBUG_LOW_POWER_TASK
+        debug_printf("power_control_task() terminated on tile %d\n", THIS_XCORE_TILE);
+#endif
+
+    vTaskDelete(NULL);
 }
 
 void power_control_task_create(unsigned priority, void *args)
@@ -353,6 +382,11 @@ void power_control_exit_low_power(void)
 power_state_t power_control_state_get(void)
 {
     return power_state;
+}
+
+void power_control_halt(void)
+{
+    low_power_halt = 1;
 }
 
 #else

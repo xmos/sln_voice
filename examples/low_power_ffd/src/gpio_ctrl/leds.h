@@ -35,4 +35,10 @@ void led_indicate_idle(void);
  */
 void led_indicate_busy(void);
 
+/**
+ * @brief To be called when the demo concludes. This is mainly at the
+ * discretion of the ASR model's runtime.
+ */
+void led_indicate_end_of_demo(void);
+
 #endif /* LEDS_H_ */

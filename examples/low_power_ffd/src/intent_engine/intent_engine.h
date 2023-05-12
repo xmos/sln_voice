@@ -31,4 +31,6 @@ uint8_t intent_engine_low_power_ready(void);
 void intent_engine_full_power_request(void);
 void intent_engine_low_power_accept(void);
 
+void intent_engine_halt(void);
+
 #endif /* INTENT_ENGINE_H_ */

@@ -16,6 +16,7 @@
 #include "intent_engine/wake_word_engine.h"
 #include "platform/driver_instances.h"
 #include "power/power_state.h"
+#include "power/power_control.h"
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
@@ -77,12 +78,11 @@ void wake_word_engine_handler(int32_t *buf, size_t num_frames)
         asr_error = asr_get_result(asr_ctx, &asr_result);
     }
 
-    if (asr_error != ASR_OK) {
+    if (asr_error == ASR_EVALUATION_EXPIRED) {
+        power_control_halt();
+    } else if (asr_error != ASR_OK) {
         debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
-        return;
-    }
-
-    if (IS_WAKE_WORD(asr_result.id)) {
+    } else if (IS_WAKE_WORD(asr_result.id)) {
         debug_printf("KEYWORD: " RTOS_STRINGIFY(WAKE_WORD_ID) ", " WAKE_WORD_PHRASE "\n");
         power_state_set(POWER_STATE_FULL);
     }

@@ -19,12 +19,14 @@
 
 #if ON_TILE(0)
 
-#define LED_BLINK_DELAY                 (500 / portTICK_PERIOD_MS)
+#define LED_BLINK_MS                    500
+#define LED_FLICKER_MS                  100
 #define TASK_NOTIF_MASK_HBEAT_TIMER     0x00000010
 #define TASK_NOTIF_MASK_ASLEEP          0x00000020
 #define TASK_NOTIF_MASK_AWAKE           0x00000040
 #define TASK_NOTIF_MASK_IDLE            0x00000080
 #define TASK_NOTIF_MASK_BUSY            0x00000100
+#define TASK_NOTIF_MASK_END_OF_DEMO     0x00000200
 
 typedef enum led_state {
     LED_OFF,
@@ -142,8 +144,11 @@ static void led_task(void *args)
     led_state_t state = LED_TOGGLE;
     led_color_t color = LED_GREEN;
     uint32_t notif_value;
+    uint32_t end_of_demo = 0;
     TimerHandle_t tmr_hbeat = xTimerCreate("tmr_hbeat",
-                                pdMS_TO_TICKS(LED_BLINK_DELAY), pdTRUE, NULL,
+                                pdMS_TO_TICKS(LED_BLINK_MS),
+                                pdTRUE,
+                                NULL,
                                 hbeat_tmr_callback);
 
     gpo_setup();
@@ -153,10 +158,21 @@ static void led_task(void *args)
         xTaskNotifyWait(bits_to_clear_on_entry, bits_to_clear_on_exit,
                         &notif_value, portMAX_DELAY);
 
+        /* Prevent other LED indications from activating once the end-of-demo
+         * has been reached. */
+        notif_value |= end_of_demo;
+
         /*
          * Process the notification event data.
          */
-        if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
+        if (notif_value & TASK_NOTIF_MASK_END_OF_DEMO) {
+            // Demo concluded; requires device reset.
+            end_of_demo = TASK_NOTIF_MASK_END_OF_DEMO;
+            color = LED_RED;
+            state = LED_TOGGLE;
+            xTimerChangePeriod(tmr_hbeat, pdMS_TO_TICKS(LED_FLICKER_MS), 0);
+            xTimerStart(tmr_hbeat, 0);
+        } else if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
             // In low power mode.
             xTimerStop(tmr_hbeat, 0);
             color = LED_RED;
@@ -253,6 +269,11 @@ void led_indicate_idle(void)
 void led_indicate_busy(void)
 {
     xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_BUSY, eSetBits);
+}
+
+void led_indicate_end_of_demo(void)
+{
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_END_OF_DEMO, eSetBits);
 }
 
 #endif /* ON_TILE(0) */
