@@ -71,13 +71,11 @@ static uint32_t timeout_event = TIMEOUT_EVENT_NONE;
 static uint32_t asr_halted = 0;
 
 static void vIntentTimerCallback(TimerHandle_t pxTimer);
-static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
-                                 int16_t *buf_short, size_t *buf_short_index);
+static void receive_audio_frames(StreamBufferHandle_t input_queue, asr_sample_t *buf);
 static void timeout_event_handler(TimerHandle_t pxTimer);
 static void hold_intent_state(TimerHandle_t pxTimer);
 static void hold_full_power(TimerHandle_t pxTimer);
-static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
-                                 int16_t *buf_short, size_t *buf_short_index);
+static uint8_t low_power_handler(TimerHandle_t pxTimer, asr_sample_t *buf);
 static void wait_for_keyword_queue_completion(void);
 
 static void vIntentTimerCallback(TimerHandle_t pxTimer)
@@ -85,11 +83,10 @@ static void vIntentTimerCallback(TimerHandle_t pxTimer)
     timeout_event |= TIMEOUT_EVENT_INTENT;
 }
 
-static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
-                                 int16_t *buf_short, size_t *buf_short_index)
+static void receive_audio_frames(StreamBufferHandle_t input_queue, asr_sample_t *buf)
 {
     uint8_t *buf_ptr = (uint8_t*)buf;
-    size_t buf_len = appconfINTENT_SAMPLE_BLOCK_LENGTH * sizeof(int32_t);
+    size_t buf_len = SAMPLES_PER_ASR * sizeof(asr_sample_t);
 
     do {
         size_t bytes_rxed = xStreamBufferReceive(input_queue,
@@ -99,10 +96,6 @@ static void receive_audio_frames(StreamBufferHandle_t input_queue, int32_t *buf,
         buf_len -= bytes_rxed;
         buf_ptr += bytes_rxed;
     } while (buf_len > 0);
-
-    for (int i = 0; i < appconfINTENT_SAMPLE_BLOCK_LENGTH; i++) {
-        buf_short[(*buf_short_index)++] = buf[i] >> 16;
-    }
 }
 
 static void timeout_event_handler(TimerHandle_t pxTimer)
@@ -143,8 +136,7 @@ static void hold_full_power(TimerHandle_t pxTimer)
     xTimerReset(pxTimer, 0);
 }
 
-static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
-                                 int16_t *buf_short, size_t *buf_short_index)
+static uint8_t low_power_handler(TimerHandle_t pxTimer, asr_sample_t *buf)
 {
     uint8_t low_power = 0;
 
@@ -161,9 +153,7 @@ static uint8_t low_power_handler(TimerHandle_t pxTimer, int32_t *buf,
     case STATE_ENTERING_LOW_POWER:
         /* Prior to entering this state, the other tile is to cease pushing
          * samples to the stream buffer. */
-        memset(buf, 0, appconfINTENT_SAMPLE_BLOCK_LENGTH);
-        memset(buf_short, 0, SAMPLES_PER_ASR);
-        *buf_short_index = 0;
+        memset(buf, 0, SAMPLES_PER_ASR);
         intent_engine_stream_buf_reset();
         wait_for_keyword_queue_completion();
         intent_power_state = STATE_ENTERED_LOW_POWER;
@@ -209,13 +199,11 @@ void intent_engine_low_power_accept(void)
     intent_power_state = STATE_ENTERING_LOW_POWER;
 }
 
-#pragma stackfunction 1500
+#pragma stackfunction 1000
 void intent_engine_task(void *args)
 {
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
-    int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
-    int16_t buf_short[SAMPLES_PER_ASR] = {0};
-    size_t buf_short_index = 0;
+    asr_sample_t buf[SAMPLES_PER_ASR] = {0};
     asr_error_t asr_error = ASR_OK;
     asr_result_t asr_result;
 
@@ -248,24 +236,17 @@ void intent_engine_task(void *args)
     {
         timeout_event_handler(int_eng_tmr);
 
-        if (low_power_handler(int_eng_tmr, buf, buf_short, &buf_short_index)) {
+        if (low_power_handler(int_eng_tmr, buf)) {
             // Low power, processing stopped.
             continue;
         }
 
-        receive_audio_frames(input_queue, buf, buf_short, &buf_short_index);
-
-        if (buf_short_index < SAMPLES_PER_ASR)
-            continue;
-
-        buf_short_index = 0; // reset the offset into the buffer of int16s.
-                             // Note, we do not need to overlap the window of samples.
-                             // This is handled in the ASR ports.
+        receive_audio_frames(input_queue, buf);
 
         if (run_asr == 0)
             continue;
 
-        asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
+        asr_error = asr_process(asr_ctx, buf, SAMPLES_PER_ASR);
 
         if (asr_error == ASR_OK) {
             asr_error = asr_get_result(asr_ctx, &asr_result);

@@ -42,6 +42,11 @@ void asr_printf(const char * format, ...) {
 typedef void* asr_port_t;
 
 /**
+ * Typedef representing the base type of an audio sample.
+ */
+typedef int16_t asr_sample_t;
+
+/**
  * Typedef to the ASR port and model attributes
  */
 typedef struct asr_attributes_struct

@@ -79,6 +79,19 @@
 #define appconfI2S_ENABLED   1
 #endif
 
+/* Enable/disable the use of a ring buffer between the audio pipeline and the
+ * intent engine. This mechanism helps to mitigate the likelihood of missing a
+ * spoken command immediately following the wake-word. */
+#ifndef appconfAUDIO_PIPELINE_BUFFER_ENABLED
+#define appconfAUDIO_PIPELINE_BUFFER_ENABLED    1
+#endif
+
+/* The number of frames to store in the ring buffer, where each frame contains
+ * appconfAUDIO_PIPELINE_FRAME_ADVANCE samples. */
+#ifndef appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES
+#define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES 16
+#endif
+
 #ifndef appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE
 #define appconfLOW_POWER_SWITCH_CLK_DIV_ENABLE  1
 #endif

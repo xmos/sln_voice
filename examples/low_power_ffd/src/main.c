@@ -73,12 +73,36 @@ int audio_pipeline_output(void *output_app_data,
                           size_t frame_count)
 {
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
-    wake_word_engine_handler((int32_t *)output_audio_frames, frame_count);
+
+    asr_sample_t asr_buf[appconfAUDIO_PIPELINE_FRAME_ADVANCE] = {0};
+
+    for (int i = 0; i < frame_count; i++) {
+        asr_buf[i] = ((int32_t *)output_audio_frames)[i] >> 16;
+    }
+
+    wake_word_engine_handler((asr_sample_t *)asr_buf, frame_count);
 
 #if appconfINTENT_ENABLED
+#if LOW_POWER_AUDIO_BUFFER_ENABLED
+    const uint32_t max_dequeue_packets = 1;
+    const uint32_t max_dequeued_samples = (max_dequeue_packets * appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+
     if (power_control_state_get() == POWER_STATE_FULL) {
-        intent_engine_sample_push((int32_t *)output_audio_frames, frame_count);
+        if (low_power_audio_buffer_dequeue(max_dequeue_packets) == max_dequeued_samples) {
+            // Max data has been dequeued, enqueue the newest data.
+            low_power_audio_buffer_enqueue(asr_buf, frame_count);
+        } else {
+            // More data can be sent.
+            intent_engine_sample_push(asr_buf, frame_count);
+        }
+    } else {
+        low_power_audio_buffer_enqueue(asr_buf, frame_count);
     }
+#else // LOW_POWER_AUDIO_BUFFER_ENABLED
+    if (power_control_state_get() == POWER_STATE_FULL) {
+        intent_engine_sample_push(asr_buf, frame_count);
+    }
+#endif // LOW_POWER_AUDIO_BUFFER_ENABLED
 #endif // appconfINTENT_ENABLED
 #endif // ON_TILE(AUDIO_PIPELINE_TILE_NO)
 

@@ -101,7 +101,7 @@ int32_t intent_engine_create(uint32_t priority, void *args)
 }
 #endif /* appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO) */
 
-int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
+int32_t intent_engine_sample_push(asr_sample_t *buf, size_t frames)
 {
 #if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
     intent_engine_samples_send_remote(

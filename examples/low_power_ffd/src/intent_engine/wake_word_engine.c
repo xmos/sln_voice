@@ -61,18 +61,13 @@ void wake_word_engine_init(void)
     asr_reset(asr_ctx);
 }
 
-#pragma stackfunction 1500
-void wake_word_engine_handler(int32_t *buf, size_t num_frames)
+#pragma stackfunction 250
+void wake_word_engine_handler(asr_sample_t *buf, size_t num_frames)
 {
     asr_result_t asr_result;
     asr_error_t asr_error;
-    int16_t buf_short[SAMPLES_PER_ASR] = {0};
 
-    for (int i = 0; i < num_frames; i++) {
-        buf_short[i] = buf[i] >> 16;
-    }
-
-    asr_error = asr_process(asr_ctx, buf_short, num_frames);
+    asr_error = asr_process(asr_ctx, buf, num_frames);
 
     if (asr_error == ASR_OK) {
         asr_error = asr_get_result(asr_ctx, &asr_result);

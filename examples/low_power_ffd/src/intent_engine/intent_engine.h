@@ -15,11 +15,11 @@ int32_t intent_engine_create(uint32_t priority, void *args);
 void intent_engine_task(void *args);
 void intent_engine_intertile_task_create(uint32_t priority);
 
-int32_t intent_engine_sample_push(int32_t *buf, size_t frames);
+int32_t intent_engine_sample_push(asr_sample_t *buf, size_t frames);
 void intent_engine_samples_send_remote(
         rtos_intertile_t *intertile,
         size_t frame_count,
-        int32_t *processed_audio_frame);
+        asr_sample_t *processed_audio_frame);
 
 int32_t intent_engine_keyword_queue_count(void);
 void intent_engine_keyword_queue_complete(void);
