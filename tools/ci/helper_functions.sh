@@ -14,6 +14,16 @@ function log_errors {
     fi
 }
 
+# Get the system timeout command
+function get_timeout {
+    uname=$(uname)
+    if [[ "$uname" == "Linux" ]] || [[ -n "$MSYSTEM" ]]; then
+        echo "timeout"
+    elif [[ "$uname" == 'Darwin' ]]; then
+        echo "gtimeout"
+    fi
+}
+
 function export_tools_version {
     xcc_version_output_string=`cat "$XMOS_TOOL_PATH"/doc/version.txt`
     # Find the semantic version substring

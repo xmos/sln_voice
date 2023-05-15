@@ -2,11 +2,11 @@
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
-list(APPEND APP_SOURCES ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/src/power/low_power_audio_buffer.c)
+list(APPEND APP_SOURCES ${SOLUTION_VOICE_ROOT_PATH}/examples/low_power_ffd/src/power/low_power_audio_buffer.c)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/
     ${CMAKE_CURRENT_LIST_DIR}/src/stubs/
-    ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/src/power/
+    ${SOLUTION_VOICE_ROOT_PATH}/examples/low_power_ffd/src/power/
 )
 
 #**********************
@@ -17,12 +17,12 @@ set(APP_COMPILER_FLAGS
     -g
     -report
     -fxscope
-    ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+    ${SOLUTION_VOICE_ROOT_PATH}/examples/low_power_ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 )
 
 set(APP_LINK_OPTIONS
     -report
-    ${SOLUTION_VOICE_ROOT_PATH}/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+    ${SOLUTION_VOICE_ROOT_PATH}/examples/low_power_ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
 )
 
 #**********************
