@@ -4,6 +4,7 @@ set -e
 XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
 
 source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
+export_ci_build_vars
 
 # setup distribution folder
 DIST_DIR=${XCORE_VOICE_ROOT}/dist
@@ -54,7 +55,7 @@ for ((i = 0; i < ${#tests[@]}; i += 1)); do
 
     (cd ${path}; rm -rf build_${board})
     (cd ${path}; mkdir -p build_${board})
-    (cd ${path}/build_${board}; log_errors cmake ../ -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DXCORE_VOICE_TESTS=1 ${optional_cache_entry}; log_errors make ${app_target} -j)
+    (cd ${path}/build_${board}; log_errors cmake ../ -G "$CI_CMAKE_GENERATOR" -DCMAKE_TOOLCHAIN_FILE=${toolchain_file} -DBOARD=${board} -DXCORE_VOICE_TESTS=1 ${optional_cache_entry}; log_errors $CI_BUILD_TOOL ${app_target} $CI_BUILD_TOOL_ARGS)
     (cd ${path}/build_${board}; cp ${app_target}.xe ${DIST_DIR}/${name}.xe)
     if [ "${data_partition_target}" != "NONE" ]; then
         if [ ! -f ${DIST_DIR}/${data_partition_target}_data_partition.bin ]; then
@@ -64,7 +65,7 @@ for ((i = 0; i < ${#tests[@]}; i += 1)); do
             echo '======================================================'
             echo '= Making data partition for' ${data_partition_target}
             echo '======================================================'
-            (cd ${path}/build_${board}; log_errors make make_data_partition_${data_partition_target} -j)
+            (cd ${path}/build_${board}; log_errors $CI_BUILD_TOOL make_data_partition_${data_partition_target} $CI_BUILD_TOOL_ARGS)
             (cd ${path}/build_${board}; cp ${data_partition_target}_data_partition.bin ${DIST_DIR})
         fi
     fi
