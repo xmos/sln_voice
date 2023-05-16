@@ -33,6 +33,10 @@
 #include "power/power_control.h"
 #include "power/low_power_audio_buffer.h"
 
+#ifndef MEM_ANALYSIS_ENABLED
+#define MEM_ANALYSIS_ENABLED 0
+#endif
+
 void startup_task(void *arg);
 void tile_common_init(chanend_t c);
 
@@ -114,13 +118,15 @@ void vApplicationMallocFailedHook(void)
     for(;;);
 }
 
+#if MEM_ANALYSIS_ENABLED
 static void mem_analysis(void)
 {
-	for (;;) {
-		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-		vTaskDelay(pdMS_TO_TICKS(5000));
-	}
+    for (;;) {
+        rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
 }
+#endif
 
 __attribute__((weak))
 void startup_task(void *arg)
@@ -173,9 +179,12 @@ void startup_task(void *arg)
     set_local_tile_processor_clk_div(appconfLOW_POWER_CONTROL_TILE_CLK_DIV);
 #endif
 
-    //mem_analysis();
+#if MEM_ANALYSIS_ENABLED
+    mem_analysis();
+#else
     vTaskSuspend(NULL);
     while(1){;} /* Trap */
+#endif
 }
 
 void vApplicationMinimalIdleHook(void)
