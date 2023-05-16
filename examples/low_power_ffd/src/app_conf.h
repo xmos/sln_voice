@@ -43,11 +43,6 @@
 #define appconfINTENT_FRAME_BUFFER_MULT         (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINTENT_SAMPLE_BLOCK_LENGTH       240
 
-/* Enable inference engine */
-#ifndef appconfINTENT_ENABLED
-#define appconfINTENT_ENABLED   1
-#endif
-
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINTENT_RESET_DELAY_MS
 #define appconfINTENT_RESET_DELAY_MS            4000

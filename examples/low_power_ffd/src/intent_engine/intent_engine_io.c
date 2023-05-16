@@ -90,24 +90,23 @@ void intent_engine_keyword_queue_complete(void)
     keyword_proc_busy = 0;
 }
 
-#endif /* ON_TILE(ASR_TILE_NO) */
 
-#if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
 int32_t intent_engine_create(uint32_t priority, void *args)
 {
     q_intent = (QueueHandle_t) args;
     intent_engine_intertile_task_create(priority);
     return 0;
 }
-#endif /* appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO) */
+
+#else /* ON_TILE(ASR_TILE_NO) */
 
 int32_t intent_engine_sample_push(asr_sample_t *buf, size_t frames)
 {
-#if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
     intent_engine_samples_send_remote(
             intertile_ap_ctx,
             frames,
             buf);
-#endif
     return 0;
 }
+
+#endif /* ON_TILE(ASR_TILE_NO) */
