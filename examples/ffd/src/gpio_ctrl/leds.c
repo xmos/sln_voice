@@ -153,8 +153,7 @@ static void led_task(void *args)
         /*
          * Process the notification event data.
          */
-        if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
-            (notif_value & TASK_NOTIF_MASK_WAITING)) {
+        if (notif_value & TASK_NOTIF_MASK_WAITING) {
             // Normal operation (heartbeat).
             color = LED_GREEN;
             state = LED_TOGGLE;
