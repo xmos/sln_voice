@@ -28,17 +28,6 @@ void board_tile0_init(
             XS1_PORT_1P, 0, 0,
             0,
             10);
-            
-//     hwtimer_t tmr_tx = hwtimer_alloc();
-
-//     rtos_uart_tx_init(
-//             rtos_uart_tx_ctx,
-//             XS1_PORT_1N,
-//             UART_BAUD_RATE,
-//             8,
-//             UART_PARITY_ODD,
-//             1,
-//             tmr_tx);
 }
 
 void board_tile1_init(
@@ -60,16 +49,4 @@ void board_tile1_init(
             XS1_PORT_1E,
             XS1_PORT_1P,
             I2C_SLAVE_ADDR);
-
-//     hwtimer_t tmr_rx = hwtimer_alloc();
-
-//     rtos_uart_rx_init(
-//             rtos_uart_rx_ctx,
-//             UART_RX_CORE_MASK,
-//             XS1_PORT_1N ,
-//             UART_BAUD_RATE,
-//             8,
-//             UART_PARITY_ODD,
-//             1,
-//             tmr_rx);
 }
