@@ -20,8 +20,6 @@
 
 #define LED_BLINK_DELAY                 (500 / portTICK_PERIOD_MS)
 #define TASK_NOTIF_MASK_HBEAT_TIMER     0x00000010
-#define TASK_NOTIF_MASK_ASLEEP          0x00000020
-#define TASK_NOTIF_MASK_AWAKE           0x00000040
 #define TASK_NOTIF_MASK_WAITING         0x00000080
 #define TASK_NOTIF_MASK_LISTEN          0x00000100
 
@@ -155,19 +153,14 @@ static void led_task(void *args)
         /*
          * Process the notification event data.
          */
-        if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
-            // Below VNR threshold; in low power mode.
-            xTimerStop(tmr_hbeat, 0);
-            color = LED_RED;
-            state = LED_ON;
-        } else if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
-                   (notif_value & TASK_NOTIF_MASK_WAITING)) {
-            // Above VNR threshold; normal operation (heartbeat).
+        if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
+            (notif_value & TASK_NOTIF_MASK_WAITING)) {
+            // Normal operation (heartbeat).
             color = LED_GREEN;
             state = LED_TOGGLE;
             xTimerStart(tmr_hbeat, 0);
         } else if (notif_value & TASK_NOTIF_MASK_LISTEN) {
-            // Above VNR threshold; wake word detected, listening for command.
+            // Wake word detected, listening for command.
             xTimerStop(tmr_hbeat, 0);
             color = LED_YELLOW;
             state = LED_ON;
@@ -227,16 +220,6 @@ void led_task_create(unsigned priority, void *args)
                 args,
                 priority,
                 &ctx_led_task);
-}
-
-void led_indicate_asleep(void)
-{
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_ASLEEP, eSetBits);
-}
-
-void led_indicate_awake(void)
-{
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_AWAKE, eSetBits);
 }
 
 void led_indicate_waiting(void)
