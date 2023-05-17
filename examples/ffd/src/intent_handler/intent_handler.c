@@ -24,7 +24,6 @@
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
 
 #if ON_TILE(ASR_TILE_NO)
-
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
     int32_t id = 0;
@@ -78,11 +77,6 @@ static void proc_keyword_res(void *args) {
 #endif
 #if appconfAUDIO_PLAYBACK_ENABLED
         audio_response_play(id);
-#endif
-#if appconfLOW_POWER_ENABLED
-        if (intent_engine_keyword_queue_count() == 0) {
-            intent_engine_keyword_queue_complete();
-        }
 #endif
     }
 }

@@ -32,9 +32,4 @@ void intent_engine_stream_buf_reset(void);
 void intent_engine_play_response(int wav_id);
 void intent_engine_process_asr_result(int word_id);
 
-uint8_t intent_engine_low_power_ready(void);
-void intent_engine_low_power_reset(void);
-void intent_engine_full_power_request(void);
-void intent_engine_low_power_accept(void);
-
 #endif /* INTENT_ENGINE_H_ */

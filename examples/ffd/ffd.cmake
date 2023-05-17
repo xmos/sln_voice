@@ -83,7 +83,6 @@ set(APP_LINK_OPTIONS
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
     sln_voice::app::asr::wanson
-    rtos::drivers::clock_control
 )
 
 #**********************
@@ -197,8 +196,3 @@ create_flash_app_target(
 
 unset(DATA_PARTITION_FILE_LIST)
 unset(DATA_PARTITION_DEPENDS_LIST)
-
-#**********************
-# Include FFD Debug and Extension targets
-#**********************
-include(${CMAKE_CURRENT_LIST_DIR}/ext/ffd_ext.cmake)
