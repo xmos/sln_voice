@@ -61,7 +61,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     }
 
     // Some parameters
-    t->maxResults = MAX_RESULTS;
+    t->maxResults = SENSORY_ASR_MAX_RESULTS ? SENSORY_ASR_MAX_RESULTS : MAX_RESULTS;
     t->maxTokens = SENSORY_ASR_MAX_TOKENS ? SENSORY_ASR_MAX_TOKENS : MAX_TOKENS;
     t->sdet_type = SENSORY_ASR_SDET_TYPE;
     // Both these functions MUST be set for xcore if model is in ROM (must copy from ROM to work at all)

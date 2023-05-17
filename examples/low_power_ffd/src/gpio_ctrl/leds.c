@@ -1,4 +1,4 @@
-// Copyright 2022 XMOS LIMITED.
+// Copyright 2022-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* STD headers */
@@ -19,12 +19,14 @@
 
 #if ON_TILE(0)
 
-#define LED_BLINK_DELAY                 (500 / portTICK_PERIOD_MS)
+#define LED_BLINK_MS                    500
+#define LED_FLICKER_MS                  100
 #define TASK_NOTIF_MASK_HBEAT_TIMER     0x00000010
 #define TASK_NOTIF_MASK_ASLEEP          0x00000020
 #define TASK_NOTIF_MASK_AWAKE           0x00000040
-#define TASK_NOTIF_MASK_WAITING         0x00000080
-#define TASK_NOTIF_MASK_LISTEN          0x00000100
+#define TASK_NOTIF_MASK_IDLE            0x00000080
+#define TASK_NOTIF_MASK_BUSY            0x00000100
+#define TASK_NOTIF_MASK_END_OF_DEMO     0x00000200
 
 typedef enum led_state {
     LED_OFF,
@@ -142,8 +144,11 @@ static void led_task(void *args)
     led_state_t state = LED_TOGGLE;
     led_color_t color = LED_GREEN;
     uint32_t notif_value;
+    uint32_t end_of_demo = 0;
     TimerHandle_t tmr_hbeat = xTimerCreate("tmr_hbeat",
-                                pdMS_TO_TICKS(LED_BLINK_DELAY), pdTRUE, NULL,
+                                pdMS_TO_TICKS(LED_BLINK_MS),
+                                pdTRUE,
+                                NULL,
                                 hbeat_tmr_callback);
 
     gpo_setup();
@@ -153,22 +158,33 @@ static void led_task(void *args)
         xTaskNotifyWait(bits_to_clear_on_entry, bits_to_clear_on_exit,
                         &notif_value, portMAX_DELAY);
 
+        /* Prevent other LED indications from activating once the end-of-demo
+         * has been reached. */
+        notif_value |= end_of_demo;
+
         /*
          * Process the notification event data.
          */
-        if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
-            // Below VNR threshold; in low power mode.
+        if (notif_value & TASK_NOTIF_MASK_END_OF_DEMO) {
+            // Demo concluded; requires device reset.
+            end_of_demo = TASK_NOTIF_MASK_END_OF_DEMO;
+            color = LED_RED;
+            state = LED_TOGGLE;
+            xTimerChangePeriod(tmr_hbeat, pdMS_TO_TICKS(LED_FLICKER_MS), 0);
+            xTimerStart(tmr_hbeat, 0);
+        } else if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
+            // In low power mode.
             xTimerStop(tmr_hbeat, 0);
             color = LED_RED;
             state = LED_ON;
         } else if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
-                   (notif_value & TASK_NOTIF_MASK_WAITING)) {
-            // Above VNR threshold; normal operation (heartbeat).
+                   (notif_value & TASK_NOTIF_MASK_IDLE)) {
+            // Normal operation (heartbeat).
             color = LED_GREEN;
             state = LED_TOGGLE;
             xTimerStart(tmr_hbeat, 0);
-        } else if (notif_value & TASK_NOTIF_MASK_LISTEN) {
-            // Above VNR threshold; wake word detected, listening for command.
+        } else if (notif_value & TASK_NOTIF_MASK_BUSY) {
+            // Processing command.
             xTimerStop(tmr_hbeat, 0);
             color = LED_YELLOW;
             state = LED_ON;
@@ -218,12 +234,10 @@ static void led_task(void *args)
             }
         }
 
-#if appconfLOW_POWER_ENABLED
         if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
             (notif_value & TASK_NOTIF_MASK_ASLEEP)) {
             power_control_ind_complete();
         }
-#endif
     }
 }
 
@@ -247,14 +261,19 @@ void led_indicate_awake(void)
     xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_AWAKE, eSetBits);
 }
 
-void led_indicate_waiting(void)
+void led_indicate_idle(void)
 {
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_WAITING, eSetBits);
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_IDLE, eSetBits);
 }
 
-void led_indicate_listening(void)
+void led_indicate_busy(void)
 {
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_LISTEN, eSetBits);
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_BUSY, eSetBits);
+}
+
+void led_indicate_end_of_demo(void)
+{
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_END_OF_DEMO, eSetBits);
 }
 
 #endif /* ON_TILE(0) */

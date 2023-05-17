@@ -21,6 +21,10 @@
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
 
+#ifndef MEM_ANALYSIS_ENABLED
+#define MEM_ANALYSIS_ENABLED 0
+#endif
+
 void audio_pipeline_input(void *input_app_data,
                         int32_t **input_audio_frames,
                         size_t ch_count,
@@ -48,13 +52,15 @@ void vApplicationMallocFailedHook(void)
     for(;;);
 }
 
-// static void mem_analysis(void)
-// {
-//     for (;;) {
-//         rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-//         vTaskDelay(pdMS_TO_TICKS(5000));
-//     }
-// }
+#if MEM_ANALYSIS_ENABLED
+static void mem_analysis(void)
+{
+    for (;;) {
+        rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
+}
+#endif
 
 void startup_task(void *arg)
 {
@@ -81,9 +87,12 @@ void startup_task(void *arg)
     audio_pipeline_init(NULL, NULL);
 #endif
 
-    //mem_analysis();
+#if MEM_ANALYSIS_ENABLED
+    mem_analysis();
+#else
     vTaskSuspend(NULL);
     while(1){;} /* Trap */
+#endif
 }
 
 void vApplicationMinimalIdleHook(void)

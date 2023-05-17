@@ -4,6 +4,7 @@ set -e
 XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
 
 source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
+export_ci_build_vars
 
 # setup distribution folder
 DIST_DIR=${XCORE_VOICE_ROOT}/dist_host
@@ -17,7 +18,7 @@ echo '******************************************************'
 
 (cd ${path}; rm -rf build_host)
 (cd ${path}; mkdir -p build_host)
-(cd ${path}/build_host; log_errors cmake ../ ; log_errors make -j)
+(cd ${path}/build_host; log_errors cmake ../ -G "$CI_CMAKE_GENERATOR"; log_errors $CI_BUILD_TOOL $CI_BUILD_TOOL_ARGS)
 
 # setup configurations
 # row format is: "app_name app_path"

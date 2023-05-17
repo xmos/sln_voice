@@ -32,6 +32,14 @@ void power_control_exit_low_power(void);
  */
 power_state_t power_control_state_get(void);
 
+/**
+ * @brief Signal to the power control task that it should halt. This request
+ * is only acted on when operating in full power mode and the other tile
+ * requests low power. In this case, the application locks the device to
+ * full power operation.
+ */
+void power_control_halt(void);
+
 #else
 
 /**

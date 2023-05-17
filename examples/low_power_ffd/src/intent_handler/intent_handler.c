@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* STD headers */
 #include <platform.h>
@@ -13,6 +13,7 @@
 
 /* App headers */
 #include "app_conf.h"
+#include "gpio_ctrl/leds.h"
 #include "platform/driver_instances.h"
 #include "intent_handler/intent_handler.h"
 #include "intent_engine/intent_engine.h"
@@ -39,6 +40,7 @@ static void proc_keyword_res(void *args) {
 
     while(1) {
         xQueueReceive(q_intent, &id, portMAX_DELAY);
+        led_indicate_busy();
 
         host_status = rtos_gpio_port_in(gpio_ctx_t0, p_in_host_status);
 
@@ -70,11 +72,10 @@ static void proc_keyword_res(void *args) {
         uint32_t buf_uart = id;
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
 #endif
-#if appconfLOW_POWER_ENABLED
         if (intent_engine_keyword_queue_count() == 0) {
+            led_indicate_idle();
             intent_engine_keyword_queue_complete();
         }
-#endif
     }
 }
 

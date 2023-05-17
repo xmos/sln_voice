@@ -13,9 +13,9 @@
 
 /* App headers */
 #include "app_conf.h"
+#include "asr.h"
 
 #define LOW_POWER_AUDIO_BUFFER_ENABLED ( \
-    appconfLOW_POWER_ENABLED && \
     appconfAUDIO_PIPELINE_BUFFER_ENABLED && \
     ON_TILE(AUDIO_PIPELINE_TILE_NO) )
 
@@ -25,7 +25,7 @@
  * \param samples       The pointer to the samples to enqueue.
  * \param num_samples   The number of samples to enqueue.
  */
-void low_power_audio_buffer_enqueue(int32_t *samples, size_t num_samples);
+void low_power_audio_buffer_enqueue(asr_sample_t *samples, size_t num_samples);
 
 /**
  * Dequeue audio frames out of a ring buffer. These frames are sent onward to
