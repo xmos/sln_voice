@@ -15,6 +15,10 @@
 #define appconfASR_BRICK_SIZE_SAMPLES                 240  // typically set in asr.cmake
 #endif 
 
+#ifndef appconfASR_MISSING_METADATA_CORRECTION  
+#define appconfASR_MISSING_METADATA_CORRECTION        (40 * appconfASR_BRICK_SIZE_SAMPLES)
+#endif
+
 #define appconfINPUT_FILENAME                   "input.wav\0"
 #define appconfOUTPUT_FILENAME                  "output.log\0"
 #define appconfINPUT_CHANNELS                   1

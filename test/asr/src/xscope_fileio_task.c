@@ -170,15 +170,42 @@ void xscope_fileio_task(void *arg) {
         asr_error = asr_get_result(asr_ctx, &asr_result);
         if (asr_error != ASR_OK) continue; 
 
-        // log result
+        // Query or compute recognition event metadata
+        size_t start_index;
+        size_t end_index;
+        size_t duration;
+
+        if (asr_result.start_index > 0) {
+            start_index = asr_result.start_index;
+        } else {
+            // No metadata so assume this brick - appconfASR_MISSING_START_METADATA_CORRECTION
+            start_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION; 
+        }
+
+        if (asr_result.end_index > 0) {
+            end_index = asr_result.end_index;        
+        } else {
+            // No metadata so assume start_index
+            end_index = start_index; 
+        }
+
+        if (asr_result.duration > 0) {
+            duration = asr_result.duration;        
+        } else {
+            // No metadata so assume no duration
+            duration = 0;        
+        }
+
+        // Log result
         if (asr_result.id > 0) {
             sprintf(log_buffer, "RECOGNIZED: id=%d, start=%d, end=%d, duration=%d\n", 
                 asr_result.id,
-                asr_result.start_index,
-                asr_result.end_index,
-                asr_result.duration
+                start_index,
+                end_index,
+                duration
             );
             rtos_printf(log_buffer);
+
             xscope_fwrite(&outfile, (uint8_t *)&log_buffer[0], strlen(log_buffer));
         }
     }
