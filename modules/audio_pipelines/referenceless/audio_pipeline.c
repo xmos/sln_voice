@@ -107,9 +107,6 @@ static void stage_vnr_and_ic(frame_data_t *frame_data)
               ic_output);
 
     // VNR
-    bfp_s32_t feature_patch;
-    int32_t feature_patch_data[VNR_PATCH_WIDTH * VNR_MEL_FILTERS];
-    float_s32_t ie_output;
     vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
     ic_calc_vnr_pred(&ic_stage_state.state, &vnr_pred_state->input_vnr_pred, &vnr_pred_state->output_vnr_pred);
     frame_data->vnr_pred = vnr_pred_stage_state.vnr_pred_state.output_vnr_pred;
