@@ -18,6 +18,7 @@ typedef struct sensory_asr_struct
     int32_t start_index;
     int32_t end_index;
     int32_t duration;
+    int32_t word_id;
     appStruct_T app;
 
 } sensory_asr_t;
@@ -121,6 +122,7 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     errors_t error;
 
     sensory_asr->brick_count++;
+    sensory_asr->word_id = -1;
 
     //uint32_t timer_start = get_reference_time();
 
@@ -148,7 +150,7 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
             // asr_printf("startBackupFrames: %d, endBackupFrames: %d\n", (int) startBackupFrames, (int) endBackupFrames);
             // if (stIndex < 0)
             //     asr_printf("Start point is not in the audio buffer\n");
-
+            sensory_asr->word_id = (int32_t)t->wordID;
             sensory_asr->start_index = (sensory_asr->brick_count - startBackupFrames) * FRAME_LEN;
             sensory_asr->end_index = (sensory_asr->brick_count - endBackupFrames) * FRAME_LEN;
             sensory_asr->duration = t->duration * FRAME_LEN;
@@ -185,7 +187,7 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
     appStruct_T *app = &(sensory_asr->app);
     t2siStruct *t = &(app->_t);
 
-    if (t->wordID) {
+    if (sensory_asr->word_id > 0) {
         result->id = t->wordID;
         result->score = t->finalScore;
         result->start_index = sensory_asr->start_index;
