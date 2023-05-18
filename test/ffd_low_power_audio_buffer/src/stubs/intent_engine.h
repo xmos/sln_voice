@@ -6,7 +6,8 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "asr.h"
 
-int32_t intent_engine_sample_push(int32_t *buf, size_t frames);
+int32_t intent_engine_sample_push(asr_sample_t *buf, size_t frames);
 
 #endif /* INTENT_ENGINE_H_ */

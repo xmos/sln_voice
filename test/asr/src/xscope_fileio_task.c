@@ -26,9 +26,20 @@
 
 #if (appconfASR_LIBRARY_ID == 0)
     // Sensory
-    // GRAMMAR file is appended to the CMakeLists APP_SOURCES variable
-    extern const unsigned short gs_grammarLabel[];
-    void* grammar = (void *)gs_grammarLabel;
+    // GRAMMAR source and header files are to be #included
+    #define SEARCH_VAR gs_command_grammarLabel
+
+    #ifdef COMMAND_SEARCH_HEADER_FILE
+    #include COMMAND_SEARCH_HEADER_FILE
+    #endif
+
+    #ifdef COMMAND_SEARCH_SOURCE_FILE
+    #include COMMAND_SEARCH_SOURCE_FILE
+    #else
+    extern const unsigned short SEARCH_VAR[];
+    #endif
+
+    void* grammar = (void *)SEARCH_VAR;
     // Model file is in flash at the offset specified in the CMakeLists
     // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
     // to be added so the address in in the SwMem range.  

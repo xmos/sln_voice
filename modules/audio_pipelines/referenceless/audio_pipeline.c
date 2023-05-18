@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* STD headers */
 #include <string.h>
@@ -23,7 +23,6 @@
 /* App headers */
 #include "app_conf.h"
 #include "audio_pipeline.h"
-#include "power/power_state.h"
 
 #define VNR_AGC_THRESHOLD              (0.5)
 #define EMA_ENERGY_ALPHA               (0.25)
@@ -49,7 +48,7 @@ typedef struct ic_stage_ctx {
 } ic_stage_ctx_t;
 
 typedef struct vnr_pred_stage_ctx {
-    vnr_pred_state_t vnr_pred_state; 
+    vnr_pred_state_t vnr_pred_state;
 } vnr_pred_stage_ctx_t;
 
 typedef struct ns_stage_ctx {
@@ -65,12 +64,6 @@ static ic_stage_ctx_t DWORD_ALIGNED ic_stage_state = {};
 static vnr_pred_stage_ctx_t DWORD_ALIGNED vnr_pred_stage_state = {};
 static ns_stage_ctx_t DWORD_ALIGNED ns_stage_state = {};
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
-
-#if appconfLOW_POWER_ENABLED
-static uq2_30 ema_energy_alpha_q30 = Q30(EMA_ENERGY_ALPHA);
-#endif
-
-static power_data_t* power_app_data = 0;
 
 static void *audio_pipeline_input_i(void *input_app_data)
 {
@@ -94,15 +87,7 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
-    if (power_app_data) {
-        //NOTE: passing power_app_data to callback instead of output_app_data.
-        //       They should be the same pointer.
-        assert(power_app_data == output_app_data);
-        power_app_data->vnr_pred =  float_s32_to_float(frame_data->vnr_pred);
-        power_app_data->ema_energy =  float_s32_to_float(frame_data->ema_energy);
-    }
-
-    return audio_pipeline_output(power_app_data,
+    return audio_pipeline_output(output_app_data,
                                (int32_t **)frame_data->samples,
                                4,
                                appconfAUDIO_PIPELINE_FRAME_ADVANCE);
@@ -167,15 +152,7 @@ static void stage_agc(frame_data_t *frame_data)
             &agc_stage_state.md);
     memcpy(frame_data->samples, agc_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
-#if appconfLOW_POWER_ENABLED
-    // Compute exponential moving average of frame energy
-    bfp_s32_t B;
-    bfp_s32_init(&B, &frame_data->samples[0][0], -31, appconfAUDIO_PIPELINE_FRAME_ADVANCE, 1);
-    float_s32_t energy = float_s64_to_float_s32(bfp_s32_energy(&B));
-    frame_data->ema_energy = float_s32_ema(frame_data->ema_energy, energy, ema_energy_alpha_q30);
-#else
     frame_data->ema_energy = f32_to_float_s32(0.0);
-#endif
 }
 
 static void initialize_pipeline_stages(void) {
@@ -193,10 +170,10 @@ static void initialize_pipeline_stages(void) {
     vnr_inference_init();
     vnr_pred_state->pred_alpha_q30 = Q30(0.97);
     vnr_pred_state->input_vnr_pred = f32_to_float_s32(0.5);
-    vnr_pred_state->output_vnr_pred = f32_to_float_s32(0.5); 
+    vnr_pred_state->output_vnr_pred = f32_to_float_s32(0.5);
 
     ns_init(&ns_stage_state.state);
-    
+
     agc_init(&agc_stage_state.state, &AGC_PROFILE_ASR);
     agc_stage_state.md.aec_ref_power = AGC_META_DATA_NO_AEC;
     agc_stage_state.md.aec_corr_factor = AGC_META_DATA_NO_AEC;
@@ -222,7 +199,6 @@ void audio_pipeline_init(
 
     initialize_pipeline_stages();
 
-    power_app_data = (power_data_t *) output_app_data;
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,
                         input_app_data,

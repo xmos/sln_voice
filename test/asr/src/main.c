@@ -20,6 +20,10 @@
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
 
+#ifndef MEM_ANALYSIS_ENABLED
+#define MEM_ANALYSIS_ENABLED 0
+#endif
+
 void vApplicationMallocFailedHook(void)
 {
     rtos_printf("Malloc Failed on tile %d!\n", THIS_XCORE_TILE);
@@ -27,13 +31,15 @@ void vApplicationMallocFailedHook(void)
     for(;;);
 }
 
-// static void mem_analysis(void)
-// {
-//     for (;;) {
-//         rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
-//         vTaskDelay(pdMS_TO_TICKS(5000));
-//     }
-// }
+#if MEM_ANALYSIS_ENABLED
+static void mem_analysis(void)
+{
+    for (;;) {
+        rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
+}
+#endif
 
 void startup_task(void *arg)
 {
@@ -57,10 +63,12 @@ void startup_task(void *arg)
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
     xscope_fileio_tasks_create(appconfXSCOPE_IO_TASK_PRIORITY, NULL);
 #endif
-
-    //mem_analysis();
+#if MEM_ANALYSIS_ENABLED
+    mem_analysis();
+#else
     vTaskSuspend(NULL);
     while(1){;} /* Trap */
+#endif
 }
 
 void vApplicationMinimalIdleHook(void)

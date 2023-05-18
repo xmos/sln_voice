@@ -4,14 +4,14 @@
 
 set -e
 
-# Get unix name for determining OS
-UNAME=$(uname)
-
 REPO_ROOT=$(git rev-parse --show-toplevel)
+source ${REPO_ROOT}/tools/ci/helper_functions.sh
+
 APPLICATION=test_ffd_low_power_audio_buffer
 REPORT_DIR=testing
 REPORT=testing/test.rpt
 TIMEOUT_S=60
+TIMEOUT_EXE=$(get_timeout)
 
 rm -rf "${REPORT_DIR}"
 mkdir testing
@@ -19,8 +19,4 @@ mkdir testing
 echo "****************"
 echo "* Run Tests    *"
 echo "****************"
-if [ "$UNAME" == "Linux" ] ; then
-    timeout ${TIMEOUT_S}s xsim "${REPO_ROOT}/dist/${APPLICATION}.xe" 2>&1 | tee -a "${REPORT}"
-elif [ "$UNAME" == "Darwin" ] ; then
-    gtimeout ${TIMEOUT_S}s xsim "${REPO_ROOT}/dist/${APPLICATION}.xe" 2>&1 | tee -a "${REPORT}"
-fi
+$TIMEOUT_EXE ${TIMEOUT_S}s xsim "${REPO_ROOT}/dist/${APPLICATION}.xe" 2>&1 | tee -a "${REPORT}"

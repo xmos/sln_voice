@@ -1,5 +1,5 @@
-// Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
-// XMOS Public License: Version 1
+// Copyright (c) 2022-2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public License: Version 1
 
 /* STD headers */
 #include <platform.h>
@@ -20,29 +20,21 @@
 
 static StreamBufferHandle_t samples_to_engine_stream_buf = 0;
 
-void intent_engine_stream_buf_reset(void)
-{
-    if (samples_to_engine_stream_buf)
-        while (xStreamBufferReset(samples_to_engine_stream_buf) == pdFAIL)
-            vTaskDelay(pdMS_TO_TICKS(1));
-}
-
 #endif /* ON_TILE(ASR_TILE_NO) */
 
-#if ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
 void intent_engine_samples_send_remote(
         rtos_intertile_t *intertile,
         size_t frame_count,
-        int32_t *processed_audio_frame)
+        asr_sample_t *processed_audio_frame)
 {
     configASSERT(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
     rtos_intertile_tx(intertile,
                       appconfINTENT_MODEL_RUNNER_SAMPLES_PORT,
                       processed_audio_frame,
-                      sizeof(int32_t) * frame_count);
+                      sizeof(asr_sample_t) * frame_count);
 }
 
 #else /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
@@ -52,7 +44,7 @@ static void intent_engine_intertile_samples_in_task(void *arg)
     (void) arg;
 
     for (;;) {
-        int32_t samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+        asr_sample_t samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
         size_t bytes_received;
 
         bytes_received = rtos_intertile_rx_len(
@@ -71,6 +63,13 @@ static void intent_engine_intertile_samples_in_task(void *arg)
             rtos_printf("lost output samples for intent\n");
         }
     }
+}
+
+void intent_engine_stream_buf_reset(void)
+{
+    if (samples_to_engine_stream_buf)
+        while (xStreamBufferReset(samples_to_engine_stream_buf) == pdFAIL)
+            vTaskDelay(pdMS_TO_TICKS(1));
 }
 
 void intent_engine_intertile_task_create(uint32_t priority)
@@ -94,40 +93,3 @@ void intent_engine_intertile_task_create(uint32_t priority)
 }
 
 #endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
-#endif /* ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO */
-
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
-#if ON_TILE(ASR_TILE_NO)
-
-void intent_engine_samples_send_local(
-        size_t frame_count,
-        int32_t *processed_audio_frame)
-{
-    configASSERT(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-
-    if(samples_to_engine_stream_buf != NULL) {
-        size_t bytes_to_send = sizeof(int32_t) * frame_count;
-        if (xStreamBufferSend(samples_to_engine_stream_buf, processed_audio_frame, bytes_to_send, 0) != bytes_to_send) {
-            rtos_printf("lost local output samples for intent\n");
-        }
-    } else {
-        rtos_printf("intent engine streambuffer not ready\n");
-    }
-}
-
-void intent_engine_task_create(unsigned priority)
-{
-    samples_to_engine_stream_buf = xStreamBufferCreate(
-                                           appconfINTENT_FRAME_BUFFER_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                                           appconfINTENT_SAMPLE_BLOCK_LENGTH);
-
-    xTaskCreate((TaskFunction_t)intent_engine_task,
-                "intent_eng",
-                RTOS_THREAD_STACK_SIZE(intent_engine_task),
-                samples_to_engine_stream_buf,
-                uxTaskPriorityGet(NULL),
-                NULL);
-}
-
-#endif /* ON_TILE(ASR_TILE_NO) */
-#endif /* ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO */

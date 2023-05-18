@@ -10,6 +10,13 @@ set(APP_INCLUDES
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 
+#****************************
+# Set Sensory model variables
+#****************************
+set(SENSORY_COMMAND_SEARCH_HEADER_FILE "${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.1.0-op10-prod-search.h")
+set(SENSORY_COMMAND_SEARCH_SOURCE_FILE "${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.1.0-op10-prod-search.c")
+set(SENSORY_COMMAND_NET_FILE "${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.1.0-op10-prod-net.bin.nibble_swapped")
+
 #**********************
 # QSPI Flash Layout
 #**********************
@@ -41,18 +48,14 @@ if(${TEST_ASR} STREQUAL "SENSORY")
     message(STATUS "Building Sensory ASR test")
     set(ASR_LIBRARY sln_voice::app::asr::sensory)
     set(ASR_BRICK_SIZE_SAMPLES 240)
-    set(APP_SOURCES
-        ${APP_SOURCES}
-        ${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-search.c
-    )
-    set(MODEL_FILE ${LOW_POWER_FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-net.bin.nibble_swapped)    
+    set(MODEL_FILE ${SENSORY_COMMAND_NET_FILE})
     set(TEST_ASR_LIBRARY_ID 0)
     set(TEST_ASR_NAME test_asr_sensory)
 elseif(${TEST_ASR} STREQUAL "WANSON")
     message(STATUS "Building Wanson ASR test")
     set(ASR_LIBRARY sln_voice::app::asr::wanson)
     set(ASR_BRICK_SIZE_SAMPLES 480)
-    set(MODEL_FILE ${CMAKE_CURRENT_LIST_DIR}/model/wanson_model_en_20220923.bin)    
+    set(MODEL_FILE ${CMAKE_CURRENT_LIST_DIR}/model/wanson_model_en_20220923.bin)
     set(TEST_ASR_LIBRARY_ID 1)
     set(TEST_ASR_NAME test_asr_wanson)
 else()
@@ -84,6 +87,14 @@ set(APP_COMPILE_DEFINITIONS
     appconfASR_LIBRARY_ID=${TEST_ASR_LIBRARY_ID}
     appconfASR_BRICK_SIZE_SAMPLES=${ASR_BRICK_SIZE_SAMPLES}
 )
+
+if(${TEST_ASR} STREQUAL "SENSORY")
+    set(APP_COMPILE_DEFINITIONS
+        ${APP_COMPILE_DEFINITIONS}
+        COMMAND_SEARCH_HEADER_FILE="${SENSORY_COMMAND_SEARCH_HEADER_FILE}"
+        COMMAND_SEARCH_SOURCE_FILE="${SENSORY_COMMAND_SEARCH_SOURCE_FILE}"
+    )
+endif()
 
 set(APP_LINK_OPTIONS
     -report

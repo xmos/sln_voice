@@ -17,7 +17,6 @@
 
 #define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR  I2C_SLAVE_ADDR
 
-#define appconfLOW_POWER_ENABLED                0
 #define appconfAUDIO_PLAYBACK_ENABLED           0
 #define appconfINTENT_I2C_OUTPUT_ENABLED     0
 #define appconfINTENT_UART_OUTPUT_ENABLED    0

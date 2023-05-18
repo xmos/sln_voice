@@ -22,7 +22,7 @@
 #include "platform/driver_instances.h"
 #include "usb_support.h"
 #include "usb_audio.h"
-#include "audio_pipeline/audio_pipeline.h"
+#include "audio_pipeline.h"
 #include "intent_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
