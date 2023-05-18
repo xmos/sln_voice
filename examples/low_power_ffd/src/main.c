@@ -146,6 +146,7 @@ void startup_task(void *arg)
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
 #endif
 
 #if ON_TILE(1)
@@ -156,7 +157,10 @@ void startup_task(void *arg)
     rtos_fatfs_init(qspi_flash_ctx);
 #endif
 
+    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
+
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    power_state_init();
     wake_word_engine_init();
 #endif
 
@@ -166,22 +170,11 @@ void startup_task(void *arg)
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
-#if ON_TILE(0)
-    led_task_create(appconfLED_TASK_PRIORITY, NULL);
-#endif
-
-    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
-
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     // Wait until the intent engine is initialized before starting the
     // audio pipeline.
-    {
-        int ret = 0;
-        rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
-        rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
-    }
+    intent_engine_ready_sync();
     audio_pipeline_init(NULL, NULL);
-    power_state_init();
 
     set_local_tile_processor_clk_div(1);
     enable_local_tile_processor_clock_divider();

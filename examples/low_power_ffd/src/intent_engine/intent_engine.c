@@ -229,8 +229,8 @@ void intent_engine_task(void *args)
     led_indicate_idle();
 
     /* Alert other tile to start the audio pipeline */
+    intent_engine_ready_sync();
     int run_asr = 1;
-    rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &run_asr, sizeof(run_asr));
 
     while (1)
     {
@@ -269,3 +269,16 @@ void intent_engine_task(void *args)
 }
 
 #endif /* ON_TILE(ASR_TILE_NO) */
+
+void intent_engine_ready_sync(void)
+{
+    int sync = 0;
+#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    size_t len = rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
+    xassert(len == sizeof(sync));
+    rtos_intertile_rx_data(intertile_ctx, &sync, sizeof(sync));
+#else
+    rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &sync, sizeof(sync));
+#endif
+}
+
