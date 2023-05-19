@@ -257,7 +257,7 @@ void intent_engine_task(void *args)
             timeout_event = TIMEOUT_EVENT_NONE;
             asr_halted = 1;
             run_asr = 0;
-            led_indicate_end_of_demo();
+            led_indicate_end_of_eval();
             debug_printf("ASR evaluation ended. Restart device to restore operation.\n");
         } else if (asr_error != ASR_OK) {
             debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
