@@ -84,7 +84,9 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
 {
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
-        intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
+        if (intent_state != STATE_PROCESSING_COMMAND) {
+            intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
+        }
         led_indicate_waiting();
         intent_state = STATE_EXPECTING_WAKEWORD;
     }
@@ -147,6 +149,7 @@ void intent_engine_task(void *args)
     #else
         if (intent_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(word_id)) {
             led_indicate_listening();
+            xTimerStart(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
             intent_state = STATE_EXPECTING_COMMAND;
         } else if (intent_state == STATE_EXPECTING_COMMAND && IS_COMMAND(word_id)) {

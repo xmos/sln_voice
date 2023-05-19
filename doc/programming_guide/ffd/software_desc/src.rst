@@ -21,8 +21,6 @@ This folder contains the core application source.
      - contains intent engine code
    * - intent_handler directory
      - contains intent handling code
-   * - power directory
-     - contains low power state and control code
    * - rtos_conf directory
      - contains default FreeRTOS configuration headers
    * - app_conf_check.h
@@ -80,8 +78,6 @@ audio_pipeline_input
 
 This function has the role of providing the audio pipeline with the input frames.
 
-This function is weak so the application can override it if desired.
-
 In FFD, the input is received from the rtos_mic_array driver.
 
 
@@ -90,14 +86,7 @@ audio_pipeline_output
 
 This function has the role of receiving the processed audio pipeline output.
 
-This function is weak so the application can override it if desired.
-
-In FFD, the output is sent to the intent engine. If `appconfLOW_POWER_ENABLED`
-is set true, then the output will be dropped if the power state is not
-`POWER_STATE_FULL`. In certain conditions and environments, this behavior may
-cause the wake word to be missed. Further adjustments to the application
-configuration settings related to the VNR low power thresholds may mitigate such
-issues. See :ref:`sln_voice_ffd_power`.
+In FFD, the output is sent to the intent engine.
 
 
 Main

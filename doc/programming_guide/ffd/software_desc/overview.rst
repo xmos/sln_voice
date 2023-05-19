@@ -61,5 +61,3 @@ The description of the software is split up by folder:
      - Intent engine integration
    * - :ref:`sln_voice_ffd_intent_handler`
      - Intent engine output integration
-   * - :ref:`sln_voice_ffd_power`
-     - Low power state and control
