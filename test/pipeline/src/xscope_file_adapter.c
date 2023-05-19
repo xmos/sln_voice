@@ -97,6 +97,8 @@ size_t rx_from_audio_pipeline(uint8_t **buf, size_t size_bytes) {
 //*****************************
 // Trace file adapter functions
 //*****************************
+#if appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+
 #if (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 0)
 size_t tx_trace_to_host(int8_t *buf, size_t size_bytes) {
     xQueueSend(tx_trace_to_host_queue, buf, portMAX_DELAY);
@@ -136,3 +138,5 @@ size_t rx_trace_from_app(int8_t **buf, size_t size_bytes) {
     return bytes_received;
 }
 #endif
+
+#endif // appconfAUDIO_PIPELINE_SUPPORTS_TRACE

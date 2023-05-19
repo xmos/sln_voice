@@ -76,7 +76,6 @@ void xscope_fileio_task(void *arg) {
     uint32_t DWORD_ALIGNED in_buf_int[appconfAUDIO_PIPELINE_INPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     uint32_t DWORD_ALIGNED out_buf_raw[appconfOUTPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     uint32_t DWORD_ALIGNED out_buf_int[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS];
-    uint8_t trace_buf[appconfOUTPUT_TRACE_SIZE_BYTES];
 
     size_t bytes_read = 0;
 
@@ -177,9 +176,14 @@ void xscope_fileio_task(void *arg) {
         // Write brick to output wav file
         xscope_fwrite(&audio_outfile, (uint8_t *) &out_buf_int[0], appconfOUTPUT_BRICK_SIZE_BYTES);
 
+#if appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+        uint8_t trace_buf[appconfOUTPUT_TRACE_SIZE_BYTES];
+
         // Write trace data
         bytes_received = rx_trace_from_app((int8_t **)&trace_buf[0], appconfOUTPUT_TRACE_SIZE_BYTES);
         xscope_fwrite(&trace_outfile, (uint8_t *) &trace_buf[0], bytes_received);
+#endif // appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+
     }
 
 #if (appconfAPP_NOTIFY_FILEIO_DONE == 1)

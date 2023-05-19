@@ -30,9 +30,11 @@
 #define MEM_ANALYSIS_ENABLED 0
 #endif
 
-static char trace_buffer[appconfOUTPUT_TRACE_SIZE_BYTES];
+#if appconfAUDIO_PIPELINE_SUPPORTS_TRACE
 static int audio_pipeline_output_counter = 0;
+static char trace_buffer[appconfOUTPUT_TRACE_SIZE_BYTES];
 static trace_data_t trace_data;
+#endif // appconfAUDIO_PIPELINE_SUPPORTS_TRACE
 
 void audio_pipeline_input(void *input_app_data,
                         int32_t **input_audio_frames,
@@ -53,15 +55,19 @@ int audio_pipeline_output(void *output_app_data,
     // Write output to host
     tx_audio_to_host((uint8_t*)output_audio_frames, appconfOUTPUT_BRICK_SIZE_BYTES);
 
-    // Write trace data to host
-    trace_data_t *trace_data = (trace_data_t *)output_app_data;
+#if appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+    if (output_app_data) {
+        // Write trace data to host
+        trace_data_t *trace_data = (trace_data_t *)output_app_data;
 
-    sprintf(trace_buffer, "TRACE: %d,%d,%d\n", 
-        audio_pipeline_output_counter++,
-        Q31(trace_data->input_vnr_pred),
-        trace_data->control_flag
-    );
-    tx_trace_to_host((int8_t*)trace_buffer, strlen(trace_buffer));
+        sprintf(trace_buffer, "TRACE: %d,%d,%d\n", 
+            audio_pipeline_output_counter++,
+            Q31(trace_data->input_vnr_pred),
+            trace_data->control_flag
+        );
+        tx_trace_to_host((int8_t*)trace_buffer, strlen(trace_buffer));
+    }
+#endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
 }
@@ -106,11 +112,24 @@ void startup_task(void *arg)
 
 #if ((appconfAUDIO_PIPELINE_INPUT_TILE_NO == 0) || (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 0)) && ON_TILE(0)
     rtos_printf("Initializing audio pipeline on tile 0\n");
+
+#if appconfAUDIO_PIPELINE_SUPPORTS_TRACE
     audio_pipeline_init(NULL, &trace_data);
+#else
+    audio_pipeline_init(NULL, NULL);
+#endif // appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+
 #endif
+
 #if ((appconfAUDIO_PIPELINE_INPUT_TILE_NO == 1) || (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 1)) && ON_TILE(1)
     rtos_printf("Initializing audio pipeline on tile 1\n");
+
+#if appconfAUDIO_PIPELINE_SUPPORTS_TRACE
     audio_pipeline_init(NULL, &trace_data);
+#else
+    audio_pipeline_init(NULL, NULL);
+#endif // appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+
 #endif
 
 #if MEM_ANALYSIS_ENABLED

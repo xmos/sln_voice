@@ -30,6 +30,10 @@
 #define appconfAUDIO_PIPELINE_OUTPUT_TILE_NO    0
 #endif
 
+#ifndef appconfAUDIO_PIPELINE_SUPPORTS_TRACE
+#define appconfAUDIO_PIPELINE_SUPPORTS_TRACE    0
+#endif
+
 #ifdef appconfPIPELINE_BYPASS
 #define appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY  1
 #define appconfAUDIO_PIPELINE_SKIP_AEC           1
