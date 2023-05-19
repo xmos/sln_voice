@@ -57,18 +57,3 @@ The description of the software is split up by folder:
      - Intent engine integration
    * - :ref:`sln_voice_ffd_intent_handler`
      - Intent engine output integration
-
-
-The FFD low power variant, will startup using a system frequency of 600 MHz which will consume around 141 mW. After startup, `tile[1]` clock divider is enabled and set to 3 bringing the tile's frequency down to 300 MHz, where it will consume around 114 mW. Tile frequencies lower than this may lead to application instability. When the application enters `POWER_STATE_LOW`, the `tile[0]` clock frequency will be divided by 600 and the switch clock frequency by 30 bringing the frequencies to 1 MHz and 20 MHz, respectively. This low power state consumes around 55 mW.
-
-.. list-table:: FFD Low Power Usage
-   :widths: 30 30
-   :header-rows: 1
-   :align: left
-
-   * - Power State
-     - Power (mW)
-   * - Low Power
-     - 55
-   * - Full Power
-     - 114

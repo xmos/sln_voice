@@ -49,7 +49,6 @@ These include:
 **Power Consumption**
 
 - Typical power consumption 300-350mW 
-- Low power modes down to 55mW
 
 ######################
 Obtaining the Hardware
