@@ -91,13 +91,9 @@ This function can be replaced by the application to handle the intent in a compl
 Miscellaneous Functions
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Several supporting helper functions to support the low power and audio playback features that are unique the the default FFD application.  These include:
+Several supporting helper functions to support the low audio playback features that are unique the the default FFD application.  These include:
 
   - intent_engine_keyword_queue_count
   - intent_engine_keyword_queue_complete
   - intent_engine_stream_buf_reset
   - intent_engine_play_response
-  - intent_engine_low_power_ready
-  - intent_engine_low_power_reset
-  - intent_engine_full_power_request
-  - intent_engine_low_power_accept

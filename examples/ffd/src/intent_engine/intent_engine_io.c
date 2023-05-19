@@ -76,30 +76,6 @@ void intent_engine_process_asr_result(int word_id)
     intent_engine_play_response(wav_id);
 }
 
-#if appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO)
-
-uint8_t intent_engine_low_power_ready(void)
-{
-    return (keyword_proc_busy == 0);
-}
-
-void intent_engine_low_power_reset(void)
-{
-    intent_engine_stream_buf_reset();
-    xQueueReset(q_intent);
-}
-
-int32_t intent_engine_keyword_queue_count(void)
-{
-    return (q_intent != NULL) ? (int32_t)uxQueueMessagesWaiting(q_intent) : 0;
-}
-
-void intent_engine_keyword_queue_complete(void)
-{
-    keyword_proc_busy = 0;
-}
-#endif /* appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO) */
-
 #if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
 int32_t intent_engine_create(uint32_t priority, void *args)
 {
