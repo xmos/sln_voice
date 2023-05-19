@@ -23,11 +23,13 @@
 #endif
 
 static TaskHandle_t xscope_fileio_task_handle;
-QueueHandle_t tx_to_host_queue;
-QueueHandle_t rx_from_host_queue;
+QueueHandle_t tx_audio_to_host_queue;
+QueueHandle_t rx_audio_from_host_queue;
+QueueHandle_t tx_trace_from_app_queue;
 
-static xscope_file_t infile;
-static xscope_file_t outfile;
+static xscope_file_t audio_infile;
+static xscope_file_t audio_outfile;
+static xscope_file_t trace_outfile;
 
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
 static SemaphoreHandle_t mutex_xscope_fileio;
@@ -54,13 +56,15 @@ void xscope_fileio_user_done(void) {
     xTaskNotifyGive(xscope_fileio_task_handle);
 }
 
-/* This task reads the input file in chunks and sends it through the data pipeline
- * After reading the entire file, it will wait until the user has confirmed
- * all writing is complete before closing files.
- */
- /* NOTE:
-  * xscope fileio uses events.  Only xscope_fread() currently, but wrapping
-  * all calls in a critical section just in case */
+/* 
+* This task reads the input wav file in chunks and sends it through the data pipeline
+* After reading the entire file, it will wait until the user has confirmed
+* all writing is complete before closing files.
+*
+* NOTE:
+* xscope fileio uses events.  Only xscope_fread() currently, but wrapping
+* all calls in a critical section just in case 
+*/
 void xscope_fileio_task(void *arg) {
     (void) arg;
     int state = 0;
@@ -72,27 +76,26 @@ void xscope_fileio_task(void *arg) {
     uint32_t DWORD_ALIGNED in_buf_int[appconfAUDIO_PIPELINE_INPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     uint32_t DWORD_ALIGNED out_buf_raw[appconfOUTPUT_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     uint32_t DWORD_ALIGNED out_buf_int[appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS];
+    uint8_t trace_buf[appconfOUTPUT_TRACE_SIZE_BYTES];
+
     size_t bytes_read = 0;
 
-    /* Wait until xscope_fileio is initialized */
-    while(xscope_fileio_is_initialized() == 0) {
-        vTaskDelay(pdMS_TO_TICKS(1));
-    }
-
-    rx_from_host_queue = xQueueCreate(1, appconfINPUT_BRICK_SIZE_BYTES);
-    tx_to_host_queue = xQueueCreate(1, appconfOUTPUT_BRICK_SIZE_BYTES);
+    rx_audio_from_host_queue = xQueueCreate(1, appconfINPUT_BRICK_SIZE_BYTES);
+    tx_audio_to_host_queue = xQueueCreate(1, appconfOUTPUT_BRICK_SIZE_BYTES);
+    tx_trace_from_app_queue = xQueueCreate(1, appconfOUTPUT_TRACE_SIZE_BYTES);
 
     rtos_printf("Opening files\n");
     state = rtos_osal_critical_enter();
     {
-        infile = xscope_open_file(appconfINPUT_FILENAME, "rb");
-        outfile = xscope_open_file(appconfOUTPUT_FILENAME, "wb");
+        audio_infile = xscope_open_file(appconfINPUT_FILENAME, "rb");
+        audio_outfile = xscope_open_file(appconfOUTPUT_FILENAME, "wb");
+        trace_outfile = xscope_open_file(appconfTRACE_FILENAME, "wt");
         // Validate input wav file
-        if(get_wav_header_details(&infile, &input_header_struct, &input_header_size) != 0){
+        if(get_wav_header_details(&audio_infile, &input_header_struct, &input_header_size) != 0){
             rtos_printf("Error: error in get_wav_header_details()\n");
             _Exit(1);
         }
-        xscope_fseek(&infile, input_header_size, SEEK_SET);
+        xscope_fseek(&audio_infile, input_header_size, SEEK_SET);
     }
     rtos_osal_critical_exit(state);
 
@@ -113,7 +116,7 @@ void xscope_fileio_task(void *arg) {
     brick_count = frame_count / appconfAUDIO_PIPELINE_FRAME_ADVANCE; 
 
     // Create output wav file
-    rtos_printf("Writing output file header\n");
+    rtos_printf("Writing wav output file header\n");
     wav_form_header(&output_header_struct,
         input_header_struct.audio_format,
         appconfOUTPUT_CHANNELS,
@@ -121,7 +124,7 @@ void xscope_fileio_task(void *arg) {
         input_header_struct.bit_depth,
         brick_count*appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    xscope_fwrite(&outfile, (uint8_t*)(&output_header_struct), WAV_HEADER_BYTES);
+    xscope_fwrite(&audio_outfile, (uint8_t*)(&output_header_struct), WAV_HEADER_BYTES);
 
     // ensure the write above has time to complete before performing any reads
     vTaskDelay(pdMS_TO_TICKS(1000));
@@ -140,8 +143,8 @@ void xscope_fileio_task(void *arg) {
         // Read from input wav file
         state = rtos_osal_critical_enter();
         {
-            xscope_fseek(&infile, input_location, SEEK_SET);
-            bytes_read = xscope_fread(&infile, (uint8_t *) &in_buf_raw[0], appconfINPUT_BRICK_SIZE_BYTES);
+            xscope_fseek(&audio_infile, input_location, SEEK_SET);
+            bytes_read = xscope_fread(&audio_infile, (uint8_t *) &in_buf_raw[0], appconfINPUT_BRICK_SIZE_BYTES);
         }
         rtos_osal_critical_exit(state);
 
@@ -172,7 +175,11 @@ void xscope_fileio_task(void *arg) {
         }
 
         // Write brick to output wav file
-        xscope_fwrite(&outfile, (uint8_t *) &out_buf_int[0], appconfOUTPUT_BRICK_SIZE_BYTES);
+        xscope_fwrite(&audio_outfile, (uint8_t *) &out_buf_int[0], appconfOUTPUT_BRICK_SIZE_BYTES);
+
+        // Write trace data
+        bytes_received = rx_trace_from_app((int8_t **)&trace_buf[0], appconfOUTPUT_TRACE_SIZE_BYTES);
+        xscope_fwrite(&trace_outfile, (uint8_t *) &trace_buf[0], bytes_received);
     }
 
 #if (appconfAPP_NOTIFY_FILEIO_DONE == 1)
@@ -196,15 +203,15 @@ void xscope_fileio_task(void *arg) {
 
 void xscope_fileio_tasks_create(unsigned priority, void* app_data) {
     xTaskCreate((TaskFunction_t)xscope_fileio_task,
-                "xscope_fileio",
+                "xscope_fileio_audio",
                 RTOS_THREAD_STACK_SIZE(xscope_fileio_task),
                 app_data,
                 priority,
                 &xscope_fileio_task_handle);
     
-    // Define the core affinity mask such that this task can only run on a specific core
-    UBaseType_t uxCoreAffinityMask = 0x10;
+    // Define the core affinity mask such that these tasks can only run on a specific cores
+    UBaseType_t uxAudioCoreAffinityMask = 0x10;
 
-    /* Set the core affinity mask for the task. */
-    vTaskCoreAffinitySet( xscope_fileio_task_handle, uxCoreAffinityMask );                
+    // Set the core affinity masks
+    vTaskCoreAffinitySet(xscope_fileio_task_handle, uxAudioCoreAffinityMask);                
 }

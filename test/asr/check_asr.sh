@@ -81,9 +81,7 @@ mkdir -p ${OUTPUT_DIR}
 RESULTS="${OUTPUT_DIR}/results.csv"
 rm -rf ${RESULTS}
 
-echo "***********************************"
 echo "Log file: ${RESULTS}"
-echo "***********************************"
 echo "Filename, Max_Allowable_WER, Computed_WER" >> ${RESULTS}
 
 for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
@@ -94,12 +92,14 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     PROCESSED_WAV="${OUTPUT_DIR}/${FILE_NAME}_processed.wav"
     LABEL_TRACK="${OUTPUT_DIR}/${FILE_NAME}_labels.txt"
-    PROCESSING_OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}_processing.log"
+    PIPELINE_OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}_pipeline.log"
+    PIPELINE_OUTPUT_CSV="${OUTPUT_DIR}/${FILE_NAME}_pipeline.csv"
+    ASR_OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}_asr.log"
     SCORING_OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}_scoring.log"
     
-    XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
-    XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
-    XSCOPE_FILEIO_OUTPUT_LOG="${OUTPUT_DIR}/output.log"
+    TEMP_XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
+    TEMP_XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
+    TEMP_XSCOPE_FILEIO_OUTPUT_LOG="${OUTPUT_DIR}/output.log"
 
     # ensure input file exists
     if [ ! -f "${INPUT_WAV}" ]; then
@@ -107,16 +107,19 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
         exit 1
     fi
 
+    # xscope_fileio can not create files so make sure TEMP_XSCOPE_FILEIO_OUTPUT_LOG exists
+    touch ${TEMP_XSCOPE_FILEIO_OUTPUT_LOG}
+
     # *********************************
     # Process input wav w/ FFD pipeline
     # *********************************
 
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
     #   the input wav files are one channel so we append a silent second mic channel
-    TMP_WAV="${OUTPUT_DIR}/temp.wav"
-    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${TMP_WAV} remix 1 2
-    sox ${TMP_WAV} ${XSCOPE_FILEIO_INPUT_WAV} ${TRIM_COMMAND}
-    rm ${TMP_WAV}
+    TEMP_WAV="${OUTPUT_DIR}/temp.wav"
+    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${TEMP_WAV} remix 1 2
+    sox ${TEMP_WAV} ${TEMP_XSCOPE_FILEIO_INPUT_WAV} ${TRIM_COMMAND}
+    rm ${TEMP_WAV}
 
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${PIPELINE_FIRMWARE} &
@@ -124,7 +127,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # wait for app to load
     sleep 10
 
-    # run xscope host in directory where the XSCOPE_FILEIO_INPUT_WAV resides
+    # run xscope host in directory where the TEMP_XSCOPE_FILEIO_INPUT_WAV resides
     #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
     #   it exits, the xrun command above will also exit
     (cd ${OUTPUT_DIR} ; ${DIST_HOST}/xscope_host_endpoint 12345)
@@ -132,18 +135,20 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # wait for xrun to exit
     sleep 1
 
+    cp ${TEMP_XSCOPE_FILEIO_OUTPUT_LOG} ${PIPELINE_OUTPUT_LOG}
+
+    # make pipeline csv
+    python3 test/asr/make_trace_csv.py --log ${PIPELINE_OUTPUT_LOG} --csv ${PIPELINE_OUTPUT_CSV}
+
+    # single out ASR channel from the processed output
+    sox ${TEMP_XSCOPE_FILEIO_OUTPUT_WAV} ${PROCESSED_WAV} remix 1
+
     # *****************************************
     # Process FFD pipeline output with ASR test
     # *****************************************
 
     # save the processed output
-    cp ${XSCOPE_FILEIO_OUTPUT_WAV} ${PROCESSED_WAV}
-
-    # xscope_file can not create files so make sure XSCOPE_FILEIO_OUTPUT_LOG exists
-    touch ${XSCOPE_FILEIO_OUTPUT_LOG}
-
-    # single out ASR channel from the processed output
-    sox ${PROCESSED_WAV} ${XSCOPE_FILEIO_INPUT_WAV} remix 1
+    cp ${PROCESSED_WAV} ${TEMP_XSCOPE_FILEIO_INPUT_WAV}
 
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${ASR_FIRMWARE} &
@@ -151,7 +156,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # wait for app to load
     sleep 10
     
-    # run xscope host in directory where the XSCOPE_FILEIO_INPUT_WAV resides
+    # run xscope host in directory where the TEMP_XSCOPE_FILEIO_INPUT_WAV resides
     #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
     #   it exits, the xrun command above will also exit
     (cd ${OUTPUT_DIR} ; ${DIST_HOST}/xscope_host_endpoint 12345)
@@ -159,14 +164,14 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # wait for xrun to exit
     sleep 1
 
-    cp ${XSCOPE_FILEIO_OUTPUT_LOG} ${PROCESSING_OUTPUT_LOG}
+    cp ${TEMP_XSCOPE_FILEIO_OUTPUT_LOG} ${ASR_OUTPUT_LOG}
 
     # ******************
     # Compute WER
     # ******************
 
     # make label track
-    python3 test/asr/make_label_track.py --log ${PROCESSING_OUTPUT_LOG} --lut ${ASR_LIBRARY} --label_track ${LABEL_TRACK}
+    python3 test/asr/make_label_track.py --log ${ASR_OUTPUT_LOG} --lut ${ASR_LIBRARY} --label_track ${LABEL_TRACK}
 
     # score label track
     python3 test/asr/score_label_track.py --label_track ${LABEL_TRACK} --truth_track ${TRUTH_TRACK} --log ${SCORING_OUTPUT_LOG}
@@ -176,10 +181,10 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     echo "${INPUT_WAV}, ${MAX_ALLOWABLE_WER}, ${WER}" >> ${RESULTS}
 
-    # clean up
-    rm ${XSCOPE_FILEIO_INPUT_WAV}
-    rm ${XSCOPE_FILEIO_OUTPUT_WAV}
-    rm ${XSCOPE_FILEIO_OUTPUT_LOG}
+    # clean up temp 
+    rm ${TEMP_XSCOPE_FILEIO_INPUT_WAV}
+    rm ${TEMP_XSCOPE_FILEIO_OUTPUT_WAV}
+    rm ${TEMP_XSCOPE_FILEIO_OUTPUT_LOG}
 done 
 
 # print results

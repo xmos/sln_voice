@@ -6,8 +6,9 @@
 
 /* Intertile port settings */
 #define appconfAUDIOPIPELINE_PORT               0
-#define appconfXSCOPE_FILEIO_PORT               1
-#define appconfXSCOPE_FILEIO_READY_SYNC_PORT    2
+#define appconfXSCOPE_FILEIO_AUDIO_PORT         1
+#define appconfXSCOPE_FILEIO_TRACE_PORT         2
+#define appconfXSCOPE_FILEIO_READY_SYNC_PORT    3
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
@@ -61,13 +62,15 @@
 #define appconfSAMPLE_BIT_DEPTH                 32
 #define appconfSAMPLE_SIZE_BYTES                (appconfSAMPLE_BIT_DEPTH / 8)
 
-#define appconfINPUT_FILENAME                   "input.wav\0"
+#define appconfINPUT_FILENAME                   "input.wav"
 //#define appconfAUDIO_PIPELINE_INPUT_CHANNELS                 Set in pipeline.cmake
 #define appconfINPUT_BRICK_SIZE_BYTES           (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_INPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
 
-#define appconfOUTPUT_FILENAME                  "output.wav\0"
+#define appconfTRACE_FILENAME                   "output.log"
+#define appconfOUTPUT_FILENAME                  "output.wav"
 #define appconfOUTPUT_CHANNELS                  2
 #define appconfOUTPUT_BRICK_SIZE_BYTES          (appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfOUTPUT_CHANNELS * appconfSAMPLE_SIZE_BYTES)
+#define appconfOUTPUT_TRACE_SIZE_BYTES          (2048)
 
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY            (configMAX_PRIORITIES / 2)

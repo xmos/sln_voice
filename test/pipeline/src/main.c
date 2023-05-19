@@ -1,6 +1,9 @@
 // Copyright (c) 2020-2022 XMOS LIMITED. This Software is subject to the terms of the
 // XMOS Public License: Version 1
 
+#include <stdio.h>
+#include <string.h>
+
 #include <platform.h>
 #include <xs1.h>
 #include <xcore/channel.h>
@@ -18,6 +21,8 @@
 #include "app_conf.h"
 #include "audio_pipeline.h"
 #include "xscope_fileio_task.h"
+#include "xscope_io_device.h"
+#include "xmath/xmath.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
 
@@ -25,13 +30,17 @@
 #define MEM_ANALYSIS_ENABLED 0
 #endif
 
+static char trace_buffer[appconfOUTPUT_TRACE_SIZE_BYTES];
+static int audio_pipeline_output_counter = 0;
+static trace_data_t trace_data;
+
 void audio_pipeline_input(void *input_app_data,
                         int32_t **input_audio_frames,
                         size_t ch_count,
                         size_t frame_count)
 {
     (void) input_app_data;
-    rx_from_host((int8_t **)input_audio_frames, appconfINPUT_BRICK_SIZE_BYTES);
+    rx_audio_from_host((int8_t **)input_audio_frames, appconfINPUT_BRICK_SIZE_BYTES);
 }
 
 int audio_pipeline_output(void *output_app_data,
@@ -41,7 +50,19 @@ int audio_pipeline_output(void *output_app_data,
 {
     (void) output_app_data;
 
-    tx_to_host((uint8_t*)output_audio_frames, appconfOUTPUT_BRICK_SIZE_BYTES);
+    // Write output to host
+    tx_audio_to_host((uint8_t*)output_audio_frames, appconfOUTPUT_BRICK_SIZE_BYTES);
+
+    // Write trace data to host
+    trace_data_t *trace_data = (trace_data_t *)output_app_data;
+
+    sprintf(trace_buffer, "TRACE: %d,%d,%d\n", 
+        audio_pipeline_output_counter++,
+        Q31(trace_data->input_vnr_pred),
+        trace_data->control_flag
+    );
+    tx_trace_to_host((int8_t*)trace_buffer, strlen(trace_buffer));
+
     return AUDIO_PIPELINE_FREE_FRAME;
 }
 
@@ -72,6 +93,11 @@ void startup_task(void *arg)
     vTaskDelay(pdMS_TO_TICKS(1000));
 
 #if ON_TILE(XSCOPE_HOST_IO_TILE)
+    /* Wait until xscope_fileio is initialized */
+    while(xscope_fileio_is_initialized() == 0) {
+        vTaskDelay(pdMS_TO_TICKS(1));
+    }
+
     xscope_fileio_tasks_create(appconfXSCOPE_IO_TASK_PRIORITY, NULL);
 #endif
 
@@ -80,11 +106,11 @@ void startup_task(void *arg)
 
 #if ((appconfAUDIO_PIPELINE_INPUT_TILE_NO == 0) || (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 0)) && ON_TILE(0)
     rtos_printf("Initializing audio pipeline on tile 0\n");
-    audio_pipeline_init(NULL, NULL);
+    audio_pipeline_init(NULL, &trace_data);
 #endif
 #if ((appconfAUDIO_PIPELINE_INPUT_TILE_NO == 1) || (appconfAUDIO_PIPELINE_OUTPUT_TILE_NO == 1)) && ON_TILE(1)
     rtos_printf("Initializing audio pipeline on tile 1\n");
-    audio_pipeline_init(NULL, NULL);
+    audio_pipeline_init(NULL, &trace_data);
 #endif
 
 #if MEM_ANALYSIS_ENABLED

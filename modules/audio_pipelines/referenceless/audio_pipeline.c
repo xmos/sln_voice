@@ -35,8 +35,9 @@
 typedef struct {
     int32_t samples[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     int32_t mic_samples_passthrough[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
-    float_s32_t vnr_pred;
-    float_s32_t ema_energy;
+    float_s32_t input_vnr_pred;
+    float_s32_t output_vnr_pred;
+    control_flag_e control_flag;
 } frame_data_t;
 
 #if appconfAUDIO_PIPELINE_FRAME_ADVANCE != 240
@@ -65,6 +66,8 @@ static vnr_pred_stage_ctx_t DWORD_ALIGNED vnr_pred_stage_state = {};
 static ns_stage_ctx_t DWORD_ALIGNED ns_stage_state = {};
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
+static trace_data_t* trace_data = 0;
+
 static void *audio_pipeline_input_i(void *input_app_data)
 {
     frame_data_t *frame_data;
@@ -76,8 +79,9 @@ static void *audio_pipeline_input_i(void *input_app_data)
                        (int32_t **)frame_data->samples,
                        2,
                        appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-    frame_data->vnr_pred = f32_to_float_s32(0.0);
-    frame_data->ema_energy = f32_to_float_s32(0.0);
+    frame_data->input_vnr_pred = f32_to_float_s32(0.0);
+    frame_data->output_vnr_pred = f32_to_float_s32(0.0);
+    frame_data->control_flag = ADAPT;
 
     memcpy(frame_data->mic_samples_passthrough, frame_data->samples, sizeof(frame_data->mic_samples_passthrough));
 
@@ -87,6 +91,12 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
+    if (trace_data) {
+        assert(trace_data == output_app_data);
+        trace_data->input_vnr_pred = float_s32_to_float(frame_data->input_vnr_pred);
+        trace_data->control_flag = (int)frame_data->control_flag;
+    }
+
     return audio_pipeline_output(output_app_data,
                                (int32_t **)frame_data->samples,
                                4,
@@ -109,9 +119,12 @@ static void stage_vnr_and_ic(frame_data_t *frame_data)
     // VNR
     vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
     ic_calc_vnr_pred(&ic_stage_state.state, &vnr_pred_state->input_vnr_pred, &vnr_pred_state->output_vnr_pred);
-    frame_data->vnr_pred = vnr_pred_stage_state.vnr_pred_state.output_vnr_pred;
 
     ic_adapt(&ic_stage_state.state, vnr_pred_stage_state.vnr_pred_state.input_vnr_pred);
+
+    frame_data->input_vnr_pred = vnr_pred_stage_state.vnr_pred_state.input_vnr_pred;
+    frame_data->output_vnr_pred = vnr_pred_stage_state.vnr_pred_state.output_vnr_pred;
+    frame_data->control_flag = ic_stage_state.state.ic_adaption_controller_state.control_flag;
 
     memcpy(frame_data->samples, ic_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
@@ -140,7 +153,7 @@ static void stage_agc(frame_data_t *frame_data)
     int32_t DWORD_ALIGNED agc_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     configASSERT(AGC_FRAME_ADVANCE == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    agc_stage_state.md.vnr_flag = float_s32_gt(frame_data->vnr_pred, f32_to_float_s32(VNR_AGC_THRESHOLD));
+    agc_stage_state.md.vnr_flag = float_s32_gt(frame_data->output_vnr_pred, f32_to_float_s32(VNR_AGC_THRESHOLD));
 
     agc_process_frame(
             &agc_stage_state.state,
@@ -149,7 +162,6 @@ static void stage_agc(frame_data_t *frame_data)
             &agc_stage_state.md);
     memcpy(frame_data->samples, agc_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
-    frame_data->ema_energy = f32_to_float_s32(0.0);
 }
 
 static void initialize_pipeline_stages(void) {
@@ -160,14 +172,6 @@ static void initialize_pipeline_stages(void) {
         f64_to_float_s32(IC_INPUT_VNR_THRESHOLD);
     ic_stage_state.state.ic_adaption_controller_state.adaption_controller_config.input_vnr_threshold_high = 
         f64_to_float_s32(IC_INPUT_VNR_THRESHOLD_HIGH);
-
-    vnr_pred_state_t *vnr_pred_state = &vnr_pred_stage_state.vnr_pred_state;
-    vnr_feature_state_init(&vnr_pred_state->feature_state[0]);
-    vnr_feature_state_init(&vnr_pred_state->feature_state[1]);
-    vnr_inference_init();
-    vnr_pred_state->pred_alpha_q30 = Q30(0.97);
-    vnr_pred_state->input_vnr_pred = f32_to_float_s32(0.5);
-    vnr_pred_state->output_vnr_pred = f32_to_float_s32(0.5);
 
     ns_init(&ns_stage_state.state);
 
@@ -196,6 +200,7 @@ void audio_pipeline_init(
 
     initialize_pipeline_stages();
 
+    trace_data = (trace_data_t *) output_app_data;
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,
                         input_app_data,

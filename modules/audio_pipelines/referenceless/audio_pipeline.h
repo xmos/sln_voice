@@ -10,6 +10,11 @@
 #define AUDIO_PIPELINE_DONT_FREE_FRAME 0
 #define AUDIO_PIPELINE_FREE_FRAME      1
 
+typedef struct {
+    float input_vnr_pred;
+    int control_flag;
+} trace_data_t;
+
 void audio_pipeline_init(
         void *input_app_data,
         void *output_app_data);
