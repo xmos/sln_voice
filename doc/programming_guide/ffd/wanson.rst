@@ -23,7 +23,7 @@ The model used in FFD is approximately 185k.  The runtime and application suppor
 
 With the model in flash, the Wanson engine requires a core frequency of at least 400 MHz to keep up with real time. Additionally, the Wanson engine must be on the same tile as the flash.
 
-To replace the Wanson engine with a different engine, refer to the FFD documentation on :ref:`sln_voice_FFD_replacing-wanson-keyword-engine-block`
+To replace the Wanson engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
 
 Dictionary command table
