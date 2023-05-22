@@ -109,7 +109,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     fi
 
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
-    sox --no-dither ${INPUT_WAV} ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
+    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &

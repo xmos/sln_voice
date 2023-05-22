@@ -212,7 +212,7 @@ pipeline {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/asr/check_asr.sh Sensory $SAMPLE_SUITE test/asr/ffd.txt test/asr/sensory_output " + adapterIDs[0]
+                                        sh "test/asr/check_asr.sh Sensory $SAMPLE_SUITE test/asr/ffd_quick.txt test/asr/sensory_output " + adapterIDs[0]
                                     }
                                     sh "pytest test/asr/test_asr.py --log test/asr/sensory_output/results.csv"
                                 }

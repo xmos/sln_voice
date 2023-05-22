@@ -46,7 +46,7 @@ The <path-to-input-list> file is a text file listing wav files that must exist i
 
 .. code-block:: console
 
-    filename    min_instances    max_instances 
+    Filename    Max_Allowable_WER 
 
 The filename must not include the `.wav`` extension.  
 
