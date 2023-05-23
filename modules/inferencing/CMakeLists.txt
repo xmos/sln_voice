@@ -33,6 +33,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
         PRIVATE
             "-Os"
             "-Wno-xcore-fptrgroup"
+            "-Wp,-w"
             $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>
     )
 else()
@@ -60,28 +61,10 @@ target_include_directories(inferencing_lib_nn
 )
 
 ## **********************************
-## Fetch and patch lib_tflite_micro
+## Patch lib_tflite_micro
 ## **********************************
-include(FetchContent)
 
-IF(EXISTS ${CMAKE_BINARY_DIR}/dependencies/lib_tflite_micro)
-    message(STATUS "Skipped: dependencies/lib_tflite_micro")
-else()
-    message(STATUS "Fetching: dependencies/lib_tflite_micro")
-    FetchContent_Declare(
-        lib_tflite_micro
-        GIT_REPOSITORY https://github.com/keithm-xmos/lib_tflite_micro.git
-        GIT_TAG        aa28fd964bc30ea363a9f194bc41e1632fc7755b
-        GIT_SHALLOW    TRUE
-        GIT_SUBMODULES_RECURSE TRUE
-        SOURCE_DIR     ${CMAKE_BINARY_DIR}/dependencies/lib_tflite_micro
-        PATCH_COMMAND  git apply --directory lib_tflite_micro/submodules/tflite-micro/tensorflow ${CMAKE_BINARY_DIR}/dependencies/lib_tflite_micro/patches/tflite-micro.patch
-    )
-    FetchContent_Populate(lib_tflite_micro)
-endif()
-
-
-SET(TOP_DIR ${CMAKE_BINARY_DIR}/dependencies/lib_tflite_micro)
+SET(TOP_DIR ${CMAKE_CURRENT_LIST_DIR}/lib_tflite_micro)
 include(${TOP_DIR}/cmakefiles/xtflm.cmake)
 
 ## ******************************
@@ -99,6 +82,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
             "-Os"
             "-Wno-xcore-fptrgroup"
             $<$<COMPILE_LANGUAGE:CXX>:-std=c++11>
+            "-Wp,-w"
     )
 else()
     target_compile_definitions(inferencing_tflite_micro
