@@ -1,6 +1,7 @@
 ## ********************
 ## Create lib_nn target
 ## ********************
+
 add_library(inferencing_lib_nn STATIC)
 
     ## Source files
@@ -64,14 +65,29 @@ target_include_directories(inferencing_lib_nn
 ## Patch lib_tflite_micro
 ## **********************************
 
-SET(TOP_DIR ${CMAKE_CURRENT_LIST_DIR}/lib_tflite_micro)
-include(${TOP_DIR}/cmakefiles/xtflm.cmake)
+set(PATCHED_FLAG_FILE ${CMAKE_CURRENT_LIST_DIR}/lib_tflite_micro/patched.flag)
 
+add_custom_command(
+    OUTPUT ${PATCHED_FLAG_FILE}
+    COMMAND git submodule update -f lib_tflite_micro/submodules/tflite-micro
+    COMMAND git apply --directory lib_tflite_micro/submodules/tflite-micro/tensorflow patches/tflite-micro.patch
+    COMMAND ${CMAKE_COMMAND} -E touch ${PATCHED_FLAG_FILE}
+    COMMENT
+        "Resetting and applying patch to lib_tflite_micro"
+    WORKING_DIRECTORY
+        ${CMAKE_CURRENT_LIST_DIR}/lib_tflite_micro
+    VERBATIM
+)
 
+add_custom_target(lib_tflite_micro_patch DEPENDS ${PATCHED_FLAG_FILE})
 
 ## ******************************
 ## Create lib_tflite_micro target
 ## ******************************
+
+SET(TOP_DIR ${CMAKE_CURRENT_LIST_DIR}/lib_tflite_micro)
+include(${TOP_DIR}/cmakefiles/xtflm.cmake)
+
 add_library(inferencing_tflite_micro STATIC)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
@@ -128,3 +144,11 @@ target_link_libraries(inferencing_tflite_micro
     PRIVATE
         inferencing_lib_nn
 )
+
+## suppress all linker warnings
+target_link_options(inferencing_tflite_micro 
+    INTERFACE 
+        -Wl,-w
+)
+
+add_dependencies(inferencing_tflite_micro lib_tflite_micro_patch)
