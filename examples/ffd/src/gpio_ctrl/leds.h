@@ -35,4 +35,9 @@ void led_indicate_waiting(void);
  */
 void led_indicate_listening(void);
 
+/**
+ * @brief To be called when evaluation period ends.
+ */
+void led_indicate_end_of_eval(void);
+
 #endif /* LEDS_H_ */

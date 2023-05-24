@@ -90,6 +90,7 @@ There are three LED states:
 
 - Flashing Green    = Waiting for Wake Word
 - Solid Red & Green = Waiting for or Processing Command
+- Solid             = Evaluation period has expired
 
 The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS,' waiting begins for a command (solid red & green).
 After a period of inactivity, or successful command processing the application returns to waiting for wakeword (flashing green).
