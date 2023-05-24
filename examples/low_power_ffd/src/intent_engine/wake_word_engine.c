@@ -75,6 +75,7 @@ void wake_word_engine_handler(asr_sample_t *buf, size_t num_frames)
 
     if (asr_error == ASR_EVALUATION_EXPIRED) {
         power_control_halt();
+        power_state_set(POWER_STATE_FULL);
     } else if (asr_error != ASR_OK) {
         debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
     } else if (IS_WAKE_WORD(asr_result.id)) {

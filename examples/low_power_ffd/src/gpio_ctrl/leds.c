@@ -26,7 +26,7 @@
 #define TASK_NOTIF_MASK_AWAKE           0x00000040
 #define TASK_NOTIF_MASK_IDLE            0x00000080
 #define TASK_NOTIF_MASK_BUSY            0x00000100
-#define TASK_NOTIF_MASK_END_OF_DEMO     0x00000200
+#define TASK_NOTIF_MASK_END_OF_EVAL     0x00000200
 
 typedef enum led_state {
     LED_OFF,
@@ -144,7 +144,7 @@ static void led_task(void *args)
     led_state_t state = LED_TOGGLE;
     led_color_t color = LED_GREEN;
     uint32_t notif_value;
-    uint32_t end_of_demo = 0;
+    uint32_t end_of_eval = 0;
     TimerHandle_t tmr_hbeat = xTimerCreate("tmr_hbeat",
                                 pdMS_TO_TICKS(LED_BLINK_MS),
                                 pdTRUE,
@@ -160,14 +160,14 @@ static void led_task(void *args)
 
         /* Prevent other LED indications from activating once the end-of-demo
          * has been reached. */
-        notif_value |= end_of_demo;
+        notif_value |= end_of_eval;
 
         /*
          * Process the notification event data.
          */
-        if (notif_value & TASK_NOTIF_MASK_END_OF_DEMO) {
-            // Demo concluded; requires device reset.
-            end_of_demo = TASK_NOTIF_MASK_END_OF_DEMO;
+        if (notif_value & TASK_NOTIF_MASK_END_OF_EVAL) {
+            // Evaluation ended; requires device reset.
+            end_of_eval = TASK_NOTIF_MASK_END_OF_EVAL;
             color = LED_RED;
             state = LED_TOGGLE;
             xTimerChangePeriod(tmr_hbeat, pdMS_TO_TICKS(LED_FLICKER_MS), 0);
@@ -271,9 +271,9 @@ void led_indicate_busy(void)
     xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_BUSY, eSetBits);
 }
 
-void led_indicate_end_of_demo(void)
+void led_indicate_end_of_eval(void)
 {
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_END_OF_DEMO, eSetBits);
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_END_OF_EVAL, eSetBits);
 }
 
 #endif /* ON_TILE(0) */
