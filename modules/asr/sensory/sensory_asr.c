@@ -82,6 +82,9 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
         return NULL;
     }
 
+#if (SENSORY_ASR_SDET_TYPE == SDET_LPSD)
+    SensoryLPSDInit(app);
+#endif
 
     t->net = (intptr_t) model;
     t->gram = (intptr_t) grammar;
