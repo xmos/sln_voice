@@ -69,12 +69,7 @@ wakeword_result_t wake_word_engine_handler(asr_sample_t *buf, size_t num_frames)
     }
 
     if (asr_error == ASR_EVALUATION_EXPIRED) {
-<<<<<<< HEAD:examples/low_power_ffd/src/wakeword/wake_word_engine.c
         retval = WAKEWORD_ERROR;
-=======
-        power_control_halt();
-        power_state_set(POWER_STATE_FULL);
->>>>>>> develop:examples/low_power_ffd/src/intent_engine/wake_word_engine.c
     } else if (asr_error != ASR_OK) {
         debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
     } else if (IS_WAKE_WORD(asr_result.id)) {
