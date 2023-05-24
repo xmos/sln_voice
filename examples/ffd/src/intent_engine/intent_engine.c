@@ -135,6 +135,11 @@ void intent_engine_task(void *args)
                              // This is handled in the ASR ports.
 
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
+
+        if (asr_error == ASR_EVALUATION_EXPIRED) {
+            led_indicate_end_of_eval();
+            continue;
+        }
         if (asr_error != ASR_OK) continue; 
 
         asr_error = asr_get_result(asr_ctx, &asr_result);
