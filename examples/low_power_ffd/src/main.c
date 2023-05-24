@@ -24,7 +24,7 @@
 #include "platform/driver_instances.h"
 #include "audio_pipeline.h"
 #include "intent_engine/intent_engine.h"
-#include "intent_engine/wake_word_engine.h"
+#include "wakeword/wake_word_engine.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
@@ -40,7 +40,6 @@
 void startup_task(void *arg);
 void tile_common_init(chanend_t c);
 
-__attribute__((weak))
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,
                           size_t ch_count,
@@ -70,7 +69,6 @@ void audio_pipeline_input(void *input_app_data,
                       portMAX_DELAY);
 }
 
-__attribute__((weak))
 int audio_pipeline_output(void *output_app_data,
                           int32_t **output_audio_frames,
                           size_t ch_count,
@@ -85,7 +83,19 @@ int audio_pipeline_output(void *output_app_data,
     }
     vPortFree(output_audio_frames);
 
-    wake_word_engine_handler((asr_sample_t *)asr_buf, frame_count);
+    wakeword_result_t ww_res = wake_word_engine_handler((asr_sample_t *)asr_buf, frame_count);
+
+    switch (ww_res) {
+        case WAKEWORD_ERROR: 
+            power_control_halt();
+            power_state_set(POWER_STATE_FULL);
+            break;
+        case WAKEWORD_FOUND:
+            power_state_set(POWER_STATE_FULL);
+        default:
+        case WAKEWORD_NOT_FOUND:
+            break;
+    }
 
 #if LOW_POWER_AUDIO_BUFFER_ENABLED
     const uint32_t max_dequeue_packets = 1;
@@ -135,7 +145,6 @@ static void mem_analysis(void)
 }
 #endif
 
-__attribute__((weak))
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
@@ -159,7 +168,7 @@ void startup_task(void *arg)
 
     power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(WAKEWORD_TILE_NO)
     power_state_init();
     wake_word_engine_init();
 #endif
@@ -169,6 +178,8 @@ void startup_task(void *arg)
     intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
+
+    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     // Wait until the intent engine is initialized before starting the
@@ -195,7 +206,6 @@ void vApplicationMinimalIdleHook(void)
     asm volatile("waiteu");
 }
 
-__attribute__((weak))
 void tile_common_init(chanend_t c)
 {
     platform_init(c);

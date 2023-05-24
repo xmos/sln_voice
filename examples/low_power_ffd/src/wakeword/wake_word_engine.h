@@ -9,9 +9,13 @@
 #include "app_conf.h"
 #include "asr.h"
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+typedef enum {
+    WAKEWORD_FOUND,
+    WAKEWORD_NOT_FOUND,
+    WAKEWORD_ERROR
+} wakeword_result_t;
+
 void wake_word_engine_init(void);
-void wake_word_engine_handler(asr_sample_t *buf, size_t num_frames);
-#endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
+wakeword_result_t wake_word_engine_handler(asr_sample_t *buf, size_t num_frames);
 
 #endif /* WAKE_WORD_ENGINE_H_ */

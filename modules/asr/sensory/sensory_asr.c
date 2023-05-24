@@ -45,6 +45,7 @@ static BOOL xcore_is_flash(const void * ptr)
     else return FALSE;
 }
 
+#pragma stackfunction 50
 asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
 {
     errors_t error;
@@ -111,6 +112,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     return (asr_port_t) &sensory_asr;
 }
 
+#pragma stackfunction 250
 asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 {
     xassert(ctx);

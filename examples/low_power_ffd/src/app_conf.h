@@ -21,6 +21,7 @@
 #define AUDIO_PIPELINE_TILE_NO                  MICARRAY_TILE_NO
 #define ASR_TILE_NO                             FLASH_TILE_NO
 #define FS_TILE_NO                              FLASH_TILE_NO
+#define WAKEWORD_TILE_NO                        AUDIO_PIPELINE_TILE_NO
 
 /* Sensory specific settings */
 #if ON_TILE(ASR_TILE_NO)
