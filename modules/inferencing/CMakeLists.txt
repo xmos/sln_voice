@@ -65,6 +65,11 @@ target_include_directories(inferencing_lib_nn
 ## Patch lib_tflite_micro
 ## **********************************
 
+find_package(Git)
+if(NOT Git_FOUND)
+  message(FATAL_ERROR "Git not found.  Please install git and retry.")
+endif()
+
 set(PATCHED_FLAG_FILE ${CMAKE_CURRENT_LIST_DIR}/lib_tflite_micro/patched.flag)
 
 add_custom_command(
