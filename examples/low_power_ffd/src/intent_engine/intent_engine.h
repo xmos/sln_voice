@@ -11,6 +11,7 @@
 #include "rtos_intertile.h"
 
 int32_t intent_engine_create(uint32_t priority, void *args);
+void intent_engine_ready_sync(void);
 
 void intent_engine_task(void *args);
 void intent_engine_intertile_task_create(uint32_t priority);

@@ -34,7 +34,6 @@
  */
 typedef struct {
     int32_t samples[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
-    int32_t mic_samples_passthrough[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     float_s32_t input_vnr_pred;
     float_s32_t output_vnr_pred;
     control_flag_e control_flag;
@@ -82,8 +81,6 @@ static void *audio_pipeline_input_i(void *input_app_data)
     frame_data->input_vnr_pred = f32_to_float_s32(0.0);
     frame_data->output_vnr_pred = f32_to_float_s32(0.0);
     frame_data->control_flag = ADAPT;
-
-    memcpy(frame_data->mic_samples_passthrough, frame_data->samples, sizeof(frame_data->mic_samples_passthrough));
 
     return frame_data;
 }

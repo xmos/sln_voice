@@ -117,8 +117,8 @@
 /* Clock divider used to set the nominal frequency of the tile that manages
  * the "other tile's" frequency. */
 #ifndef appconfLOW_POWER_CONTROL_TILE_CLK_DIV
-/* Resulting clock freq: 300MHz */
-#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   2
+/* Resulting clock freq: 200MHz */
+#define appconfLOW_POWER_CONTROL_TILE_CLK_DIV   3
 #endif
 
 /* The time to wait before making a new low power request after the current

@@ -38,7 +38,8 @@ void power_state_set(power_state_t state)
     }
 }
 
-void power_state_init(void) {
+void power_state_init(void)
+{
     power_state_timer = xTimerCreate(
         "pwr_state_tmr",
         pdMS_TO_TICKS(appconfINTENT_RESET_DELAY_MS),
@@ -46,8 +47,7 @@ void power_state_init(void) {
         NULL,
         vPowerStateTimerCallback);
 
-    power_state_time_expired = 0;
-    xTimerStart(power_state_timer, 0);
+    power_state_time_expired = 1;
 }
 
 uint8_t power_state_timer_expired_get(void)

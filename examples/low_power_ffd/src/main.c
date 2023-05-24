@@ -81,12 +81,14 @@ int audio_pipeline_output(void *output_app_data,
     for (int i = 0; i < frame_count; i++) {
         asr_buf[i] = ((int32_t *)output_audio_frames)[i] >> 16;
     }
+    vPortFree(output_audio_frames);
 
     wakeword_result_t ww_res = wake_word_engine_handler((asr_sample_t *)asr_buf, frame_count);
 
     switch (ww_res) {
         case WAKEWORD_ERROR: 
             power_control_halt();
+            power_state_set(POWER_STATE_FULL);
             break;
         case WAKEWORD_FOUND:
             power_state_set(POWER_STATE_FULL);
@@ -117,12 +119,18 @@ int audio_pipeline_output(void *output_app_data,
 #endif // LOW_POWER_AUDIO_BUFFER_ENABLED
 #endif // ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
-    return AUDIO_PIPELINE_FREE_FRAME;
+    return AUDIO_PIPELINE_DONT_FREE_FRAME;
 }
 
 void vApplicationMallocFailedHook(void)
 {
+#if (configUSE_TRACE_FACILITY == 1)
+    TaskStatus_t status;
+    vTaskGetInfo(NULL, &status, pdTRUE, eInvalid );
+    rtos_printf("Malloc Failed on tile %d in %s!\n", THIS_XCORE_TILE, status.pcTaskName);
+#else
     rtos_printf("Malloc Failed on tile %d!\n", THIS_XCORE_TILE);
+#endif
     xassert(0);
     for(;;);
 }
@@ -142,11 +150,14 @@ void startup_task(void *arg)
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
     platform_start();
+
 #if ON_TILE(0)
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
 #endif
+
 #if ON_TILE(1)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
@@ -155,7 +166,10 @@ void startup_task(void *arg)
     rtos_fatfs_init(qspi_flash_ctx);
 #endif
 
+    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
+
 #if ON_TILE(WAKEWORD_TILE_NO)
+    power_state_init();
     wake_word_engine_init();
 #endif
 
@@ -165,22 +179,13 @@ void startup_task(void *arg)
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
-#if ON_TILE(0)
-    led_task_create(appconfLED_TASK_PRIORITY, NULL);
-#endif
-
     power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     // Wait until the intent engine is initialized before starting the
     // audio pipeline.
-    {
-        int ret = 0;
-        rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
-        rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
-    }
+    intent_engine_ready_sync();
     audio_pipeline_init(NULL, NULL);
-    power_state_init();
 
     set_local_tile_processor_clk_div(1);
     enable_local_tile_processor_clock_divider();
