@@ -21,6 +21,7 @@
 #define AUDIO_PIPELINE_TILE_NO                  MICARRAY_TILE_NO
 #define ASR_TILE_NO                             FLASH_TILE_NO
 #define FS_TILE_NO                              FLASH_TILE_NO
+#define WAKEWORD_TILE_NO                        AUDIO_PIPELINE_TILE_NO
 
 /* Sensory specific settings */
 #if ON_TILE(ASR_TILE_NO)
@@ -80,7 +81,7 @@
 #endif
 
 #ifndef appconfI2S_ENABLED
-#define appconfI2S_ENABLED                      1
+#define appconfI2S_ENABLED                      0
 #endif
 
 /* Enable/disable the use of a ring buffer between the audio pipeline and the

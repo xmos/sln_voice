@@ -13,12 +13,8 @@
 #include "app_conf.h"
 #include "asr.h"
 #include "device_memory_impl.h"
-#include "intent_engine/wake_word_engine.h"
+#include "wakeword/wake_word_engine.h"
 #include "platform/driver_instances.h"
-#include "power/power_state.h"
-#include "power/power_control.h"
-
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 
 // This define is referenced by the model source/header files.
 #ifndef ALIGNED
@@ -53,7 +49,6 @@ extern const unsigned short WAKE_WORD_SEARCH_VAR[];
 static asr_port_t asr_ctx;
 static devmem_manager_t devmem_ctx;
 
-#pragma stackfunction 50
 void wake_word_engine_init(void)
 {
     devmem_init(&devmem_ctx);
@@ -61,11 +56,11 @@ void wake_word_engine_init(void)
     asr_reset(asr_ctx);
 }
 
-#pragma stackfunction 250
-void wake_word_engine_handler(asr_sample_t *buf, size_t num_frames)
+wakeword_result_t wake_word_engine_handler(asr_sample_t *buf, size_t num_frames)
 {
     asr_result_t asr_result;
     asr_error_t asr_error;
+    wakeword_result_t retval = WAKEWORD_NOT_FOUND;
 
     asr_error = asr_process(asr_ctx, buf, num_frames);
 
@@ -74,13 +69,12 @@ void wake_word_engine_handler(asr_sample_t *buf, size_t num_frames)
     }
 
     if (asr_error == ASR_EVALUATION_EXPIRED) {
-        power_control_halt();
+        retval = WAKEWORD_ERROR;
     } else if (asr_error != ASR_OK) {
         debug_printf("ASR error on tile %d: %d\n", THIS_XCORE_TILE, asr_error);
     } else if (IS_WAKE_WORD(asr_result.id)) {
         debug_printf("KEYWORD: " RTOS_STRINGIFY(WAKE_WORD_ID) ", " WAKE_WORD_PHRASE "\n");
-        power_state_set(POWER_STATE_FULL);
+        retval = WAKEWORD_FOUND;
     }
+    return retval;
 }
-
-#endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
