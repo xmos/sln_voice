@@ -179,8 +179,6 @@ void startup_task(void *arg)
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
-    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
-
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     // Wait until the intent engine is initialized before starting the
     // audio pipeline.
