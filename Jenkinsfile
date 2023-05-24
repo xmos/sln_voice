@@ -29,7 +29,8 @@ pipeline {
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         VRD_TEST_RIG_TARGET = "xcore_voice_test_rig"
-        SAMPLE_SUITE = "test_vectors"
+        PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
+        ASR_TEST_VECTORS = "asr_test_vectors"
     }    
     stages {
         stage('Setup') {
@@ -173,9 +174,10 @@ pipeline {
                 }
                 stage('Set up sample suite') {
                     steps {
-                        sh "cp -r /projects_us/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $SAMPLE_SUITE"
-                        // List samples for log
-                        sh "ls -la $SAMPLE_SUITE"
+                        sh "cp -r /projects_us/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
+                        sh "ls -la $PIPELINE_TEST_VECTORS"
+                        sh "cp -r /projects_us/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
+                        sh "ls -la $ASR_TEST_VECTORS"
                     }
                 }
                 stage('Run FFVA Pipeline test') {
@@ -184,7 +186,7 @@ pipeline {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $SAMPLE_SUITE test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
+                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                     }
                                     sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
                                 }
@@ -198,7 +200,7 @@ pipeline {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $SAMPLE_SUITE test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
+                                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $PIPELINE_TEST_VECTORS test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                     }
                                     sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffd_test_output/results.csv"
                                 }
@@ -212,7 +214,7 @@ pipeline {
                             withVenv {
                                 script {
                                     withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                        sh "test/asr/check_asr.sh Sensory $SAMPLE_SUITE test/asr/ffd_quick.txt test/asr/sensory_output " + adapterIDs[0]
+                                        sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick.txt test/asr/sensory_output " + adapterIDs[0]
                                     }
                                     sh "pytest test/asr/test_asr.py --log test/asr/sensory_output/results.csv"
                                 }
