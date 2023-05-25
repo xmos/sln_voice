@@ -25,7 +25,7 @@ See the READMEs for the early example applications:
 
 [FFVA](https://github.com/xmos/sln_voice/blob/develop/examples/ffva/README.md)
 
-# Getting Help
+## Getting Help
 
 A [Github issue](https://github.com/xmos/sln_voice/issues/new/choose) should be the primary method of getting in touch with the XMOS development team.
 
@@ -35,5 +35,4 @@ This Software is subject to the terms of the [XMOS Public Licence: Version 1](ht
 
 Additional third party copyrighted code is included under the following licenses:
 
-The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd (&quot;WANSON&quot;)` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/blob/develop/modules/asr/wanson/lib/LICENSE.md).
-
+The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd ("WANSON")` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/blob/develop/modules/asr/wanson/lib/LICENSE.md).
