@@ -19,10 +19,11 @@
 #if ON_TILE(0)
 
 #define LED_BLINK_DELAY                 (500 / portTICK_PERIOD_MS)
+#define LED_FLICKER_DELAY               (100 / portTICK_PERIOD_MS)
 #define TASK_NOTIF_MASK_HBEAT_TIMER     0x00000010
 #define TASK_NOTIF_MASK_WAITING         0x00000080
 #define TASK_NOTIF_MASK_LISTEN          0x00000100
-#define TASK_NOTIF_MASK_EVAL_ENDED      0x00001000
+#define TASK_NOTIF_MASK_END_OF_EVAL      0x00001000
 
 typedef enum led_state {
     LED_OFF,
@@ -164,10 +165,11 @@ static void led_task(void *args)
             xTimerStop(tmr_hbeat, 0);
             color = LED_YELLOW;
             state = LED_ON;
-        } else if (notif_value & TASK_NOTIF_MASK_EVAL_ENDED) {
-            // Wake word detected, listening for command.
+        } else if (notif_value & TASK_NOTIF_MASK_END_OF_EVAL) {
             color = LED_RED;
-            state = LED_ON;
+            state = LED_TOGGLE;
+            xTimerChangePeriod(tmr_hbeat, pdMS_TO_TICKS(LED_FLICKER_DELAY), 0);
+            xTimerStart(tmr_hbeat, 0);
         }
 
         /*
@@ -238,7 +240,7 @@ void led_indicate_listening(void)
 
 void led_indicate_end_of_eval(void)
 {
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_EVAL_ENDED, eSetBits);
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_END_OF_EVAL, eSetBits);
 }
 
 #endif /* ON_TILE(0) */
