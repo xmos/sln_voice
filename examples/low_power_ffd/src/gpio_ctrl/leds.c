@@ -158,7 +158,7 @@ static void led_task(void *args)
         xTaskNotifyWait(bits_to_clear_on_entry, bits_to_clear_on_exit,
                         &notif_value, portMAX_DELAY);
 
-        /* Prevent other LED indications from activating once the end-of-demo
+        /* Prevent other LED indications from activating once the end-of-eval
          * has been reached. */
         notif_value |= end_of_eval;
 
