@@ -17,6 +17,7 @@
 
 #include "sensorylib.h"
 
+#include "asr.h"
 
 BOOL AppAudioFrameReady(appStruct_T *ap)
 {
@@ -32,18 +33,22 @@ AUDIOINDEX AppAudioNumUnprocessedSamples(appStruct_T *ap)
     return scnt;
 }
 
+__attribute__((weak))
 BOOL AppAudioLPSDDecreasePowerMode(void)
 {
-	//Not running recognizer. Can lower clock frequency.
-	return 0;
+    //Not running recognizer. Can lower clock frequency.
+    asr_printf("ASR: LP\n");
+    return 0;
 }
 
+__attribute__((weak))
 BOOL AppAudioLPSDIncreasePowerMode(void)
 {
-	//Will start to run recognizer. Need to increase clock frequency.
-	return 0;
-	//0=will not skip any processing
-	//1=will skip extra processing for this frame (need an extra frame to start frontend processing)
+    //Will start to run recognizer. Need to increase clock frequency.
+    asr_printf("ASR: FP\n");
+    return 0;
+    //0=will not skip any processing
+    //1=will skip extra processing for this frame (need an extra frame to start frontend processing)
 }
 
 // NB: this code currently assumes the audio buffer is an integral multiple of FRAME_LEN.

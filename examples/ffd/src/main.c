@@ -96,6 +96,10 @@ void startup_task(void *arg)
 
     platform_start();
 
+#if ON_TILE(0)
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
+#endif
+
 #if ON_TILE(1)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
@@ -110,19 +114,11 @@ void startup_task(void *arg)
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
-#if ON_TILE(0)
-    led_task_create(appconfLED_TASK_PRIORITY, NULL);
-#endif
-
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
 #if appconfINTENT_ENABLED
-    // Wait until the Wanson engine is initialized before we start the
+    // Wait until the intent engine is initialized before starting the
     // audio pipeline.
-    {
-        int ret = 0;
-        rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
-        rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
-    }
+    intent_engine_ready_sync();
 #endif
     audio_pipeline_init(NULL, NULL);
 #endif

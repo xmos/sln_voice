@@ -27,9 +27,12 @@
 #if ON_TILE(ASR_TILE_NO)
 #define SENSORY_ASR_MAX_TOKENS                  500
 #define SENSORY_ASR_MAX_RESULTS                 6
+#define SENSORY_ASR_SDET_TYPE                   (SDET_NONE)
 #else
 #define SENSORY_ASR_MAX_TOKENS                  100
 #define SENSORY_ASR_MAX_RESULTS                 3
+#define SENSORY_ASR_SDET_TYPE                   (SDET_NONE) /* In quiet environments, setting to (SDET_LPSD)
+                                                             * may yield additional power savings. */
 #endif
 
 /* Audio Pipeline Configuration */

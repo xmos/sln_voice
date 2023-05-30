@@ -40,6 +40,34 @@
 void startup_task(void *arg);
 void tile_common_init(chanend_t c);
 
+#if ON_TILE(MICARRAY_TILE_NO)
+
+static void no_preempt_task(void *arg)
+{
+    vTaskPreemptionDisable(NULL);
+
+    while(1) {
+        asm volatile("waiteu");
+    }
+}
+
+static void no_preempt_task_create(void)
+{
+    // This task serves to prevent other tasks from being placed on appconfPDM_MIC_INTERRUPT_CORE
+    static TaskHandle_t task_handle;
+    xTaskCreate((TaskFunction_t)no_preempt_task,
+            "no_preempt_task",
+            RTOS_THREAD_STACK_SIZE(no_preempt_task),
+            NULL,
+            (configMAX_PRIORITIES - 1),
+            &task_handle);
+
+    UBaseType_t uxCoreAffinityMask = 1 << appconfPDM_MIC_INTERRUPT_CORE;
+    vTaskCoreAffinitySet(task_handle, uxCoreAffinityMask);
+}
+
+#endif
+
 void audio_pipeline_input(void *input_app_data,
                           int32_t **input_audio_frames,
                           size_t ch_count,
@@ -151,6 +179,10 @@ void startup_task(void *arg)
 
     platform_start();
 
+#if ON_TILE(MICARRAY_TILE_NO)
+    no_preempt_task_create();
+#endif
+
 #if ON_TILE(0)
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
@@ -178,8 +210,6 @@ void startup_task(void *arg)
     intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
-
-    power_control_task_create(appconfPOWER_CONTROL_TASK_PRIORITY, NULL);
 
 #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
     // Wait until the intent engine is initialized before starting the
