@@ -154,7 +154,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${ASR_FIRMWARE} &
 
     # wait for app to load
-    sleep 10
+    sleep 15
     
     # run xscope host in directory where the TEMP_XSCOPE_FILEIO_INPUT_WAV resides
     #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
