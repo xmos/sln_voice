@@ -68,3 +68,5 @@ Device Memory API
 
 .. doxygengroup:: devmem_api
    :content-only:
+
+|newpage|

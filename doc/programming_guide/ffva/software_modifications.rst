@@ -268,3 +268,5 @@ Application Filesystem Usage
 This application is equipped with a FAT filesystem in flash for general use. To add files to the filesystem, simply place them in the `filesystem_support` directory before running the filesystem setup commands in :doc:`Deploying the Firmware with Linux or macOS <deploying/linux_macos>` or :doc:`Deploying the Firmware with Native Windows <deploying/native_windows>`.
 
 The application can access the filesystem via the `FatFS` API.
+
+|newpage|

@@ -114,3 +114,5 @@ Application Integration
 =======================
 
 In depth information on out of the box integration can be found here: :ref:`sln_voice_ffd_host_integration`
+
+|newpage|

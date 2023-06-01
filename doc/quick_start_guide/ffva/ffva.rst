@@ -172,11 +172,11 @@ Being returned to the prompt means flashing has completed, and the XTAG4 may be 
 Prepare the Raspberry Pi System
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Prepare the Raspberry Pi System image on the SD card by following the instructions for XVF3610-INT as described on `GitHub <https://github.com/xmos/vocalfusion-avs-setup>`_
+
 .. note:: The FFVA-INT firmware is compatible with XVF3610-INT software, therefore instructions for installing the XVF3610-INT pi software can be followed for this AVS demo. The "Firmware Upgrade" section may be dismissed, as your FFVA-INT firmware is already updated per the above section of this guide.
 
 .. note:: While 'apt update' will break the install, the user can and must 'apt-get update' before the auto_install.sh script is called, or package installation will fail.
-
-Prepare the Raspberry Pi System image on the SD card by following the instructions for XVF3610-INT as described on `github <https://github.com/xmos/vocalfusion-avs-setup>`_
 
 Connect the System
 ^^^^^^^^^^^^^^^^^^

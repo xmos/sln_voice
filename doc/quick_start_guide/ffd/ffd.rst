@@ -117,3 +117,5 @@ After a period of inactivity, or successful command processing the application r
 - Slow down the fan
 - Set higher temperature
 - Set lower temperature
+
+|newpage|
