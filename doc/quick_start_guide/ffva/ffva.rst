@@ -208,3 +208,5 @@ Run Demo and Test Virtual Assistant Functionality
 5. Soon after, the virtual assistant should audibly answer over speaker as avsrun displays 'Speaking...'
 
 6. Barge-in may also be tested. Before the assistant has finished speaking, Type 't' and hit Enter. The assistant will stop and await a new command.
+
+|newpage|

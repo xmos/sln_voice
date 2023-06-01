@@ -1,8 +1,6 @@
 .. include:: ../../substitutions.rst
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 **********************
 Software Modifications
@@ -181,9 +179,7 @@ Different Peripheral IO
 
 To add or remove a peripheral IO, modify the bsp_config accordingly.  Refer to documentation inside the RTOS Framework on how to instantiate different RTOS peripheral drivers.
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 Direct Control
 ^^^^^^^^^^^^^^
@@ -213,6 +209,4 @@ This code example will receive the ID of each intent, and can be populated by an
    :scale: 80 %
    :alt: ffd host direct control diagram
 
-.. raw:: latex
-
-    \clearpage
+|newpage|

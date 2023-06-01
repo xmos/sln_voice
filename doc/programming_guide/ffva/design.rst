@@ -58,9 +58,7 @@ Populate:
         }
     }
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 *******************
 Design Architecture
@@ -73,6 +71,4 @@ The application consists of a PDM microphone input which is fed through the XMOS
    :scale: 80 %
    :alt: ffva diagram
 
-.. raw:: latex
-
-    \clearpage
+|newpage|

@@ -1,8 +1,6 @@
 .. include:: ../../substitutions.rst
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 **********************
 Software Modifications

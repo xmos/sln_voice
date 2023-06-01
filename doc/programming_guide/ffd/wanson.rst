@@ -1,4 +1,5 @@
 .. include:: <isonum.txt>
+.. include:: ../../substitutions.rst
 
 .. _sln_voice_Wanson:
 
@@ -89,10 +90,7 @@ Dictionary command table
      - command
      - 18
 
-.. raw:: latex
-
-    \clearpage
-
+|newpage|
 
 State Machine
 =============
@@ -106,9 +104,7 @@ When using the state machine, the application intent callback will only occur wh
    :scale: 100 %
    :alt: Wanson speech recognizer state machine diagram
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 The state machine logic can be disabled by setting the compile time option appconfINTENT_RAW_OUTPUT, to 1.  The wake word to command timeout is compile time configurable via appconfINTENT_RESET_DELAY_MS.
 
