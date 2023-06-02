@@ -117,7 +117,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
     #   the input wav files are one channel so we append a silent second mic channel
     TEMP_WAV="${OUTPUT_DIR}/temp.wav"
-    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${TEMP_WAV} remix 2 1
+    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${TEMP_WAV} remix 1 2
     sox ${TEMP_WAV} ${TEMP_XSCOPE_FILEIO_INPUT_WAV} ${TRIM_COMMAND}
     rm ${TEMP_WAV}
 
