@@ -11,7 +11,7 @@ help()
    echo "Syntax: check_asr.sh [-h] firmware input_directory input_list output_directory adapterID"
    echo
    echo "Arguments:"
-   echo "   asr_library            "Sensory" or "Wanson
+   echo "   asr_library            Sensory"
    echo "   input_directory        Absolute path to directory with test vectors"
    echo "   input_list             Absolute path test vector input list file"
    echo "   output_directory       Absolute path to output directory"
@@ -55,12 +55,12 @@ then
     DATA_PARTITION="dist/test_asr_sensory_data_partition.bin"
     TRIM_COMMAND="" # trim is not needed
     TRUTH_TRACK="${INPUT_DIR}/truth_labels.txt"
-elif [[ ${ASR_LIBRARY} == "Wanson" ]]
-then
-    ASR_FIRMWARE="dist/test_asr_wanson.xe"
-    DATA_PARTITION="dist/test_asr_wanson_data_partition.bin"
-    TRIM_COMMAND="trim 0 01:45" # need to trim input to account for 50 command limit  
-    TRUTH_TRACK="${INPUT_DIR}/truth_labels_1_45.txt"
+# elif [[ ${ASR_LIBRARY} == "Wanson" ]]
+# then
+#     ASR_FIRMWARE="dist/test_asr_wanson.xe"
+#     DATA_PARTITION="dist/test_asr_wanson_data_partition.bin"
+#     TRIM_COMMAND="trim 0 01:45" # need to trim input to account for 50 command limit  
+#     TRUTH_TRACK="${INPUT_DIR}/truth_labels_1_45.txt"
 fi
 
 # flash the data partition file
@@ -117,7 +117,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
     #   the input wav files are one channel so we append a silent second mic channel
     TEMP_WAV="${OUTPUT_DIR}/temp.wav"
-    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${TEMP_WAV} remix 1 2
+    sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${TEMP_WAV} remix 2 1
     sox ${TEMP_WAV} ${TEMP_XSCOPE_FILEIO_INPUT_WAV} ${TRIM_COMMAND}
     rm ${TEMP_WAV}
 
