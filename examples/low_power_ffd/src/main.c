@@ -24,7 +24,7 @@
 #include "platform/driver_instances.h"
 #include "audio_pipeline.h"
 #include "intent_engine/intent_engine.h"
-#include "wakeword/wake_word_engine.h"
+#include "wakeword/wakeword.h"
 #include "fs_support.h"
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
@@ -111,10 +111,10 @@ int audio_pipeline_output(void *output_app_data,
     }
     vPortFree(output_audio_frames);
 
-    wakeword_result_t ww_res = wake_word_engine_handler((asr_sample_t *)asr_buf, frame_count);
+    wakeword_result_t ww_res = wakeword_handler((asr_sample_t *)asr_buf, frame_count);
 
     switch (ww_res) {
-        case WAKEWORD_ERROR: 
+        case WAKEWORD_ERROR:
             power_control_halt();
             power_state_set(POWER_STATE_FULL);
             break;
@@ -202,7 +202,7 @@ void startup_task(void *arg)
 
 #if ON_TILE(WAKEWORD_TILE_NO)
     power_state_init();
-    wake_word_engine_init();
+    wakeword_init();
 #endif
 
 #if ON_TILE(ASR_TILE_NO)
