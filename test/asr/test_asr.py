@@ -9,10 +9,9 @@ def test_asr_recognition_count(log):
             fields = line.split(',')
             filename = fields[0]
             max_allowable_wer = float(fields[1])
-            computed_wer = float(fields[1])
+            computed_wer = float(fields[2])
 
-
-            if computed_wer < max_allowable_wer:
+            if computed_wer > max_allowable_wer:
                 errors.append(filename + " failed with " + str(computed_wer) + " WER")
 
     assert not errors, "Test failed:\n{}".format("\n".join(errors))
