@@ -1,8 +1,8 @@
 // Copyright (c) 2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public License: Version 1
 
-#ifndef WAKE_WORD_ENGINE_H_
-#define WAKE_WORD_ENGINE_H_
+#ifndef WAKEWORD_ENGINE_H_
+#define WAKEWORD_ENGINE_H_
 
 #include <stdint.h>
 #include <stddef.h>
@@ -15,7 +15,7 @@ typedef enum {
     WAKEWORD_ERROR
 } wakeword_result_t;
 
-void wake_word_engine_init(void);
-wakeword_result_t wake_word_engine_handler(asr_sample_t *buf, size_t num_frames);
+void wakeword_init(void);
+wakeword_result_t wakeword_handler(asr_sample_t *buf, size_t num_frames);
 
-#endif /* WAKE_WORD_ENGINE_H_ */
+#endif /* WAKEWORD_ENGINE_H_ */

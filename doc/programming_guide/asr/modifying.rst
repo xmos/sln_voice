@@ -53,7 +53,7 @@ See ``asr/port/example/asr_example_model.h`` to see how the model's flash addres
 Placing Models in SRAM
 ======================
 
-Small models (near or under 100kB in size) may be placed in SRAM.  See `asr/port/example/asr_example_model.h`` and ``asr/port/example/asr_example_model.c`` for more information on placing your model in SRAM.  
+Small models (near or under 100kB in size) may be placed in SRAM.  See ``asr/port/example/asr_example_model.h`` and ``asr/port/example/asr_example_model.c`` for more information on placing your model in SRAM.
 
 *******
 ASR API
@@ -68,3 +68,5 @@ Device Memory API
 
 .. doxygengroup:: devmem_api
    :content-only:
+
+|newpage|

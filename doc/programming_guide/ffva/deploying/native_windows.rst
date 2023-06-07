@@ -29,7 +29,7 @@ Then build the host application:
   cd build_host
   nmake install
 
-The host applications will be install at ``<USERPROFILE>\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
+The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
 Building the Firmware
 =====================

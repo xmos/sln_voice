@@ -162,6 +162,11 @@ static low_power_response_t low_power_response(void)
         POWER_STATE_LOW :
         POWER_STATE_FULL;
 
+    if (power_state == POWER_STATE_LOW) {
+        power_state_set(POWER_STATE_LOW);
+        driver_control_lock();
+    }
+
     rtos_intertile_tx(intertile_ctx,
                       appconfPOWER_CONTROL_PORT,
                       &response,
@@ -216,8 +221,6 @@ static void low_power_ready(void)
     rtos_intertile_rx_data(intertile_ctx, &low_pwr_ready, sizeof(low_pwr_ready));
     configASSERT(low_pwr_ready == 1);
 
-    power_state_set(POWER_STATE_LOW);
-    driver_control_lock();
     low_power_clocks_enable();
     debug_printf("Entered low power.\n");
 #else
@@ -236,7 +239,6 @@ static void low_power_ready(void)
     configASSERT(notif_value == TASK_NOTIF_MASK_LP_IND_COMPLETE);
 
     driver_control_lock();
-    intent_engine_keyword_queue_reset();
 
     /*
      * Signal to the other tile that it is ready to enter low power mode.

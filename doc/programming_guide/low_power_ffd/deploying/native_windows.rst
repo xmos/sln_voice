@@ -1,17 +1,20 @@
 .. include:: ../../../substitutions.rst
 
-.. _sln_voice_ffd_deploying_native_windows:
+.. _sln_voice_low_power_ffd_deploying_native_windows:
 
 ******************************************
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `NMake`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
+This document explains how to deploy the software using `CMake` and `NMake`. If you are not using
+native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to
+:doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
 
 Building the Host Applications
 ==============================
 
-This application requires a host application to create the flash data partition. Run the following commands in the root folder to build the host application using your native Toolchain:
+This application requires a host application to create the flash data partition. Run the following
+commands in the root folder to build the host application using your native toolchain:
 
 .. note::
 
@@ -31,7 +34,8 @@ Then build the host application:
   cd build_host
   nmake install
 
-The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
+The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.
+You may wish to add this directory to your ``PATH`` variable.
 
 Building the Firmware
 =====================
@@ -42,28 +46,29 @@ Run the following commands in the root folder to build the firmware:
 
     cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_ffd
+    nmake example_low_power_ffd
 
 Running the Firmware
 ====================
 
-Before running the firmware, the filesystem and model must be flashed to the data partition.
+Before running the firmware, the filesystem and `command` model must be flashed to the data partition.
 
 Within the root of the build folder, run:
 
 .. code-block:: console
 
-    nmake flash_app_example_ffd
+    nmake flash_app_example_low_power_ffd
 
 After this command completes, the application will be running.
 
-After flashing the data partition, the application can be run without reflashing. If changes are made to the data partition components, the application must be reflashed.
+After flashing the data partition, the application can be run without reflashing. If changes are
+made to the data partition components, the application must be reflashed.
 
 From the build folder run:
 
 .. code-block:: console
 
-    nmake run_example_ffd
+    nmake run_example_low_power_ffd
 
 Debugging the Firmware
 ======================
@@ -72,4 +77,6 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    nmake debug_example_ffd
+    nmake debug_example_low_power_ffd
+
+|newpage|
