@@ -29,7 +29,7 @@
 
 #ifndef SENSORY_ASR_MAX_TOKENS
 // > 0 : override MAX_TOKENS
-#define SENSORY_ASR_MAX_TOKENS              (0)
+#define SENSORY_ASR_MAX_TOKENS              (500)
 #endif
 
 #ifndef SENSORY_ASR_SDET_TYPE
