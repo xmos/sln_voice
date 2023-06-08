@@ -1,15 +1,10 @@
 .. include:: ../../substitutions.rst
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 **********************
 Software Modifications
 **********************
-
-Overview
-========
 
 The FFD example design consists of three major software blocks, the audio pipeline, keyword spotter, and keyword handler.  This section will go into detail on how to replace each/all of these subsystems.
 
@@ -169,7 +164,7 @@ The generic intent engine API only requires two functions be declared:
 
     /* Generic interface for intent engines */
     int32_t intent_engine_create(uint32_t priority, void *args);
-    int32_t intent_engine_sample_push(int32_t *buf, size_t frames);
+    int32_t intent_engine_sample_push(asr_sample_t *buf, size_t frames);
 
 Refer to the existing Wanson model implementation for details on how the output handler is set up, how the audio is conditioned to the expected model format, and how it receives frames from the audio pipeline.
 
@@ -184,9 +179,7 @@ Different Peripheral IO
 
 To add or remove a peripheral IO, modify the bsp_config accordingly.  Refer to documentation inside the RTOS Framework on how to instantiate different RTOS peripheral drivers.
 
-.. raw:: latex
-
-    \clearpage
+|newpage|
 
 Direct Control
 ^^^^^^^^^^^^^^
@@ -216,6 +209,4 @@ This code example will receive the ID of each intent, and can be populated by an
    :scale: 80 %
    :alt: ffd host direct control diagram
 
-.. raw:: latex
-
-    \clearpage
+|newpage|

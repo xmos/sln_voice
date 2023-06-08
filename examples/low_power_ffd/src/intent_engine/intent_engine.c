@@ -166,6 +166,7 @@ static uint8_t low_power_handler(TimerHandle_t pxTimer, asr_sample_t *buf)
              * a reset when STATE_REQUESTING_LOW_POWER is NAK'd, suggesting
              * that a wake word may have been spoken. */
             asr_reset(asr_ctx);
+            intent_engine_keyword_queue_reset();
             intent_power_state = STATE_EXITING_LOW_POWER;
         }
         break;

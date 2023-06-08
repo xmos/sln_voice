@@ -1,4 +1,4 @@
-// Copyright 2022 XMOS LIMITED.
+// Copyright 2022-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef POWER_CONTROL_H_
@@ -49,7 +49,7 @@ void power_control_halt(void);
 void power_control_req_low_power(void);
 
 /**
- * @brief Notify the power control task that indication oof the power state
+ * @brief Notify the power control task that indication of the power state
  * has completed, and it is safe to proceed with the requested operation.
  */
 void power_control_ind_complete(void);

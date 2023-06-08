@@ -26,7 +26,7 @@ These include:
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
-- Support for Wanson or other 3rd party Automatic Speech Recognition (ASR) software
+- Support for Sensory, Wanson, or other 3rd party Automatic Speech Recognition (ASR) software
 
 **Device Interface components**
 
@@ -37,6 +37,7 @@ These include:
 **Example Designs utilizing above components**
 
 - Far-Field Voice Local Command 
+- Low Power Far-Field Voice Local Command 
 - Far-Field Voice Assistance 
 
 **Firmware Management**
@@ -48,7 +49,8 @@ These include:
 
 **Power Consumption**
 
-- Typical power consumption 300-350mW 
+- FFD/FFVA: 300-350mW (Typical)
+- Low Power FFD: 110mW (Full-Power), 54mW (Low-Power), <50mW possible with Sensory's LPSD under certain conditions.
 
 ######################
 Obtaining the Hardware
