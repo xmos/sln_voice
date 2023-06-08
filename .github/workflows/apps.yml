@@ -149,27 +149,28 @@ jobs:
         run: |
           docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_examples.sh tools/ci/dev_examples.txt
 
-  build_tests:
-    if: inputs.is_release == 'false'
-    name: Build tests and test applications
-    runs-on: ubuntu-latest
-    needs: build_host_apps
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
+  # NOTE: Tests are now built by internal Jenkins CI
+  # build_tests:
+  #   if: inputs.is_release == 'false'
+  #   name: Build tests and test applications
+  #   runs-on: ubuntu-latest
+  #   needs: build_host_apps
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
+  #       with:
+  #         submodules: recursive
 
-      - name: Pull Docker builder
-        run: |
-          docker pull ${XCORE_BUILDER}
+  #     - name: Pull Docker builder
+  #       run: |
+  #         docker pull ${XCORE_BUILDER}
 
-      - name: Download host build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
-          path: ./dist_host
+  #     - name: Download host build artifacts
+  #       uses: actions/download-artifact@v3
+  #       with:
+  #         name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
+  #         path: ./dist_host
 
-      - name: Build
-        run: |
-          docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
+  #     - name: Build
+  #       run: |
+  #         docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_tests.sh
