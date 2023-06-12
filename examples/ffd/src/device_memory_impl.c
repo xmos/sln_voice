@@ -77,17 +77,9 @@ void devmem_init(devmem_manager_t *devmem_ctx) {
     devmem_ctx->read_ext_wait = NULL;   // not supported in this application
 }
 
-#include "ff.h"            /* Obtains integer types */
-#include "diskio.h"        /* Declarations of disk functions */
-
-#include "rtos_qspi_flash.h"
-
-#ifndef QSPI_FLASH_SECTOR_SIZE
-#define QSPI_FLASH_SECTOR_SIZE 4096
-#endif
-
-extern DSTATUS drive_status[FF_VOLUMES];
-
+// NOTE: Mixed ll (low-level) and non-ll reads are not currently supported by the QSPI flash driver. 
+// We are providing a "strong" implementation of the FatFS disk_read function in order to utilize 
+// the rtos_qspi_flash_fast_read_mode_ll function for reading.  
 DRESULT disk_read(BYTE pdrv,  /* Physical drive number to identify the drive */
                   BYTE *buff, /* Data buffer to store read data */
                   LBA_t sector, /* Start sector in LBA */
