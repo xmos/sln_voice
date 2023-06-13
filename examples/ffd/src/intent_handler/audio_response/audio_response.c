@@ -46,6 +46,8 @@ static int16_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int16_t)]
 static int32_t i2s_audio[2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t))];
 static drwav *wav_files = NULL;
 
+#pragma stackfunction 3000
+
 int32_t audio_response_init(void) {
     FRESULT result = 0;
     FIL *files = pvPortMalloc(NUM_FILES * sizeof(FIL));

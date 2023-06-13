@@ -79,7 +79,7 @@ void devmem_init(devmem_manager_t *devmem_ctx) {
 
 // NOTE: Mixed ll (low-level) and non-ll reads are not currently supported by the QSPI flash driver. 
 // We are providing a "strong" implementation of the FatFS disk_read function in order to utilize 
-// the rtos_qspi_flash_fast_read_mode_ll function for reading.  
+// the rtos_qspi_flash_fast_read_mode_ll function for reading.
 DRESULT disk_read(BYTE pdrv,  /* Physical drive number to identify the drive */
                   BYTE *buff, /* Data buffer to store read data */
                   LBA_t sector, /* Start sector in LBA */

@@ -18,7 +18,6 @@
 #include "intent_engine.h"
 
 static QueueHandle_t q_intent = 0;
-static uint8_t keyword_proc_busy = 0;
 
 // look up table to converting ASR IDs to wav file IDs or strings
 #define ASR_NUMBER_OF_COMMANDS  (17)
@@ -53,10 +52,8 @@ static asr_lut_t asr_lut[ASR_NUMBER_OF_COMMANDS] = {
 void intent_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
-        keyword_proc_busy = 1;
         if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost wav playback.  Queue was full.\n");
-            keyword_proc_busy = 0;
         }
     }
 }

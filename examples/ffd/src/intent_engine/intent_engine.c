@@ -15,6 +15,7 @@
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "intent_engine/intent_engine.h"
+#include "intent_handler/intent_handler.h"
 #include "asr.h"
 #include "device_memory_impl.h"
 #include "gpio_ctrl/leds.h"
@@ -142,6 +143,11 @@ void intent_engine_task(void *args)
                              // Note, we do not need to overlap the window of samples.
                              // This is handled in the ASR ports.
 
+        // this application does not support barge-in
+        //   so, we need to check if an audio response is playing and skip to the next
+        //   audio frame because the playback may trigger the ASR.  
+        if (intent_handler_response_playing()) continue;
+
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
 
         if (asr_error == ASR_EVALUATION_EXPIRED) {
@@ -156,6 +162,7 @@ void intent_engine_task(void *args)
         word_id = asr_result.id;
 
         if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue; 
+
 
     #if appconfINTENT_RAW_OUTPUT
         intent_engine_process_asr_result(word_id);
