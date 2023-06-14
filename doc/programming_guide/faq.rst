@@ -22,23 +22,6 @@ This issue occurs when the ``fatfs_mkimage`` host utility cannot be found.  The 
 
 Ensure that the host applications build and install has been completed.  Verify that the ``fatfs_mkimage`` binary is installed to a location on PATH, or that the default application installation folder is added to PATH.
 
-******************
-FFD Crash At Start
-******************
-
-One potential issue with the FFD application is a crash when trying to run:
-
-.. code-block:: console
-
-    Wanson init
-    xrun: Program received signal ET_ECALL, Application exception.
-        [Switching to tile[0] core[3]]
-        0x0008d308 in __xcore_ecallf ()
-
-This generally occurs when the model was not properly loaded into flash.  To flash the model and filesystem, see :ref:`sln_voice_ffd_deploying_linux_mac`
-or :ref:`sln_voice_ffd_deploying_native_windows` based on host platform.
-
-
 **********************
 FFD pdm_rx_isr() Crash
 **********************

@@ -26,7 +26,7 @@ These include:
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
-- Support for Sensory, Wanson, or other 3rd party Automatic Speech Recognition (ASR) software
+- Support for Sensory or other 3rd party Automatic Speech Recognition (ASR) software
 
 **Device Interface components**
 
@@ -108,3 +108,10 @@ Run the following `git` command to clone the repository and all submodules:
 .. code-block:: console
 
   git clone --recurse-submodules git@github.com:xmos/sln_voice.git
+
+If you have previously cloned the repository or downloaded a zip file of source code, the following commands can be used to update and fetch the submodules:
+
+.. code-block:: console
+
+    git pull
+    git submodule update --init --recursive

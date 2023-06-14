@@ -25,6 +25,7 @@ Additional third party code is included under the following copyrights and licen
       - Copyright & License
     * - `dr_wav <https://github.com/mackron/dr_libs>`__
       - Copyright (C) 2022 David Reid, licensed under a `public domain license <https://github.com/mackron/dr_libs/blob/master/LICENSE>`__
-    * - Wanson Speech Recognition Library
-      - The Wanson speech recognition library is Copyright 2022. Shanghai Wanson Electronic Technology Co. Ltd ("WANSON") and is subject to the `Wanson Restrictive License <https://github.com/xmos/sln_voice/blob/develop/modules/asr/wanson/lib/LICENSE.md>`_
+    * - Sensory TrulyHandsfree™
+      - The Sensory TrulyHandsfree™ speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by [Sensory Inc](https://www.sensory.com/).
+
       
