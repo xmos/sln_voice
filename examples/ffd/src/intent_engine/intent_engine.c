@@ -15,17 +15,27 @@
 #include "app_conf.h"
 #include "platform/driver_instances.h"
 #include "intent_engine/intent_engine.h"
+#include "intent_handler/intent_handler.h"
 #include "asr.h"
+#include "device_memory_impl.h"
 #include "gpio_ctrl/leds.h"
 
 #if ON_TILE(ASR_TILE_NO)
 
-#define IS_KEYWORD(id)    (id == 1 || id == 2)
-#define IS_COMMAND(id)    (id > 2)
+#define IS_KEYWORD(id)    (id == 17)
+#define IS_COMMAND(id)    (id > 0 && id != 17)
 
-#define SAMPLES_PER_ASR    (2 * appconfINTENT_SAMPLE_BLOCK_LENGTH)
-
+#define SAMPLES_PER_ASR                 (appconfINTENT_SAMPLE_BLOCK_LENGTH)
 #define STOP_LISTENING_SOUND_WAV_ID     (0)
+
+// SEARCH model file is specified in the CMakeLists SENSORY_COMMAND_SEARCH_SOURCE_FILE variable
+extern const unsigned short gs_grammarLabel[];
+void* grammar = (void*)gs_grammarLabel;
+
+// Model file is in flash at the offset specified in the CMakeLists
+// QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
+// to be added so the address in in the SwMem range.  
+uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
 
 typedef enum intent_state {
     STATE_EXPECTING_WAKEWORD,
@@ -40,6 +50,7 @@ enum timeout_event {
 
 static intent_state_t intent_state;
 static asr_port_t asr_ctx; 
+static devmem_manager_t devmem_ctx;
 
 static uint32_t timeout_event = TIMEOUT_EVENT_NONE;
 
@@ -84,20 +95,16 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
 {
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
-        if (intent_state != STATE_PROCESSING_COMMAND) {
-            intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
-        }
+        intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
         led_indicate_waiting();
         intent_state = STATE_EXPECTING_WAKEWORD;
     }
 }
 
-#pragma stackfunction 1500
+#pragma stackfunction 1000
 void intent_engine_task(void *args)
 {
     intent_state = STATE_EXPECTING_WAKEWORD;
-
-    asr_ctx = asr_init(NULL, NULL, NULL);
 
     StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
     TimerHandle_t int_eng_tmr = xTimerCreate(
@@ -106,6 +113,9 @@ void intent_engine_task(void *args)
         pdFALSE,
         NULL,
         vIntentTimerCallback);
+
+    devmem_init(&devmem_ctx);
+    asr_ctx = asr_init((int32_t *)model, (int32_t *)grammar, &devmem_ctx);
 
     int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
     int16_t buf_short[SAMPLES_PER_ASR] = {0};
@@ -133,6 +143,11 @@ void intent_engine_task(void *args)
                              // Note, we do not need to overlap the window of samples.
                              // This is handled in the ASR ports.
 
+        // this application does not support barge-in
+        //   so, we need to check if an audio response is playing and skip to the next
+        //   audio frame because the playback may trigger the ASR.  
+        if (intent_handler_response_playing()) continue;
+
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
 
         if (asr_error == ASR_EVALUATION_EXPIRED) {
@@ -148,6 +163,7 @@ void intent_engine_task(void *args)
 
         if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue; 
 
+
     #if appconfINTENT_RAW_OUTPUT
         intent_engine_process_asr_result(word_id);
     #else
@@ -157,15 +173,19 @@ void intent_engine_task(void *args)
             intent_engine_process_asr_result(word_id);
             intent_state = STATE_EXPECTING_COMMAND;
         } else if (intent_state == STATE_EXPECTING_COMMAND && IS_COMMAND(word_id)) {
+            xTimerReset(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
             intent_state = STATE_PROCESSING_COMMAND;
         } else if (intent_state == STATE_EXPECTING_COMMAND && IS_KEYWORD(word_id)) {
+            xTimerReset(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
             // remain in STATE_EXPECTING_COMMAND state
         } else if (intent_state == STATE_PROCESSING_COMMAND && IS_KEYWORD(word_id)) {
+            xTimerReset(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
             intent_state = STATE_EXPECTING_COMMAND;
         } else if (intent_state == STATE_PROCESSING_COMMAND && IS_COMMAND(word_id)) {
+            xTimerReset(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
             // remain in STATE_PROCESSING_COMMAND state
         }

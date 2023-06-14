@@ -35,10 +35,8 @@
     // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
     // to be added so the address in in the SwMem range.  
     uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
-#elif (appconfASR_LIBRARY_ID == 1)
-    // Wanson
-    void* grammar = NULL;
-    void* model = NULL;
+#else
+    #error "Unsupported appconfASR_LIBRARY_ID"
 #endif
 
 static TaskHandle_t xscope_fileio_task_handle;

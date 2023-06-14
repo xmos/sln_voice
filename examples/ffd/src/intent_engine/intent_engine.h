@@ -4,6 +4,7 @@
 #ifndef INTENT_ENGINE_H_
 #define INTENT_ENGINE_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stddef.h>
 
@@ -27,8 +28,6 @@ void intent_engine_samples_send_remote(
         int32_t *processed_audio_frame);
 
 
-int32_t intent_engine_keyword_queue_count(void);
-void intent_engine_keyword_queue_complete(void);
 void intent_engine_stream_buf_reset(void);
 void intent_engine_play_response(int wav_id);
 void intent_engine_process_asr_result(int word_id);

@@ -18,7 +18,6 @@
 #include "intent_engine.h"
 
 static QueueHandle_t q_intent = 0;
-static uint8_t keyword_proc_busy = 0;
 
 // look up table to converting ASR IDs to wav file IDs or strings
 #define ASR_NUMBER_OF_COMMANDS  (17)
@@ -31,32 +30,30 @@ typedef struct asr_lut_struct
 } asr_lut_t;
 
 static asr_lut_t asr_lut[ASR_NUMBER_OF_COMMANDS] = {
-    {1, 1, "Hello XMOS"},
-    {3, 2, "Switch on the TV"},
-    {4, 3, "Switch off the TV"},
-    {5, 4, "Channel up"},
-    {6, 5, "Channel down"},
-    {7, 6, "Volume up"},
-    {8, 7, "Volume down"},
-    {9, 8, "Switch on the lights"},
+    {1, 2, "Switch on the TV"},
+    {2, 4, "Channel up"},
+    {3, 5, "Channel down"},
+    {4, 6, "Volume up"},
+    {5, 7, "Volume down"},
+    {6, 3, "Switch off the TV"},
+    {7, 8, "Switch on the lights"},
+    {8, 10, "Brightness up"},
+    {9, 11, "Brightness down"},
     {10, 9, "Switch off the lights"},
-    {11, 10, "Brightness up"},
-    {12, 11, "Brightness down"},
-    {13, 12, "Switch on the fan"},
-    {14, 13, "Switch off the fan"},
-    {15, 14, "Speed up the fan"},
-    {16, 15, "Slow down the fan"},
-    {17, 16, "Set higher temperature"},
-    {18, 17, "Set lower temperature"}
+    {11, 12, "Switch on the fan"},
+    {12, 14, "Speed up the fan"},
+    {13, 15, "Slow down the fan"},
+    {14, 16, "Set higher temperature"},
+    {15, 17, "Set lower temperature"},
+    {16, 13, "Switch off the fan"},
+    {17, 1, "Hello XMOS"}
 };
 
 void intent_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
-        keyword_proc_busy = 1;
         if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost wav playback.  Queue was full.\n");
-            keyword_proc_busy = 0;
         }
     }
 }
