@@ -8,7 +8,13 @@ RUN apt install -y git pkg-config python3.9 python3-pip libusb-1.0-0-dev -o APT:
 # install dependencies
 RUN apt-get update && apt-get install -y \
     dfu-util \
+    usbutils \
+    procps \
     && apt-get clean autoclean
+
+WORKDIR /test
+ADD test/requirements.txt /test
+RUN pip install -r requirements.txt
 
 #WORKDIR /tools/install
 #ADD tools/install/contribute.txt /tools/install
