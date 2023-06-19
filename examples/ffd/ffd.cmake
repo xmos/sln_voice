@@ -2,10 +2,14 @@ set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
 #****************************
 # Set Sensory model variables
+#
+# NOTE: Change the value of MODEL_LANGUAGE to "mandarin_mainland" for the Mandarin demo
+#
 #****************************
-set(SENSORY_COMMAND_SEARCH_HEADER_FILE "${FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-search.h")
-set(SENSORY_COMMAND_SEARCH_SOURCE_FILE "${FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-search.c")
-set(SENSORY_COMMAND_NET_FILE "${FFD_SRC_ROOT}/model/command-pc62w-6.4.0-op10-dev-net.bin.nibble_swapped")
+set(MODEL_LANGUAGE "english_usa")
+set(SENSORY_COMMAND_SEARCH_HEADER_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc62w-6.4.0-op10-prod-search.h")
+set(SENSORY_COMMAND_SEARCH_SOURCE_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc62w-6.4.0-op10-prod-search.c")
+set(SENSORY_COMMAND_NET_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc62w-6.4.0-op10-prod-net.bin.nibble_swapped")
 
 #**********************
 # Gather Sources
@@ -152,7 +156,7 @@ add_custom_target(${MODEL_FILE} ALL
 
 create_filesystem_target(
     #[[ Target ]]                   ${TARGET_NAME}
-    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
+    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/english_usa
     #[[ Image Size ]]               ${FILESYSTEM_SIZE_BYTES}
 )
 
