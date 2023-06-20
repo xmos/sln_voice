@@ -1,6 +1,17 @@
 XCORE-VOICE change log
 ======================
 
+2.0.0
+-----
+
+  * ADDED: All speech recognition example deigns now use Sensory TrulyHandsfree speech recognition library.  
+  * ADDED: Low-power far-field dictionary (low-power FFD) example design using wakeword to exit standby mode.  
+  * ADDED: Mandarin model to far-field dictionary (low-power FFD) example design demonstration.
+  * ADDED: Support for fast flash library which increases flash reading throughput by as much as 70%.
+  * MOVED: Audio pipelines relocated to modules to allow easier re-use.
+  * FIXED: Example designs now indicate when evaluation period has expired.
+  * FIXED: Numerous minor bug fixes.  
+
 1.0.0
 -----
 

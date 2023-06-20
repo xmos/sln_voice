@@ -56,9 +56,7 @@ def process(log, label_track, lut):
     # Process events and make label track
     with open(label_track, "w") as fd:
         for recognition_event in recognition_events:
-            if lut == "Wanson":
-                event_str = WANSON_LUT[recognition_event["id"]]
-            elif lut == "Sensory":
+            if lut == "Sensory":
                 event_str = SENSORY_LUT[recognition_event["id"]]
             else:
                 event_str = str(recognition_event["id"])
