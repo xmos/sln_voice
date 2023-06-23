@@ -149,26 +149,6 @@ With:
 
 It is also possible to add or remove stages.  Refer to the RTOS Framework documentation on the generic pipeline sw_service.
 
-
-.. _sln_voice_ffd_replacing-keyword-engine-block:
-
-Replacing ASR Engine Block
---------------------------
-
-Replacing the keyword spotter engine has the potential to require significant changes due to various feature extraction input requirements and varied output logic.
-
-The generic intent engine API only requires two functions be declared:
-
-.. code-block:: c
-    :caption: Intent API (intent_engine.h)
-
-    /* Generic interface for intent engines */
-    int32_t intent_engine_create(uint32_t priority, void *args);
-    int32_t intent_engine_sample_push(asr_sample_t *buf, size_t frames);
-
-Refer to the existing Wanson model implementation for details on how the output handler is set up, how the audio is conditioned to the expected model format, and how it receives frames from the audio pipeline.
-
-
 Replacing Example Design Interfaces
 -----------------------------------
 

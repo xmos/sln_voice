@@ -21,8 +21,8 @@ The table below lists the approximate memory requirements for the larger softwar
       - Memory Use (kB)
     * - Stereo Adaptive Echo Canceler (AEC)
       - 275
-    * - Wanson Speech Recognition Engine
-      - 194
+    * - Sensory Speech Recognition Engine
+      - 180
     * - Interference Canceler (IC) + Voice To Noise Ratio Estimator (VNR)
       - 130
     * - USB
@@ -59,7 +59,7 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - Stereo Adaptive Echo Canceler (AEC)
       - 80
       - 96
-    * - Wanson Speech Recognition Engine
+    * - Sensory Speech Recognition Engine
       - 80
       - 96
     * - Interference Canceler (IC) + Voice To Noise Ratio Estimator (VNR)

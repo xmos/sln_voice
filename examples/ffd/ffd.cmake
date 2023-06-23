@@ -156,7 +156,7 @@ add_custom_target(${MODEL_FILE} ALL
 
 create_filesystem_target(
     #[[ Target ]]                   ${TARGET_NAME}
-    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/english_usa
+    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/${MODEL_LANGUAGE}
     #[[ Image Size ]]               ${FILESYSTEM_SIZE_BYTES}
 )
 

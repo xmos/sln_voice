@@ -1,11 +1,11 @@
 .. include:: <isonum.txt>
 .. include:: ../../substitutions.rst
 
-.. _sln_voice_Sensory:
+.. _sln_voice_low_power_ffd_speech_recognition:
 
-##########################
-Sensory Speech Recognition
-##########################
+##################
+Speech Recognition
+##################
 
 License
 =======
@@ -19,7 +19,7 @@ or 107 recognition events.
 Overview
 ========
 
-The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream.
+The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream. Models can be generated using `VoiceHub <https://voicehub.sensory.com/>`__. 
 
 Two models are provided for the purpose of Low Power FFD. The small wake word model running on tile 1
 is approximately 67KB. The command model running on tile 0 is approximately 289KB. On tile 1, the
@@ -29,6 +29,21 @@ Sensory runtime and application supporting code consumes approximately 210KB of 
 With the command model in flash, the Sensory engine requires a core frequency of at least 450 MHz to
 keep up with real time. Additionally, the intent engine that is responsible for processing the
 commands must be on the same tile as the flash.
+
+To run with a different model, see the ``Set Sensory model variables`` section of the ``low_power_ffd.cmake`` file. There several variables are set pointing to files that are part of the VoiceHub generated model download. Change these variables to point to the files you downloaded. This can be done for both the wakeword and command models.  The command model "net.bin" file, because it is placed in flash memory, must first be nibble swapped.  A utility is provided that is part of the host applications built during install.  Run that application with the following command:
+
+.. code-block:: console
+
+  nibble_swap <your-model-prod-net.bin> <your-model-prod-net.bin.nibble_swapped>
+
+Make sure run the following commands to rebuild and re-flash the data partition:
+
+.. code-block:: console
+    
+    make clean
+    make flash_app_example_low_power_ffd -j
+
+You may also wish to modify the command ID-to-string lookup table which is located in the ``src/intent_engine/intent_engine_io.c`` source file.
 
 To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 

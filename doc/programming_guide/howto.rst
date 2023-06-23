@@ -6,12 +6,6 @@ How-Tos
 
 This section includes instructions on anticipated or common software modifications.
 
-*********************************************
-Adding a different speech recognition library
-*********************************************
-
-See :ref:`sln_voice_ffd_replacing-keyword-engine-block` for information on how to add a different speech recognition library.  
-
 *****************************************
 Changing the input and output sample rate
 *****************************************

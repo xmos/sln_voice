@@ -8,6 +8,21 @@ The XCORE-VOICE Solution consists of example designs and a C-based SDK for the d
 
 XCORE-VOICE example designs provide turn-key solutions to enable easier product development for smart home applications such as light switches, thermostats, and home appliances. xcore.ai’s unique architecture providing powerful signal processing and accelerated AI capabilities combined with the XCORE-VOICE framework allows designers to incorporate keyword, event detection, or advanced local dictionary support to create a complete voice interface solution. 
 
+The C SDK is composed of the following components:
+
+- Peripheral IO libraries including; UART, I2C, I2S, SPI, QSPI, PDM microphones, and USB. These libraries support bare-metal and RTOS application development.
+- Libraries core to DSP applications, including vectorized math and voice processing DSP.  These libraries support bare-metal and RTOS application development.
+- Libraries for speech recognition applications.  These libraries support bare-metal and RTOS application development.
+- Libraries that enable multi-core FreeRTOS development on xcore including a wide array of RTOS drivers and middleware.
+- Pre-build and validated audio processing pipelines.  
+- Code Examples - Examples showing a variety of xcore features based on bare-metal and FreeRTOS programming.
+- Documentation - Tutorials, references and API guides.
+
+.. figure:: diagrams/xcore-voice_component_diagram.drawio.png
+   :align: center
+   :scale: 80 %
+   :alt: component diagram
+
 ############
 Key Features 
 ############

@@ -6,13 +6,14 @@
 Modifying the Software
 ######################
 
+The FFD example design is highly customizable.  This section describes how to modify the application.
+
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
    host_integration
    audio_pipeline
    software_description
    software_modifications
-   wanson
+   speech_recognition
  
