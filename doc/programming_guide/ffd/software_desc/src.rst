@@ -13,8 +13,6 @@ This folder contains the core application source.
 
    * - Filename/Directory
      - Description
-   * - audio_pipeline directory
-     - contains example XMOS audio pipeline
    * - gpio_ctrl directory
      - contains general purpose input handling and LED handling tasks
    * - intent_engine directory

@@ -15,7 +15,12 @@ Docs             | ![CI](https://github.com/xmos/sln_voice/actions/workflows/doc
 
 Some dependent components are included as git submodules. These can be obtained by cloning this repository with the following command:
 
-    $ git clone --recurse-submodules git@github.com:xmos/sln_voice.git
+    git clone --recurse-submodules git@github.com:xmos/sln_voice.git
+
+If you have previously cloned the repository or downloaded a zip file of source code, the following commands can be used to update and fetch the submodules:
+
+    git pull
+    git submodule update --init --recursive
 
 ## Documentation
 
@@ -36,7 +41,5 @@ A [Github issue](https://github.com/xmos/sln_voice/issues/new/choose) should be 
 This Software is subject to the terms of the [XMOS Public Licence: Version 1](https://github.com/xmos/sln_voice/blob/develop/LICENSE.rst)
 
 Additional third party copyrighted code is included under the following licenses:
-
-The Wanson speech recognition library is `Copyright 2022. Shanghai Wanson Electronic Technology Co.Ltd ("WANSON")` and is subject to the [Wanson Restrictive License](https://github.com/xmos/sln_voice/blob/develop/modules/asr/wanson/lib/LICENSE.md).
 
 The Sensory TrulyHandsfree™ speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by [Sensory Inc](https://www.sensory.com/).

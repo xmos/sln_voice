@@ -36,7 +36,7 @@ INPUT += ../modules/io/modules/uart/api
 INPUT += ../modules/io/modules/mic_array/lib_mic_array/api ../modules/io/modules/mic_array/etc/vanilla ../modules/io/modules/mic_array/doc/programming_guide/src
 
 # XCORE-VOICE APIs
-INPUT += ../examples/speech_recognition/asr/api/
+INPUT += ../modules/asr/
 
 USE_MATHJAX = YES
 MATHJAX_FORMAT = HTML-CSS

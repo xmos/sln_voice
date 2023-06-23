@@ -4,7 +4,7 @@
 Supported Hardware
 ******************
 
-This example application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
+This example application is supported on the |HARDWARE_URL| board.
 
 Setting up the Hardware
 =======================

@@ -43,8 +43,6 @@ The description of the software is split up by folder:
 
    * - Folder
      - Description
-   * - :ref:`sln_voice_ffd_asr`
-     - ASR engine ports
    * - :ref:`sln_voice_ffd_bsp_config`
      - Board support configuration setting up software based IO peripherals
    * - :ref:`sln_voice_ffd_ext`

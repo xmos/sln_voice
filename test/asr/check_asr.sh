@@ -55,10 +55,10 @@ then
     DATA_PARTITION="dist/test_asr_sensory_data_partition.bin"
     TRIM_COMMAND="" # trim is not needed
     TRUTH_TRACK="${INPUT_DIR}/truth_labels.txt"
-# elif [[ ${ASR_LIBRARY} == "Wanson" ]]
+# elif [[ ${ASR_LIBRARY} == "Other" ]]
 # then
-#     ASR_FIRMWARE="dist/test_asr_wanson.xe"
-#     DATA_PARTITION="dist/test_asr_wanson_data_partition.bin"
+#     ASR_FIRMWARE="dist/test_asr_other.xe"
+#     DATA_PARTITION="dist/test_asr_other_data_partition.bin"
 #     TRIM_COMMAND="trim 0 01:45" # need to trim input to account for 50 command limit  
 #     TRUTH_TRACK="${INPUT_DIR}/truth_labels_1_45.txt"
 fi

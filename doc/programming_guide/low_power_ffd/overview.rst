@@ -33,6 +33,6 @@ normal operation. To perform a reset, either power cycle the device or press the
 Note that SW2 is only functional while in full power mode (this application is configured to hold
 the device in full-power mode on such license expiration events).
 
-More information on the Sensory speech recognition library can be found here: :ref:`sln_voice_Sensory`
+More information on the Sensory speech recognition library can be found here: :ref:`sln_voice_low_power_ffd_speech_recognition`
 
 |newpage|

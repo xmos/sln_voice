@@ -69,7 +69,7 @@ void intent_engine_process_asr_result(int word_id)
             text = asr_lut[i].text;
         }
     }
-    rtos_printf("KEYWORD: 0x%x, %s\n", (int) word_id, (char*)text);
+    rtos_printf("RECOGNIZED: 0x%x, %s\n", (int) word_id, (char*)text);
     intent_engine_play_response(wav_id);
 }
 

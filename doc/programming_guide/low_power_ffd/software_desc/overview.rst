@@ -15,7 +15,7 @@ The approximate resource utilizations for Low Power FFD are shown in the table b
      - Tile 0
      - Tile 1
    * - Unused CPU Time (600MHz | 200MHz)
-     - 11%
+     - 50%
      - 10%
    * - Total Memory Free
      - 19.1k

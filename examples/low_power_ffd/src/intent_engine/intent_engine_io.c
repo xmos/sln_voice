@@ -60,7 +60,7 @@ void intent_engine_process_asr_result(int word_id)
             break;
         }
     }
-    rtos_printf("KEYWORD: 0x%x, %s\n", (int) word_id, (char*)text);
+    rtos_printf("RECOGNIZED: 0x%x, %s\n", (int) word_id, (char*)text);
     if (q_intent != 0) {
         keyword_proc_busy = 1;
         if (xQueueSend(q_intent, (void *)&word_id, (TickType_t)0) != pdPASS) {

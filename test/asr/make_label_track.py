@@ -9,27 +9,6 @@ LINE_START = "RECOGNIZED:"
 PIPELINE_BRICK_LENGTH_SAMPLES = 240
 PIPELINE_BRICK_LENGTH_MS = 15
 
-WANSON_LUT = {
-    1: "Hello XMOS",
-    2: "Hello Wanson",
-    3: "Switch on the TV",
-    4: "Switch off the TV",
-    5: "Channel up",
-    6: "Channel down",
-    7: "Volume up",
-    8: "Volume down",
-    9: "Switch on the lights",
-    10: "Switch off the lights",
-    11: "Brightness up",
-    12: "Brightness down",
-    13: "Switch on the fan",
-    14: "Switch off the fan",
-    15: "Speed up the fan",
-    16: "Slow down the fan",
-    17: "Set higher temperature",
-    18: "Set lower temperature"
-}
-
 SENSORY_LUT = {
     1: "Switch on the TV",
     2: "Channel up",
@@ -77,9 +56,7 @@ def process(log, label_track, lut):
     # Process events and make label track
     with open(label_track, "w") as fd:
         for recognition_event in recognition_events:
-            if lut == "Wanson":
-                event_str = WANSON_LUT[recognition_event["id"]]
-            elif lut == "Sensory":
+            if lut == "Sensory":
                 event_str = SENSORY_LUT[recognition_event["id"]]
             else:
                 event_str = str(recognition_event["id"])
@@ -92,7 +69,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Label Track Maker')
     parser.add_argument('--log_file', help='Log file to parse')
     parser.add_argument('--label_track', help='Label track file')
-    parser.add_argument('--lut', choices={"Wanson", "Sensory"}, help='Lookup')
+    parser.add_argument('--lut', choices={"Sensory"}, help='Lookup')
     args = parser.parse_args()
 
     process(args.log_file, args.label_track, args.lut)
