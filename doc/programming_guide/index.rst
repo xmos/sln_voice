@@ -10,6 +10,8 @@ XCORE-VOICE Programming Guide
    ../shared/introduction
    prerequisites
    example_designs
+   asr_ports
    extending
+   howto
    faq
    ../shared/legal

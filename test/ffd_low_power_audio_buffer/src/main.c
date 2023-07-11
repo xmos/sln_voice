@@ -9,6 +9,7 @@
 
 /* App headers */
 #include "app_conf.h"
+#include "asr.h"
 #include "low_power_audio_buffer.h"
 
 #define XSTR(s)                     STR(s)
@@ -54,7 +55,7 @@
 #ifndef ring_buffer_t
 typedef struct ring_buffer
 {
-    int32_t * const buf;
+    asr_sample_t * const buf;
     const uint32_t size;
     char *set_ptr;
     char *get_ptr;
@@ -64,29 +65,30 @@ typedef struct ring_buffer
 } ring_buffer_t;
 #endif
 
-extern int32_t sample_buf[];
+/* Internal buffers/structs from unit under test */
+extern asr_sample_t sample_buf[];
 extern ring_buffer_t ring_buf;
 
 static uint32_t error_count = 0;
-static int32_t samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+static asr_sample_t samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
 static uint8_t intent_engine_sample_push_skip_verify;
-static int32_t *intent_engine_sample_push_expected_buf;
+static asr_sample_t *intent_engine_sample_push_expected_buf;
 static size_t intent_engine_sample_push_total_frames;
 static uint32_t intent_engine_sample_push_error_count;
 
 void setup_intent_engine_sample_push(char *expected_start_address)
 {
     // Catch potential issues in test logic.
-    assert((uint32_t)expected_start_address % sizeof(int32_t) == 0);
+    assert((uint32_t)expected_start_address % sizeof(asr_sample_t) == 0);
 
-    intent_engine_sample_push_expected_buf = (int32_t *)expected_start_address;
+    intent_engine_sample_push_expected_buf = (asr_sample_t *)expected_start_address;
     intent_engine_sample_push_error_count = error_count;
     intent_engine_sample_push_skip_verify = 1;
     intent_engine_sample_push_total_frames = 0;
 }
 
-void verify_intent_engine_sample_push_args(int32_t *buf, size_t samples)
+void verify_intent_engine_sample_push_args(asr_sample_t *buf, size_t frames)
 {
     const uint32_t tail_addr = ((uint32_t)ring_buf.buf + ring_buf.size);
 
@@ -94,8 +96,8 @@ void verify_intent_engine_sample_push_args(int32_t *buf, size_t samples)
         return;
 
     TEST_ASSERT_PTRS_ARE_EQUAL(intent_engine_sample_push_expected_buf, buf);
-    TEST_ASSERT_LONGS_ARE_EQUAL((uint32_t)appconfAUDIO_PIPELINE_FRAME_ADVANCE, (uint32_t)samples);
-    intent_engine_sample_push_expected_buf += samples;
+    TEST_ASSERT_LONGS_ARE_EQUAL((uint32_t)appconfAUDIO_PIPELINE_FRAME_ADVANCE, (uint32_t)frames);
+    intent_engine_sample_push_expected_buf += frames;
 
     if ((uint32_t)intent_engine_sample_push_expected_buf >= tail_addr)
         intent_engine_sample_push_expected_buf = ring_buf.buf;
@@ -111,7 +113,7 @@ void verify_sample_buffer_state(uint32_t *starting_index,
     uint32_t error_count_last = error_count;
 
     for (long i = 0; i < num_samples; i++) {
-        TEST_ASSERT_LONGS_ARE_EQUAL(starting_value, sample_buf[(*starting_index)]);
+        TEST_ASSERT_INTS_ARE_EQUAL(starting_value, sample_buf[(*starting_index)]);
 
         if (error_count != error_count_last) {
             printf("    Index:    %ld\n", *starting_index);
@@ -138,7 +140,7 @@ void init_sample_buffer(void)
 {
     // Set each sample value to its index. This helps with detecting
     // modification and interactions with the sample buffer.
-    for (size_t i = 0; i < ring_buf.size / sizeof(int32_t); i++) {
+    for (size_t i = 0; i < ring_buf.size / sizeof(asr_sample_t); i++) {
         sample_buf[i] = i;
     }
 }
@@ -163,7 +165,7 @@ void reset_ring_buffer_state(void)
 
 void verify_initial_buffer_state(void)
 {
-    uint32_t expected_buf_size = (uint32_t)(TOTAL_SAMPLES * sizeof(uint32_t));
+    uint32_t expected_buf_size = (uint32_t)(TOTAL_SAMPLES * sizeof(asr_sample_t));
     uint8_t expected_full_state = 0;
     uint8_t expected_empty_state = 1;
     uint32_t expected_frame_count = 0;
@@ -201,7 +203,7 @@ void verify_set_pointer_wraps_around(void)
                           1);
     fill_frames(samples_to_enqueue, starting_sample_value);
 
-    low_power_audio_buffer_enqueue((int32_t *)samples, samples_to_enqueue);
+    low_power_audio_buffer_enqueue(samples, samples_to_enqueue);
 
     TEST_ASSERT_INTS_ARE_EQUAL(expected_full_state, ring_buf.full);
     TEST_ASSERT_INTS_ARE_EQUAL(expected_empty_state, ring_buf.empty);
@@ -271,7 +273,7 @@ void verify_enqueuing_samples_less_than_buffer_capacity_remains_not_full(uint32_
             samples_to_enqueue;
 
         fill_frames(enqueue_samples, sample_value);
-        low_power_audio_buffer_enqueue((int32_t *)samples, enqueue_samples);
+        low_power_audio_buffer_enqueue(samples, enqueue_samples);
         samples_to_enqueue -= enqueue_samples;
         sample_value += enqueue_samples;
     }
@@ -317,7 +319,7 @@ void verify_enqueueing_samples_equal_to_buffer_capacity_reports_full(uint32_t fr
             samples_to_enqueue;
 
         fill_frames(enqueue_samples, sample_value);
-        low_power_audio_buffer_enqueue((int32_t *)samples, enqueue_samples);
+        low_power_audio_buffer_enqueue(samples, enqueue_samples);
         samples_to_enqueue -= enqueue_samples;
         sample_value += enqueue_samples;
     }
@@ -364,7 +366,7 @@ void verify_enqueue_samples_greater_than_buf_capacity_overwrites_oldest(uint32_t
             samples_to_enqueue;
 
         fill_frames(enqueue_samples, sample_value);
-        low_power_audio_buffer_enqueue((int32_t *)samples, enqueue_samples);
+        low_power_audio_buffer_enqueue(samples, enqueue_samples);
         samples_to_enqueue -= enqueue_samples;
         sample_value += enqueue_samples;
     }

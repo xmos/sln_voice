@@ -8,6 +8,21 @@ The XCORE-VOICE Solution consists of example designs and a C-based SDK for the d
 
 XCORE-VOICE example designs provide turn-key solutions to enable easier product development for smart home applications such as light switches, thermostats, and home appliances. xcore.ai’s unique architecture providing powerful signal processing and accelerated AI capabilities combined with the XCORE-VOICE framework allows designers to incorporate keyword, event detection, or advanced local dictionary support to create a complete voice interface solution. 
 
+The C SDK is composed of the following components:
+
+- Peripheral IO libraries including; UART, I2C, I2S, SPI, QSPI, PDM microphones, and USB. These libraries support bare-metal and RTOS application development.
+- Libraries core to DSP applications, including vectorized math and voice processing DSP.  These libraries support bare-metal and RTOS application development.
+- Libraries for speech recognition applications.  These libraries support bare-metal and RTOS application development.
+- Libraries that enable multi-core FreeRTOS development on xcore including a wide array of RTOS drivers and middleware.
+- Pre-build and validated audio processing pipelines.  
+- Code Examples - Examples showing a variety of xcore features based on bare-metal and FreeRTOS programming.
+- Documentation - Tutorials, references and API guides.
+
+.. figure:: diagrams/xcore-voice_component_diagram.drawio.png
+   :align: center
+   :scale: 80 %
+   :alt: component diagram
+
 ############
 Key Features 
 ############
@@ -26,7 +41,7 @@ These include:
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
-- Support for Wanson or other 3rd party Automatic Speech Recognition (ASR) software
+- Support for Sensory or other 3rd party Automatic Speech Recognition (ASR) software
 
 **Device Interface components**
 
@@ -37,6 +52,7 @@ These include:
 **Example Designs utilizing above components**
 
 - Far-Field Voice Local Command 
+- Low Power Far-Field Voice Local Command 
 - Far-Field Voice Assistance 
 
 **Firmware Management**
@@ -48,8 +64,8 @@ These include:
 
 **Power Consumption**
 
-- Typical power consumption 300-350mW 
-- Low power modes down to 55mW
+- FFD/FFVA: 300-350mW (Typical)
+- Low Power FFD: 110mW (Full-Power), 54mW (Low-Power), <50mW possible with Sensory's LPSD under certain conditions.
 
 ######################
 Obtaining the Hardware
@@ -107,3 +123,10 @@ Run the following `git` command to clone the repository and all submodules:
 .. code-block:: console
 
   git clone --recurse-submodules git@github.com:xmos/sln_voice.git
+
+If you have previously cloned the repository or downloaded a zip file of source code, the following commands can be used to update and fetch the submodules:
+
+.. code-block:: console
+
+    git pull
+    git submodule update --init --recursive

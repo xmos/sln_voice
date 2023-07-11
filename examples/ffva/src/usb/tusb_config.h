@@ -1,10 +1,8 @@
 /*
- * Copyright (c) 2021 XMOS LIMITED. This Software is subject to the terms of the
- * XMOS Public License: Version 1
- *
  * The MIT License (MIT)
  *
  * Copyright (c) 2019 Ha Thach (tinyusb.org)
+ * Copyright (c) 2021 XMOS LIMITED
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +30,7 @@
 #include <stdint.h>
 #include "app_conf.h"
 #include "audio_pipeline.h"
+#include "rtos_printf.h"
 
 //--------------------------------------------------------------------
 // COMMON CONFIGURATION
@@ -46,7 +45,11 @@
 
 #define CFG_TUSB_MEM_ALIGN         __attribute__ ((aligned(8)))
 
-#define CFG_TUSB_DEBUG_PRINTF     rtos_printf
+#ifndef CFG_TUSB_DEBUG_PRINTF
+#ifdef rtos_printf
+#define CFG_TUSB_DEBUG_PRINTF      rtos_printf
+#endif
+#endif
 
 //--------------------------------------------------------------------
 // DEVICE CONFIGURATION

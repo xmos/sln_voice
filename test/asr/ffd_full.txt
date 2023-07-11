@@ -1,0 +1,26 @@
+# filename, WER limit
+ETSIRock_Speech44dB_Noise45dB    1.0
+ETSIRock_Speech49dB_Noise55dB    1.0
+ETSIRock_Speech54dB_Noise45dB    1.0
+ETSIRock_Speech54dB_Noise65dB    1.0
+ETSIRock_Speech59dB_Noise55dB    1.0
+ETSIRock_Speech64dB_Noise65dB    1.0
+Pink_Speech44dB_Noise45dB    1.0
+Pink_Speech49dB_Noise55dB    1.0
+Pink_Speech54dB_Noise45dB    1.0
+Pink_Speech54dB_Noise65dB    1.0
+Pink_Speech59dB_Noise55dB    1.0
+Pink_Speech64dB_Noise65dB    1.0
+Pub_Speech44dB_Noise45dB    1.0
+Pub_Speech49dB_Noise55dB    1.0
+Pub_Speech54dB_Noise45dB    1.0
+Pub_Speech54dB_Noise65dB    1.0
+Pub_Speech59dB_Noise55dB    1.0
+Pub_Speech64dB_Noise65dB    1.0
+Silence_Speech34dB    1.0
+Silence_Speech39dB    1.0
+Silence_Speech44dB    1.0
+Silence_Speech49dB    1.0
+Silence_Speech54dB    1.0
+Silence_Speech59dB    1.0
+Silence_Speech64dB    1.0

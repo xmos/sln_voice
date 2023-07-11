@@ -17,4 +17,3 @@ Software Description
    software_desc/src
    software_desc/intent_engine
    software_desc/intent_handler
-   software_desc/power

@@ -22,12 +22,17 @@ pipeline {
             defaultValue: '15.2.1',
             description: 'The XTC tools version'
         )
+        booleanParam(name: 'NIGHTLY_TEST_ONLY',
+            defaultValue: false,
+            description: 'Tests that only run during nightly builds.')
     }    
     environment {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         VRD_TEST_RIG_TARGET = "xcore_voice_test_rig"
+        PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
+        ASR_TEST_VECTORS = "asr_test_vectors"
     }    
     stages {
         stage('Checkout') {
@@ -35,20 +40,29 @@ pipeline {
                 checkout scm
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
-        }        
-        stage('Build artifacts') {
+        }
+        stage('Build tests') {
             steps {
+                script {
+                    uid = sh(returnStdout: true, script: 'id -u').trim()
+                    gid = sh(returnStdout: true, script: 'id -g').trim()
+                }
+                // pull docker images
                 sh "docker pull ghcr.io/xmos/xcore_builder:latest"
+                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
                 // host apps
-                sh "docker run --rm -w /xcore_sdk -v $WORKSPACE:/xcore_sdk ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
-                // test apps
-                sh "docker run --rm -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
+                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
+                // test firmware and filesystems
+                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
                 // List built files for log
                 sh "ls -la dist_host/"
                 sh "ls -la dist/"
             }
         }
         stage('Create virtual environment') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
             steps {
                 // Create venv
                 sh "pyenv install -s $PYTHON_VERSION"
@@ -61,6 +75,9 @@ pipeline {
             }
         }
         stage('Cleanup xtagctl') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
             steps {
                 // Cleanup any xtagctl cruft from previous failed runs
                 withTools(params.TOOLS_VERSION) {
@@ -71,13 +88,16 @@ pipeline {
                 sh "rm -f ~/.xtag/status.lock ~/.xtag/acquired"
             }
         }
-        stage('Run Sample_Rate_Conversion test') {
+        stage('Run Sample Rate Conversion test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
             steps {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
                         script {
                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                sh "test/sample_rate_conversion/check_sample_rate_conversion.sh $BUILD_DIRNAME/example_ffva_sample_rate_conv_test.xe test/sample_rate_conversion/test_output " + adapterIDs[0]
+                                sh "test/sample_rate_conversion/check_sample_rate_conversion.sh " + adapterIDs[0]
                             }
                             sh "pytest test/sample_rate_conversion/test_sample_rate_conversion.py --wav_file test/sample_rate_conversion/test_output/sample_rate_conversion_output.wav --wav_duration 10"
                         }
@@ -86,6 +106,9 @@ pipeline {
             }
         }
         stage('Run GPIO test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
             steps {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
@@ -98,6 +121,9 @@ pipeline {
             }
         }
         stage('Run FFD Low Power Audio Buffer test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
             steps {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
@@ -109,59 +135,95 @@ pipeline {
                 }
             }
         }
-        stage('Run Device_Firmware_Update test') {
+        stage('Run Device Firmware Update test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
             steps {
                 withTools(params.TOOLS_VERSION) {
                     withVenv {
                         script {
-                            sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
+                            uid = sh(returnStdout: true, script: 'id -u').trim()
+                            gid = sh(returnStdout: true, script: 'id -g').trim()
                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                sh "docker run --rm --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe test/device_firmware_update/test_output " + adapterIDs[0]
+                                sh "docker run --rm -u $uid:$gid --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
                             }
-                            sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/example_ffva_ua_adec_test_upgrade.bin"
+                            sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/test_ffva_dfu_upgrade.bin"
                         }
                     }
                 }
             }
         }
-    //     TODO the commands and pipeline tests require the testing suite sample files
-    //     stage('Run Commands test') {
-    //         steps {
-    //             withTools(params.TOOLS_VERSION) {
-    //                 withVenv {
-    //                     script {
-    //                         sh "test/commands/check_commands.sh $BUILD_DIRNAME/example_ffd_usb_audio_test.xe $BUILD_DIRNAME/samples test/commands/ffd.txt test/commands/test_output " + adapterIDs[0]
-    //                         sh "pytest test/commands/test_commands.py --log test/commands/test_output/results.csv"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     TODO both pipeline tests require the amazon wakeword engine repo. They can maybe be combined into one test stage.
-    //     stage('Run Pipeline FFD test') {
-    //         steps {
-    //             withTools(params.TOOLS_VERSION) {
-    //                 withVenv {
-    //                     script {
-    //                         sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffd_usb_audio_test.xe <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe> " + adapterIDs[0]
-    //                         sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/test_output/results.csv"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     stage('Run Pipeline FFVA test') {
-    //         steps {
-    //             withTools(params.TOOLS_VERSION) {
-    //                 withVenv {
-    //                     script {
-    //                         sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/example_ffva_ua_adec_test.xe <path-to-input-dir> <path-to-input-list> <path-to-output-dir> <path-to-amazon-wwe> " + adapterIDs[0]
-    //                         sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/test_output/results.csv"
-    //                     }
-    //                 }
-    //             }
-    //         }
-    //     }
+        stage('Checkout Amazon WWE') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
+            steps {
+                sh 'git clone git@github.com:xmos/amazon_wwe.git'
+            }
+        }
+        stage('Setup test vectors') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
+            steps {
+                sh "cp -r /projects_us/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
+                sh "ls -la $PIPELINE_TEST_VECTORS"
+                sh "cp -r /projects_us/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
+                sh "ls -la $ASR_TEST_VECTORS"
+            }
+        }
+        stage('Run FFVA Pipeline test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
+                            }
+                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Run FFD Pipeline test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $PIPELINE_TEST_VECTORS test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
+                            }
+                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffd_test_output/results.csv"
+                        }
+                    }
+                }
+            }
+        }
+        stage('Run ASR test') {
+            when {
+                expression { params.NIGHTLY_TEST_ONLY == true }
+            }
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        script {
+                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick.txt test/asr/sensory_output " + adapterIDs[0]
+                            }
+                            sh "pytest test/asr/test_asr.py --log test/asr/sensory_output/results.csv"
+                        }
+                    }
+                }
+            }
+        }
     }
     post {
         cleanup {

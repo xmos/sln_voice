@@ -25,6 +25,8 @@
 
 #if ON_TILE(ASR_TILE_NO)
 
+static bool audio_response_playing = 0;
+
 static void proc_keyword_res(void *args) {
     QueueHandle_t q_intent = (QueueHandle_t) args;
     int32_t id = 0;
@@ -77,14 +79,15 @@ static void proc_keyword_res(void *args) {
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&buf_uart, sizeof(uint32_t));
 #endif
 #if appconfAUDIO_PLAYBACK_ENABLED
+        audio_response_playing = true;    
         audio_response_play(id);
-#endif
-#if appconfLOW_POWER_ENABLED
-        if (intent_engine_keyword_queue_count() == 0) {
-            intent_engine_keyword_queue_complete();
-        }
+        audio_response_playing = false;
 #endif
     }
+}
+
+bool intent_handler_response_playing() {
+    return audio_response_playing;
 }
 
 int32_t intent_handler_create(uint32_t priority, void *args)

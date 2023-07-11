@@ -44,11 +44,19 @@ Run the following commands in the root folder to build the firmware:
 Flashing the Model
 ==================
 
-Run the following commands in the build folder to flash the model:
+The model file is part of the data partition file.  The data partition file includes a file used to calibrate the flash followed by the model.  
+
+Run the following commands in the build folder to create the data partition:
 
 .. code-block:: console
 
-    xflash --force --quad-spi-clock 50MHz --factory example_asr.xe --boot-partition-size 0x100000 --target-file ../examples/speech_recognition/XCORE-AI-EXPLORER.xn --data ../examples/speech_recognition/asr/port/example/asr_example_model.dat
+    make make_data_partition_example_asr
+
+Then run the following commands in the build folder to flash the data partition:
+
+.. code-block:: console
+
+    xflash --force --quad-spi-clock 50MHz --target-file ../examples/speech_recognition/XK_VOICE_L71.xn --write-all example_asr_data_partition.bin
 
 Running the Firmware
 ====================

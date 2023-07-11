@@ -10,7 +10,7 @@ UNAME=$(uname)
 rm -rf testing
 mkdir testing
 REPORT=testing/test.rpt
-FIRMWARE=example_test_ffd_gpio_test.xe
+FIRMWARE=test_ffd_gpio.xe
 TIMEOUT_S=60
 
 rm -f ${REPORT}

@@ -14,17 +14,16 @@
 #include "app_conf.h"
 #include "gpio_ctrl/leds.h"
 #include "platform/driver_instances.h"
-#include "power/power_control.h"
 
 
 #if ON_TILE(0)
 
 #define LED_BLINK_DELAY                 (500 / portTICK_PERIOD_MS)
+#define LED_FLICKER_DELAY               (100 / portTICK_PERIOD_MS)
 #define TASK_NOTIF_MASK_HBEAT_TIMER     0x00000010
-#define TASK_NOTIF_MASK_ASLEEP          0x00000020
-#define TASK_NOTIF_MASK_AWAKE           0x00000040
 #define TASK_NOTIF_MASK_WAITING         0x00000080
 #define TASK_NOTIF_MASK_LISTEN          0x00000100
+#define TASK_NOTIF_MASK_END_OF_EVAL      0x00001000
 
 typedef enum led_state {
     LED_OFF,
@@ -156,22 +155,21 @@ static void led_task(void *args)
         /*
          * Process the notification event data.
          */
-        if (notif_value & TASK_NOTIF_MASK_ASLEEP) {
-            // Below VNR threshold; in low power mode.
-            xTimerStop(tmr_hbeat, 0);
-            color = LED_RED;
-            state = LED_ON;
-        } else if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
-                   (notif_value & TASK_NOTIF_MASK_WAITING)) {
-            // Above VNR threshold; normal operation (heartbeat).
+        if (notif_value & TASK_NOTIF_MASK_WAITING) {
+            // Normal operation (heartbeat).
             color = LED_GREEN;
             state = LED_TOGGLE;
             xTimerStart(tmr_hbeat, 0);
         } else if (notif_value & TASK_NOTIF_MASK_LISTEN) {
-            // Above VNR threshold; wake word detected, listening for command.
+            // Wake word detected, listening for command.
             xTimerStop(tmr_hbeat, 0);
             color = LED_YELLOW;
             state = LED_ON;
+        } else if (notif_value & TASK_NOTIF_MASK_END_OF_EVAL) {
+            color = LED_RED;
+            state = LED_TOGGLE;
+            xTimerChangePeriod(tmr_hbeat, pdMS_TO_TICKS(LED_FLICKER_DELAY), 0);
+            xTimerStart(tmr_hbeat, 0);
         }
 
         /*
@@ -217,13 +215,6 @@ static void led_task(void *args)
                 break;
             }
         }
-
-#if appconfLOW_POWER_ENABLED
-        if ((notif_value & TASK_NOTIF_MASK_AWAKE) ||
-            (notif_value & TASK_NOTIF_MASK_ASLEEP)) {
-            power_control_ind_complete();
-        }
-#endif
     }
 }
 
@@ -237,16 +228,6 @@ void led_task_create(unsigned priority, void *args)
                 &ctx_led_task);
 }
 
-void led_indicate_asleep(void)
-{
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_ASLEEP, eSetBits);
-}
-
-void led_indicate_awake(void)
-{
-    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_AWAKE, eSetBits);
-}
-
 void led_indicate_waiting(void)
 {
     xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_WAITING, eSetBits);
@@ -255,6 +236,11 @@ void led_indicate_waiting(void)
 void led_indicate_listening(void)
 {
     xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_LISTEN, eSetBits);
+}
+
+void led_indicate_end_of_eval(void)
+{
+    xTaskNotify(ctx_led_task, TASK_NOTIF_MASK_END_OF_EVAL, eSetBits);
 }
 
 #endif /* ON_TILE(0) */

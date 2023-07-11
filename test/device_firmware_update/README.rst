@@ -29,22 +29,14 @@ Outputs
 
 Output files are saved in the output directory for manual inspection if necessary.
 
-**************************
-Building and Running Tests
-**************************
+*************
+Running Tests
+*************
 
 .. note::
 
     The Python environment is required to run this test.  See the Requirements section of test/README.rst
     This tests dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
-
-To build the test application firmware and filesystem files, run the following command from the top of the repository: 
-
-.. code-block:: console
-
-    bash tools/ci/build_tests.sh
-
-The `build_test.sh` script will copy the test applications and filesystem files to the `dist` folder.
 
 Generate dfu-util image files with the following command from the top of the repository:
 

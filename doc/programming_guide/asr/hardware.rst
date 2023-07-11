@@ -4,16 +4,30 @@
 Supported Hardware
 ******************
 
-This example is supported on the `XCORE-AI-EXPLORER <https://www.xmos.ai/xcore-ai/#eval-kit>`_ board.  However, the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board can be supported with some minor modifications.
-
+This example application is supported on the |HARDWARE_URL| board.
 
 Setting up the Hardware
 =======================
 
-This example design requires an XCORE.AI Evaulation Kit.
+This example design requires an XTAG4 and XK-VOICE-L71 board.
 
-.. image:: ../../shared/images/XK-EVK-XU316.png
-  :width: 400
-  :alt: XCORE.AI Evaluation Kit
+.. image:: ../../shared/images/all_components.jpg
+  :width: 800
+  :alt: all components
 
-Connect the XCORE.AI Evaluation Kit as described in the `xcore.ai Explorer Board Quick Start <https://www.xmos.ai/download/xcore.ai-Explorer-Board-Quick-Start(6).pdf>`_ guide.
+xTAG
+----
+
+The xTAG is used to program and debug the device
+
+Connect the xTAG to the debug header, as shown below.
+
+.. image:: ../../shared/images/xtag_installation.jpg
+  :width: 800
+  :alt: xtag
+
+Connect the micro USB XTAG4 and micro USB XK-VOICE-L71 to the programming host.
+
+.. image:: ../../shared/images/host_setup.jpg
+  :width: 800
+  :alt: programming host setup

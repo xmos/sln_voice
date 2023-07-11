@@ -1,12 +1,28 @@
 set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
+#****************************
+# Set Sensory model variables
+#
+# NOTE: Change the value of MODEL_LANGUAGE to "mandarin_mainland" for the Mandarin demo
+#
+#****************************
+set(MODEL_LANGUAGE "english_usa")
+set(SENSORY_COMMAND_SEARCH_HEADER_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc62w-6.4.0-op10-prod-search.h")
+set(SENSORY_COMMAND_SEARCH_SOURCE_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc62w-6.4.0-op10-prod-search.c")
+set(SENSORY_COMMAND_NET_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc62w-6.4.0-op10-prod-net.bin.nibble_swapped")
+
 #**********************
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+
+set(APP_SOURCES
+    ${APP_SOURCES}
+    ${SENSORY_COMMAND_SEARCH_SOURCE_FILE}
+)  
+
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
-    ${CMAKE_CURRENT_LIST_DIR}/src/audio_pipeline
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_engine
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
@@ -18,7 +34,6 @@ set(RTOS_CONF_INCLUDES
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/asr/asr.cmake)
 
 #**********************
 # QSPI Flash Layout
@@ -30,11 +45,31 @@ math(EXPR FILESYSTEM_SIZE_BYTES
      OUTPUT_FORMAT HEXADECIMAL
 )
 
-set(FILESYSTEM_START_ADDRESS ${BOOT_PARTITION_SIZE})
-math(EXPR MODEL_START_ADDRESS
-     "${FILESYSTEM_START_ADDRESS} + ${FILESYSTEM_SIZE_BYTES}"
-     OUTPUT_FORMAT HEXADECIMAL)
+set(CALIBRATION_PATTERN_START_ADDRESS ${BOOT_PARTITION_SIZE})
 
+math(EXPR FILESYSTEM_START_ADDRESS
+    "${CALIBRATION_PATTERN_START_ADDRESS} + ${LIB_QSPI_FAST_READ_DEFAULT_CAL_SIZE_BYTES}"
+    OUTPUT_FORMAT HEXADECIMAL
+)
+
+math(EXPR MODEL_START_ADDRESS
+    "${FILESYSTEM_START_ADDRESS} + ${FILESYSTEM_SIZE_BYTES}"
+    OUTPUT_FORMAT HEXADECIMAL
+)
+
+set(CALIBRATION_PATTERN_DATA_PARTITION_OFFSET 0)
+
+math(EXPR FILESYSTEM_DATA_PARTITION_OFFSET
+    "${CALIBRATION_PATTERN_DATA_PARTITION_OFFSET} + ${LIB_QSPI_FAST_READ_DEFAULT_CAL_SIZE_BYTES}"
+    OUTPUT_FORMAT DECIMAL
+)
+
+math(EXPR MODEL_DATA_PARTITION_OFFSET
+    "${FILESYSTEM_DATA_PARTITION_OFFSET} + ${FILESYSTEM_SIZE_BYTES}"
+    OUTPUT_FORMAT DECIMAL
+)
+
+    
 #**********************
 # Flags
 #**********************
@@ -54,6 +89,8 @@ set(APP_COMPILE_DEFINITIONS
     PLATFORM_USES_TILE_1=1
     QSPI_FLASH_FILESYSTEM_START_ADDRESS=${FILESYSTEM_START_ADDRESS}
     QSPI_FLASH_MODEL_START_ADDRESS=${MODEL_START_ADDRESS}
+    QSPI_FLASH_CALIBRATION_ADDRESS=${CALIBRATION_PATTERN_START_ADDRESS}
+    COMMAND_SEARCH_SOURCE_FILE="${SENSORY_COMMAND_SEARCH_SOURCE_FILE}"
 )
 
 set(APP_LINK_OPTIONS
@@ -62,13 +99,9 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::app::ffd::asr::wanson
-    fwk_voice::agc
-    fwk_voice::ic
-    fwk_voice::ns
-    fwk_voice::vnr::features
-    fwk_voice::vnr::inference
-    rtos::drivers::clock_control
+    sln_voice::app::ffd::ap
+    sln_voice::app::asr::sensory
+    sln_voice::app::ffd::xk_voice_l71
 )
 
 #**********************
@@ -80,7 +113,7 @@ target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=0)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::ffd::xk_voice_l71)
+target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES})
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
@@ -90,7 +123,7 @@ target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=1)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::ffd::xk_voice_l71)
+target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES})
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
@@ -112,51 +145,44 @@ set(TARGET_NAME example_ffd)
 set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
 set(MODEL_FILE ${TARGET_NAME}_model.bin)
 set(FATFS_FILE ${TARGET_NAME}_fat.fs)
+set(FLASH_CAL_FILE ${LIB_QSPI_FAST_READ_ROOT_PATH}/lib_qspi_fast_read/calibration_pattern_nibble_swap.bin)
 
 add_custom_target(${MODEL_FILE} ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${TARGET_NAME}_split
-    COMMAND xobjdump --strip ${TARGET_NAME}.xe > ${TARGET_NAME}_split/output.log
-    COMMAND xobjdump --split --split-dir ${TARGET_NAME}_split ${TARGET_NAME}.xb >> ${TARGET_NAME}_split/output.log
-    COMMAND ${CMAKE_COMMAND} -E copy ${TARGET_NAME}_split/image_n0c0.swmem ${MODEL_FILE}
-    DEPENDS ${TARGET_NAME}
-    BYPRODUCTS
-        ${TARGET_NAME}.xb
+    COMMAND ${CMAKE_COMMAND} -E copy ${SENSORY_COMMAND_NET_FILE} ${MODEL_FILE}
     COMMENT
-        "Extract swmem"
+        "Copy Sensory NET file"
     VERBATIM
-)
-
-set_target_properties(${MODEL_FILE} PROPERTIES
-    ADDITIONAL_CLEAN_FILES "${TARGET_NAME}_split;${MODEL_FILE}"
 )
 
 create_filesystem_target(
     #[[ Target ]]                   ${TARGET_NAME}
-    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
+    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/${MODEL_LANGUAGE}
     #[[ Image Size ]]               ${FILESYSTEM_SIZE_BYTES}
 )
 
 add_custom_command(
     OUTPUT ${DATA_PARTITION_FILE}
     COMMAND ${CMAKE_COMMAND} -E rm -f ${DATA_PARTITION_FILE}
-    COMMAND datapartition_mkimage -v -b 1024
-        -i ${FATFS_FILE}:0 ${MODEL_FILE}:${FILESYSTEM_SIZE_KB}
-        -o ${DATA_PARTITION_FILE}
+    COMMAND datapartition_mkimage -v -b 1
+    -i ${FLASH_CAL_FILE}:${CALIBRATION_PATTERN_DATA_PARTITION_OFFSET} ${FATFS_FILE}:${FILESYSTEM_DATA_PARTITION_OFFSET} ${MODEL_FILE}:${MODEL_DATA_PARTITION_OFFSET}
+    -o ${DATA_PARTITION_FILE}
     DEPENDS
         ${MODEL_FILE}
         make_fs_${TARGET_NAME}
+        ${FLASH_CAL_FILE}
     COMMENT
         "Create data partition"
     VERBATIM
 )
 
-list(APPEND DATA_PARTITION_FILE_LIST
+set(DATA_PARTITION_FILE_LIST
     ${DATA_PARTITION_FILE}
     ${MODEL_FILE}
     ${FATFS_FILE}
+    ${FLASH_CAL_FILE}
 )
 
-list(APPEND DATA_PARTITION_DEPENDS_LIST
+set(DATA_PARTITION_DEPENDS_LIST
     ${DATA_PARTITION_FILE}
     ${MODEL_FILE}
     make_fs_${TARGET_NAME}
@@ -178,8 +204,4 @@ create_flash_app_target(
 )
 
 unset(DATA_PARTITION_FILE_LIST)
-
-#**********************
-# Include FFD Debug and Extension targets
-#**********************
-include(${CMAKE_CURRENT_LIST_DIR}/ext/ffd_ext.cmake)
+unset(DATA_PARTITION_DEPENDS_LIST)

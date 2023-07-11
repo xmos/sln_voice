@@ -9,7 +9,6 @@ set(APP_INCLUDES
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/audio_pipeline/audio_pipeline.cmake)
 
 #**********************
 # Flags
@@ -50,7 +49,7 @@ set(APP_COMMON_LINK_LIBRARIES
 # Pipeline Options
 # By default only these targets are created:
 #  example_ffva_int_fixed_delay
-#  example_ffva_ua_adec
+#  example_ffva_ua_adec_altarch
 #**********************
 option(ENABLE_ALL_FFVA_PIPELINES  "Create all FFVA pipeline configurations"  OFF)
 
@@ -59,12 +58,14 @@ if(ENABLE_ALL_FFVA_PIPELINES)
         fixed_delay
         adec
         adec_altarch
+        empty
     )
 
     set(FFVA_PIPELINES_UA
         fixed_delay
         adec
         adec_altarch
+        empty
     )
 else()
     set(FFVA_PIPELINES_INT
@@ -72,7 +73,7 @@ else()
     )
 
     set(FFVA_PIPELINES_UA
-        adec
+        adec_altarch
     )
 endif()
 

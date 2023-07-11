@@ -1,3 +1,5 @@
+.. include:: ../../substitutions.rst
+
 ##############
 Audio Pipeline
 ##############
@@ -14,6 +16,4 @@ The audio pipeline consists of 4 stages.
 
 See the Voice Framework User Guide for more information.
 
-.. raw:: latex
-
-    \clearpage
+|newpage|

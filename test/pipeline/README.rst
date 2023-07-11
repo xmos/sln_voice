@@ -14,7 +14,7 @@ This test is a verification of the FFD or FFVA audio pipelines.  It verifies tha
 Method
 ======
 
-Play test recordings to a test configuration built to use two USB audio input channels as microphone inputs.  Process the two channel inputs with the full pipeline (AEC (optional) + IC/VNR + NS + AGC) and record the processed ASR output channel.  Process with output wav with the `x86/amazon_ww_filesim` application from the Amazon WWE using the `models/common/WR_250k.en-US.alexa.bin`` model.  Count the number of recognized “alexa” utterances.  
+Play test recordings to a test configuration built to read input microphone and reference audion from WAV files using xscope_fileio.  Process the inputs WAV files with a configured pipeline (AEC (optional) + IC/VNR + NS + AGC) and save the processed output channels.  Process with output wav with the `x86/amazon_ww_filesim` application from the Amazon WWE using the `models/common/WR_250k.en-US.alexa.bin`` model.  Count the number of recognized “alexa” utterances.  
 
 Inputs
 ======
@@ -22,7 +22,7 @@ Inputs
 The input wav files are listed in the test vector file lists: 
 
 - ffd_quick.txt
-- stlp_quick.txt
+- ffva_quick.txt
 
 The wav files are 2 minute subsets from the xvf3510_no_processing_xmos_test_suite test set.  Files can be copied from: `\\projects.xmos.local\projects\hydra_audio\xcore-voice_xvf3510_no_processing_xmos_test_suite_subset`
 
@@ -64,18 +64,6 @@ On MacOS:
     sysctl -a | grep machdep.cpu.leaf7_features | grep AVX2
 
 If these commands return nothing then your computer lacks AVX2 support.  
-
-******************
-Building the Tests
-******************
-
-To build the test application firmware and filesystem files, run the following command from the top of the repository: 
-
-.. code-block:: console
-
-    bash tools/ci/build_tests.sh
-
-The `build_test.sh` script will copy the test applications and filesystem files to the `dist` folder.  
 
 *************
 Running Tests

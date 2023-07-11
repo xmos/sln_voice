@@ -18,9 +18,10 @@
 #include "intent_engine.h"
 
 static QueueHandle_t q_intent = 0;
-static uint8_t keyword_proc_busy = 0;
 
 // look up table to converting ASR IDs to wav file IDs or strings
+#define ASR_NUMBER_OF_COMMANDS  (17)
+
 typedef struct asr_lut_struct
 {
     int     asr_id;    // ASR response IDs
@@ -28,88 +29,49 @@ typedef struct asr_lut_struct
     const char* text;  // String output
 } asr_lut_t;
 
-static asr_lut_t asr_keyword_lut[ASR_NUMBER_OF_KEYWORDS] = {
-    {ASR_KEYWORD_HELLO_XMOS, 1, "Hello XMOS"},
-    {ASR_KEYWORD_ALEXA, 1, "Alexa"},
-};
-static asr_lut_t asr_command_lut[ASR_NUMBER_OF_COMMANDS] = {
-    {ASR_COMMAND_TV_ON, 2, "Switch on the TV"},
-    {ASR_COMMAND_TV_OFF, 3, "Switch off the TV"},
-    {ASR_COMMAND_VOLUME_UP, 6, "Volume up"},
-    {ASR_COMMAND_VOLUME_DOWN, 7, "Volume down"},
-    {ASR_COMMAND_CHANNEL_UP, 4, "Channel up"},
-    {ASR_COMMAND_CHANNEL_DOWN, 5, "Channel down"},
-    {ASR_COMMAND_LIGHTS_ON, 8, "Switch on the lights"},
-    {ASR_COMMAND_LIGHTS_OFF, 9, "Switch off the lights"},
-    {ASR_COMMAND_LIGHTS_UP, 10, "Brightness up"},
-    {ASR_COMMAND_LIGHTS_DOWN, 11, "Brightness down"},
-    {ASR_COMMAND_FAN_ON, 12, "Switch on the fan"},
-    {ASR_COMMAND_FAN_OFF, 13, "Switch off the fan"},
-    {ASR_COMMAND_FAN_UP, 14, "Speed up the fan"},
-    {ASR_COMMAND_FAN_DOWN, 15, "Slow down the fan"},
-    {ASR_COMMAND_TEMPERATURE_UP, 16, "Set higher temperature"},
-    {ASR_COMMAND_TEMPERATURE_DOWN, 17, "Set lower temperature"}
+static asr_lut_t asr_lut[ASR_NUMBER_OF_COMMANDS] = {
+    {1, 2, "Switch on the TV"},
+    {2, 4, "Channel up"},
+    {3, 5, "Channel down"},
+    {4, 6, "Volume up"},
+    {5, 7, "Volume down"},
+    {6, 3, "Switch off the TV"},
+    {7, 8, "Switch on the lights"},
+    {8, 10, "Brightness up"},
+    {9, 11, "Brightness down"},
+    {10, 9, "Switch off the lights"},
+    {11, 12, "Switch on the fan"},
+    {12, 14, "Speed up the fan"},
+    {13, 15, "Slow down the fan"},
+    {14, 16, "Set higher temperature"},
+    {15, 17, "Set lower temperature"},
+    {16, 13, "Switch off the fan"},
+    {17, 1, "Hello XMOS"}
 };
 
 void intent_engine_play_response(int wav_id)
 {
     if(q_intent != 0) {
-        keyword_proc_busy = 1;
         if(xQueueSend(q_intent, (void *)&wav_id, (TickType_t)0) != pdPASS) {
             rtos_printf("Lost wav playback.  Queue was full.\n");
-            keyword_proc_busy = 0;
         }
     }
 }
 
-void intent_engine_process_asr_result(asr_keyword_t keyword, asr_command_t command)
+void intent_engine_process_asr_result(int word_id)
 {
     int wav_id = 0;
     const char* text = "";
-    if (keyword != ASR_KEYWORD_UNKNOWN) {
-        for (int i=0; i<ASR_NUMBER_OF_KEYWORDS; i++) {
-            if (asr_keyword_lut[i].asr_id == keyword) {
-                wav_id = asr_keyword_lut[i].wav_id;
-                text = asr_keyword_lut[i].text;
-            }
+
+    for (int i=0; i<ASR_NUMBER_OF_COMMANDS; i++) {
+        if (asr_lut[i].asr_id == word_id) {
+            wav_id = asr_lut[i].wav_id;
+            text = asr_lut[i].text;
         }
-        rtos_printf("KEYWORD: 0x%x, %s\n", (int) keyword, (char*)text);
-        intent_engine_play_response(wav_id);
-    } else if (command != ASR_COMMAND_UNKNOWN) {
-        for (int i=0; i<ASR_NUMBER_OF_COMMANDS; i++) {
-            if (asr_command_lut[i].asr_id == command) {
-                wav_id = asr_command_lut[i].wav_id;
-                text = asr_command_lut[i].text;
-            }
-        }
-        rtos_printf("KEYWORD: 0x%x, %s\n", (int) command, (char*)text);
-        intent_engine_play_response(wav_id);
     }
+    rtos_printf("RECOGNIZED: 0x%x, %s\n", (int) word_id, (char*)text);
+    intent_engine_play_response(wav_id);
 }
-
-#if appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO)
-
-uint8_t intent_engine_low_power_ready(void)
-{
-    return (keyword_proc_busy == 0);
-}
-
-void intent_engine_low_power_reset(void)
-{
-    intent_engine_stream_buf_reset();
-    xQueueReset(q_intent);
-}
-
-int32_t intent_engine_keyword_queue_count(void)
-{
-    return (q_intent != NULL) ? (int32_t)uxQueueMessagesWaiting(q_intent) : 0;
-}
-
-void intent_engine_keyword_queue_complete(void)
-{
-    keyword_proc_busy = 0;
-}
-#endif /* appconfLOW_POWER_ENABLED && ON_TILE(ASR_TILE_NO) */
 
 #if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
 int32_t intent_engine_create(uint32_t priority, void *args)
