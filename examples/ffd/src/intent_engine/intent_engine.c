@@ -22,20 +22,36 @@
 
 #if ON_TILE(ASR_TILE_NO)
 
-#define IS_KEYWORD(id)    (id == 17)
-#define IS_COMMAND(id)    (id > 0 && id != 17)
+#if ASR_SENSORY
+    #define IS_KEYWORD(id)    (id == 17)
+    #define IS_COMMAND(id)    (id > 0 && id != 17)
+#elif ASR_CYBERON
+    #define IS_KEYWORD(id)    (id == 1)
+    #define IS_COMMAND(id)    (id >= 2)
+#else
+#error "Model has to be either Sensory or Cyberon"
+#endif
+
 
 #define SAMPLES_PER_ASR                 (appconfINTENT_SAMPLE_BLOCK_LENGTH)
 #define STOP_LISTENING_SOUND_WAV_ID     (0)
 
 // SEARCH model file is specified in the CMakeLists SENSORY_COMMAND_SEARCH_SOURCE_FILE variable
+#ifdef COMMAND_SEARCH_SOURCE_FILE
 extern const unsigned short gs_grammarLabel[];
 void* grammar = (void*)gs_grammarLabel;
+#else
+void* grammar = NULL;
+#endif
 
 // Model file is in flash at the offset specified in the CMakeLists
 // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
-// to be added so the address in in the SwMem range.  
+// to be added so the address in in the SwMem range.
+#ifdef QSPI_FLASH_MODEL_START_ADDRESS
 uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
+#else
+uint16_t *model = NULL;
+#endif
 
 typedef enum intent_state {
     STATE_EXPECTING_WAKEWORD,
@@ -49,7 +65,7 @@ enum timeout_event {
 };
 
 static intent_state_t intent_state;
-static asr_port_t asr_ctx; 
+static asr_port_t asr_ctx;
 static devmem_manager_t devmem_ctx;
 
 static uint32_t timeout_event = TIMEOUT_EVENT_NONE;
@@ -101,7 +117,7 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
     }
 }
 
-#pragma stackfunction 1000
+#pragma stackfunction 1500
 void intent_engine_task(void *args)
 {
     intent_state = STATE_EXPECTING_WAKEWORD;
@@ -115,6 +131,7 @@ void intent_engine_task(void *args)
         vIntentTimerCallback);
 
     devmem_init(&devmem_ctx);
+    printf("Call asr_init(). maodel = 0x%x, grammar = 0x%x\n",model, grammar);
     asr_ctx = asr_init((int32_t *)model, (int32_t *)grammar, &devmem_ctx);
 
     int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
@@ -145,7 +162,7 @@ void intent_engine_task(void *args)
 
         // this application does not support barge-in
         //   so, we need to check if an audio response is playing and skip to the next
-        //   audio frame because the playback may trigger the ASR.  
+        //   audio frame because the playback may trigger the ASR.
         if (intent_handler_response_playing()) continue;
 
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
@@ -154,14 +171,14 @@ void intent_engine_task(void *args)
             led_indicate_end_of_eval();
             continue;
         }
-        if (asr_error != ASR_OK) continue; 
+        if (asr_error != ASR_OK) continue;
 
         asr_error = asr_get_result(asr_ctx, &asr_result);
-        if (asr_error != ASR_OK) continue; 
+        if (asr_error != ASR_OK) continue;
 
         word_id = asr_result.id;
 
-        if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue; 
+        if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue;
 
 
     #if appconfINTENT_RAW_OUTPUT
