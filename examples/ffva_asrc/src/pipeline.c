@@ -191,6 +191,7 @@ void pipeline_init()
     (void) rtos_osal_queue_create(&pipeline_ctx->input_queue, NULL, 2, sizeof(void *));
     (void) rtos_osal_queue_create(&pipeline_ctx->output_queue, NULL, 2, sizeof(void *));
 
+    // Create pipeline input task
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
         (char *) "Pipeline_input",
@@ -199,7 +200,8 @@ void pipeline_init()
         (size_t) RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
-        (void) rtos_osal_thread_create(
+    // Create pipeline output task
+    (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
         (char *) "Pipeline_output",
         (rtos_osal_entry_function_t) audio_pipeline_output_i,
@@ -208,8 +210,6 @@ void pipeline_init()
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
     // Create the AGC task
-    //configSTACK_DEPTH_TYPE stage_stack_size = configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i);
-
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
         (char *) "AGC",
