@@ -21,6 +21,7 @@
 #include "audio_pipeline.h"
 #include "audio_pipeline_dsp.h"
 #include "platform/driver_instances.h"
+#include <src.h>
 
 #if appconfAUDIO_PIPELINE_FRAME_ADVANCE != 240
 #error This pipeline is only configured for 240 frame advance
@@ -137,6 +138,28 @@ static void audio_pipeline_input_i(void *args)
     }
 }
 
+#define RATE_MULTIPLIER 3
+static void stage_upsampler(
+    int32_t (*frame_data)[appconfAUDIO_PIPELINE_CHANNELS],
+    int32_t (*output)[appconfAUDIO_PIPELINE_CHANNELS]
+    )
+{
+    if (RATE_MULTIPLIER == 3) {
+        static int32_t __attribute__((aligned (8))) src_data[appconfAUDIO_PIPELINE_CHANNELS][SRC_FF3V_FIR_TAPS_PER_PHASE];
+
+        //uint32_t start = get_reference_time();
+        for (int i = 0; i < appconfAUDIO_PIPELINE_FRAME_ADVANCE ; i++) {
+            for (int j = 0; j < appconfAUDIO_PIPELINE_CHANNELS; j++) {
+                output[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)frame_data[i][j]);
+                output[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
+                output[3*i + 2][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[0]);
+            }
+        }
+        //uint32_t end = get_reference_time();
+        //printuintln(end-start);
+    }
+}
+
 static int audio_pipeline_output_i(void *args)
 {
     rtos_osal_queue_t *queue = (rtos_osal_queue_t*)args;
@@ -153,10 +176,12 @@ static int audio_pipeline_output_i(void *args)
             tmp[j][0] = *(tmpptr+j);
             tmp[j][1] = *(tmpptr+j+appconfAUDIO_PIPELINE_FRAME_ADVANCE);
         }
+        int32_t output[appconfAUDIO_PIPELINE_FRAME_ADVANCE * 3][appconfAUDIO_PIPELINE_CHANNELS];
+        stage_upsampler(tmp, output);
 
         rtos_i2s_tx(i2s_ctx,
-                (int32_t*) tmp,
-                appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                (int32_t*) output,
+                appconfAUDIO_PIPELINE_FRAME_ADVANCE*3,
                 portMAX_DELAY);
 
         rtos_osal_free(frame_data);
