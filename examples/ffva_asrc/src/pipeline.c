@@ -26,6 +26,13 @@
 #error This pipeline is only configured for 240 frame advance
 #endif
 
+typedef struct
+{
+    /* data */
+    rtos_osal_queue_t input_queue;
+    rtos_osal_queue_t output_queue;
+}pipeline_ctx_t;
+
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
 static void stage_agc(frame_data_t *frame_data)
@@ -105,69 +112,72 @@ void audio_pipeline_input(void *input_app_data,
 #endif
 }
 
-static void* audio_pipeline_input_i(void *input_app_data)
+static void audio_pipeline_input_i(void *args)
 {
-    frame_data_t *frame_data;
+    rtos_osal_queue_t *pipeline_in_queue = (rtos_osal_queue_t*)args;
+    for(;;)
+    {
+        frame_data_t *frame_data;
 
-    frame_data = pvPortMalloc(sizeof(frame_data_t));
-    memset(frame_data, 0x00, sizeof(frame_data_t));
+        frame_data = pvPortMalloc(sizeof(frame_data_t));
+        memset(frame_data, 0x00, sizeof(frame_data_t));
 
-    //uint32_t start = get_reference_time();
-    audio_pipeline_input(input_app_data,
-                       (int32_t **)frame_data->aec_reference_audio_samples,
-                       4,
-                       appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        //uint32_t start = get_reference_time();
+        audio_pipeline_input(NULL,
+                        (int32_t **)frame_data->aec_reference_audio_samples,
+                        4,
+                        appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-    //uint32_t end = get_reference_time();
-    //printuintln(end - start);
-    frame_data->vnr_pred_flag = 0;
+        //uint32_t end = get_reference_time();
+        //printuintln(end - start);
+        frame_data->vnr_pred_flag = 0;
 
-    memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
-
-    return frame_data;
+        memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
+        (void) rtos_osal_queue_send(pipeline_in_queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
+    }
 }
 
-static int audio_pipeline_output_i(frame_data_t *frame_data,
-                                   void *output_app_data)
+static int audio_pipeline_output_i(void *args)
 {
-    /* I2S expects sample channel format */
-    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
-    int32_t *tmpptr = &frame_data->samples[0][0];
-    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
-        /* ASR output is first */
-        tmp[j][0] = *(tmpptr+j);
-        tmp[j][1] = *(tmpptr+j+appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+    rtos_osal_queue_t *queue = (rtos_osal_queue_t*)args;
+    for(;;)
+    {
+        frame_data_t *frame_data;
+        (void) rtos_osal_queue_receive(queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
+
+        /* I2S expects sample channel format */
+        int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+        int32_t *tmpptr = &frame_data->samples[0][0];
+        for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
+            /* ASR output is first */
+            tmp[j][0] = *(tmpptr+j);
+            tmp[j][1] = *(tmpptr+j+appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        }
+
+        rtos_i2s_tx(i2s_ctx,
+                (int32_t*) tmp,
+                appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                portMAX_DELAY);
+
+        rtos_osal_free(frame_data);
     }
-
-    rtos_i2s_tx(i2s_ctx,
-            (int32_t*) tmp,
-            appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-            portMAX_DELAY);
-
-    return AUDIO_PIPELINE_FREE_FRAME;
 }
 
 static void agc_task(void *args)
 {
+    pipeline_ctx_t *pipeline_ctx = args;
+
     for(;;)
     {
         // Get pipeline input
-        frame_data_t *frame_data = audio_pipeline_input_i(NULL);
+        frame_data_t *frame_data;
+        (void) rtos_osal_queue_receive(&pipeline_ctx->input_queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
 
         // Process
         stage_agc(frame_data);
 
         // Send pipeline output
-        //uint32_t start = get_reference_time();
-        int ret = audio_pipeline_output_i(frame_data, NULL);
-        if(ret == AUDIO_PIPELINE_FREE_FRAME)
-        {
-            rtos_osal_free(frame_data);
-        }
-        //uint32_t end = get_reference_time();
-        //printuintln(end - start);
-
-        (void) rtos_osal_task_yield();
+        (void) rtos_osal_queue_send(&pipeline_ctx->output_queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
     }
 }
 
@@ -177,6 +187,26 @@ void pipeline_init()
     agc_init(&agc_stage_state.state, &AGC_PROFILE_FIXED_GAIN);
     agc_stage_state.state.config.gain = f32_to_float_s32(500);
 
+    pipeline_ctx_t *pipeline_ctx = rtos_osal_malloc(sizeof(pipeline_ctx_t));
+    (void) rtos_osal_queue_create(&pipeline_ctx->input_queue, NULL, 2, sizeof(void *));
+    (void) rtos_osal_queue_create(&pipeline_ctx->output_queue, NULL, 2, sizeof(void *));
+
+    (void) rtos_osal_thread_create(
+        (rtos_osal_thread_t *) NULL,
+        (char *) "Pipeline_input",
+        (rtos_osal_entry_function_t) audio_pipeline_input_i,
+        (void *) (&pipeline_ctx->input_queue),
+        (size_t) RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+
+        (void) rtos_osal_thread_create(
+        (rtos_osal_thread_t *) NULL,
+        (char *) "Pipeline_output",
+        (rtos_osal_entry_function_t) audio_pipeline_output_i,
+        (void *) (&pipeline_ctx->output_queue),
+        (size_t) RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
+        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+
     // Create the AGC task
     //configSTACK_DEPTH_TYPE stage_stack_size = configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i);
 
@@ -184,7 +214,7 @@ void pipeline_init()
         (rtos_osal_thread_t *) NULL,
         (char *) "AGC",
         (rtos_osal_entry_function_t) agc_task,
-        (void *) NULL,
+        (void *) pipeline_ctx,
         (size_t) RTOS_THREAD_STACK_SIZE(agc_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 #endif

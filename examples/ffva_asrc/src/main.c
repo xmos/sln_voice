@@ -31,35 +31,6 @@
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
-#if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
-void i2s_slave_intertile(void *args) {
-    (void) args;
-    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
-
-    while(1) {
-        memset(tmp, 0x00, sizeof(tmp));
-
-        size_t bytes_received = 0;
-        bytes_received = rtos_intertile_rx_len(
-                intertile_ctx,
-                appconfI2S_OUTPUT_SLAVE_PORT,
-                portMAX_DELAY);
-
-        xassert(bytes_received == sizeof(tmp));
-
-        rtos_intertile_rx_data(
-                intertile_ctx,
-                tmp,
-                bytes_received);
-
-        rtos_i2s_tx(i2s_ctx,
-                    (int32_t*) tmp,
-                    appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                    portMAX_DELAY);
-    }
-}
-#endif
-
 RTOS_I2S_APP_SEND_FILTER_CALLBACK_ATTR
 size_t i2s_send_upsample_cb(rtos_i2s_t *ctx, void *app_data, int32_t *i2s_frame, size_t i2s_frame_size, int32_t *send_buf, size_t samples_available)
 {
@@ -162,20 +133,10 @@ void startup_task(void *arg)
 
     platform_start();
 
-#if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
-    xTaskCreate((TaskFunction_t) i2s_slave_intertile,
-                "i2s_slave_intertile",
-                RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
-                NULL,
-                appconfAUDIO_PIPELINE_TASK_PRIORITY,
-                NULL);
-#endif
-
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
 #endif
 
-    //audio_pipeline_init(NULL, NULL);
 #if ON_TILE(1)
     pipeline_init();
 #endif
@@ -183,10 +144,6 @@ void startup_task(void *arg)
 #if ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
     rtos_dfu_image_print_debug(dfu_image_ctx);
-#endif
-
-#if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
-    ww_task_create(appconfWW_TASK_PRIORITY);
 #endif
 
     mem_analysis();
