@@ -27,6 +27,8 @@
 #error This pipeline is only configured for 240 frame advance
 #endif
 
+#define RATE_MULTIPLIER 3
+
 typedef struct
 {
     /* data */
@@ -54,6 +56,42 @@ static void stage_agc(frame_data_t *frame_data)
             &agc_stage_state.md);
     memcpy(frame_data->samples, agc_output, appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
+}
+
+static void stage_upsampler(
+    int32_t (*frame_data)[appconfAUDIO_PIPELINE_CHANNELS],
+    int32_t (*output)[appconfAUDIO_PIPELINE_CHANNELS]
+    )
+{
+    if (RATE_MULTIPLIER == 3) {
+        static int32_t __attribute__((aligned (8))) src_data[appconfAUDIO_PIPELINE_CHANNELS][SRC_FF3V_FIR_TAPS_PER_PHASE];
+
+        //uint32_t start = get_reference_time();
+        for (int i = 0; i < appconfAUDIO_PIPELINE_FRAME_ADVANCE ; i++) {
+            for (int j = 0; j < appconfAUDIO_PIPELINE_CHANNELS; j++) {
+                output[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)frame_data[i][j]);
+                output[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
+                output[3*i + 2][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[0]);
+            }
+        }
+        //uint32_t end = get_reference_time();
+        //printuintln(end-start);
+    }
+}
+
+static void stage_downsampler(
+    int32_t (*input)[appconfAUDIO_PIPELINE_CHANNELS],
+    int32_t (*output)[appconfAUDIO_PIPELINE_CHANNELS])
+{
+    static int32_t __attribute__((aligned (8))) src_data[appconfAUDIO_PIPELINE_CHANNELS][SRC_FF3V_FIR_NUM_PHASES][SRC_FF3V_FIR_TAPS_PER_PHASE];
+    for (int i = 0; i < appconfAUDIO_PIPELINE_FRAME_ADVANCE / RATE_MULTIPLIER; i++) {
+        for (int j = 0; j < appconfAUDIO_PIPELINE_CHANNELS; j++) {
+            int64_t sum = 0;
+            sum = src_ds3_voice_add_sample(sum, src_data[j][0], src_ff3v_fir_coefs[0], input[3*i + 0][j]);
+            sum = src_ds3_voice_add_sample(sum, src_data[j][1], src_ff3v_fir_coefs[1], input[3*i + 1][j]);
+            output[i][j] = src_ds3_voice_add_final_sample(sum, src_data[j][2], src_ff3v_fir_coefs[2], input[3*i + 2][j]);
+        }
+    }
 }
 
 void audio_pipeline_input(void *input_app_data,
@@ -95,20 +133,23 @@ void audio_pipeline_input(void *input_app_data,
 
     xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
     /* I2S provides sample channel format */
-    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE*3][appconfAUDIO_PIPELINE_CHANNELS];
     int32_t *tmpptr = (int32_t *)input_audio_frames;
 
     size_t rx_count =
     rtos_i2s_rx(i2s_ctx,
                 (int32_t*) tmp,
-                frame_count,
+                frame_count * 3,
                 portMAX_DELAY);
-    xassert(rx_count == frame_count);
+    xassert(rx_count == (frame_count * 3));
+
+    int32_t downsampler_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+    stage_downsampler(tmp, downsampler_output);
 
     for (int i=0; i<frame_count; i++) {
         /* ref is first */
-        *(tmpptr + i) = tmp[i][0];
-        *(tmpptr + i + frame_count) = tmp[i][1];
+        *(tmpptr + i) = downsampler_output[i][0];
+        *(tmpptr + i + frame_count) = downsampler_output[i][1];
     }
 #endif
 }
@@ -135,28 +176,6 @@ static void audio_pipeline_input_i(void *args)
 
         memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
         (void) rtos_osal_queue_send(pipeline_in_queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
-    }
-}
-
-#define RATE_MULTIPLIER 3
-static void stage_upsampler(
-    int32_t (*frame_data)[appconfAUDIO_PIPELINE_CHANNELS],
-    int32_t (*output)[appconfAUDIO_PIPELINE_CHANNELS]
-    )
-{
-    if (RATE_MULTIPLIER == 3) {
-        static int32_t __attribute__((aligned (8))) src_data[appconfAUDIO_PIPELINE_CHANNELS][SRC_FF3V_FIR_TAPS_PER_PHASE];
-
-        //uint32_t start = get_reference_time();
-        for (int i = 0; i < appconfAUDIO_PIPELINE_FRAME_ADVANCE ; i++) {
-            for (int j = 0; j < appconfAUDIO_PIPELINE_CHANNELS; j++) {
-                output[3*i + 0][j] = src_us3_voice_input_sample(src_data[j], src_ff3v_fir_coefs[2], (int32_t)frame_data[i][j]);
-                output[3*i + 1][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[1]);
-                output[3*i + 2][j] = src_us3_voice_get_next_sample(src_data[j], src_ff3v_fir_coefs[0]);
-            }
-        }
-        //uint32_t end = get_reference_time();
-        //printuintln(end-start);
     }
 }
 

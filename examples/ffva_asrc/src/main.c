@@ -31,48 +31,6 @@
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
-RTOS_I2S_APP_RECEIVE_FILTER_CALLBACK_ATTR
-size_t i2s_send_downsample_cb(rtos_i2s_t *ctx, void *app_data, int32_t *i2s_frame, size_t i2s_frame_size, int32_t *receive_buf, size_t sample_spaces_free)
-{
-    static int i;
-    static int64_t sum[2];
-    static int32_t src_data[2][SRC_FF3V_FIR_NUM_PHASES][SRC_FF3V_FIR_TAPS_PER_PHASE] __attribute__((aligned (8)));
-
-    xassert(i2s_frame_size == 2);
-
-    switch (i) {
-    case 0:
-        i = 1;
-        sum[0] = src_ds3_voice_add_sample(0, src_data[0][0], src_ff3v_fir_coefs[0], i2s_frame[0]);
-        sum[1] = src_ds3_voice_add_sample(0, src_data[1][0], src_ff3v_fir_coefs[0], i2s_frame[1]);
-        return 0;
-    case 1:
-        i = 2;
-        sum[0] = src_ds3_voice_add_sample(sum[0], src_data[0][1], src_ff3v_fir_coefs[1], i2s_frame[0]);
-        sum[1] = src_ds3_voice_add_sample(sum[1], src_data[1][1], src_ff3v_fir_coefs[1], i2s_frame[1]);
-        return 0;
-    case 2:
-        i = 0;
-        if (sample_spaces_free >= 2) {
-            receive_buf[0] = src_ds3_voice_add_final_sample(sum[0], src_data[0][2], src_ff3v_fir_coefs[2], i2s_frame[0]);
-            receive_buf[1] = src_ds3_voice_add_final_sample(sum[1], src_data[1][2], src_ff3v_fir_coefs[2], i2s_frame[1]);
-            return 2;
-        } else {
-            (void) src_ds3_voice_add_final_sample(sum[0], src_data[0][2], src_ff3v_fir_coefs[2], i2s_frame[0]);
-            (void) src_ds3_voice_add_final_sample(sum[1], src_data[1][2], src_ff3v_fir_coefs[2], i2s_frame[1]);
-            return 0;
-        }
-    default:
-        xassert(0);
-        return 0;
-    }
-}
-
-void i2s_rate_conversion_enable(void)
-{
-    rtos_i2s_receive_filter_cb_set(i2s_ctx, i2s_send_downsample_cb, NULL);
-}
-
 void vApplicationMallocFailedHook(void)
 {
     rtos_printf("Malloc Failed on tile %d!\n", THIS_XCORE_TILE);
