@@ -163,4 +163,12 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY           (configMAX_PRIORITIES/2 + 0)
 #define appconfWW_TASK_PRIORITY                   (configMAX_PRIORITIES/2 - 1)
 
+#ifndef SAMPLING_RATE_MULTIPLIER
+    #define SAMPLING_RATE_MULTIPLIER (appconfI2S_AUDIO_SAMPLE_RATE/MIC_ARRAY_SAMPLING_FREQ)
+#endif
+
+#ifndef MIC_ARRAY_SAMPLING_FREQ
+    #define MIC_ARRAY_SAMPLING_FREQ (16000)
+#endif
+
 #endif /* APP_CONF_H_ */
