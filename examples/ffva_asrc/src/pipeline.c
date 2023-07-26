@@ -90,6 +90,7 @@ void audio_pipeline_input(void *input_app_data,
                       mic_ptr,
                       frame_count,
                       portMAX_DELAY);
+
 #if appconfI2S_ENABLED
     /* This shouldn't need to block given it shares a clock with the PDM mics */
 
@@ -125,6 +126,8 @@ static void audio_pipeline_input_i(void *args)
     printf("SAMPLING_RATE_MULTIPLIER = %d\n", SAMPLING_RATE_MULTIPLIER);
     printf("MIC_ARRAY_SAMPLING_FREQ = %d\n", MIC_ARRAY_SAMPLING_FREQ);
     rtos_osal_queue_t *pipeline_in_queue = (rtos_osal_queue_t*)args;
+    static uint32_t prev_in;
+    prev_in = get_reference_time();
     for(;;)
     {
         frame_data_t *frame_data;
@@ -132,18 +135,20 @@ static void audio_pipeline_input_i(void *args)
         frame_data = pvPortMalloc(sizeof(frame_data_t));
         memset(frame_data, 0x00, sizeof(frame_data_t));
 
-        //uint32_t start = get_reference_time();
         audio_pipeline_input(NULL,
                         (int32_t **)frame_data->aec_reference_audio_samples,
                         4,
                         appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-        //uint32_t end = get_reference_time();
-        //printuintln(end - start);
+        uint32_t current_in = get_reference_time();
+        //printuintln(current_in - prev_in);
+        prev_in = current_in;
+
         frame_data->vnr_pred_flag = 0;
 
         memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
         //memcpy(frame_data->samples, frame_data->aec_reference_audio_samples, sizeof(frame_data->samples)); // For reference passthrough
+        //memset(frame_data->samples, 0, sizeof(frame_data->samples));
 
         (void) rtos_osal_queue_send(pipeline_in_queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
     }
