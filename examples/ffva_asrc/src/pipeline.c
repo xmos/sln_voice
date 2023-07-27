@@ -56,14 +56,8 @@ static void stage_agc(frame_data_t *frame_data)
 #endif
 }
 
-void audio_pipeline_input(void *input_app_data,
-                        int32_t **input_audio_frames,
-                        size_t ch_count,
-                        size_t frame_count)
+static void audio_pipeline_input_mic(int32_t **mic_ptr, size_t frame_count)
 {
-    (void) input_app_data;
-    int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
-
     static int flushed;
     while (!flushed) {
         size_t received;
@@ -90,35 +84,17 @@ void audio_pipeline_input(void *input_app_data,
                       mic_ptr,
                       frame_count,
                       portMAX_DELAY);
+}
 
-#if appconfI2S_ENABLED
-    /* This shouldn't need to block given it shares a clock with the PDM mics */
-
-    xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-    /* I2S provides sample channel format */
-    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
-    int32_t *tmpptr = (int32_t *)input_audio_frames;
-
+static void audio_pipeline_input_i2s(int32_t *i2s_rx_data, size_t frame_count)
+{
     size_t rx_count =
     rtos_i2s_rx(i2s_ctx,
-                (int32_t*) tmp,
-                frame_count * SAMPLING_RATE_MULTIPLIER,
+                (int32_t*) i2s_rx_data,
+                frame_count,
                 portMAX_DELAY);
-    xassert(rx_count == (frame_count * SAMPLING_RATE_MULTIPLIER));
+    xassert(rx_count == frame_count);
 
-
-    int32_t downsampler_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
-    stage_downsampler(tmp, downsampler_output);
-
-    //printintln(tmp[100][0]);
-    //printintln(downsampler_output[100][0]);
-
-    for (int i=0; i<frame_count; i++) {
-        /* ref is first */
-        *(tmpptr + i) = downsampler_output[i][0];
-        *(tmpptr + i + frame_count) = downsampler_output[i][1];
-    }
-#endif
 }
 
 static void audio_pipeline_input_i(void *args)
@@ -135,10 +111,22 @@ static void audio_pipeline_input_i(void *args)
         frame_data = pvPortMalloc(sizeof(frame_data_t));
         memset(frame_data, 0x00, sizeof(frame_data_t));
 
-        audio_pipeline_input(NULL,
-                        (int32_t **)frame_data->aec_reference_audio_samples,
-                        4,
-                        appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        audio_pipeline_input_mic((int32_t **)frame_data->mic_samples_passthrough, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+
+        int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
+        audio_pipeline_input_i2s(&tmp[0][0], appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER); // Receive at I2S sampling rate
+
+        // Downsample
+        int32_t downsampler_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+        stage_downsampler(tmp, downsampler_output);
+
+        // Copy to the output array
+        int32_t *tmpptr = (int32_t *)&frame_data->aec_reference_audio_samples[0][0];
+        for (int i=0; i<appconfAUDIO_PIPELINE_FRAME_ADVANCE; i++) {
+            /* ref is first */
+            *(tmpptr + i) = downsampler_output[i][0];
+            *(tmpptr + i + appconfAUDIO_PIPELINE_FRAME_ADVANCE) = downsampler_output[i][1];
+        }
 
         uint32_t current_in = get_reference_time();
         //printuintln(current_in - prev_in);
@@ -203,6 +191,7 @@ static void agc_task(void *args)
 void pipeline_init()
 {
 #if ON_TILE(1)
+    // Initialise one ASRC instance
     agc_init(&agc_stage_state.state, &AGC_PROFILE_FIXED_GAIN);
     agc_stage_state.state.config.gain = f32_to_float_s32(500);
 

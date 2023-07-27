@@ -171,4 +171,8 @@
     #define MIC_ARRAY_SAMPLING_FREQ (16000)
 #endif
 
+#define ASRC_N_IN_SAMPLES 8
+#define ASRC_CHANNELS_PER_INSTANCE 1
+#define ASRC_DITHER_SETTING OFF
+
 #endif /* APP_CONF_H_ */

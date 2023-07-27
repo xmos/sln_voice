@@ -16,6 +16,11 @@
 int dac3101_init(uint32_t sample_rate)
 {
     dac3101_codec_reset();
+    if((sample_rate != 16000) && (sample_rate != 48000))
+    {
+        printf("Warning: DAC init for sample_rate %lu not supported. Not initialising DAC.\n", sample_rate);
+        return 0; // Till we support other sampling rates
+    }
 
     xassert((sample_rate == 16000) || (sample_rate == 48000));
 
