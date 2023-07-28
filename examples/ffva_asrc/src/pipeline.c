@@ -22,6 +22,7 @@
 #include "audio_pipeline_dsp.h"
 #include "platform/driver_instances.h"
 #include "my_src.h"
+#include "src.h"
 
 #if appconfAUDIO_PIPELINE_FRAME_ADVANCE != 240
 #error This pipeline is only configured for 240 frame advance
@@ -97,6 +98,32 @@ static void audio_pipeline_input_i2s(int32_t *i2s_rx_data, size_t frame_count)
 
 }
 
+//Helper function for converting sample to fs index value
+static fs_code_t samp_rate_to_code(unsigned samp_rate){
+    unsigned samp_code = 0xdead;
+    switch (samp_rate){
+    case 44100:
+        samp_code = FS_CODE_44;
+        break;
+    case 48000:
+        samp_code = FS_CODE_48;
+        break;
+    case 88200:
+        samp_code = FS_CODE_88;
+        break;
+    case 96000:
+        samp_code = FS_CODE_96;
+        break;
+    case 176400:
+        samp_code = FS_CODE_176;
+        break;
+    case 192000:
+        samp_code = FS_CODE_192;
+        break;
+    }
+    return samp_code;
+}
+
 static void audio_pipeline_input_i(void *args)
 {
     printf("SAMPLING_RATE_MULTIPLIER = %d\n", SAMPLING_RATE_MULTIPLIER);
@@ -104,6 +131,26 @@ static void audio_pipeline_input_i(void *args)
     rtos_osal_queue_t *pipeline_in_queue = (rtos_osal_queue_t*)args;
     static uint32_t prev_in;
     prev_in = get_reference_time();
+
+    asrc_state_t     asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
+    int              asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * INPUT_ASRC_N_IN_SAMPLES]; //Buffer between filter stages
+    asrc_ctrl_t      asrc_ctrl[ASRC_CHANNELS_PER_INSTANCE];  //Control structure
+    asrc_adfir_coefs_t asrc_adfir_coefs;
+
+    for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
+    {
+        //Set state, stack and coefs into ctrl structure
+        asrc_ctrl[ui].psState                   = &asrc_state[ui];
+        asrc_ctrl[ui].piStack                   = asrc_stack[ui];
+        asrc_ctrl[ui].piADCoefs                 = asrc_adfir_coefs.iASRCADFIRCoefs;
+    }
+
+    //Initialise ASRC
+    fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
+    fs_code_t out_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ);
+    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_N_IN_SAMPLES, ASRC_DITHER_SETTING);
+    printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
+
     for(;;)
     {
         frame_data_t *frame_data;
@@ -116,6 +163,23 @@ static void audio_pipeline_input_i(void *args)
         int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
         audio_pipeline_input_i2s(&tmp[0][0], appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER); // Receive at I2S sampling rate
 
+        uint32_t current_in = get_reference_time();
+        //printuintln(current_in - prev_in);
+        prev_in = current_in;
+
+        int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
+        for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+        {
+            for(int sample=0; sample<appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER; sample++)
+            {
+                tmp_deinterleaved[ch][sample] = tmp[sample][ch];
+            }
+        }
+        //uint32_t start = get_reference_time();
+        int32_t asrc_output[INPUT_ASRC_N_IN_SAMPLES];
+        unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
+        (void)n_samps_out;
+
         // Downsample
         int32_t downsampler_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
         stage_downsampler(tmp, downsampler_output);
@@ -127,11 +191,8 @@ static void audio_pipeline_input_i(void *args)
             *(tmpptr + i) = downsampler_output[i][0];
             *(tmpptr + i + appconfAUDIO_PIPELINE_FRAME_ADVANCE) = downsampler_output[i][1];
         }
-
-        uint32_t current_in = get_reference_time();
-        //printuintln(current_in - prev_in);
-        prev_in = current_in;
-
+        //uint32_t end = get_reference_time();
+        //printuintln(end - start);
         frame_data->vnr_pred_flag = 0;
 
         memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
@@ -144,11 +205,36 @@ static void audio_pipeline_input_i(void *args)
 
 static int audio_pipeline_output_i(void *args)
 {
+    asrc_state_t  DWORD_ALIGNED  asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
+    int DWORD_ALIGNED asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * OUTPUT_ASRC_N_IN_SAMPLES]; //Buffer between filter stages
+    asrc_ctrl_t DWORD_ALIGNED asrc_ctrl[ASRC_CHANNELS_PER_INSTANCE];  //Control structure
+    asrc_adfir_coefs_t DWORD_ALIGNED asrc_adfir_coefs;
+
+    for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
+    {
+        //Set state, stack and coefs into ctrl structure
+        asrc_ctrl[ui].psState                   = &asrc_state[ui];
+        asrc_ctrl[ui].piStack                   = asrc_stack[ui];
+        asrc_ctrl[ui].piADCoefs                 = asrc_adfir_coefs.iASRCADFIRCoefs;
+    }
+
+    //Initialise ASRC
+    fs_code_t in_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ); //Sample rate code 0..5
+    fs_code_t out_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);
+
+    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, OUTPUT_ASRC_N_IN_SAMPLES, ASRC_DITHER_SETTING);
+    printf("output ASRC nominal_fs_ratio = %d\n", nominal_fs_ratio);
     rtos_osal_queue_t *queue = (rtos_osal_queue_t*)args;
     for(;;)
     {
         frame_data_t *frame_data;
         (void) rtos_osal_queue_receive(queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
+
+        // Output ASRC
+        //uint32_t start = get_reference_time();
+        int32_t asrc_output[OUTPUT_ASRC_N_IN_SAMPLES * SAMPLING_RATE_MULTIPLIER];
+        unsigned n_samps_out = asrc_process((int *)&frame_data->samples[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
+        (void)n_samps_out;
 
         /* I2S expects sample channel format */
         int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -160,6 +246,8 @@ static int audio_pipeline_output_i(void *args)
         }
         int32_t output[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
         stage_upsampler(tmp, output);
+        //uint32_t end = get_reference_time();
+        //printuintln(end - start);
 
         rtos_i2s_tx(i2s_ctx,
                 (int32_t*) output,

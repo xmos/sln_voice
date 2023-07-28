@@ -14,6 +14,7 @@
 
 static void mclk_init(chanend_t other_tile_c)
 {
+    printf("In mclk_init(). appconfEXTERNAL_MCLK = %d", appconfEXTERNAL_MCLK);
 #if !appconfEXTERNAL_MCLK && ON_TILE(1)
     app_pll_init();
 #endif

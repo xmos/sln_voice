@@ -51,12 +51,14 @@ void stage_upsampler(
             }
         }
     }
-    else if(SAMPLING_RATE_MULTIPLIER == 2)
+    else if((SAMPLING_RATE_MULTIPLIER == 2) || (SAMPLING_RATE_MULTIPLIER == 4))
     {
         for (int i = 0; i < appconfAUDIO_PIPELINE_FRAME_ADVANCE ; i++) {
             for (int j = 0; j < appconfAUDIO_PIPELINE_CHANNELS; j++) {
-                output[SAMPLING_RATE_MULTIPLIER*i + 0][j] = (int32_t)frame_data[i][j];
-                output[SAMPLING_RATE_MULTIPLIER*i + 1][j] = (int32_t)frame_data[i][j];
+                for(int r=0; r<SAMPLING_RATE_MULTIPLIER; r++)
+                {
+                    output[SAMPLING_RATE_MULTIPLIER*i + r][j] = (int32_t)frame_data[i][j]; // Replicate the same sample
+                }
             }
         }
     }
@@ -91,7 +93,7 @@ void stage_downsampler(
             }
         }
     }
-    else if(SAMPLING_RATE_MULTIPLIER == 2)
+    else if((SAMPLING_RATE_MULTIPLIER == 2) || (SAMPLING_RATE_MULTIPLIER == 4))
     {
         for (int i = 0; i < appconfAUDIO_PIPELINE_FRAME_ADVANCE / SAMPLING_RATE_MULTIPLIER; i++) {
             for (int j = 0; j < appconfAUDIO_PIPELINE_CHANNELS; j++) {
