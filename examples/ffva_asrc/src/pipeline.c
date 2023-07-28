@@ -179,6 +179,9 @@ static void audio_pipeline_input_i(void *args)
         int32_t asrc_output[INPUT_ASRC_N_IN_SAMPLES];
         unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
         (void)n_samps_out;
+        //uint32_t end = get_reference_time();
+        //printuintln(end - start);
+
 
         // Downsample
         int32_t downsampler_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -191,8 +194,7 @@ static void audio_pipeline_input_i(void *args)
             *(tmpptr + i) = downsampler_output[i][0];
             *(tmpptr + i + appconfAUDIO_PIPELINE_FRAME_ADVANCE) = downsampler_output[i][1];
         }
-        //uint32_t end = get_reference_time();
-        //printuintln(end - start);
+
         frame_data->vnr_pred_flag = 0;
 
         memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
@@ -231,10 +233,13 @@ static int audio_pipeline_output_i(void *args)
         (void) rtos_osal_queue_receive(queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
 
         // Output ASRC
-        //uint32_t start = get_reference_time();
-        int32_t asrc_output[OUTPUT_ASRC_N_IN_SAMPLES * SAMPLING_RATE_MULTIPLIER];
+        uint32_t start = get_reference_time();
+        int32_t asrc_output[OUTPUT_ASRC_N_IN_SAMPLES * SAMPLING_RATE_MULTIPLIER*2]; // TODO calculate this properly
         unsigned n_samps_out = asrc_process((int *)&frame_data->samples[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
         (void)n_samps_out;
+        uint32_t end = get_reference_time();
+        //printuintln(end - start);
+        //printintln(n_samps_out);
 
         /* I2S expects sample channel format */
         int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -246,8 +251,6 @@ static int audio_pipeline_output_i(void *args)
         }
         int32_t output[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
         stage_upsampler(tmp, output);
-        //uint32_t end = get_reference_time();
-        //printuintln(end - start);
 
         rtos_i2s_tx(i2s_ctx,
                 (int32_t*) output,
