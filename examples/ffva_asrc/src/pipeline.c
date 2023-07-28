@@ -124,6 +124,18 @@ static fs_code_t samp_rate_to_code(unsigned samp_rate){
     return samp_code;
 }
 
+static inline uint32_t get_clk_count(uint32_t trigger_time, uint32_t prev_trigger_time)
+{
+    if(trigger_time > prev_trigger_time)
+    {
+        return trigger_time - prev_trigger_time;
+    }
+    else
+    {
+        return ((uint32_t)0xffff - prev_trigger_time + trigger_time);
+    }
+}
+
 static void audio_pipeline_input_i(void *args)
 {
     printf("SAMPLING_RATE_MULTIPLIER = %d\n", SAMPLING_RATE_MULTIPLIER);
@@ -151,6 +163,19 @@ static void audio_pipeline_input_i(void *args)
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_N_IN_SAMPLES, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
+    port_t p_bclk_count = XS1_PORT_1N;
+    port_enable(p_bclk_count);
+    port_set_clock(p_bclk_count, I2S_CLKBLK);
+
+    port_t p_mclk_count = XS1_PORT_1M;
+    port_enable(p_mclk_count);
+    port_set_clock(p_mclk_count, PDM_CLKBLK_1);
+
+    uint32_t trigger_time, prev_trigger_time;
+    prev_trigger_time = port_get_trigger_time(p_bclk_count);
+    uint32_t mclk_trigger_time, prev_mclk_trigger_time;
+    prev_mclk_trigger_time = port_get_trigger_time(p_mclk_count);
+
     for(;;)
     {
         frame_data_t *frame_data;
@@ -166,6 +191,17 @@ static void audio_pipeline_input_i(void *args)
         uint32_t current_in = get_reference_time();
         //printuintln(current_in - prev_in);
         prev_in = current_in;
+        trigger_time = port_get_trigger_time(p_bclk_count);
+        mclk_trigger_time = port_get_trigger_time(p_mclk_count);
+
+        uint32_t bclk_count = get_clk_count(trigger_time, prev_trigger_time);
+        //printuintln(bclk_count);
+        prev_trigger_time = trigger_time;
+
+        uint32_t mclk_count = get_clk_count(mclk_trigger_time, prev_mclk_trigger_time);
+        //printuintln(mclk_count);
+        prev_mclk_trigger_time = mclk_trigger_time;
+
 
         int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_FRAME_ADVANCE * SAMPLING_RATE_MULTIPLIER][appconfAUDIO_PIPELINE_CHANNELS];
         for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)

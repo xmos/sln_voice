@@ -58,6 +58,7 @@
 
             <!-- Used for looping back clocks -->
             <Port Location="XS1_PORT_1N"  Name="PORT_NOT_IN_PACKAGE_1"/>
+            <Port Location="XS1_PORT_1M"  Name="PORT_NOT_IN_PACKAGE_2"/>
           </Tile>
         </Node>
       </Nodes>

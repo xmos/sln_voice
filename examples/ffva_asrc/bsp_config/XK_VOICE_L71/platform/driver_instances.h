@@ -34,7 +34,6 @@
 #define PDM_CLKBLK_2  XS1_CLKBLK_2
 #define I2S_CLKBLK    XS1_CLKBLK_3
 #define MCLK_CLKBLK   XS1_CLKBLK_4
-// #define UNUSED_CLKBLK XS1_CLKBLK_5
 
 /* Port definitions */
 #define PORT_MCLK           PORT_MCLK_IN_OUT
