@@ -67,7 +67,7 @@ typedef struct ic_stage_ctx {
 } ic_stage_ctx_t;
 
 typedef struct vnr_pred_stage_ctx {
-    vnr_pred_state_t vnr_pred_state; 
+    vnr_pred_state_t vnr_pred_state;
 } vnr_pred_stage_ctx_t;
 
 typedef struct ns_stage_ctx {
