@@ -136,16 +136,21 @@ static inline uint32_t get_clk_count(uint32_t trigger_time, uint32_t prev_trigge
     }
 }
 
-static void audio_pipeline_input_i(void *args)
+typedef struct
 {
-    printf("SAMPLING_RATE_MULTIPLIER = %d\n", SAMPLING_RATE_MULTIPLIER);
-    printf("MIC_ARRAY_SAMPLING_FREQ = %d\n", MIC_ARRAY_SAMPLING_FREQ);
-    rtos_osal_queue_t *pipeline_in_queue = (rtos_osal_queue_t*)args;
-    static uint32_t prev_in;
-    prev_in = get_reference_time();
+    /* data */
+    int32_t *input_samples;
+    int32_t *output_samples;
+    unsigned nominal_fs_ratio;
+}asrc_ctx_t;
+
+#define INPUT_ASRC_BLOCK_LENGTH (appconfAUDIO_PIPELINE_FRAME_ADVANCE)
+static void asrc_one_channel_task(void *args)
+{
+    rtos_osal_queue_t *queue = (rtos_osal_queue_t*)args;
 
     asrc_state_t     asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
-    int              asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * appconfAUDIO_PIPELINE_FRAME_ADVANCE]; //Buffer between filter stages
+    int              asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * INPUT_ASRC_BLOCK_LENGTH]; //Buffer between filter stages
     asrc_ctrl_t      asrc_ctrl[ASRC_CHANNELS_PER_INSTANCE];  //Control structure
     asrc_adfir_coefs_t asrc_adfir_coefs;
 
@@ -160,7 +165,63 @@ static void audio_pipeline_input_i(void *args)
     //Initialise ASRC
     fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ);
-    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, appconfAUDIO_PIPELINE_FRAME_ADVANCE, ASRC_DITHER_SETTING);
+    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_BLOCK_LENGTH, ASRC_DITHER_SETTING);
+    printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
+
+    for(;;)
+    {
+        asrc_ctx_t *asrc_ctx = NULL;
+        (void) rtos_osal_queue_receive(queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
+
+        unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
+
+        asrc_ctx->nominal_fs_ratio = n_samps_out; // Reuse nominal_fs_ratio to send back n_samps_out
+
+        (void) rtos_osal_queue_send(queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
+    }
+}
+
+
+static void audio_pipeline_input_i(void *args)
+{
+    printf("SAMPLING_RATE_MULTIPLIER = %d\n", SAMPLING_RATE_MULTIPLIER);
+    printf("MIC_ARRAY_SAMPLING_FREQ = %d\n", MIC_ARRAY_SAMPLING_FREQ);
+
+    // Create the 2nd channel ASRC task
+    asrc_ctx_t asrc_ctx;
+    rtos_osal_queue_t asrc_queue;
+    (void) rtos_osal_queue_create(&asrc_queue, "asrc_q", 1, sizeof(asrc_ctx_t*));
+
+    // Create 2nd channel ASRC task
+    (void) rtos_osal_thread_create(
+        (rtos_osal_thread_t *) NULL,
+        (char *) "ASRC_1ch",
+        (rtos_osal_entry_function_t) asrc_one_channel_task,
+        (void *) (&asrc_queue),
+        (size_t) RTOS_THREAD_STACK_SIZE(asrc_one_channel_task),
+        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+
+    rtos_osal_queue_t *pipeline_in_queue = (rtos_osal_queue_t*)args;
+    static uint32_t prev_in;
+    prev_in = get_reference_time();
+
+    asrc_state_t     asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
+    int              asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * INPUT_ASRC_BLOCK_LENGTH]; //Buffer between filter stages
+    asrc_ctrl_t      asrc_ctrl[ASRC_CHANNELS_PER_INSTANCE];  //Control structure
+    asrc_adfir_coefs_t asrc_adfir_coefs;
+
+    for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
+    {
+        //Set state, stack and coefs into ctrl structure
+        asrc_ctrl[ui].psState                   = &asrc_state[ui];
+        asrc_ctrl[ui].piStack                   = asrc_stack[ui];
+        asrc_ctrl[ui].piADCoefs                 = asrc_adfir_coefs.iASRCADFIRCoefs;
+    }
+
+    //Initialise ASRC
+    fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
+    fs_code_t out_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ);
+    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_BLOCK_LENGTH, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
     port_t p_bclk_count = XS1_PORT_1N;
@@ -178,7 +239,7 @@ static void audio_pipeline_input_i(void *args)
 
     uint32_t num_prev_frame_samples = 0;
     uint32_t prev_frame_start_index = 0;
-    int32_t prev_frame_samples[appconfAUDIO_PIPELINE_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE*2];
+    int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][INPUT_ASRC_BLOCK_LENGTH*2];
     for(;;)
     {
         frame_data_t *frame_data;
@@ -186,53 +247,78 @@ static void audio_pipeline_input_i(void *args)
         frame_data = pvPortMalloc(sizeof(frame_data_t));
         memset(frame_data, 0x00, sizeof(frame_data_t));
 
+        uint32_t start = get_reference_time();
         if(num_prev_frame_samples)
         {
             // Copy back the extra samples we read in the last frame
             for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
             {
-                memcpy(&frame_data->aec_reference_audio_samples[ch][0], &prev_frame_samples[ch][prev_frame_start_index], num_prev_frame_samples*sizeof(int32_t));
+                memcpy(&frame_data->aec_reference_audio_samples[ch][0], &frame_samples[ch][prev_frame_start_index], num_prev_frame_samples*sizeof(int32_t));
             }
         }
         uint32_t num_current_frame_samples = num_prev_frame_samples;
+        //printf("num_current_frame_samples %d\n", num_current_frame_samples);
 
         audio_pipeline_input_mic((int32_t **)frame_data->mic_samples_passthrough, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
-        int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
-        int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
+        int32_t tmp[INPUT_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
+        int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][INPUT_ASRC_BLOCK_LENGTH];
 
         while(num_current_frame_samples < appconfAUDIO_PIPELINE_FRAME_ADVANCE)
         {
-            audio_pipeline_input_i2s(&tmp[0][0], appconfAUDIO_PIPELINE_FRAME_ADVANCE); // Receive blocks of appconfAUDIO_PIPELINE_FRAME_ADVANCE at I2S sampling rate
+            audio_pipeline_input_i2s(&tmp[0][0], INPUT_ASRC_BLOCK_LENGTH); // Receive blocks of INPUT_ASRC_BLOCK_LENGTH at I2S sampling rate
             for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
             {
-                for(int sample=0; sample<appconfAUDIO_PIPELINE_FRAME_ADVANCE; sample++)
+                for(int sample=0; sample<INPUT_ASRC_BLOCK_LENGTH; sample++)
                 {
                     tmp_deinterleaved[ch][sample] = tmp[sample][ch];
                 }
             }
 
-            // Call asrc on this block of samples. Reuse prev_frame_samples now that its copied into aec_reference_audio_samples
+            // Send to the other channel ASRC task
+            asrc_ctx.input_samples = &tmp_deinterleaved[1][0];
+            asrc_ctx.output_samples = &frame_samples[1][0];
+            asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
+            asrc_ctx_t *ptr = &asrc_ctx;
+            (void) rtos_osal_queue_send(&asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
+            // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
             // Only channel 0 for now
-            unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&prev_frame_samples[0][0], nominal_fs_ratio, asrc_ctrl);
+            unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], nominal_fs_ratio, asrc_ctrl);
+
+            // Wait fir 2nd channel ASRC to finish
+            asrc_ctx_t *ctx;
+            rtos_osal_queue_receive(&asrc_queue, &ctx, RTOS_OSAL_WAIT_FOREVER);
+            unsigned n_samps_out_ch1 = ctx->nominal_fs_ratio;
+            if(n_samps_out_ch1 != n_samps_out)
+            {
+                printf("ERROR: n_samps_out %d, n_samps_out_ch1 %d\n", n_samps_out, n_samps_out_ch1);
+                xassert(0);
+            }
 
             // Copy to reference_audio_samples
             if(num_current_frame_samples + n_samps_out <= appconfAUDIO_PIPELINE_FRAME_ADVANCE)
             {
-                // Full thing can be copied
-                memcpy(&frame_data->aec_reference_audio_samples[0][num_current_frame_samples], &prev_frame_samples[0][0], n_samps_out*sizeof(int32_t));
+                for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+                {
+                    // Full thing can be copied
+                    memcpy(&frame_data->aec_reference_audio_samples[ch][num_current_frame_samples], &frame_samples[ch][0], n_samps_out*sizeof(int32_t));
+                }
             }
             else
             {
                 // Copy partial data. We'll save the remaining for next frame
-                memcpy(&frame_data->aec_reference_audio_samples[0][num_current_frame_samples], &prev_frame_samples[0][0], ((appconfAUDIO_PIPELINE_FRAME_ADVANCE-num_current_frame_samples)*sizeof(int32_t)));
-                prev_frame_start_index = appconfAUDIO_PIPELINE_FRAME_ADVANCE-num_current_frame_samples; // Start index in prev_frame_samples[] for data from the previous frame
-                num_prev_frame_samples = num_current_frame_samples - appconfAUDIO_PIPELINE_FRAME_ADVANCE;
+                for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+                {
+                    memcpy(&frame_data->aec_reference_audio_samples[ch][num_current_frame_samples], &frame_samples[ch][0], ((appconfAUDIO_PIPELINE_FRAME_ADVANCE-num_current_frame_samples)*sizeof(int32_t)));
+                }
+                prev_frame_start_index = appconfAUDIO_PIPELINE_FRAME_ADVANCE-num_current_frame_samples; // Start index in frame_samples[] for data from the previous frame
             }
 
             num_current_frame_samples += n_samps_out;
         }
-        //printf("num_current_frame_samples = %d, num_prev_frame_samples = %d\n", num_current_frame_samples, num_prev_frame_samples);
+
+        num_prev_frame_samples = num_current_frame_samples - appconfAUDIO_PIPELINE_FRAME_ADVANCE;
+        //printf("Out of while loop: num_current_frame_samples = %d, num_prev_frame_samples = %d\n", num_current_frame_samples, num_prev_frame_samples);
 
         uint32_t current_in = get_reference_time();
         //printuintln(current_in - prev_in);
@@ -248,12 +334,7 @@ static void audio_pipeline_input_i(void *args)
         //printuintln(mclk_count);
         prev_mclk_trigger_time = mclk_trigger_time;
 
-
-
-
-        //uint32_t start = get_reference_time();
-
-        //uint32_t end = get_reference_time();
+        uint32_t end = get_reference_time();
         //printuintln(end - start);
 
 
@@ -311,8 +392,8 @@ static int audio_pipeline_output_i(void *args)
         // Output ASRC
         uint32_t start = get_reference_time();
         int32_t asrc_output[OUTPUT_ASRC_N_IN_SAMPLES * SAMPLING_RATE_MULTIPLIER*2]; // TODO calculate this properly
-        unsigned n_samps_out = asrc_process((int *)&frame_data->samples[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
-        (void)n_samps_out;
+        /*unsigned n_samps_out = asrc_process((int *)&frame_data->samples[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
+        (void)n_samps_out;*/
         uint32_t end = get_reference_time();
         //printuintln(end - start);
         //printintln(n_samps_out);
