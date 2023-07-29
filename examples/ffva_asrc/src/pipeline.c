@@ -273,8 +273,8 @@ static void audio_pipeline_input_i(void *args)
 
         frame_data->vnr_pred_flag = 0;
 
-        memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
-        //memcpy(frame_data->samples, frame_data->aec_reference_audio_samples, sizeof(frame_data->samples)); // For reference passthrough
+        //memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
+        memcpy(frame_data->samples, frame_data->aec_reference_audio_samples, sizeof(frame_data->samples)); // For reference passthrough
         //memset(frame_data->samples, 0, sizeof(frame_data->samples));
 
         (void) rtos_osal_queue_send(pipeline_in_queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
@@ -360,7 +360,7 @@ void pipeline_init()
 #if ON_TILE(1)
     // Initialise one ASRC instance
     agc_init(&agc_stage_state.state, &AGC_PROFILE_FIXED_GAIN);
-    agc_stage_state.state.config.gain = f32_to_float_s32(500);
+    agc_stage_state.state.config.gain = f32_to_float_s32(1);
 
     pipeline_ctx_t *pipeline_ctx = rtos_osal_malloc(sizeof(pipeline_ctx_t));
     (void) rtos_osal_queue_create(&pipeline_ctx->input_queue, NULL, 2, sizeof(void *));
