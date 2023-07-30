@@ -175,5 +175,7 @@
 #define     ASRC_N_INSTANCES                1  //Number of instances (each usually run a logical core) used to process audio (minimum 1)
 #define     ASRC_CHANNELS_PER_INSTANCE      (ASRC_N_CHANNELS/ASRC_N_INSTANCES)
 #define ASRC_DITHER_SETTING OFF
+#define ASRC_OUTPUT_ITER (4)
+#define OUTPUT_ASRC_N_IN_SAMPLES (appconfAUDIO_PIPELINE_FRAME_ADVANCE/ASRC_OUTPUT_ITER)
 
 #endif /* APP_CONF_H_ */

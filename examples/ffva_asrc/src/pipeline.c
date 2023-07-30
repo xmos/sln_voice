@@ -339,8 +339,6 @@ static void audio_pipeline_input_i(void *args)
     }
 }
 
-#define ASRC_OUTPUT_ITER (4)
-#define OUTPUT_ASRC_N_IN_SAMPLES (appconfAUDIO_PIPELINE_FRAME_ADVANCE/ASRC_OUTPUT_ITER)
 static int audio_pipeline_output_i(void *args)
 {
     asrc_state_t  DWORD_ALIGNED  asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
