@@ -174,7 +174,6 @@
 #define     ASRC_N_CHANNELS                 1  //Total number of audio channels to be processed by SRC (minimum 1)
 #define     ASRC_N_INSTANCES                1  //Number of instances (each usually run a logical core) used to process audio (minimum 1)
 #define     ASRC_CHANNELS_PER_INSTANCE      (ASRC_N_CHANNELS/ASRC_N_INSTANCES)
-#define OUTPUT_ASRC_N_IN_SAMPLES (240) // Number of input samples to the ASRC before I2S TX
 #define ASRC_DITHER_SETTING OFF
 
 #endif /* APP_CONF_H_ */

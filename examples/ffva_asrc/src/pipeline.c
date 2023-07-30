@@ -36,6 +36,7 @@ typedef struct
 }pipeline_ctx_t;
 
 static StreamBufferHandle_t input_reference_samples_buf;
+//static StreamBufferHandle_t input_reference_samples_buf_ch1;
 
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
@@ -338,6 +339,8 @@ static void audio_pipeline_input_i(void *args)
     }
 }
 
+#define ASRC_OUTPUT_ITER (4)
+#define OUTPUT_ASRC_N_IN_SAMPLES (appconfAUDIO_PIPELINE_FRAME_ADVANCE/ASRC_OUTPUT_ITER)
 static int audio_pipeline_output_i(void *args)
 {
     asrc_state_t  DWORD_ALIGNED  asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
@@ -366,25 +369,27 @@ static int audio_pipeline_output_i(void *args)
         (void) rtos_osal_queue_receive(queue, &frame_data, RTOS_OSAL_WAIT_FOREVER);
 
         // Output ASRC
-        uint32_t start = get_reference_time();
-        int32_t asrc_output[(OUTPUT_ASRC_N_IN_SAMPLES * 8) + OUTPUT_ASRC_N_IN_SAMPLES]; // TODO calculate this properly
-        unsigned n_samps_out = asrc_process((int *)&frame_data->samples[0][0], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
-        (void)n_samps_out;
-        uint32_t end = get_reference_time();
-        //printuintln(end - start);
-        //printintln(n_samps_out);
-
-        int32_t output[(OUTPUT_ASRC_N_IN_SAMPLES * 8) + OUTPUT_ASRC_N_IN_SAMPLES][appconfAUDIO_PIPELINE_CHANNELS];
-        for(int i=0; i<n_samps_out; i++)
+        for(int i=0; i<ASRC_OUTPUT_ITER;  i++)
         {
-            output[i][0] = asrc_output[i];
+            uint32_t start = get_reference_time();
+            int32_t asrc_output[(OUTPUT_ASRC_N_IN_SAMPLES * 8) + OUTPUT_ASRC_N_IN_SAMPLES]; // TODO calculate this properly
+            unsigned n_samps_out = asrc_process((int *)&frame_data->samples[0][i*OUTPUT_ASRC_N_IN_SAMPLES], (int *)asrc_output, nominal_fs_ratio, asrc_ctrl);
+            (void)n_samps_out;
+            uint32_t end = get_reference_time();
+            //printuintln(end - start);
+            //printintln(n_samps_out);
+
+            int32_t output[(OUTPUT_ASRC_N_IN_SAMPLES * 8) + OUTPUT_ASRC_N_IN_SAMPLES][appconfAUDIO_PIPELINE_CHANNELS];
+            for(int i=0; i<n_samps_out; i++)
+            {
+                output[i][0] = asrc_output[i];
+            }
+
+            rtos_i2s_tx(i2s_ctx,
+                    (int32_t*) output,
+                    n_samps_out,
+                    portMAX_DELAY);
         }
-
-        rtos_i2s_tx(i2s_ctx,
-                (int32_t*) output,
-                n_samps_out,
-                portMAX_DELAY);
-
         rtos_osal_free(frame_data);
     }
 }
