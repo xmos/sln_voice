@@ -36,7 +36,8 @@ typedef struct
 }pipeline_ctx_t;
 
 static StreamBufferHandle_t input_reference_samples_buf;
-//static StreamBufferHandle_t input_reference_samples_buf_ch1;
+static StreamBufferHandle_t input_reference_samples_buf_ch1;
+rtos_osal_queue_t asrc_queue, asrc_ret_queue;
 
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
 
@@ -175,12 +176,16 @@ static void asrc_one_channel_task(void *args)
     {
         asrc_ctx_t *asrc_ctx = NULL;
         (void) rtos_osal_queue_receive(queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
-
+        unsigned start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
-
-        asrc_ctx->nominal_fs_ratio = n_samps_out; // Reuse nominal_fs_ratio to send back n_samps_out
-
-        (void) rtos_osal_queue_send(queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
+        unsigned end = get_reference_time();
+        //printuintln(end - start);
+        if(end - start > 300000)
+        {
+            printchar('v');
+            printuintln(end - start);
+        }
+        (void) rtos_osal_queue_send(&asrc_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }
 }
 
@@ -204,6 +209,7 @@ static void agc_task(void *args)
         audio_pipeline_input_mic((int32_t **)frame_data->mic_samples_passthrough, appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
         //At this point check if there's enough data in the reference buffer, otherwise use zeros
+        // Ch 0
         if (xStreamBufferBytesAvailable(input_reference_samples_buf) >= ref_frame_size_bytes)
         {
             //printcharln('m');
@@ -216,8 +222,22 @@ static void agc_task(void *args)
             memset(&frame_data->aec_reference_audio_samples[0][0], 0, ref_frame_size_bytes);
         }
 
+        // Ch 1
+        if (xStreamBufferBytesAvailable(input_reference_samples_buf_ch1) >= ref_frame_size_bytes)
+        {
+            //printcharln('m');
+            size_t bytes_received = xStreamBufferReceive(input_reference_samples_buf_ch1, &frame_data->aec_reference_audio_samples[1][0], ref_frame_size_bytes, 0);
+            xassert(bytes_received == ref_frame_size_bytes);
+        }
+        else
+        {
+            //printcharln('y');
+            memset(&frame_data->aec_reference_audio_samples[1][0], 0, ref_frame_size_bytes);
+        }
+
         //memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
-        memcpy(frame_data->samples, frame_data->aec_reference_audio_samples, sizeof(frame_data->samples)); // For reference passthrough
+        memcpy(&frame_data->samples[0][0], &frame_data->aec_reference_audio_samples[0][0], sizeof(frame_data->samples)/2); // For reference passthrough
+        memcpy(&frame_data->samples[1][0], &frame_data->aec_reference_audio_samples[1][0], sizeof(frame_data->samples)/2); // For reference passthrough
         //memset(frame_data->samples, 0, sizeof(frame_data->samples));
 
 
@@ -240,8 +260,8 @@ static void audio_pipeline_input_i(void *args)
 
     // Create the 2nd channel ASRC task
     asrc_ctx_t asrc_ctx;
-    rtos_osal_queue_t asrc_queue;
     (void) rtos_osal_queue_create(&asrc_queue, "asrc_q", 1, sizeof(asrc_ctx_t*));
+    (void) rtos_osal_queue_create(&asrc_ret_queue, "asrc_q", 1, sizeof(int));
 
     // Create 2nd channel ASRC task
     (void) rtos_osal_thread_create(
@@ -296,7 +316,6 @@ static void audio_pipeline_input_i(void *args)
 
 
         audio_pipeline_input_i2s(&tmp[0][0], INPUT_ASRC_BLOCK_LENGTH); // Receive blocks of INPUT_ASRC_BLOCK_LENGTH at I2S sampling rate
-        uint32_t start = get_reference_time();
         for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
         {
             for(int sample=0; sample<INPUT_ASRC_BLOCK_LENGTH; sample++)
@@ -310,22 +329,28 @@ static void audio_pipeline_input_i(void *args)
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
         asrc_ctx_t *ptr = &asrc_ctx;
-        //(void) rtos_osal_queue_send(&asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
+        uint32_t start = get_reference_time();
+        (void) rtos_osal_queue_send(&asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
+
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
         // Only channel 0 for now
         unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], nominal_fs_ratio, asrc_ctrl);
 
+
         // Wait for 2nd channel ASRC to finish
-        asrc_ctx_t *ctx;
-        /*rtos_osal_queue_receive(&asrc_queue, &ctx, RTOS_OSAL_WAIT_FOREVER);
-        unsigned n_samps_out_ch1 = ctx->nominal_fs_ratio;
-        if(n_samps_out_ch1 != n_samps_out)
-        {
-            printf("ERROR: n_samps_out %d, n_samps_out_ch1 %d\n", n_samps_out, n_samps_out_ch1);
-            xassert(0);
-        }*/
+
+        unsigned n_samps_out_ch1; // reuse nominal_fs_ratio for sending out n_samps_out_ch1
+        rtos_osal_queue_receive(&asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
         uint32_t end = get_reference_time();
-        //printuintln(end - start);
+        if(end - start > 300000)
+        {
+            printchar('f');
+            printuintln(end - start);
+        }
+
+
+
+
         size_t size_to_write = n_samps_out*sizeof(int32_t); // Do only channel 0 for now
         if (xStreamBufferSpacesAvailable(input_reference_samples_buf) >= size_to_write)
         {
@@ -333,7 +358,18 @@ static void audio_pipeline_input_i(void *args)
         }
         else
         {
-            printf("Lost I2S samples from host!!\n");
+            printf("Ch 0: Lost I2S samples from host!!\n");
+            xassert(0);
+        }
+
+        size_t size_to_write_ch1 = n_samps_out_ch1 * sizeof(int32_t); // Do only channel 0 for now
+        if (xStreamBufferSpacesAvailable(input_reference_samples_buf_ch1) >= size_to_write_ch1)
+        {
+            xStreamBufferSend(input_reference_samples_buf_ch1, &frame_samples[1][0], size_to_write_ch1, 0);
+        }
+        else
+        {
+            printf("Ch 1: Lost I2S samples from host!!\n");
             xassert(0);
         }
     }
@@ -405,6 +441,9 @@ void pipeline_init()
     (void) rtos_osal_queue_create(&pipeline_ctx->output_queue, NULL, 2, sizeof(void *));
 
     input_reference_samples_buf = xStreamBufferCreate(2 * sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_CHANNELS,
+                                            0);
+
+    input_reference_samples_buf_ch1 = xStreamBufferCreate(2 * sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_CHANNELS,
                                             0);
 
     // Create pipeline input task
