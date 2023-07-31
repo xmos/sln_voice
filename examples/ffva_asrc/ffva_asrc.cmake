@@ -1,14 +1,16 @@
 #**********************
 # Gather Sources
 #**********************
-file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/src/*.S)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src/sample_rate_conversion/api
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
     ${CMAKE_CURRENT_LIST_DIR}/src/ww_model_runner
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/src/sample_rate_conversion/sample_rate_conversion.cmake)
 
 #**********************
 # Flags
@@ -42,6 +44,7 @@ set(APP_LINK_OPTIONS
 set(APP_COMMON_LINK_LIBRARIES
     inferencing_tflite_micro
     rtos::freertos_usb
+    fwk_xvf::src
     lib_src
 )
 
@@ -81,4 +84,3 @@ endif()
 # XMOS Example Design Targets
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_asrc_int.cmake)
-

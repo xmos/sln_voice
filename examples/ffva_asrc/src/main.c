@@ -27,6 +27,9 @@
 
 #include "gpio_test/gpio_test.h"
 #include "pipeline.h"
+#include "src_poly.h"
+#include "src_ff3_fir_coefs.h"
+#include "src_rat_fir_coefs.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
@@ -44,6 +47,98 @@ static void mem_analysis(void)
 		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
 		vTaskDelay(pdMS_TO_TICKS(5000));
 	}
+}
+
+/// in place upsampling, `state` must be an array of size `SRC_FF3_FIR_TAPS_PER_PHASE`
+RTOS_I2S_APP_SEND_FILTER_CALLBACK_ATTR
+size_t i2s_send_upsample_cb(rtos_i2s_t *ctx, void *app_data, int32_t *i2s_frame, size_t i2s_frame_size, int32_t *send_buf, size_t samples_available)
+{
+    static int i;
+    static int32_t state_us[2][SRC_FF3_FIR_TAPS_PER_PHASE] ALIGNMENT(8);
+
+    xassert(i2s_frame_size == 2);
+
+    switch (i) {
+    case 0:
+        i = 1;
+        if (samples_available >= 2) {
+            i2s_frame[0] = fir_s32_32t(state_us[0], src_ff3_fir_coefs[2], send_buf[0]) * 3;
+            i2s_frame[1] = fir_s32_32t(state_us[1], src_ff3_fir_coefs[2], send_buf[1]) * 3;
+            return 2;
+        } else {
+            i2s_frame[0] = fir_s32_32t(state_us[0], src_ff3_fir_coefs[2], 0) * 3;
+            i2s_frame[1] = fir_s32_32t(state_us[1], src_ff3_fir_coefs[2], 0) * 3;
+            return 0;
+        }
+    case 1:
+    {
+        uint32_t start = get_reference_time();
+        i = 2;
+        i2s_frame[0] = conv_s32_32t(state_us[0], src_ff3_fir_coefs[1]) * 3;
+        i2s_frame[1] = conv_s32_32t(state_us[1], src_ff3_fir_coefs[1]) * 3;
+        uint32_t end = get_reference_time();
+        printuintln(end - start);
+        return 0;
+    }
+    case 2:
+        i = 0;
+        i2s_frame[0] = conv_s32_32t(state_us[0], src_ff3_fir_coefs[0]) * 3;
+        i2s_frame[1] = conv_s32_32t(state_us[1], src_ff3_fir_coefs[0]) * 3;
+        return 0;
+    default:
+        xassert(0);
+        return 0;
+    }
+}
+
+RTOS_I2S_APP_RECEIVE_FILTER_CALLBACK_ATTR
+size_t i2s_send_downsample_cb(rtos_i2s_t *ctx, void *app_data, int32_t *i2s_frame, size_t i2s_frame_size, int32_t *receive_buf, size_t sample_spaces_free)
+{
+    static int i;
+    static int64_t partial_sum[2] = {0};
+    static int32_t state_ds[2][SRC_FF3_FIR_NUM_PHASES][SRC_FF3_FIR_TAPS_PER_PHASE] ALIGNMENT(8);
+
+    xassert(i2s_frame_size == 2);
+
+    switch (i) {
+    case 0:
+        i = 1;
+        partial_sum[0] = fir_s32_32t(state_ds[0][0], src_ff3_fir_coefs[0], i2s_frame[0]);
+        partial_sum[1] = fir_s32_32t(state_ds[1][0], src_ff3_fir_coefs[0], i2s_frame[1]);
+
+        return 0;
+    case 1:
+        i = 2;
+        partial_sum[0] += fir_s32_32t(state_ds[0][1], src_ff3_fir_coefs[1], i2s_frame[0]);
+        partial_sum[1] += fir_s32_32t(state_ds[1][1], src_ff3_fir_coefs[1], i2s_frame[1]);
+        return 0;
+    case 2:
+        i = 0;
+        if (sample_spaces_free >= 2) {
+            partial_sum[0] += fir_s32_32t(state_ds[0][2], src_ff3_fir_coefs[2], i2s_frame[0]);
+            partial_sum[1] += fir_s32_32t(state_ds[1][2], src_ff3_fir_coefs[2], i2s_frame[1]);
+            receive_buf[0] = (int32_t)partial_sum[0];
+            receive_buf[1] = (int32_t)partial_sum[1];
+            return 2;
+        } else {
+            partial_sum[0] += fir_s32_32t(state_ds[0][2], src_ff3_fir_coefs[2], i2s_frame[0]);
+            partial_sum[1] += fir_s32_32t(state_ds[1][2], src_ff3_fir_coefs[2], i2s_frame[1]);
+            return 0;
+        }
+    default:
+        xassert(0);
+        return 0;
+    }
+}
+
+void i2s_rate_conversion_enable(void)
+{
+#if 0
+#if !appconfI2S_TDM_ENABLED
+    rtos_i2s_send_filter_cb_set(i2s_ctx, i2s_send_upsample_cb, NULL);
+#endif
+    rtos_i2s_receive_filter_cb_set(i2s_ctx, i2s_send_downsample_cb, NULL);
+#endif
 }
 
 void startup_task(void *arg)

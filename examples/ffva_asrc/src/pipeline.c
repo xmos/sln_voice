@@ -170,7 +170,7 @@ static void asrc_one_channel_task(void *args)
 
     //Initialise ASRC
     fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ);
+    fs_code_t out_fs_code = samp_rate_to_code(48000);
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_BLOCK_LENGTH, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
@@ -220,7 +220,7 @@ static void agc_task(void *args)
         }
         else
         {
-            //printcharln('x');
+            printcharln('x');
             memset(&frame_data->aec_reference_audio_samples[0][0], 0, ref_frame_size_bytes);
         }
 
@@ -233,7 +233,7 @@ static void agc_task(void *args)
         }
         else
         {
-            //printcharln('y');
+            printcharln('y');
             memset(&frame_data->aec_reference_audio_samples[1][0], 0, ref_frame_size_bytes);
         }
 
@@ -311,7 +311,7 @@ static void audio_pipeline_input_i(void *args)
 
     //Initialise ASRC
     fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ);
+    fs_code_t out_fs_code = samp_rate_to_code(48000);
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_BLOCK_LENGTH, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
@@ -368,9 +368,6 @@ static void audio_pipeline_input_i(void *args)
             printuintln(end - start);
         }
 
-
-
-
         size_t size_to_write = n_samps_out*sizeof(int32_t); // Do only channel 0 for now
         if (xStreamBufferSpacesAvailable(input_reference_samples_buf) >= size_to_write)
         {
@@ -411,7 +408,7 @@ static int audio_pipeline_output_i(void *args)
     }
 
     //Initialise ASRC
-    fs_code_t in_fs_code = samp_rate_to_code(MIC_ARRAY_SAMPLING_FREQ); //Sample rate code 0..5
+    fs_code_t in_fs_code = samp_rate_to_code(48000); //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);
 
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, OUTPUT_ASRC_N_IN_SAMPLES, ASRC_DITHER_SETTING);
@@ -444,6 +441,7 @@ static int audio_pipeline_output_i(void *args)
                     n_samps_out,
                     portMAX_DELAY);
         }
+
         rtos_osal_free(frame_data);
     }
 }
