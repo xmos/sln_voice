@@ -1,8 +1,7 @@
 
 ## Create custom board targets for application
-set(TARGET_NAME sln_voice_app_ffva_asrc_otg_board_support_xk_voice_l71)
-add_library(${TARGET_NAME} INTERFACE)
-target_sources(${TARGET_NAME}
+add_library(sln_voice_app_ffva_asrc_board_support_xk_voice_l71 INTERFACE)
+target_sources(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -11,11 +10,11 @@ target_sources(${TARGET_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/mic_array.cpp
 )
-target_include_directories(${TARGET_NAME}
+target_include_directories(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(${TARGET_NAME}
+target_link_libraries(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
     INTERFACE
         core::general
         rtos::freertos
@@ -23,17 +22,17 @@ target_link_libraries(${TARGET_NAME}
         rtos::drivers::audio
         rtos::drivers::usb
         rtos::drivers::dfu_image
-        sln_voice::app::ffva_asrc_otg::dac::dac3101
+        sln_voice::app::ffva_asrc::dac::dac3101
 )
-target_compile_options(${TARGET_NAME}
+target_compile_options(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_link_options(${TARGET_NAME}
+target_link_options(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_compile_definitions(${TARGET_NAME}
+target_compile_definitions(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
     INTERFACE
         XK_VOICE_L71=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -54,4 +53,4 @@ target_compile_definitions(${TARGET_NAME}
 )
 
 ## Create an alias
-add_library(sln_voice::app::ffva_asrc_otg::xk_voice_l71 ALIAS ${TARGET_NAME})
+add_library(sln_voice::app::ffva_asrc::xk_voice_l71 ALIAS sln_voice_app_ffva_asrc_board_support_xk_voice_l71)
