@@ -133,12 +133,10 @@ size_t i2s_send_downsample_cb(rtos_i2s_t *ctx, void *app_data, int32_t *i2s_fram
 
 void i2s_rate_conversion_enable(void)
 {
-#if 0
 #if !appconfI2S_TDM_ENABLED
     rtos_i2s_send_filter_cb_set(i2s_ctx, i2s_send_upsample_cb, NULL);
 #endif
     rtos_i2s_receive_filter_cb_set(i2s_ctx, i2s_send_downsample_cb, NULL);
-#endif
 }
 
 void startup_task(void *arg)
