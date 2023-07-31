@@ -95,7 +95,7 @@ static void audio_pipeline_input_i2s(int32_t *i2s_rx_data, size_t frame_count)
 }
 
 //Helper function for converting sample to fs index value
-static fs_code_t samp_rate_to_code(unsigned samp_rate){
+fs_code_t samp_rate_to_code(unsigned samp_rate){
     unsigned samp_code = 0xdead;
     switch (samp_rate){
     case 44100:
@@ -349,7 +349,7 @@ static void audio_pipeline_input_i(void *args)
 
         // Wait for 2nd channel ASRC to finish
 
-        unsigned n_samps_out_ch1; // reuse nominal_fs_ratio for sending out n_samps_out_ch1
+        unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
         uint32_t end = get_reference_time();
         if(end - start > 300000)
@@ -365,8 +365,8 @@ static void audio_pipeline_input_i(void *args)
         }
         else
         {
-            printf("Ch 0: Lost I2S samples from host!!\n");
-            xassert(0);
+            //printf("Ch 0: Lost I2S samples from host!!\n");
+            //xassert(0);
         }
 
         size_t size_to_write_ch1 = n_samps_out_ch1 * sizeof(int32_t); // Do only channel 0 for now
@@ -376,8 +376,8 @@ static void audio_pipeline_input_i(void *args)
         }
         else
         {
-            printf("Ch 1: Lost I2S samples from host!!\n");
-            xassert(0);
+            //printf("Ch 1: Lost I2S samples from host!!\n");
+            //xassert(0);
         }
     }
 }
@@ -457,24 +457,6 @@ void pipeline_init()
         (rtos_osal_entry_function_t) audio_pipeline_input_i,
         (void *) (&pipeline_ctx->input_queue),
         (size_t) RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
-        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
-
-    // Create pipeline output task
-    (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
-        (char *) "Pipeline_output",
-        (rtos_osal_entry_function_t) audio_pipeline_output_i,
-        (void *) (&pipeline_ctx->output_queue),
-        (size_t) RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
-        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
-
-    // Create the AGC task
-    (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
-        (char *) "AGC",
-        (rtos_osal_entry_function_t) agc_task,
-        (void *) pipeline_ctx,
-        (size_t) RTOS_THREAD_STACK_SIZE(agc_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 #endif
 }

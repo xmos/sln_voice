@@ -20,10 +20,8 @@ void usb_audio_send(rtos_intertile_t *intertile_ctx,
 *   reference_audio_frame
 *   raw_mic_audio_frame
 */
-void usb_audio_recv(rtos_intertile_t *intertile_ctx,
-                    size_t frame_count,
-                    int32_t **frame_buffers,
-                    size_t num_chans);
+unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
+                    int32_t **frame_buffers);
 
 void usb_audio_init(rtos_intertile_t *intertile_ctx, unsigned priority);
 

@@ -45,11 +45,39 @@ static void mem_analysis(void)
 	}
 }
 
+static void usb_to_i2s_slave_intertile(void *args) {
+    (void) args;
+    int32_t *usb_to_i2s_samps;
+    for(;;)
+    {
+        unsigned num_samps = usb_audio_recv(intertile_usb_audio_ctx,
+                                            &usb_to_i2s_samps
+                                        );
+        if(num_samps)
+        {
+            printf("num_samps = %d\n",num_samps);
+            rtos_i2s_tx(i2s_ctx,
+                (int32_t*) usb_to_i2s_samps,
+                num_samps,
+                portMAX_DELAY);
+        }
+    }
+}
+
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
     platform_start();
+
+#if ON_TILE(1) && appconfI2S_ENABLED
+    xTaskCreate((TaskFunction_t) usb_to_i2s_slave_intertile,
+                "usb_to_i2s_slave_intertile",
+                RTOS_THREAD_STACK_SIZE(usb_to_i2s_slave_intertile),
+                NULL,
+                appconfAUDIO_PIPELINE_TASK_PRIORITY,
+                NULL);
+#endif
 
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
