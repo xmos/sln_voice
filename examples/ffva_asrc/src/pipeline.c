@@ -148,6 +148,8 @@ typedef struct
     unsigned nominal_fs_ratio;
 }asrc_ctx_t;
 
+static aec_ctx_t DWORD_ALIGNED aec_state = {};
+
 #define INPUT_ASRC_BLOCK_LENGTH (appconfAUDIO_PIPELINE_FRAME_ADVANCE)
 static void asrc_one_channel_task(void *args)
 {
@@ -236,14 +238,32 @@ static void agc_task(void *args)
         }
 
         //memcpy(frame_data->samples, frame_data->mic_samples_passthrough, sizeof(frame_data->samples));
-        memcpy(&frame_data->samples[0][0], &frame_data->aec_reference_audio_samples[0][0], sizeof(frame_data->samples)/2); // For reference passthrough
+        memcpy(&frame_data->samples[0][0], &frame_data->aec_reference_audio_samples[1][0], sizeof(frame_data->samples)/2); // For reference passthrough
         memcpy(&frame_data->samples[1][0], &frame_data->aec_reference_audio_samples[1][0], sizeof(frame_data->samples)/2); // For reference passthrough
         //memset(frame_data->samples, 0, sizeof(frame_data->samples));
 
 
         // Process
         stage_agc(frame_data);
+#if 0
+        uint32_t start = get_reference_time();
 
+        int32_t DWORD_ALIGNED stage1_output[AEC_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+        aec_process_frame_1thread(
+            &aec_state.aec_main_state,
+            &aec_state.aec_shadow_state,
+            stage1_output,
+            NULL,
+            frame_data->samples,
+            frame_data->aec_reference_audio_samples);
+
+        uint32_t end = get_reference_time();
+        printuintln(end - start);
+        frame_data->max_ref_energy = aec_calc_max_input_energy(
+                                        frame_data->aec_reference_audio_samples,
+                                        aec_state.aec_main_state.shared_state->num_x_channels);
+        frame_data->aec_corr_factor = aec_calc_corr_factor(&aec_state.aec_main_state, 0);
+#endif
         uint32_t current_in = get_reference_time();
         //printuintln(current_in - prev_in);
         prev_in = current_in;
@@ -432,6 +452,15 @@ static int audio_pipeline_output_i(void *args)
 void pipeline_init()
 {
 #if ON_TILE(1)
+    aec_init(&aec_state.aec_main_state,
+             &aec_state.aec_shadow_state,
+             &aec_state.aec_shared_state,
+             &aec_state.aec_main_memory_pool[0],
+             &aec_state.aec_shadow_memory_pool[0],
+             AEC_MAX_Y_CHANNELS,
+             AEC_MAX_X_CHANNELS,
+             AEC_MAIN_FILTER_PHASES,
+             AEC_SHADOW_FILTER_PHASES);
     // Initialise one ASRC instance
     agc_init(&agc_stage_state.state, &AGC_PROFILE_FIXED_GAIN);
     agc_stage_state.state.config.gain = f32_to_float_s32(1);
