@@ -311,7 +311,7 @@ void usb_audio_out_task(void *arg)
                 }*/
             }
         }
-
+#if 0
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &usb_audio_out_frame_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
@@ -326,14 +326,14 @@ void usb_audio_out_task(void *arg)
 
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_ch1_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
-
-        unsigned min_samples = (n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
+#endif
+        unsigned min_samples = 240;//(n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
 
         for(int ch=0; ch<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++)
         {
-            for(int i=0; i<min_samples; i++)
+            for(int i=0; i<240; i++)
             {
-                frame_samples_interleaved[i][ch] = frame_samples[ch][i];
+                frame_samples_interleaved[i][ch] = usb_audio_out_frame_deinterleaved[ch][i];
             }
         }
 
