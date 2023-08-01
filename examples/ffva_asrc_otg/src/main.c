@@ -55,7 +55,6 @@ static void usb_to_i2s_slave_intertile(void *args) {
                                         );
         if(num_samps)
         {
-            //printf("num_samps = %d\n",num_samps);
             rtos_i2s_tx(i2s_ctx,
                 (int32_t*) usb_to_i2s_samps,
                 num_samps,
