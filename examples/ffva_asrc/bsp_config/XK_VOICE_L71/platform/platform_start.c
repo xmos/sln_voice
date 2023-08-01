@@ -124,7 +124,7 @@ static void i2s_start(void)
             rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, appconfI2S_AUDIO_SAMPLE_RATE),
             I2S_MODE_I2S,
             2.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-            1.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE * 8 * (appconfI2S_TDM_ENABLED ? 3 : 1),
+            1.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
             appconfI2S_INTERRUPT_CORE);
 #endif
 #endif
@@ -148,7 +148,7 @@ void platform_start(void)
     i2c_slave_start();
     audio_codec_start();
     spi_start();
-    mics_start();
+    //mics_start();
     i2s_start();
     usb_start();
 }

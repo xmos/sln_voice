@@ -222,15 +222,11 @@ static void asrc_one_channel_task(void *args)
     {
         asrc_ctx_t *asrc_ctx = NULL;
         (void) rtos_osal_queue_receive(&asrc_ch1_queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
-        unsigned start = get_reference_time();
+        //unsigned start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
-        unsigned end = get_reference_time();
+        //unsigned end = get_reference_time();
         //printuintln(end - start);
-        if(end - start > 300000)
-        {
-            printchar('v');
-            printuintln(end - start);
-        }
+
         (void) rtos_osal_queue_send(&asrc_ch1_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }
 }
@@ -289,7 +285,7 @@ void usb_audio_out_task(void *arg)
 
     for (;;) {
         samp_t usb_audio_out_frame[appconfAUDIO_PIPELINE_FRAME_ADVANCE][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
-        int32_t usb_audio_out_frame_deinterleaved[appconfAUDIO_PIPELINE_FRAME_ADVANCE][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
+        int32_t usb_audio_out_frame_deinterleaved[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
         size_t bytes_received = 0;
 
         /*
@@ -305,13 +301,9 @@ void usb_audio_out_task(void *arg)
             for(int i=0 ; i<appconfAUDIO_PIPELINE_FRAME_ADVANCE; i++)
             {
                 usb_audio_out_frame_deinterleaved[ch][i] = usb_audio_out_frame[i][ch] << src_32_shift;
-                /*if(usb_audio_out_frame_deinterleaved[ch][i] != 0)
-                {
-                    printf("Non zero. ch %d, samp %d, val 0x%x\n", ch, i, usb_audio_out_frame_deinterleaved[ch][i]);
-                }*/
             }
         }
-#if 0
+
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &usb_audio_out_frame_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
@@ -326,16 +318,20 @@ void usb_audio_out_task(void *arg)
 
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_ch1_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
-#endif
-        unsigned min_samples = 240;//(n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
+
+        unsigned min_samples = n_samps_out;//(n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
 
         for(int ch=0; ch<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++)
         {
-            for(int i=0; i<240; i++)
+            for(int i=0; i<min_samples; i++)
             {
-                frame_samples_interleaved[i][ch] = usb_audio_out_frame_deinterleaved[ch][i];
+                frame_samples_interleaved[i][ch] = frame_samples[ch][i];
             }
         }
+
+        /*if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= min_samples*CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX*sizeof(int32_t)) {
+            xStreamBufferSend(samples_to_host_stream_buf, frame_samples_interleaved, min_samples*CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX*sizeof(int32_t), 0);
+        }*/
 
         // TODO Save the extra samples for next time!!
 

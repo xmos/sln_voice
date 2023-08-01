@@ -44,8 +44,8 @@ typedef struct {
     int32_t ref_active_flag;
 } frame_data_t;
 
-static StreamBufferHandle_t input_reference_samples_buf;
-static StreamBufferHandle_t input_reference_samples_buf_ch1;
+static StreamBufferHandle_t i2s_to_usb_samples_buf;
+static StreamBufferHandle_t i2s_to_usb_samples_buf_ch1;
 rtos_osal_queue_t asrc_queue, asrc_ret_queue;
 
 
@@ -160,7 +160,7 @@ static void asrc_one_channel_task(void *args)
 
     //Initialise ASRC
     fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(48000);
+    fs_code_t out_fs_code = samp_rate_to_code(appconfUSB_AUDIO_SAMPLE_RATE);
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_BLOCK_LENGTH, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
@@ -174,8 +174,8 @@ static void asrc_one_channel_task(void *args)
         //printuintln(end - start);
         if(end - start > 300000)
         {
-            printchar('v');
-            printuintln(end - start);
+            //printchar('v');
+            //printuintln(end - start);
         }
         (void) rtos_osal_queue_send(&asrc_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }
@@ -202,10 +202,10 @@ static void agc_task(void *args)
 
         //At this point check if there's enough data in the reference buffer, otherwise use zeros
         // Ch 0
-        if (xStreamBufferBytesAvailable(input_reference_samples_buf) >= ref_frame_size_bytes)
+        if (xStreamBufferBytesAvailable(i2s_to_usb_samples_buf) >= ref_frame_size_bytes)
         {
             //printcharln('m');
-            size_t bytes_received = xStreamBufferReceive(input_reference_samples_buf, &frame_data->aec_reference_audio_samples[0][0], ref_frame_size_bytes, 0);
+            size_t bytes_received = xStreamBufferReceive(i2s_to_usb_samples_buf, &frame_data->aec_reference_audio_samples[0][0], ref_frame_size_bytes, 0);
             xassert(bytes_received == ref_frame_size_bytes);
         }
         else
@@ -215,10 +215,10 @@ static void agc_task(void *args)
         }
 
         // Ch 1
-        if (xStreamBufferBytesAvailable(input_reference_samples_buf_ch1) >= ref_frame_size_bytes)
+        if (xStreamBufferBytesAvailable(i2s_to_usb_samples_buf_ch1) >= ref_frame_size_bytes)
         {
             //printcharln('m');
-            size_t bytes_received = xStreamBufferReceive(input_reference_samples_buf_ch1, &frame_data->aec_reference_audio_samples[1][0], ref_frame_size_bytes, 0);
+            size_t bytes_received = xStreamBufferReceive(i2s_to_usb_samples_buf_ch1, &frame_data->aec_reference_audio_samples[1][0], ref_frame_size_bytes, 0);
             xassert(bytes_received == ref_frame_size_bytes);
         }
         else
@@ -301,7 +301,7 @@ static void audio_pipeline_input_i(void *args)
 
     //Initialise ASRC
     fs_code_t in_fs_code = samp_rate_to_code(appconfI2S_AUDIO_SAMPLE_RATE);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(48000);
+    fs_code_t out_fs_code = samp_rate_to_code(appconfUSB_AUDIO_SAMPLE_RATE);
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, INPUT_ASRC_BLOCK_LENGTH, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
@@ -354,14 +354,14 @@ static void audio_pipeline_input_i(void *args)
         uint32_t end = get_reference_time();
         if(end - start > 300000)
         {
-            printchar('f');
-            printuintln(end - start);
+            //printchar('f');
+            //printuintln(end - start);
         }
 
         size_t size_to_write = n_samps_out*sizeof(int32_t); // Do only channel 0 for now
-        if (xStreamBufferSpacesAvailable(input_reference_samples_buf) >= size_to_write)
+        if (xStreamBufferSpacesAvailable(i2s_to_usb_samples_buf) >= size_to_write)
         {
-            xStreamBufferSend(input_reference_samples_buf, &frame_samples[0][0], size_to_write, 0);
+            xStreamBufferSend(i2s_to_usb_samples_buf, &frame_samples[0][0], size_to_write, 0);
         }
         else
         {
@@ -370,9 +370,9 @@ static void audio_pipeline_input_i(void *args)
         }
 
         size_t size_to_write_ch1 = n_samps_out_ch1 * sizeof(int32_t); // Do only channel 0 for now
-        if (xStreamBufferSpacesAvailable(input_reference_samples_buf_ch1) >= size_to_write_ch1)
+        if (xStreamBufferSpacesAvailable(i2s_to_usb_samples_buf_ch1) >= size_to_write_ch1)
         {
-            xStreamBufferSend(input_reference_samples_buf_ch1, &frame_samples[1][0], size_to_write_ch1, 0);
+            xStreamBufferSend(i2s_to_usb_samples_buf_ch1, &frame_samples[1][0], size_to_write_ch1, 0);
         }
         else
         {
@@ -444,10 +444,10 @@ void pipeline_init()
     (void) rtos_osal_queue_create(&pipeline_ctx->input_queue, NULL, 2, sizeof(void *));
     (void) rtos_osal_queue_create(&pipeline_ctx->output_queue, NULL, 2, sizeof(void *));
 
-    input_reference_samples_buf = xStreamBufferCreate(2 * sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_CHANNELS,
+    i2s_to_usb_samples_buf = xStreamBufferCreate(2 * sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_CHANNELS,
                                             0);
 
-    input_reference_samples_buf_ch1 = xStreamBufferCreate(2 * sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_CHANNELS,
+    i2s_to_usb_samples_buf_ch1 = xStreamBufferCreate(2 * sizeof(int32_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * appconfAUDIO_PIPELINE_CHANNELS,
                                             0);
 
     // Create pipeline input task
