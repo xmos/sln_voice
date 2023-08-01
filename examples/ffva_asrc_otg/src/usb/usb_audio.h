@@ -10,11 +10,9 @@
  *   reference_audio_frame
  *   raw_mic_audio_frame
  */
-void usb_audio_send(rtos_intertile_t *intertile_ctx,
+void usb_audio_send(int32_t *frame_buffer_ptr,
                     size_t frame_count,
-                    int32_t **frame_buffers,
                     size_t num_chans);
-
 /*
 * frame_buffers format assumes:
 *   reference_audio_frame

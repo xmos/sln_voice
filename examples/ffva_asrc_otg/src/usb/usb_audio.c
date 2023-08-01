@@ -111,35 +111,27 @@ typedef int32_t samp_t;
 #error CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX must be either 2 or 4
 #endif
 
-void usb_audio_send(rtos_intertile_t *intertile_ctx,
+void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved samples [samps][ch] format
                     size_t frame_count,
-                    int32_t **frame_buffers,
                     size_t num_chans)
 {
-    samp_t usb_audio_in_frame[appconfAUDIO_PIPELINE_FRAME_ADVANCE][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
-    int32_t *frame_buf_ptr = (int32_t *) frame_buffers;
-
+    samp_t usb_audio_in_frame[appconfAUDIO_PIPELINE_FRAME_ADVANCE*2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 #if CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 2
     const int src_32_shift = 16;
 #elif CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 4
     const int src_32_shift = 0;
 #endif
 
-    memset(usb_audio_in_frame, 0, sizeof(samp_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
-
-    xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
-
-    for(int ch=0; ch<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX; ch++) {
-        for (int i=0; i<appconfAUDIO_PIPELINE_FRAME_ADVANCE; i++) {
-            if (ch < num_chans) {
-                usb_audio_in_frame[i][ch] = frame_buf_ptr[i+(appconfAUDIO_PIPELINE_FRAME_ADVANCE*ch)] >> src_32_shift;
-            }
+    memset(usb_audio_in_frame, 0, sizeof(usb_audio_in_frame));
+    for (int i=0; i<frame_count; i++) {
+        for(int ch=0; ch<num_chans; ch++) {
+            usb_audio_in_frame[i][ch] = frame_buffer_ptr[i*2 + ch] >> src_32_shift;
         }
     }
-
+    size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
     if (mic_interface_open) {
-        if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= sizeof(usb_audio_in_frame)) {
-            xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, sizeof(usb_audio_in_frame), 0);
+        if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes) {
+            xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
         } else {
             rtos_printf("lost VFE output samples\n");
         }
@@ -333,9 +325,9 @@ void usb_audio_out_task(void *arg)
             }
         }
 
-        if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= sizeof(usb_audio_out_frame)) {
+        /*if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= sizeof(usb_audio_out_frame)) {
             xStreamBufferSend(samples_to_host_stream_buf, frame_samples_interleaved, sizeof(usb_audio_out_frame), 0);
-        }
+        }*/
 
         // TODO Save the extra samples for next time!!
 

@@ -63,6 +63,33 @@ static void usb_to_i2s_slave_intertile(void *args) {
     }
 }
 
+static void i2s_slave_to_usb_intertile(void *args) {
+    (void) args;
+    int32_t i2s_to_usb_samps_interleaved[240*2][2]; // TODO fix all the hardcodings
+
+    for(;;)
+    {
+        size_t bytes_received;
+
+        bytes_received = rtos_intertile_rx_len(
+                intertile_ctx,
+                appconfAUDIOPIPELINE_PORT,
+                portMAX_DELAY);
+
+        if (bytes_received > 0) {
+            xassert(bytes_received <= sizeof(i2s_to_usb_samps_interleaved));
+
+            rtos_intertile_rx_data(
+                    intertile_ctx,
+                    i2s_to_usb_samps_interleaved,
+                    bytes_received);
+
+            usb_audio_send(i2s_to_usb_samps_interleaved, (bytes_received >> 3), 2);
+        }
+
+    }
+}
+
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
@@ -77,6 +104,16 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
+
+#if ON_TILE(0) && appconfUSB_ENABLED
+    xTaskCreate((TaskFunction_t) i2s_slave_to_usb_intertile,
+                "i2s_slave_to_usb_intertile",
+                RTOS_THREAD_STACK_SIZE(i2s_slave_to_usb_intertile),
+                NULL,
+                appconfAUDIO_PIPELINE_TASK_PRIORITY,
+                NULL);
+#endif
+
 
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);

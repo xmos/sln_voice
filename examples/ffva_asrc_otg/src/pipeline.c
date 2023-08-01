@@ -171,12 +171,7 @@ static void asrc_one_channel_task(void *args)
         unsigned start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
         unsigned end = get_reference_time();
-        //printuintln(end - start);
-        if(end - start > 300000)
-        {
-            //printchar('v');
-            //printuintln(end - start);
-        }
+
         (void) rtos_osal_queue_send(&asrc_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }
 }
@@ -235,25 +230,7 @@ static void agc_task(void *args)
 
         // Process
         stage_agc(frame_data);
-#if 0
-        uint32_t start = get_reference_time();
 
-        int32_t DWORD_ALIGNED stage1_output[AEC_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
-        aec_process_frame_1thread(
-            &aec_state.aec_main_state,
-            &aec_state.aec_shadow_state,
-            stage1_output,
-            NULL,
-            frame_data->samples,
-            frame_data->aec_reference_audio_samples);
-
-        uint32_t end = get_reference_time();
-        printuintln(end - start);
-        frame_data->max_ref_energy = aec_calc_max_input_energy(
-                                        frame_data->aec_reference_audio_samples,
-                                        aec_state.aec_main_state.shared_state->num_x_channels);
-        frame_data->aec_corr_factor = aec_calc_corr_factor(&aec_state.aec_main_state, 0);
-#endif
         uint32_t current_in = get_reference_time();
         //printuintln(current_in - prev_in);
         prev_in = current_in;
@@ -319,6 +296,7 @@ static void audio_pipeline_input_i(void *args)
     prev_mclk_trigger_time = port_get_trigger_time(p_mclk_count);
 
     int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][INPUT_ASRC_BLOCK_LENGTH*2];
+    int32_t frame_samples_interleaved[INPUT_ASRC_BLOCK_LENGTH*2][appconfAUDIO_PIPELINE_CHANNELS];
     for(;;)
     {
         int32_t tmp[INPUT_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
@@ -352,13 +330,26 @@ static void audio_pipeline_input_i(void *args)
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
         uint32_t end = get_reference_time();
-        if(end - start > 300000)
+
+        uint32_t min_samples = (n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
+
+        for(int i=0; i<min_samples; i++)
         {
-            //printchar('f');
-            //printuintln(end - start);
+            for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+            {
+                frame_samples_interleaved[i][ch] = frame_samples[ch][i];
+            }
         }
 
-        size_t size_to_write = n_samps_out*sizeof(int32_t); // Do only channel 0 for now
+        if (min_samples > 0) {
+            rtos_intertile_tx(
+                    intertile_ctx,
+                    appconfAUDIOPIPELINE_PORT,
+                    frame_samples_interleaved,
+                    min_samples*appconfAUDIO_PIPELINE_CHANNELS*sizeof(int32_t));
+        }
+#if 0
+        size_t size_to_write = n_samps_out*sizeof(int32_t);
         if (xStreamBufferSpacesAvailable(i2s_to_usb_samples_buf) >= size_to_write)
         {
             xStreamBufferSend(i2s_to_usb_samples_buf, &frame_samples[0][0], size_to_write, 0);
@@ -369,7 +360,7 @@ static void audio_pipeline_input_i(void *args)
             //xassert(0);
         }
 
-        size_t size_to_write_ch1 = n_samps_out_ch1 * sizeof(int32_t); // Do only channel 0 for now
+        size_t size_to_write_ch1 = n_samps_out_ch1 * sizeof(int32_t);
         if (xStreamBufferSpacesAvailable(i2s_to_usb_samples_buf_ch1) >= size_to_write_ch1)
         {
             xStreamBufferSend(i2s_to_usb_samples_buf_ch1, &frame_samples[1][0], size_to_write_ch1, 0);
@@ -379,6 +370,7 @@ static void audio_pipeline_input_i(void *args)
             //printf("Ch 1: Lost I2S samples from host!!\n");
             //xassert(0);
         }
+#endif
     }
 }
 
