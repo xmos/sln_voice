@@ -171,6 +171,7 @@ static void asrc_one_channel_task(void *args)
         unsigned start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
         unsigned end = get_reference_time();
+        //printuintln(end - start);
 
         (void) rtos_osal_queue_send(&asrc_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }
@@ -317,19 +318,21 @@ static void audio_pipeline_input_i(void *args)
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
         asrc_ctx_t *ptr = &asrc_ctx;
-        uint32_t start = get_reference_time();
+
         (void) rtos_osal_queue_send(&asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
         // Only channel 0 for now
+        uint32_t start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], nominal_fs_ratio, asrc_ctrl);
-
+        uint32_t end = get_reference_time();
+        //printuintln(end - start);
 
         // Wait for 2nd channel ASRC to finish
 
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
-        uint32_t end = get_reference_time();
+
 
         uint32_t min_samples = (n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
 

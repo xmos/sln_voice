@@ -42,4 +42,12 @@ if((${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A) OR (${CMAKE_SYSTEM_NAME} STREQUAL 
         PUBLIC
             framework_core_legacy_compat
     )
+
+    ## Set any local library compile options
+    set(LIB_COMPILE_FLAGS "-O3")
+
+    target_compile_options(lib_src
+    PRIVATE
+        ${LIB_COMPILE_FLAGS}
+    )
 endif()

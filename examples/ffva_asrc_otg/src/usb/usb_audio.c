@@ -214,9 +214,9 @@ static void asrc_one_channel_task(void *args)
     {
         asrc_ctx_t *asrc_ctx = NULL;
         (void) rtos_osal_queue_receive(&asrc_ch1_queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
-        //unsigned start = get_reference_time();
+        unsigned start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
-        //unsigned end = get_reference_time();
+        unsigned end = get_reference_time();
         //printuintln(end - start);
 
         (void) rtos_osal_queue_send(&asrc_ch1_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
