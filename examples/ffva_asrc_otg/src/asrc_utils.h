@@ -26,5 +26,6 @@ typedef struct {
 }asrc_init_t;
 
 fs_code_t samp_rate_to_code(unsigned samp_rate);
+void asrc_one_channel_task(void *args);
 
 #endif

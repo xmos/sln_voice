@@ -172,48 +172,6 @@ unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
     }
 }
 
-static rtos_osal_queue_t asrc_ch1_queue, asrc_ch1_ret_queue;
-static void asrc_one_channel_task(void *args)
-{
-    asrc_init_t *init_ctx = (asrc_init_t*)args;
-    asrc_state_t     asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
-    int              asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * USB_TO_I2S_ASRC_BLOCK_LENGTH]; //Buffer between filter stages
-    asrc_ctrl_t      asrc_ctrl[ASRC_CHANNELS_PER_INSTANCE];  //Control structure
-    asrc_adfir_coefs_t asrc_adfir_coefs;
-
-    for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
-    {
-        //Set state, stack and coefs into ctrl structure
-        asrc_ctrl[ui].psState                   = &asrc_state[ui];
-        asrc_ctrl[ui].piStack                   = asrc_stack[ui];
-        asrc_ctrl[ui].piADCoefs                 = asrc_adfir_coefs.iASRCADFIRCoefs;
-    }
-
-    //Initialise ASRC
-    fs_code_t in_fs_code = samp_rate_to_code(init_ctx->fs_in);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(init_ctx->fs_out);
-    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, init_ctx->n_in_samples, ASRC_DITHER_SETTING);
-    printf("USB_to_I2S ch1 ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
-    unsigned max_ticks = 0;
-    for(;;)
-    {
-        asrc_process_frame_ctx_t *asrc_ctx = NULL;
-        (void) rtos_osal_queue_receive(&asrc_ch1_queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
-        unsigned start = get_reference_time();
-        unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
-        unsigned end = get_reference_time();
-        if(max_ticks < (end - start))
-        {
-            max_ticks = end - start;
-            printchar('u');
-            printuintln(max_ticks);
-        }
-
-
-        (void) rtos_osal_queue_send(&asrc_ch1_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
-    }
-}
-
 void usb_audio_out_task(void *arg)
 {
 
@@ -225,47 +183,51 @@ void usb_audio_out_task(void *arg)
 
     rtos_intertile_t *intertile_ctx = (rtos_intertile_t*) arg;
 
+    // Initialise channel 0 ASRC instance
+    asrc_state_t     asrc_state[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
+    int              asrc_stack[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * USB_TO_I2S_ASRC_BLOCK_LENGTH]; //Buffer between filter stages
+    asrc_ctrl_t      asrc_ctrl[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][ASRC_CHANNELS_PER_INSTANCE];  //Control structure
+    asrc_adfir_coefs_t asrc_adfir_coefs[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
+
+    for(int ch=0; ch<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++)
+    {
+        for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
+        {
+            //Set state, stack and coefs into ctrl structure
+            asrc_ctrl[ch][ui].psState                   = &asrc_state[ch][ui];
+            asrc_ctrl[ch][ui].piStack                   = asrc_stack[ch][ui];
+            asrc_ctrl[ch][ui].piADCoefs                 = asrc_adfir_coefs[ch].iASRCADFIRCoefs;
+        }
+    }
+
+    //Initialise ASRC
+    // Create init ctx for the ch1 asrc running in another thread
     asrc_init_t asrc_init_ctx;
     asrc_init_ctx.fs_in = appconfUSB_AUDIO_SAMPLE_RATE;
     asrc_init_ctx.fs_out = appconfI2S_AUDIO_SAMPLE_RATE;
     asrc_init_ctx.n_in_samples = USB_TO_I2S_ASRC_BLOCK_LENGTH;
-
-    asrc_process_frame_ctx_t asrc_ctx;
-    (void) rtos_osal_queue_create(&asrc_ch1_queue, "asrc_q", 1, sizeof(asrc_process_frame_ctx_t*));
-    (void) rtos_osal_queue_create(&asrc_ch1_ret_queue, "asrc_ret_q", 1, sizeof(int));
-
-    // Create the ch1 ASRC task to process the 2nd channel
+    asrc_init_ctx.asrc_ctrl_ptr = &asrc_ctrl[1][0];
+    (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_queue, "asrc_q", 1, sizeof(asrc_process_frame_ctx_t*));
+    (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_ret_queue, "asrc_ret_q", 1, sizeof(int));
+    // Create 2nd channel ASRC task
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
         (char *) "ASRC_1ch",
         (rtos_osal_entry_function_t) asrc_one_channel_task,
-        (void *) &asrc_init_ctx,
+        (void *) (&asrc_init_ctx),
         (size_t) RTOS_THREAD_STACK_SIZE(asrc_one_channel_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
-    // Initialise channel 0 ASRC instance
-    asrc_state_t     asrc_state[ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
-    int              asrc_stack[ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * USB_TO_I2S_ASRC_BLOCK_LENGTH]; //Buffer between filter stages
-    asrc_ctrl_t      asrc_ctrl[ASRC_CHANNELS_PER_INSTANCE];  //Control structure
-    asrc_adfir_coefs_t asrc_adfir_coefs;
 
-    for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
-    {
-        //Set state, stack and coefs into ctrl structure
-        asrc_ctrl[ui].psState                   = &asrc_state[ui];
-        asrc_ctrl[ui].piStack                   = asrc_stack[ui];
-        asrc_ctrl[ui].piADCoefs                 = asrc_adfir_coefs.iASRCADFIRCoefs;
-    }
-
-    //Initialise ASRC
-    fs_code_t in_fs_code = samp_rate_to_code( asrc_init_ctx.fs_in);  //Sample rate code 0..5
+    fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
-    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
     printf("USB_to_I2S ch0 ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
 
     int32_t frame_samples[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][USB_TO_I2S_ASRC_BLOCK_LENGTH*4 + USB_TO_I2S_ASRC_BLOCK_LENGTH]; // TODO calculate size properly
     int32_t frame_samples_interleaved[USB_TO_I2S_ASRC_BLOCK_LENGTH*4 + USB_TO_I2S_ASRC_BLOCK_LENGTH][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX]; // TODO calculate size properly
 
+    asrc_process_frame_ctx_t asrc_ctx;
     for (;;) {
         samp_t usb_audio_out_frame[USB_TO_I2S_ASRC_BLOCK_LENGTH][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
         int32_t usb_audio_out_frame_deinterleaved[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][USB_TO_I2S_ASRC_BLOCK_LENGTH];
@@ -294,15 +256,15 @@ void usb_audio_out_task(void *arg)
         asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
         uint32_t start = get_reference_time();
-        (void) rtos_osal_queue_send(&asrc_ch1_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
+        (void) rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
         // Only channel 0 for now
-        unsigned n_samps_out = asrc_process((int *)&usb_audio_out_frame_deinterleaved[0][0], (int *)&frame_samples[0][0], nominal_fs_ratio, asrc_ctrl);
+        unsigned n_samps_out = asrc_process((int *)&usb_audio_out_frame_deinterleaved[0][0], (int *)&frame_samples[0][0], nominal_fs_ratio,  &asrc_ctrl[0][0]);
         uint32_t end = get_reference_time();
         //printuintln(end - start);
         unsigned n_samps_out_ch1;
-        rtos_osal_queue_receive(&asrc_ch1_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
+        rtos_osal_queue_receive(&asrc_init_ctx.asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
 
         if(n_samps_out != n_samps_out_ch1)
         {
