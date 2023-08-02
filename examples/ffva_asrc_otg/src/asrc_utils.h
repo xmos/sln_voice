@@ -25,6 +25,12 @@ typedef struct {
     rtos_osal_queue_t asrc_ret_queue;
 }asrc_init_t;
 
+#define USB_TO_I2S_ASRC_BLOCK_LENGTH (240)
+#define I2S_TO_USB_ASRC_BLOCK_LENGTH (240)
+#define ASRC_N_CHANNELS              (1)
+#define ASRC_CHANNELS_PER_INSTANCE   (1)
+#define ASRC_DITHER_SETTING          OFF
+
 fs_code_t samp_rate_to_code(unsigned samp_rate);
 void asrc_one_channel_task(void *args);
 

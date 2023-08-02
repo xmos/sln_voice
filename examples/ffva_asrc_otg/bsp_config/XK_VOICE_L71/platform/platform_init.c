@@ -137,28 +137,6 @@ static void spi_init(void)
 #endif
 }
 
-static void mics_init(void)
-{
-    static rtos_driver_rpc_t mic_array_rpc_config;
-#if ON_TILE(MICARRAY_TILE_NO)
-    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
-    rtos_mic_array_init(
-            mic_array_ctx,
-            (1 << appconfPDM_MIC_IO_CORE),
-            RTOS_MIC_ARRAY_CHANNEL_SAMPLE);
-    rtos_mic_array_rpc_host_init(
-            mic_array_ctx,
-            &mic_array_rpc_config,
-            client_intertile_ctx,
-            1);
-#else
-    rtos_mic_array_rpc_client_init(
-            mic_array_ctx,
-            &mic_array_rpc_config,
-            intertile_ctx);
-#endif
-}
-
 static void i2s_init(void)
 {
 #if appconfI2S_ENABLED
@@ -238,9 +216,6 @@ void platform_init(chanend_t other_tile_c)
     flash_init();
     i2c_init();
     spi_init();
-    printf("Before mics init\n");
-    mics_init();
-    printf("After mics init\n");
     i2s_init();
     usb_init();
 }

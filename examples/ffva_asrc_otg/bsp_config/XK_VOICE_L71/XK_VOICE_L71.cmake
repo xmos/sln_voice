@@ -1,7 +1,8 @@
 
 ## Create custom board targets for application
-add_library(sln_voice_app_ffva_asrc_board_support_xk_voice_l71 INTERFACE)
-target_sources(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
+set(TARGET_NAME sln_voice_app_ffva_asrc_otg_board_support_xk_voice_l71)
+add_library(${TARGET_NAME} INTERFACE)
+target_sources(${TARGET_NAME}
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
@@ -10,11 +11,11 @@ target_sources(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/mic_array.cpp
 )
-target_include_directories(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
+target_include_directories(${TARGET_NAME}
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}
 )
-target_link_libraries(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
+target_link_libraries(${TARGET_NAME}
     INTERFACE
         core::general
         rtos::freertos
@@ -22,17 +23,17 @@ target_link_libraries(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
         rtos::drivers::audio
         rtos::drivers::usb
         rtos::drivers::dfu_image
-        sln_voice::app::ffva_asrc::dac::dac3101
+        sln_voice::app::ffva_asrc_otg::dac::dac3101
 )
-target_compile_options(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
+target_compile_options(${TARGET_NAME}
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_link_options(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
+target_link_options(${TARGET_NAME}
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/XK_VOICE_L71.xn
 )
-target_compile_definitions(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
+target_compile_definitions(${TARGET_NAME}
     INTERFACE
         XK_VOICE_L71=1
         PLATFORM_SUPPORTS_TILE_0=1
@@ -53,4 +54,4 @@ target_compile_definitions(sln_voice_app_ffva_asrc_board_support_xk_voice_l71
 )
 
 ## Create an alias
-add_library(sln_voice::app::ffva_asrc::xk_voice_l71 ALIAS sln_voice_app_ffva_asrc_board_support_xk_voice_l71)
+add_library(sln_voice::app::ffva_asrc_otg::xk_voice_l71 ALIAS ${TARGET_NAME})

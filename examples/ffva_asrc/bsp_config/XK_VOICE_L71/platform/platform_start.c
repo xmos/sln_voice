@@ -148,7 +148,7 @@ void platform_start(void)
     i2c_slave_start();
     audio_codec_start();
     spi_start();
-    //mics_start();
+    mics_start();
     i2s_start();
     usb_start();
 }

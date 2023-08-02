@@ -68,7 +68,7 @@ static StreamBufferHandle_t samples_from_host_stream_buf;
 static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_task_handle;
 
-#define USB_FRAMES_PER_VFE_FRAME (appconfAUDIO_PIPELINE_FRAME_ADVANCE / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
+#define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
 //--------------------------------------------------------------------+
 // Device callbacks
@@ -117,7 +117,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
                     size_t frame_count,
                     size_t num_chans)
 {
-    samp_t usb_audio_in_frame[appconfAUDIO_PIPELINE_FRAME_ADVANCE*2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
+    samp_t usb_audio_in_frame[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 #if CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 2
     const int src_32_shift = 16;
 #elif CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 4
@@ -140,8 +140,6 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
     }
 }
-
-#define USB_TO_I2S_ASRC_BLOCK_LENGTH (appconfAUDIO_PIPELINE_FRAME_ADVANCE)
 
 unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
                     int32_t **frame_buffers)
@@ -651,7 +649,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
          * milliseconds of audio into the stream buffer, but rather once every
          * pipeline frame time.
          */
-        const size_t buffer_notify_level = stream_buffer_send_byte_count * (1 + USB_FRAMES_PER_VFE_FRAME);
+        const size_t buffer_notify_level = stream_buffer_send_byte_count * (1 + USB_FRAMES_PER_ASRC_INPUT_FRAME);
 
         /*
          * TODO: If the above is modified such that not exactly AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER
@@ -729,7 +727,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     bytes_available = xStreamBufferBytesAvailable(samples_to_host_stream_buf);
 
-    if (bytes_available >= 2 * sizeof(samp_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX) {
+    if (bytes_available >= 2 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX) {
         /* wait until we have 2 full audio pipeline output frames in the buffer */
         ready = 1;
     }
@@ -854,7 +852,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
      * Note: Given the way that the USB callback notifies usb_audio_out_task,
      * the size of this buffer MUST NOT be greater than 2 VFE frames.
      */
-    samples_from_host_stream_buf = xStreamBufferCreate(2 * sizeof(samp_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX,
+    samples_from_host_stream_buf = xStreamBufferCreate(2 * sizeof(samp_t) * USB_TO_I2S_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX,
                                             0);
 
     /*
@@ -862,7 +860,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
      * in this buffer before starting to send to the host, so the size of
      * this buffer MUST be AT LEAST 2 VFE frames.
      */
-    samples_to_host_stream_buf = xStreamBufferCreate(4 * sizeof(samp_t) * appconfAUDIO_PIPELINE_FRAME_ADVANCE * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX,
+    samples_to_host_stream_buf = xStreamBufferCreate(4 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX,
                                             0);
 
     xTaskCreate((TaskFunction_t) usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);

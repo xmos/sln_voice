@@ -239,7 +239,7 @@ void platform_init(chanend_t other_tile_c)
     i2c_init();
     spi_init();
     printf("Before mics init\n");
-    //mics_init();
+    mics_init();
     printf("After mics init\n");
     i2s_init();
     usb_init();

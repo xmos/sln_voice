@@ -84,7 +84,7 @@ static void i2s_slave_to_usb_intertile(void *args) {
                     i2s_to_usb_samps_interleaved,
                     bytes_received);
 
-            usb_audio_send(i2s_to_usb_samps_interleaved, (bytes_received >> 3), 2);
+            usb_audio_send(&i2s_to_usb_samps_interleaved[0][0], (bytes_received >> 3), 2);
         }
 
     }

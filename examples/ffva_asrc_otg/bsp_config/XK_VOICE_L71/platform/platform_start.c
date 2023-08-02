@@ -20,6 +20,7 @@
 #include "app_control/app_control.h"
 #include "device_control_i2c.h"
 #endif
+#include "asrc_utils.h"
 
 extern void i2s_rate_conversion_enable(void);
 
@@ -100,18 +101,6 @@ static void spi_start(void)
 #endif
 }
 
-static void mics_start(void)
-{
-    rtos_mic_array_rpc_config(mic_array_ctx, appconfMIC_ARRAY_RPC_PORT, appconfMIC_ARRAY_RPC_PRIORITY);
-
-#if ON_TILE(MICARRAY_TILE_NO)
-    rtos_mic_array_start(
-            mic_array_ctx,
-            2 * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME,
-            appconfPDM_MIC_INTERRUPT_CORE);
-#endif
-}
-
 static void i2s_start(void)
 {
 #if appconfI2S_ENABLED
@@ -123,8 +112,8 @@ static void i2s_start(void)
             i2s_ctx,
             rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, appconfI2S_AUDIO_SAMPLE_RATE),
             I2S_MODE_I2S,
-            2.2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-            1.2 * OUTPUT_ASRC_N_IN_SAMPLES * 8 * (appconfI2S_TDM_ENABLED ? 3 : 1),
+            2.2 * I2S_TO_USB_ASRC_BLOCK_LENGTH,
+            1.2 * USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
             appconfI2S_INTERRUPT_CORE);
 #endif
 #endif
@@ -148,7 +137,6 @@ void platform_start(void)
     i2c_slave_start();
     audio_codec_start();
     spi_start();
-    mics_start();
     i2s_start();
     usb_start();
 }
