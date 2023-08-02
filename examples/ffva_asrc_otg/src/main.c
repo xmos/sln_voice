@@ -25,7 +25,7 @@
 #include "fs_support.h"
 
 #include "gpio_test/gpio_test.h"
-#include "pipeline.h"
+#include "i2s_audio.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
@@ -120,7 +120,7 @@ void startup_task(void *arg)
 #endif
 
 #if ON_TILE(1)
-    pipeline_init();
+    i2s_audio_recv_init();
 #endif
 
 #if ON_TILE(FS_TILE_NO)

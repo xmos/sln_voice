@@ -44,6 +44,8 @@
 
 #include "app_conf.h"
 
+#include "asrc_utils.h"
+
 // Audio controls
 // Current states
 bool mute[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; 						// +1 for master channel 0
@@ -170,23 +172,6 @@ unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
     }
 }
 
-
-typedef struct
-{
-    /* data */
-    int32_t *input_samples;
-    int32_t *output_samples;
-    unsigned nominal_fs_ratio;
-}asrc_ctx_t;
-
-typedef struct {
-    uint32_t fs_in;
-    uint32_t fs_out;
-    uint32_t n_in_samples;
-}asrc_init_t;
-
-
-extern fs_code_t samp_rate_to_code(unsigned samp_rate);
 static rtos_osal_queue_t asrc_ch1_queue, asrc_ch1_ret_queue;
 static void asrc_one_channel_task(void *args)
 {
@@ -209,15 +194,21 @@ static void asrc_one_channel_task(void *args)
     fs_code_t out_fs_code = samp_rate_to_code(init_ctx->fs_out);
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_ctrl, ASRC_CHANNELS_PER_INSTANCE, init_ctx->n_in_samples, ASRC_DITHER_SETTING);
     printf("USB_to_I2S ch1 ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
-
+    unsigned max_ticks = 0;
     for(;;)
     {
-        asrc_ctx_t *asrc_ctx = NULL;
+        asrc_process_frame_ctx_t *asrc_ctx = NULL;
         (void) rtos_osal_queue_receive(&asrc_ch1_queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
         unsigned start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_ctrl);
         unsigned end = get_reference_time();
-        //printuintln(end - start);
+        if(max_ticks < (end - start))
+        {
+            max_ticks = end - start;
+            printchar('u');
+            printuintln(max_ticks);
+        }
+
 
         (void) rtos_osal_queue_send(&asrc_ch1_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }
@@ -239,8 +230,8 @@ void usb_audio_out_task(void *arg)
     asrc_init_ctx.fs_out = appconfI2S_AUDIO_SAMPLE_RATE;
     asrc_init_ctx.n_in_samples = USB_TO_I2S_ASRC_BLOCK_LENGTH;
 
-    asrc_ctx_t asrc_ctx;
-    (void) rtos_osal_queue_create(&asrc_ch1_queue, "asrc_q", 1, sizeof(asrc_ctx_t*));
+    asrc_process_frame_ctx_t asrc_ctx;
+    (void) rtos_osal_queue_create(&asrc_ch1_queue, "asrc_q", 1, sizeof(asrc_process_frame_ctx_t*));
     (void) rtos_osal_queue_create(&asrc_ch1_ret_queue, "asrc_ret_q", 1, sizeof(int));
 
     // Create the ch1 ASRC task to process the 2nd channel
@@ -301,7 +292,7 @@ void usb_audio_out_task(void *arg)
         asrc_ctx.input_samples = &usb_audio_out_frame_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
-        asrc_ctx_t *ptr = &asrc_ctx;
+        asrc_process_frame_ctx_t *ptr = &asrc_ctx;
         uint32_t start = get_reference_time();
         (void) rtos_osal_queue_send(&asrc_ch1_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
@@ -313,6 +304,11 @@ void usb_audio_out_task(void *arg)
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_ch1_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
 
+        if(n_samps_out != n_samps_out_ch1)
+        {
+            printf("Error: USB to I2S ASRC. ch0 and ch1 returned different number of samples: ch0 %u, ch1 %u\n", n_samps_out, n_samps_out_ch1);
+            xassert(0);
+        }
         unsigned min_samples = n_samps_out;//(n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
 
         //printintln(min_samples);
