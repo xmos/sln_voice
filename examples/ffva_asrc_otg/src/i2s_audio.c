@@ -119,7 +119,7 @@ static void i2s_audio_recv_task(void *args)
 
     // Create init ctx for the ch1 asrc running in another thread
     asrc_init_t asrc_init_ctx;
-    asrc_init_ctx.fs_in = 0;
+    asrc_init_ctx.fs_in = 0; // I2S rate is detected at runtime
     asrc_init_ctx.fs_out = appconfUSB_AUDIO_SAMPLE_RATE;
     asrc_init_ctx.n_in_samples = I2S_TO_USB_ASRC_BLOCK_LENGTH;
     asrc_init_ctx.asrc_ctrl_ptr = &asrc_ctrl[1][0];
@@ -149,7 +149,7 @@ static void i2s_audio_recv_task(void *args)
     asrc_init_ctx.fs_in = i2s_sampling_rate;
 
     //Notify CH1 ASRC task
-    xTaskNotify(asrc_ch1_thread.thread, i2s_sampling_rate, eSetValueWithOverwrite);
+    xTaskNotifyGive(asrc_ch1_thread.thread);
 
 
 

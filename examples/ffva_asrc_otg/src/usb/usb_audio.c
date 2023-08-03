@@ -219,7 +219,7 @@ void usb_audio_out_task(void *arg)
         (size_t) RTOS_THREAD_STACK_SIZE(asrc_one_channel_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
-    xTaskNotify(asrc_ch1_thread.thread, appconfI2S_AUDIO_SAMPLE_RATE, eSetValueWithOverwrite);
+    xTaskNotifyGive(asrc_ch1_thread.thread);
 
     fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);

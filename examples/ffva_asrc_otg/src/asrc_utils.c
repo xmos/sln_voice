@@ -46,8 +46,7 @@ fs_code_t samp_rate_to_code(unsigned samp_rate){
 void asrc_one_channel_task(void *args)
 {
     asrc_init_t *asrc_init_ctx = (asrc_init_t*)args;
-    uint32_t sampling_rate;
-    xTaskNotifyWait(0, ~0, &sampling_rate, portMAX_DELAY);
+    (void) ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
 
     printf("In asrc_one_channel_task(), Received sampling rate %lu\n", asrc_init_ctx->fs_in);
 
