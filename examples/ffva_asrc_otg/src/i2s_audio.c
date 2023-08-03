@@ -1,10 +1,15 @@
 // Copyright (c) 2022 XMOS LIMITED. This Software is subject to the terms of the
 // XMOS Public License: Version 1
 
+#define DEBUG_UNIT I2S_AUDIO
+#define DEBUG_PRINT_ENABLE_I2S_AUDIO 1
+
 /* STD headers */
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+
+#include "rtos_printf.h"
 #include <xcore/hwtimer.h>
 
 /* FreeRTOS headers */
@@ -21,14 +26,65 @@
 #include "asrc_utils.h"
 #include "i2s_audio.h"
 
-static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
+static inline bool in_range(uint32_t ticks, uint32_t ref)
+{
+    if((ticks >= (ref-5)) && (ticks <= (ref+5)))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
+{
+    if(in_range(average_callback_ticks, 2267))
+    {
+        return 44100;
+    }
+    else if(in_range(average_callback_ticks, 2083))
+    {
+        return 48000;
+    }
+    else if(in_range(average_callback_ticks, 1133))
+    {
+        return 88200;
+    }
+    else if(in_range(average_callback_ticks, 1041))
+    {
+        return 96000;
+    }
+    else if(in_range(average_callback_ticks, 566))
+    {
+        return 176400;
+    }
+    else if(in_range(average_callback_ticks, 520))
+    {
+        return 192000;
+    }
+    else if(average_callback_ticks == 0)
+    {
+        return 0;
+    }
+    printf("ERROR: avg_callback_ticks %lu do not match any sampling rate!!\n", average_callback_ticks);
+    xassert(0);
+    return 0xffffffff;
+}
+
+static uint32_t recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
 {
     size_t rx_count =
     rtos_i2s_rx(i2s_ctx,
                 (int32_t*) i2s_rx_data,
                 frame_count,
                 portMAX_DELAY);
+
+    uint32_t sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
+
     xassert(rx_count == frame_count);
+    return sampling_rate;
 
 }
 
@@ -42,8 +98,6 @@ static void i2s_audio_recv_task(void *args)
     // Create the 2nd channel ASRC task
     asrc_process_frame_ctx_t asrc_ctx;
 
-    static uint32_t prev_in;
-    prev_in = get_reference_time();
     // 1 ASRC instance per channel, so 2 for 2 channels. Each ASRC instance processes one channel
     asrc_state_t     asrc_state[NUM_I2S_CHANS][ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
     int              asrc_stack[NUM_I2S_CHANS][ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * I2S_TO_USB_ASRC_BLOCK_LENGTH]; //Buffer between filter stages
@@ -65,20 +119,38 @@ static void i2s_audio_recv_task(void *args)
 
     // Create init ctx for the ch1 asrc running in another thread
     asrc_init_t asrc_init_ctx;
-    asrc_init_ctx.fs_in = appconfI2S_AUDIO_SAMPLE_RATE;
+    asrc_init_ctx.fs_in = 0;
     asrc_init_ctx.fs_out = appconfUSB_AUDIO_SAMPLE_RATE;
     asrc_init_ctx.n_in_samples = I2S_TO_USB_ASRC_BLOCK_LENGTH;
     asrc_init_ctx.asrc_ctrl_ptr = &asrc_ctrl[1][0];
     (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_queue, "asrc_q", 1, sizeof(asrc_process_frame_ctx_t*));
     (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_ret_queue, "asrc_ret_q", 1, sizeof(int));
+
+    rtos_osal_thread_t asrc_ch1_thread;
     // Create 2nd channel ASRC task
     (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
+        (rtos_osal_thread_t *) &asrc_ch1_thread,
         (char *) "ASRC_1ch",
         (rtos_osal_entry_function_t) asrc_one_channel_task,
         (void *) (&asrc_init_ctx),
         (size_t) RTOS_THREAD_STACK_SIZE(asrc_one_channel_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+
+    // Keep receiving and discarding from I2S till we get a valid sampling rate
+    int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
+    uint32_t prev_i2s_sampling_rate = 0;
+    uint32_t i2s_sampling_rate = 0;
+    do
+    {
+        i2s_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
+    }while(i2s_sampling_rate == 0);
+
+    printuintln(i2s_sampling_rate);
+    asrc_init_ctx.fs_in = i2s_sampling_rate;
+
+    //Notify CH1 ASRC task
+    xTaskNotify(asrc_ch1_thread.thread, i2s_sampling_rate, eSetValueWithOverwrite);
+
 
 
     // Initialise CH0 ASRC context
@@ -86,29 +158,18 @@ static void i2s_audio_recv_task(void *args)
     fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
-#if 0
-    port_t p_bclk_count = XS1_PORT_1N;
-    port_enable(p_bclk_count);
-    port_set_clock(p_bclk_count, I2S_CLKBLK);
 
-    port_t p_mclk_count = XS1_PORT_1M;
-    port_enable(p_mclk_count);
-    port_set_clock(p_mclk_count, PDM_CLKBLK_1);
-
-    uint32_t trigger_time, prev_trigger_time;
-    prev_trigger_time = port_get_trigger_time(p_bclk_count);
-    uint32_t mclk_trigger_time, prev_mclk_trigger_time;
-    prev_mclk_trigger_time = port_get_trigger_time(p_mclk_count);
-#endif
     int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*2];
     int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][appconfAUDIO_PIPELINE_CHANNELS];
     for(;;)
     {
-        int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
+
         int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
 
 
-        recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
+        uint32_t current_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
+        (void)current_sampling_rate;
+
         for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
         {
             for(int sample=0; sample<I2S_TO_USB_ASRC_BLOCK_LENGTH; sample++)
@@ -121,6 +182,7 @@ static void i2s_audio_recv_task(void *args)
         asrc_ctx.input_samples = &tmp_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
+        asrc_ctx.i2s_sampling_rate = i2s_sampling_rate;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
         (void) rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);

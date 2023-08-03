@@ -207,15 +207,19 @@ void usb_audio_out_task(void *arg)
     asrc_init_ctx.asrc_ctrl_ptr = &asrc_ctrl[1][0];
     (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_queue, "asrc_q", 1, sizeof(asrc_process_frame_ctx_t*));
     (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_ret_queue, "asrc_ret_q", 1, sizeof(int));
+
+    rtos_osal_thread_t asrc_ch1_thread;
+
     // Create 2nd channel ASRC task
     (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
+        (rtos_osal_thread_t *) &asrc_ch1_thread,
         (char *) "ASRC_1ch",
         (rtos_osal_entry_function_t) asrc_one_channel_task,
         (void *) (&asrc_init_ctx),
         (size_t) RTOS_THREAD_STACK_SIZE(asrc_one_channel_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
+    xTaskNotify(asrc_ch1_thread.thread, appconfI2S_AUDIO_SAMPLE_RATE, eSetValueWithOverwrite);
 
     fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);

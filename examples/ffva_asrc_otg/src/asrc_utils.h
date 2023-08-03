@@ -13,6 +13,7 @@ typedef struct
     int32_t *input_samples;
     int32_t *output_samples;
     unsigned nominal_fs_ratio;
+    unsigned i2s_sampling_rate;
 }asrc_process_frame_ctx_t;
 
 
