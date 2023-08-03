@@ -54,6 +54,8 @@ void asrc_one_channel_task(void *args)
     //Initialise ASRC
     fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx->fs_in);  //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx->fs_out);
+    uint32_t current_fs_in = asrc_init_ctx->fs_in;
+    uint32_t current_fs_out = asrc_init_ctx->fs_out;
 
     unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_init_ctx->asrc_ctrl_ptr, ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx->n_in_samples, ASRC_DITHER_SETTING);
     printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
@@ -62,6 +64,17 @@ void asrc_one_channel_task(void *args)
     {
         asrc_process_frame_ctx_t *asrc_ctx = NULL;
         (void) rtos_osal_queue_receive(&asrc_init_ctx->asrc_queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
+        if((asrc_init_ctx->fs_in != current_fs_in) || ((asrc_init_ctx->fs_out != current_fs_out)))
+        {
+            rtos_printf("asrc_one_channel_task(). Reinitialising asrc for fs_in %lu, fs_out %lu\n", asrc_init_ctx->fs_in, asrc_init_ctx->fs_out);
+            fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx->fs_in);  //Sample rate code 0..5
+            fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx->fs_out);
+            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, asrc_init_ctx->asrc_ctrl_ptr, ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx->n_in_samples, ASRC_DITHER_SETTING);
+
+            current_fs_in = asrc_init_ctx->fs_in;
+            current_fs_out = asrc_init_ctx->fs_out;
+        }
+
         unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_init_ctx->asrc_ctrl_ptr);
 
         (void) rtos_osal_queue_send(&asrc_init_ctx->asrc_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);

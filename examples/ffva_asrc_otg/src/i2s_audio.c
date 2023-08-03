@@ -138,7 +138,6 @@ static void i2s_audio_recv_task(void *args)
 
     // Keep receiving and discarding from I2S till we get a valid sampling rate
     int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
-    uint32_t prev_i2s_sampling_rate = 0;
     uint32_t i2s_sampling_rate = 0;
     do
     {
@@ -167,8 +166,25 @@ static void i2s_audio_recv_task(void *args)
         int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
 
 
-        uint32_t current_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
-        (void)current_sampling_rate;
+        uint32_t new_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
+        if(new_sampling_rate != i2s_sampling_rate)
+        {
+            //i2s_sampling_rate = new_sampling_rate;
+            if(new_sampling_rate == 0) {
+                continue; // We start dropping I2S recv frames till new sampling rate is detected
+            }
+            else {
+                printf("SAMPLING RATE CHANGE DETECTED. prev %lu, new %lu\n", i2s_sampling_rate, new_sampling_rate);
+                i2s_sampling_rate = new_sampling_rate;
+                asrc_init_ctx.fs_in = i2s_sampling_rate; // I2S rate is detected at runtime
+                in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
+                out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
+                uint32_t start = get_reference_time();
+                nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+                uint32_t end = get_reference_time();
+                printf("new nominal_fs_ratio. asrc_init() took %lu ticks\n", end - start);
+            }
+        }
 
         for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
         {
