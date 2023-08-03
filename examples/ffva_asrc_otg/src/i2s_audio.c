@@ -92,8 +92,6 @@ static uint32_t recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
 static void i2s_audio_recv_task(void *args)
 {
     (void)args;
-    printf("SAMPLING_RATE_MULTIPLIER = %d\n", SAMPLING_RATE_MULTIPLIER);
-    printf("MIC_ARRAY_SAMPLING_FREQ = %d\n", MIC_ARRAY_SAMPLING_FREQ);
 
     // Create the 2nd channel ASRC task
     asrc_process_frame_ctx_t asrc_ctx;
@@ -138,65 +136,48 @@ static void i2s_audio_recv_task(void *args)
 
     // Keep receiving and discarding from I2S till we get a valid sampling rate
     int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
+    int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
     uint32_t i2s_sampling_rate = 0;
-    do
-    {
-        i2s_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
-    }while(i2s_sampling_rate == 0);
-
-    printuintln(i2s_sampling_rate);
-    // Notify other tile of the I2S sampling rate
-    rtos_intertile_tx(
-        intertile_ctx,
-        appconfI2S_RATE_NOTIFY_PORT,
-        &i2s_sampling_rate,
-        sizeof(i2s_sampling_rate));
-
-    asrc_init_ctx.fs_in = i2s_sampling_rate;
-
-    //Notify CH1 ASRC task
-    xTaskNotifyGive(asrc_ch1_thread.thread);
-
-
 
     // Initialise CH0 ASRC context
-    fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
-    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
-    printf("Input ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
+    fs_code_t in_fs_code;
+    fs_code_t out_fs_code;
+    unsigned nominal_fs_ratio;
 
     int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*2];
     int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][appconfAUDIO_PIPELINE_CHANNELS];
     for(;;)
     {
-
-        int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
-
-
         uint32_t new_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
-        if(new_sampling_rate != i2s_sampling_rate)
-        {
-            //i2s_sampling_rate = new_sampling_rate;
-            if(new_sampling_rate == 0) {
-                continue; // We start dropping I2S recv frames till new sampling rate is detected
-            }
-            else {
-                printf("SAMPLING RATE CHANGE DETECTED. prev %lu, new %lu\n", i2s_sampling_rate, new_sampling_rate);
-                i2s_sampling_rate = new_sampling_rate;
-                asrc_init_ctx.fs_in = i2s_sampling_rate; // I2S rate is detected at runtime
-                in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
-                out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
-                uint32_t start = get_reference_time();
-                nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
-                rtos_intertile_tx(
-                    intertile_ctx,
-                    appconfI2S_RATE_NOTIFY_PORT,
-                    &i2s_sampling_rate,
-                    sizeof(i2s_sampling_rate));
-                    uint32_t end = get_reference_time();
-                printf("new nominal_fs_ratio. asrc_init() took %lu ticks\n", end - start);
-            }
+        if(new_sampling_rate == 0) {
+            continue;
         }
+        else if(new_sampling_rate != i2s_sampling_rate)
+        {
+            printf("SAMPLING RATE CHANGE DETECTED. prev %lu, new %lu\n", i2s_sampling_rate, new_sampling_rate);
+            i2s_sampling_rate = new_sampling_rate;
+            asrc_init_ctx.fs_in = i2s_sampling_rate; // I2S rate is detected at runtime
+            in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
+            out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
+            uint32_t start = get_reference_time();
+
+            // Notify sampling rate to the USB tile.
+            rtos_intertile_tx(
+                intertile_ctx,
+                appconfI2S_RATE_NOTIFY_PORT,
+                &i2s_sampling_rate,
+                sizeof(i2s_sampling_rate));
+
+            // Reinitialise both channel ASRCs
+            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+
+            uint32_t end = get_reference_time();
+            printf("new nominal_fs_ratio. asrc_init() took %lu ticks\n", end - start);
+            // We've been faffing about initialising asrc and such this frame so probably too late to do the asrc_process(), skip this frame
+            continue;
+        }
+        // new_sampling_rate is non-zero and equal to the i2s_sampling_rate
 
         for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
         {

@@ -203,7 +203,7 @@ void usb_audio_out_task(void *arg)
     // Create init ctx for the ch1 asrc running in another thread
     asrc_init_t asrc_init_ctx;
     asrc_init_ctx.fs_in = appconfUSB_AUDIO_SAMPLE_RATE;
-    asrc_init_ctx.fs_out = appconfI2S_AUDIO_SAMPLE_RATE;
+    asrc_init_ctx.fs_out = 0; // Will be notified at runtime
     asrc_init_ctx.n_in_samples = USB_TO_I2S_ASRC_BLOCK_LENGTH;
     asrc_init_ctx.asrc_ctrl_ptr = &asrc_ctrl[1][0];
     (void) rtos_osal_queue_create(&asrc_init_ctx.asrc_queue, "asrc_q", 1, sizeof(asrc_process_frame_ctx_t*));
@@ -220,12 +220,9 @@ void usb_audio_out_task(void *arg)
         (size_t) RTOS_THREAD_STACK_SIZE(asrc_one_channel_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
-    xTaskNotifyGive(asrc_ch1_thread.thread);
-
-    fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
-    fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
-    unsigned nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
-    printf("USB_to_I2S ch0 ASRC: nominal_fs_ratio = %d\n", nominal_fs_ratio);
+    fs_code_t in_fs_code;
+    fs_code_t out_fs_code;
+    unsigned nominal_fs_ratio;
 
     int32_t frame_samples[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][USB_TO_I2S_ASRC_BLOCK_LENGTH*4 + USB_TO_I2S_ASRC_BLOCK_LENGTH]; // TODO calculate size properly
     int32_t frame_samples_interleaved[USB_TO_I2S_ASRC_BLOCK_LENGTH*4 + USB_TO_I2S_ASRC_BLOCK_LENGTH][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX]; // TODO calculate size properly
@@ -242,8 +239,22 @@ void usb_audio_out_task(void *arg)
          */
         (void) ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
         //while(xStreamBufferBytesAvailable(samples_from_host_stream_buf) < sizeof(usb_audio_out_frame));
-
         bytes_received = xStreamBufferReceive(samples_from_host_stream_buf, usb_audio_out_frame, sizeof(usb_audio_out_frame), 0);
+
+        if(asrc_init_ctx.fs_out != g_i2s_sampling_rate)
+        {
+            // Time to initialise asrc
+            asrc_init_ctx.fs_out = g_i2s_sampling_rate;
+            in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
+            out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
+            printf("USB tile initialising ASRC for fs_in %lu, fs_out %lu\n", asrc_init_ctx.fs_in, asrc_init_ctx.fs_out);
+
+            //Initialise both channel ASRCs
+            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+            //Skip this frame since we're too late anayway from 2 asrc_init() calls, each taking 12500 cycles
+            continue;
+        }
 
         for(int ch=0; ch<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++)
         {

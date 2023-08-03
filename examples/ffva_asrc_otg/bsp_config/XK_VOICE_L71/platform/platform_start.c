@@ -63,7 +63,7 @@ static void audio_codec_start(void)
 #if appconfI2S_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
-    if (dac3101_init(appconfI2S_AUDIO_SAMPLE_RATE) != 0) {
+    if (dac3101_init(48000) != 0) {
         rtos_printf("DAC initialization failed\n");
     }
     rtos_intertile_tx(intertile_ctx, 0, &ret, sizeof(ret));
@@ -110,7 +110,7 @@ static void i2s_start(void)
 #if ON_TILE(I2S_TILE_NO)
     rtos_i2s_start(
             i2s_ctx,
-            rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, appconfI2S_AUDIO_SAMPLE_RATE),
+            rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, 48000), // Not used for I2S slave
             I2S_MODE_I2S,
             2.2 * I2S_TO_USB_ASRC_BLOCK_LENGTH,
             1.2 * USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
