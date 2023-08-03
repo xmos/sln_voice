@@ -14,6 +14,7 @@
 #define appconfWW_SAMPLES_PORT         6
 #define appconfAUDIOPIPELINE_PORT      7
 #define appconfI2S_OUTPUT_SLAVE_PORT   8
+#define appconfI2S_RATE_NOTIFY_PORT    9
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"

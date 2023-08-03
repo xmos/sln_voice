@@ -145,6 +145,13 @@ static void i2s_audio_recv_task(void *args)
     }while(i2s_sampling_rate == 0);
 
     printuintln(i2s_sampling_rate);
+    // Notify other tile of the I2S sampling rate
+    rtos_intertile_tx(
+        intertile_ctx,
+        appconfI2S_RATE_NOTIFY_PORT,
+        &i2s_sampling_rate,
+        sizeof(i2s_sampling_rate));
+
     asrc_init_ctx.fs_in = i2s_sampling_rate;
 
     //Notify CH1 ASRC task
@@ -181,7 +188,12 @@ static void i2s_audio_recv_task(void *args)
                 out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
                 uint32_t start = get_reference_time();
                 nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
-                uint32_t end = get_reference_time();
+                rtos_intertile_tx(
+                    intertile_ctx,
+                    appconfI2S_RATE_NOTIFY_PORT,
+                    &i2s_sampling_rate,
+                    sizeof(i2s_sampling_rate));
+                    uint32_t end = get_reference_time();
                 printf("new nominal_fs_ratio. asrc_init() took %lu ticks\n", end - start);
             }
         }

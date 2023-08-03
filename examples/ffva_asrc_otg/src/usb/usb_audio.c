@@ -70,6 +70,7 @@ static TaskHandle_t usb_audio_out_task_handle;
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
+static uint32_t g_i2s_sampling_rate = 0; //variable holding I2S sampling rate on the USB tile
 //--------------------------------------------------------------------+
 // Device callbacks
 //--------------------------------------------------------------------+
@@ -838,6 +839,30 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
     return true;
 }
 
+
+static void i2s_rate_recv_task(void *args) // Task responsible for receiving I2S rate information from the other tile
+{
+    (void)args;
+    for(;;)
+    {
+        size_t bytes_received;
+
+        bytes_received = rtos_intertile_rx_len(
+                intertile_ctx,
+                appconfI2S_RATE_NOTIFY_PORT,
+                portMAX_DELAY);
+
+        xassert(bytes_received == sizeof(g_i2s_sampling_rate));
+        rtos_intertile_rx_data(
+                    intertile_ctx,
+                    &g_i2s_sampling_rate,
+                    bytes_received);
+
+        printf("Received I2S sample rate of %lu from the other tile\n", g_i2s_sampling_rate);
+    }
+
+}
+
 void usb_audio_init(rtos_intertile_t *intertile_ctx,
                     unsigned priority)
 {
@@ -868,4 +893,6 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
                                             0);
 
     xTaskCreate((TaskFunction_t) usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
+
+    xTaskCreate((TaskFunction_t) i2s_rate_recv_task, "i2s_rate_recv_task", portTASK_STACK_DEPTH(i2s_rate_recv_task), NULL, priority, NULL);
 }
