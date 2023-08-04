@@ -98,7 +98,7 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 #ifdef DEBUG_ADAPTIVE
                                                 ,
                                     uint32_t * debug
-#endif                                              
+#endif
 )
 {
     static uint32_t data_lengths[2][TOTAL_STORED];
@@ -127,7 +127,7 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
         first_time[direction] = false;
         first_timestamp[direction] = timestamp;
 
-        // Because we use "first_time" to also reset the rate determinator, 
+        // Because we use "first_time" to also reset the rate determinator,
         // reset all the static variables to default.
         current_data_bucket_size[direction] = 0;
         times_overflowed[direction] = 0;
@@ -152,18 +152,20 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     {
         current_data_bucket_size[direction] += data_length;
     }
-    
+
     // total_timespan is always correct regardless of whether the reference clock has overflowed.
     // The point at which it becomes incorrect is the point at which it would overflow - the
     // point at which timestamp == first_timestamp again. This will be at 42.95 seconds of operation.
     // If current_data_bucket_size overflows we have bigger issues, so this case is not guarded.
 
     uint32_t timespan = timestamp - first_timestamp[direction];
+
     uint32_t total_data_intermed = current_data_bucket_size[direction] + sum_array(data_lengths[direction], TOTAL_STORED);
     uint64_t total_data = (uint64_t)(total_data_intermed) * 12500;
     uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
 
     uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), 19);
+    //printf("data_per_sample = %f\n", (float)data_per_sample/(1<<19));
     uint32_t result = dsp_math_divide_unsigned(data_per_sample, expected[direction], 12);
 
     if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))

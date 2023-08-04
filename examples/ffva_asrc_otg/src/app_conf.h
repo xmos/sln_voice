@@ -11,7 +11,7 @@
 #define appconfDEVICE_CONTROL_USB_PORT 3
 #define appconfDEVICE_CONTROL_I2C_PORT 4
 #define appconfSPI_AUDIO_PORT          5
-#define appconfWW_SAMPLES_PORT         6
+#define appconfUSB_RATE_NOTIFY_PORT    6
 #define appconfAUDIOPIPELINE_PORT      7
 #define appconfI2S_OUTPUT_SLAVE_PORT   8
 #define appconfI2S_RATE_NOTIFY_PORT    9

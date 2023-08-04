@@ -133,6 +133,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
     if (mic_interface_open) {
+        //printuintln(xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
         if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes) {
             xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
         } else {
@@ -819,6 +820,7 @@ bool tud_audio_set_itf_cb(uint8_t rhport,
          * closing it first */
         mic_interface_open = false;
         xStreamBufferReset(samples_to_host_stream_buf);
+        printf("Close mic interface 1, buffer spaces %d\n", xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
     }
 #endif
 
@@ -842,6 +844,8 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
 #if AUDIO_INPUT_ENABLED
     if (itf == ITF_NUM_AUDIO_STREAMING_MIC) {
         mic_interface_open = false;
+        //printf("Close mic interface 2\n");
+        printf("Close mic interface 2, buffer spaces %d\n", xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
     }
 #endif
 
@@ -870,6 +874,33 @@ static void i2s_rate_recv_task(void *args) // Task responsible for receiving I2S
                     bytes_received);
 
         printf("Received I2S sample rate of %lu from the other tile\n", g_i2s_sampling_rate);
+    }
+}
+
+extern uint32_t g_usb_data_rate_ratio;
+static void supply_usb_rate_task(void *args)
+{
+    (void)args;
+    uint8_t cmd = 0;
+    size_t bytes_received;
+    for(;;)
+    {
+        bytes_received = rtos_intertile_rx_len(
+                    intertile_ctx,
+                    appconfUSB_RATE_NOTIFY_PORT,
+                    portMAX_DELAY);
+        xassert(bytes_received == sizeof(cmd));
+
+        rtos_intertile_rx_data(
+                        intertile_ctx,
+                        &cmd,
+                        bytes_received);
+
+        rtos_intertile_tx(
+            intertile_ctx,
+            appconfUSB_RATE_NOTIFY_PORT,
+            &g_usb_data_rate_ratio,
+            sizeof(g_usb_data_rate_ratio));
     }
 
 }
@@ -906,4 +937,6 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
     xTaskCreate((TaskFunction_t) usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
 
     xTaskCreate((TaskFunction_t) i2s_rate_recv_task, "i2s_rate_recv_task", portTASK_STACK_DEPTH(i2s_rate_recv_task), NULL, priority, NULL);
+
+    xTaskCreate((TaskFunction_t) supply_usb_rate_task, "supply_usb_rate_task", portTASK_STACK_DEPTH(supply_usb_rate_task), NULL, priority, NULL);
 }

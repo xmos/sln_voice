@@ -38,65 +38,19 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
+uint32_t g_usb_data_rate_ratio = 0;
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
 
     usb_audio_rate_packet_desc_t pkt_data;
     static uint64_t prev_s;
-    uint32_t data_rate = 0;
     uint64_t s = 0;
 
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
 
-        data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
-        s = (uint64_t)data_rate;
-        /* The below manipulations calculate the required f value to scale the nominal app PLL (24.576MHz) by the data rate.
-         * The relevant equations are from the XU316 datasheet, and are:
-         *
-         *                     F + 1 + (f+1 / p+1)      1          1
-         * Fpll2 = Fpll2_in *  ------------------- * ------- * --------
-         *                             2              R + 1     OD + 1
-         *
-         * For given values:
-         *  Fpll2_in = 24 (MHz, from oscillator)
-         *  F = 408
-         *  R = 3
-         *  OD = 4
-         *  p = 249
-         * and expressing Fpll2 as X*s, where X is the nominal frequency and S is the scale applied, we can
-         * rearrange and simplify to give:
-         *
-         *      [ f + p + 2     ]
-         *  6 * [ --------- + F ]
-         *      [   f + 1       ]
-         *  ----------------------
-         *  5 * (D + 1) * (R + 1)    = X*s, substituting in values to give
-         *
-         *
-         *      [ f + 251         ]
-         *  6 * [ --------- + 408 ]
-         *      [   250           ]
-         *  ----------------------
-         *              100         = 24.576 * s, solving for f and simplifying to give
-         *
-         *
-         * f = (102400 * s) - 102251, rounded and converted back to an integer from Q31.
-         */
-
-        s *= 102400;
-        s -= ((uint64_t)102251 << 31);
-        s >>= 30;
-        s = (s % 2) ? (s >> 1) + 1 : s >> 1;
-
-        if (s != prev_s)
-        {
-            app_pll_set_numerator((int)s);
-            //rtos_printf("New App PLL numerator: %d, data rate: %u\n", (int)s, data_rate);
-        }
-
-        prev_s = s;
+        g_usb_data_rate_ratio = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
     }
 }
 
