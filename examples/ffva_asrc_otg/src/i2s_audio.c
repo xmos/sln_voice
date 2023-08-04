@@ -27,6 +27,9 @@
 #include "i2s_audio.h"
 #include "rate_server.h"
 
+uint32_t g_i2s_to_usb_rate_ratio = 0;
+uint32_t g_i2s_to_usb_nominal_fs_ratio = 0;
+
 static inline bool in_range(uint32_t ticks, uint32_t ref)
 {
     if((ticks >= (ref-5)) && (ticks <= (ref+5)))
@@ -143,10 +146,12 @@ static void i2s_audio_recv_task(void *args)
     // Initialise CH0 ASRC context
     fs_code_t in_fs_code;
     fs_code_t out_fs_code;
-    unsigned nominal_fs_ratio;
+    uint32_t frames_since_new_rate = 0;
 
     int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*2];
     int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][appconfAUDIO_PIPELINE_CHANNELS];
+
+    uint32_t max_time = 0;
     for(;;)
     {
         uint32_t new_sampling_rate = recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
@@ -160,7 +165,6 @@ static void i2s_audio_recv_task(void *args)
             asrc_init_ctx.fs_in = i2s_sampling_rate; // I2S rate is detected at runtime
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
-            uint32_t start = get_reference_time();
 
             // Notify sampling rate to the USB tile.
             rtos_intertile_tx(
@@ -170,13 +174,22 @@ static void i2s_audio_recv_task(void *args)
                 sizeof(i2s_sampling_rate));
 
             // Reinitialise both channel ASRCs
-            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
-            nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+            g_i2s_to_usb_nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+            g_i2s_to_usb_nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
 
-            uint32_t end = get_reference_time();
-            printf("new nominal_fs_ratio. asrc_init() took %lu ticks\n", end - start);
+            printf("i2s_audio_recv_task(): new nominal_fs_ratio %lu. g_i2s_to_usb_rate_ratio %lu\n", g_i2s_to_usb_nominal_fs_ratio, g_i2s_to_usb_rate_ratio);
+            frames_since_new_rate = 0;
             // We've been faffing about initialising asrc and such this frame so probably too late to do the asrc_process(), skip this frame
             continue;
+        }
+        uint32_t current_rate_ratio = g_i2s_to_usb_nominal_fs_ratio;
+        if(frames_since_new_rate < 10)
+        {
+            frames_since_new_rate += 1;
+        }
+        else if(g_i2s_to_usb_rate_ratio != 0)
+        {
+            current_rate_ratio = g_i2s_to_usb_rate_ratio;
         }
         // new_sampling_rate is non-zero and equal to the i2s_sampling_rate
 
@@ -188,10 +201,11 @@ static void i2s_audio_recv_task(void *args)
             }
         }
 
+        //printf("i2s_audio_recv_task(): nominal_fs_ratio %lu. using %lu\n", g_i2s_to_usb_nominal_fs_ratio, current_rate_ratio);
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &tmp_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
-        asrc_ctx.nominal_fs_ratio = nominal_fs_ratio;
+        asrc_ctx.nominal_fs_ratio = current_rate_ratio;
         asrc_ctx.i2s_sampling_rate = i2s_sampling_rate;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
@@ -199,10 +213,17 @@ static void i2s_audio_recv_task(void *args)
 
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
         // Only channel 0 for now
-        //uint32_t start = get_reference_time();
-        unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], nominal_fs_ratio, &asrc_ctrl[0][0]);
-        //uint32_t end = get_reference_time();
-        //printuintln(end - start);
+        uint32_t start = get_reference_time();
+        unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
+        uint32_t end = get_reference_time();
+        if(max_time < (end - start))
+        {
+            max_time = end - start;
+            //printchar('c');
+            //printuintln(max_time);
+        }
+
+
 
         // Wait for 2nd channel ASRC to finish
 

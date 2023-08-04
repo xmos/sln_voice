@@ -38,7 +38,7 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
-uint32_t g_usb_data_rate_ratio = 0;
+uint32_t g_usb_data_rate = 0; // Samples per ms in q19 format
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
@@ -50,7 +50,7 @@ static void usb_adaptive_clk_manager(void *args) {
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
 
-        g_usb_data_rate_ratio = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+        g_usb_data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
     }
 }
 

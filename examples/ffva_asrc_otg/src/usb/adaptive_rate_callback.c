@@ -16,25 +16,34 @@
 #define EXPECTED_IN_BYTES_PER_TRANSACTION  (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * \
                                        CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX * \
                                        appconfUSB_AUDIO_SAMPLE_RATE / 1000)
+
+#define EXPECTED_OUT_SAMPLES_PER_TRANSACTION (appconfUSB_AUDIO_SAMPLE_RATE / 1000)
+#define EXPECTED_IN_SAMPLES_PER_TRANSACTION  (appconfUSB_AUDIO_SAMPLE_RATE / 1000)
+
 #else //__xcore__
 // If we're compiling this for x86 we're probably testing it - just assume some values
 #define EXPECTED_OUT_BYTES_PER_TRANSACTION  128 //16kbps * 16-bit * 4ch
 #define EXPECTED_IN_BYTES_PER_TRANSACTION   192 //16kbps * 16-bit * 6ch
+
+#define EXPECTED_OUT_SAMPLES_PER_TRANSACTION  (EXPECTED_OUT_BYTES_PER_TRANSACTION/(2*4)) //16kbps * 4ch
+#define EXPECTED_IN_SAMPLES_PER_TRANSACTION   (EXPECTED_IN_BYTES_PER_TRANSACTION/(2*6)) //16kbps * 6ch
 #endif //__xcore__
 
 #define TOTAL_STORED (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 #define REF_CLOCK_TICKS_PER_STORED_AVG (REF_CLOCK_TICKS_PER_SECOND / STORED_PER_SECOND)
-#define NOMINAL_RATE (1 << 31)
 
 #define EXPECTED_OUT_BYTES_PER_BUCKET ((EXPECTED_OUT_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 #define EXPECTED_IN_BYTES_PER_BUCKET ((EXPECTED_IN_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 
+#define EXPECTED_OUT_SAMPLES_PER_BUCKET ((EXPECTED_OUT_SAMPLES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
+#define EXPECTED_IN_SAMPLES_PER_BUCKET ((EXPECTED_IN_SAMPLES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
+
 bool first_time[2] = {true, true};
 volatile static bool data_seen = false;
 volatile static bool hold_average = false;
-uint32_t expected[2] = {EXPECTED_OUT_BYTES_PER_TRANSACTION, EXPECTED_IN_BYTES_PER_TRANSACTION};
-uint32_t bucket_expected[2] = {EXPECTED_OUT_BYTES_PER_BUCKET, EXPECTED_IN_BYTES_PER_BUCKET};
+uint32_t expected[2] = {EXPECTED_OUT_SAMPLES_PER_TRANSACTION, EXPECTED_IN_SAMPLES_PER_TRANSACTION};
+uint32_t bucket_expected[2] = {EXPECTED_OUT_SAMPLES_PER_BUCKET, EXPECTED_IN_SAMPLES_PER_BUCKET};
 
 #if __xcore__
 uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format )
@@ -107,7 +116,13 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     static uint32_t first_timestamp[2];
     static bool buckets_full[2];
     static uint32_t times_overflowed[2];
-    static uint32_t previous_result[2] = {NOMINAL_RATE, NOMINAL_RATE};
+    static uint32_t previous_result[2];
+
+    uint32_t nominal_samples_per_transaction = Q19(EXPECTED_OUT_SAMPLES_PER_TRANSACTION);
+    previous_result[0] = nominal_samples_per_transaction;
+    previous_result[1] = nominal_samples_per_transaction;
+
+    data_length = data_length / (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX); // Number of samples per channels per transaction
 
     if (data_seen == false)
     {
@@ -135,8 +150,8 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
         for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
         {
-            data_lengths[direction][i] = 0;
-            time_buckets[direction][i] = 0;
+            data_lengths[direction][i] = bucket_expected[direction];;
+            time_buckets[direction][i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
         // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
         for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
@@ -145,7 +160,7 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
             time_buckets[direction][i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
 
-        return NOMINAL_RATE;
+        return nominal_samples_per_transaction;
     }
 
     if (update)
@@ -164,9 +179,12 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     uint64_t total_data = (uint64_t)(total_data_intermed) * 12500;
     uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), 19);
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), 19); // Samples per millisecond
     //printf("data_per_sample = %f\n", (float)data_per_sample/(1<<19));
-    uint32_t result = dsp_math_divide_unsigned(data_per_sample, expected[direction], 12);
+    //uint32_t result = dsp_math_divide_unsigned(data_per_sample, expected[direction], 12);
+    //printuintln(result);
+    uint32_t result = data_per_sample;
+
 
     if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))
     {
