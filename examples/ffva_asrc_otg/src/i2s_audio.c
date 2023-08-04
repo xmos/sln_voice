@@ -25,6 +25,7 @@
 #include "src.h"
 #include "asrc_utils.h"
 #include "i2s_audio.h"
+#include "rate_server.h"
 
 static inline bool in_range(uint32_t ticks, uint32_t ref)
 {
@@ -233,47 +234,6 @@ static void i2s_audio_recv_task(void *args)
     }
 }
 
-
-static void rate_server(void *args)
-{
-    uint32_t prev_ts = get_reference_time;
-    uint32_t prev_num_i2s_samples_recvd = i2s_ctx->recv_buffer.total_written;
-    for(;;)
-    {
-        vTaskDelay(pdMS_TO_TICKS(20));
-        uint32_t current_ts = get_reference_time();
-        uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
-
-        //printuintln(current_num_i2s_samples - prev_num_i2s_samples_recvd);
-        //printuintln(current_ts - prev_ts);
-
-        prev_num_i2s_samples_recvd = current_num_i2s_samples;
-        prev_ts = current_ts;
-
-        uint8_t tmp = 0;
-        rtos_intertile_tx(
-            intertile_ctx,
-            appconfUSB_RATE_NOTIFY_PORT,
-            &tmp,
-            sizeof(tmp));
-
-        size_t bytes_received;
-        uint32_t usb_rate_ratio;
-        bytes_received = rtos_intertile_rx_len(
-                    intertile_ctx,
-                    appconfUSB_RATE_NOTIFY_PORT,
-                    portMAX_DELAY);
-        xassert(bytes_received == sizeof(usb_rate_ratio));
-
-        rtos_intertile_rx_data(
-                        intertile_ctx,
-                        &usb_rate_ratio,
-                        bytes_received);
-
-        // Get the I2S rate
-
-    }
-}
 
 void i2s_audio_recv_init()
 {
