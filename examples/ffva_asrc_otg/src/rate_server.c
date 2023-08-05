@@ -22,6 +22,7 @@
 #include "src.h"
 #include "asrc_utils.h"
 #include "i2s_audio.h"
+#include "rate_server.h"
 
 #define TOTAL_TAIL_SECONDS (16)
 #define STORED_PER_SECOND (4)
@@ -86,6 +87,7 @@ static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
 }
 
 #define OLD_VAL_WEIGHTING (5)
+
 static uint32_t determine_I2S_rate(
     uint32_t timestamp,
     uint32_t data_length,
@@ -100,7 +102,7 @@ static uint32_t determine_I2S_rate(
     static uint32_t times_overflowed;
     static uint32_t previous_result = 0;
     static uint32_t prev_nominal_sampling_rate = 0;
-    static expected_nominal_samples_per_bucket = 0;
+    static uint32_t expected_nominal_samples_per_bucket = 0;
 
     if (data_seen == false)
     {
@@ -116,7 +118,6 @@ static uint32_t determine_I2S_rate(
     }
 
     uint32_t nominal_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
-    //return dsp_math_divide_unsigned_64(nominal_sampling_rate, 1000, 19); // Samples per ms in q19 format
     if(nominal_sampling_rate == 0)
     {
         return 0; // i2s_audio thread ensures we don't do asrc when nominal_sampling_rate is 0
@@ -145,7 +146,7 @@ static uint32_t determine_I2S_rate(
             time_buckets[i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
         prev_nominal_sampling_rate = nominal_sampling_rate;
-        previous_result = dsp_math_divide_unsigned_64(nominal_sampling_rate, 1000, 19); // Samples per ms in q19 format
+        previous_result = dsp_math_divide_unsigned_64(nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
 
         return previous_result;
     }
@@ -161,10 +162,9 @@ static uint32_t determine_I2S_rate(
     uint64_t total_data = (uint64_t)(total_data_intermed) * 12500;
     uint32_t total_timespan = timespan + sum_array(time_buckets, TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), 19); // This is how much I'm getting from I2S every millisecond
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), SAMPLING_RATE_Q_FORMAT); // This is how much I'm getting from I2S every millisecond
 
 
-    //printf("data_per_sample = %f, nominal sampling rate = %lu\n", (float)data_per_sample/(1<<19), nominal_sampling_rate); // Data samples per ms
     uint32_t result = data_per_sample;
 
     if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))
@@ -214,6 +214,7 @@ void rate_server(void *args)
     uint32_t usb_to_i2s_rate_ratio = 0;
     int32_t usb_to_i2s_rate_info[2];
     int32_t usb_buffer_fill_level_from_half;
+    usb_to_i2s_rate_info_t usb_rate_info;
     for(;;)
     {
         vTaskDelay(pdMS_TO_TICKS(20));
@@ -221,33 +222,23 @@ void rate_server(void *args)
 
         size_t i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
         int i2s_buffer_level_from_half = (signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2);    //Level w.r.t. half full
-        //printintln(i2s_buffer_level_from_half);
 
         uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
 
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
         uint32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
 
-        //printuintln(rate_ratio);
-
-        //uint32_t timespan = current_ts - prev_ts;
-        //uint64_t total_data = (uint64_t)(samples) * 12500;
-        //uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (timespan / 8), 19);
-
-        //printuintln(data_per_sample);
-        //printuintln(samples);
-        //printuintln(current_ts - prev_ts);
 
         prev_num_i2s_samples_recvd = current_num_i2s_samples;
         prev_ts = current_ts;
 
-        // Exchange rates
-        // Send I2S rate to the other tile
+        // Get USB rate and buffer information from the other tile
+        uint8_t tmp = 0;
         rtos_intertile_tx(
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,
-            &i2s_rate,
-            sizeof(i2s_rate));
+            &tmp,
+            sizeof(tmp));
 
         size_t bytes_received;
         uint32_t usb_rate;
@@ -255,17 +246,18 @@ void rate_server(void *args)
                     intertile_ctx,
                     appconfUSB_RATE_NOTIFY_PORT,
                     portMAX_DELAY);
-        xassert(bytes_received == 2*sizeof(int32_t));
+        xassert(bytes_received == sizeof(usb_rate_info));
 
         rtos_intertile_rx_data(
                         intertile_ctx,
-                        usb_to_i2s_rate_info,
+                        &usb_rate_info,
                         bytes_received);
 
-        usb_rate = (uint32_t)usb_to_i2s_rate_info[0];
-        usb_buffer_fill_level_from_half = usb_to_i2s_rate_info[1];
+        usb_rate = (uint32_t)usb_rate_info.usb_data_rate;
+        usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
 
-        if((i2s_rate != 0) && (usb_rate != 0))
+        // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
+        if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t fs_ratio;
             fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
@@ -276,8 +268,18 @@ void rate_server(void *args)
 
             fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
                             (1 + OLD_VAL_WEIGHTING));
-            g_i2s_to_usb_rate_ratio = fs_ratio;
 
+            g_i2s_to_usb_rate_ratio = fs_ratio;
+        }
+        else
+        {
+            g_i2s_to_usb_rate_ratio = 0;
+        }
+
+        // Calculate usb_to_i2s_rate_ratio only when we're recording
+        if((i2s_rate != 0) && (usb_rate_info.mic_itf_open))
+        {
+            int32_t fs_ratio;
             fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             fs_ratio = dsp_math_divide_unsigned_64(usb_rate, i2s_rate, 28); // Samples per millisecond
             fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
@@ -289,9 +291,9 @@ void rate_server(void *args)
         }
         else
         {
-            g_i2s_to_usb_rate_ratio = 0;
             usb_to_i2s_rate_ratio = 0;
         }
+
         rtos_intertile_tx(
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,

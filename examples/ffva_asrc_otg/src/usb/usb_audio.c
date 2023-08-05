@@ -44,6 +44,7 @@
 #include "app_conf.h"
 
 #include "asrc_utils.h"
+#include "rate_server.h"
 
 // Audio controls
 // Current states
@@ -942,10 +943,10 @@ extern uint32_t g_usb_data_rate;
 static void supply_usb_rate_task(void *args)
 {
     (void)args;
-    int32_t i2s_rate = 0;
+    int8_t tmp;
     size_t bytes_received;
     uint32_t fs_ratio_old = 0;
-    int32_t usb_to_i2s_rate_info[2];
+    usb_to_i2s_rate_info_t usb_rate_info;
 
     for (;;)
     {
@@ -953,22 +954,24 @@ static void supply_usb_rate_task(void *args)
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,
             portMAX_DELAY);
-        xassert(bytes_received == sizeof(i2s_rate));
+        xassert(bytes_received == sizeof(tmp));
 
         rtos_intertile_rx_data(
             intertile_ctx,
-            &i2s_rate,
+            &tmp,
             bytes_received);
 
         int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-        usb_to_i2s_rate_info[0] = g_usb_data_rate;
-        usb_to_i2s_rate_info[1] = usb_buffer_level_from_half;
+        usb_rate_info.mic_itf_open = mic_interface_open;
+        usb_rate_info.spkr_itf_open = spkr_interface_open;
+        usb_rate_info.usb_data_rate = g_usb_data_rate;
+        usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
 
         rtos_intertile_tx(
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,
-            usb_to_i2s_rate_info,
-            2*sizeof(int32_t));
+            &usb_rate_info,
+            sizeof(usb_rate_info));
 
         uint32_t rate_ratio;
         bytes_received = rtos_intertile_rx_len(

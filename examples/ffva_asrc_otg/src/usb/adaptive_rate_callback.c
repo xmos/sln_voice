@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "rate_server.h"
 #define TOTAL_TAIL_SECONDS 16
 #define STORED_PER_SECOND 4
 
@@ -150,8 +151,8 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
         for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
         {
-            data_lengths[direction][i] = bucket_expected[direction];;
-            time_buckets[direction][i] = REF_CLOCK_TICKS_PER_STORED_AVG;
+            data_lengths[direction][i] = 0;
+            time_buckets[direction][i] = 0;
         }
         // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
         for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
@@ -179,10 +180,8 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     uint64_t total_data = (uint64_t)(total_data_intermed) * 12500;
     uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), 19); // Samples per millisecond
-    //printf("data_per_sample = %f\n", (float)data_per_sample/(1<<19));
-    //uint32_t result = dsp_math_divide_unsigned(data_per_sample, expected[direction], 12);
-    //printuintln(result);
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+
     uint32_t result = data_per_sample;
 
 
