@@ -215,12 +215,11 @@ static void i2s_audio_recv_task(void *args)
         // Only channel 0 for now
         uint32_t start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
+
         uint32_t end = get_reference_time();
         if(max_time < (end - start))
         {
             max_time = end - start;
-            //printchar('c');
-            //printuintln(max_time);
         }
 
 

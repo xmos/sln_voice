@@ -68,6 +68,7 @@ static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_task_handle;
 
 static uint32_t g_usb_to_i2s_rate_ratio = 0;
+static uint32_t samples_to_host_stream_buf_size_bytes = 0;
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
@@ -136,7 +137,6 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
     if (mic_interface_open)
     {
-        // printuintln(xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
         if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes)
         {
             xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
@@ -303,13 +303,17 @@ void usb_audio_out_task(void *arg)
         if(max_time < (end - start))
         {
             max_time = end - start;
-            printchar('c');
-            printuintln(max_time);
+            //printchar('c');
+            //printuintln(max_time);
         }
         // printuintln(end - start);
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_init_ctx.asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
-
+        if(n_samps_out != (240*4))
+        {
+            //printchar('w');
+            //printintln(n_samps_out);
+        }
         if (n_samps_out != n_samps_out_ch1)
         {
             printf("Error: USB to I2S ASRC. ch0 and ch1 returned different number of samples: ch0 %u, ch1 %u\n", n_samps_out, n_samps_out_ch1);
@@ -941,6 +945,7 @@ static void supply_usb_rate_task(void *args)
     int32_t i2s_rate = 0;
     size_t bytes_received;
     uint32_t fs_ratio_old = 0;
+    int32_t usb_to_i2s_rate_info[2];
 
     for (;;)
     {
@@ -955,22 +960,32 @@ static void supply_usb_rate_task(void *args)
             &i2s_rate,
             bytes_received);
 
+        int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+        usb_to_i2s_rate_info[0] = g_usb_data_rate;
+        usb_to_i2s_rate_info[1] = usb_buffer_level_from_half;
+
         rtos_intertile_tx(
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,
-            &g_usb_data_rate,
-            sizeof(g_usb_data_rate));
+            usb_to_i2s_rate_info,
+            2*sizeof(int32_t));
+
+        uint32_t rate_ratio;
+        bytes_received = rtos_intertile_rx_len(
+            intertile_ctx,
+            appconfUSB_RATE_NOTIFY_PORT,
+            portMAX_DELAY);
+        xassert(bytes_received == sizeof(rate_ratio));
+
+        rtos_intertile_rx_data(
+            intertile_ctx,
+            &rate_ratio,
+            bytes_received);
 
         // Update ratio only when both rates are valid
-        if ((i2s_rate != 0) && (g_usb_data_rate != 0))
+        if (rate_ratio != 0)
         {
-            fs_ratio_old = g_usb_to_i2s_rate_ratio;
-
-            g_usb_to_i2s_rate_ratio = dsp_math_divide_unsigned_64(g_usb_data_rate, i2s_rate, 28); // Samples per millisecond
-
-            g_usb_to_i2s_rate_ratio = (unsigned) (((unsigned long long)(fs_ratio_old) * OLD_VAL_WEIGHTING + (unsigned long long)(g_usb_to_i2s_rate_ratio) ) /
-                            (1 + OLD_VAL_WEIGHTING));
-            // printf("usb_to_i2s_ratio = %lu\n", g_usb_to_i2s_rate_ratio);
+            g_usb_to_i2s_rate_ratio = rate_ratio;
         }
         else
         {
@@ -1005,8 +1020,9 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
      * in this buffer before starting to send to the host, so the size of
      * this buffer MUST be AT LEAST 2 VFE frames.
      */
-    samples_to_host_stream_buf = xStreamBufferCreate(4 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX,
-                                                     0);
+    samples_to_host_stream_buf_size_bytes = 4 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
+
+    samples_to_host_stream_buf = xStreamBufferCreate(samples_to_host_stream_buf_size_bytes, 0);
 
     xTaskCreate((TaskFunction_t)usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
 

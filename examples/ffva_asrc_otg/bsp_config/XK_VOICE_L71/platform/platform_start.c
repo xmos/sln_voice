@@ -113,7 +113,7 @@ static void i2s_start(void)
             rtos_i2s_mclk_bclk_ratio(appconfAUDIO_CLOCK_FREQUENCY, 48000), // Not used for I2S slave
             I2S_MODE_I2S,
             2.2 * I2S_TO_USB_ASRC_BLOCK_LENGTH,
-            1.2 * USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
+            2.2 * USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
             appconfI2S_INTERRUPT_CORE);
 #endif
 #endif
