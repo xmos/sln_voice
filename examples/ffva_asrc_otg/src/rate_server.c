@@ -31,13 +31,17 @@
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 #define REF_CLOCK_TICKS_PER_STORED_AVG (REF_CLOCK_TICKS_PER_SECOND / STORED_PER_SECOND)
 
-static bool first_time = true;
 volatile static bool data_seen = false;
 volatile static bool hold_average = false;
+
 
 extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
 extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
 extern uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format );
+
+// Global variables shared with i2s_audio.c
+uint32_t g_i2s_to_usb_rate_ratio = 0;
+uint32_t g_i2s_nominal_sampling_rate = 0;
 
 static inline bool in_range(uint32_t ticks, uint32_t ref)
 {
@@ -117,14 +121,14 @@ static uint32_t determine_I2S_rate(
         return previous_result;
     }
 
-    uint32_t nominal_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
-    if(nominal_sampling_rate == 0)
+    g_i2s_nominal_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
+    if(g_i2s_nominal_sampling_rate == 0)
     {
-        return 0; // i2s_audio thread ensures we don't do asrc when nominal_sampling_rate is 0
+        return 0; // i2s_audio thread ensures we don't do asrc when g_i2s_nominal_sampling_rate is 0
     }
-    else if(nominal_sampling_rate != prev_nominal_sampling_rate)
+    else if(g_i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
-        expected_nominal_samples_per_bucket = nominal_sampling_rate / STORED_PER_SECOND; // samples_per_second / number_of_buckets_per_second
+        expected_nominal_samples_per_bucket = g_i2s_nominal_sampling_rate / STORED_PER_SECOND; // samples_per_second / number_of_buckets_per_second
 
         first_timestamp = timestamp;
 
@@ -145,8 +149,8 @@ static uint32_t determine_I2S_rate(
             data_lengths[i] = expected_nominal_samples_per_bucket;
             time_buckets[i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
-        prev_nominal_sampling_rate = nominal_sampling_rate;
-        previous_result = dsp_math_divide_unsigned_64(nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+        prev_nominal_sampling_rate = g_i2s_nominal_sampling_rate;
+        previous_result = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
 
         return previous_result;
     }
@@ -202,8 +206,6 @@ static uint32_t determine_I2S_rate(
     return result;
 }
 
-extern uint32_t g_i2s_to_usb_rate_ratio;
-extern uint32_t g_i2s_to_usb_nominal_fs_ratio;
 #define BUFFER_LEVEL_TERM   20000   //How much to apply the buffer level feedback term (effectively 1/I term)
 void rate_server(void *args)
 {
@@ -212,7 +214,6 @@ void rate_server(void *args)
     uint32_t prev_ts = get_reference_time();
     uint32_t prev_num_i2s_samples_recvd = i2s_ctx->recv_buffer.total_written;
     uint32_t usb_to_i2s_rate_ratio = 0;
-    int32_t usb_to_i2s_rate_info[2];
     int32_t usb_buffer_fill_level_from_half;
     usb_to_i2s_rate_info_t usb_rate_info;
     for(;;)
@@ -233,12 +234,11 @@ void rate_server(void *args)
         prev_ts = current_ts;
 
         // Get USB rate and buffer information from the other tile
-        uint8_t tmp = 0;
         rtos_intertile_tx(
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,
-            &tmp,
-            sizeof(tmp));
+            &g_i2s_nominal_sampling_rate,
+            sizeof(g_i2s_nominal_sampling_rate));
 
         size_t bytes_received;
         uint32_t usb_rate;

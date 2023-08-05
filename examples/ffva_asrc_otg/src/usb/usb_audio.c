@@ -73,7 +73,6 @@ static uint32_t samples_to_host_stream_buf_size_bytes = 0;
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
-static uint32_t g_i2s_sampling_rate = 0; // variable holding I2S sampling rate on the USB tile
 //--------------------------------------------------------------------+
 // Device callbacks
 //--------------------------------------------------------------------+
@@ -252,10 +251,10 @@ void usb_audio_out_task(void *arg)
         // while(xStreamBufferBytesAvailable(samples_from_host_stream_buf) < sizeof(usb_audio_out_frame));
         bytes_received = xStreamBufferReceive(samples_from_host_stream_buf, usb_audio_out_frame, sizeof(usb_audio_out_frame), 0);
 
-        if (asrc_init_ctx.fs_out != g_i2s_sampling_rate)
+        if (asrc_init_ctx.fs_out != g_i2s_nominal_sampling_rate)
         {
             // Time to initialise asrc
-            asrc_init_ctx.fs_out = g_i2s_sampling_rate;
+            asrc_init_ctx.fs_out = g_i2s_nominal_sampling_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in); // Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
             printf("USB tile initialising ASRC for fs_in %lu, fs_out %lu\n", asrc_init_ctx.fs_in, asrc_init_ctx.fs_out);
@@ -270,11 +269,11 @@ void usb_audio_out_task(void *arg)
         }
 
         uint32_t current_rate_ratio = nominal_fs_ratio;
-        if(frames_since_new_rate < 10)
+        /*if(frames_since_new_rate < 10)
         {
             frames_since_new_rate += 1;
         }
-        else if(g_usb_to_i2s_rate_ratio != 0)
+        else*/if(g_usb_to_i2s_rate_ratio != 0)
         {
             current_rate_ratio = g_usb_to_i2s_rate_ratio;
         }
@@ -927,13 +926,13 @@ static void i2s_rate_recv_task(void *args) // Task responsible for receiving I2S
             appconfI2S_RATE_NOTIFY_PORT,
             portMAX_DELAY);
 
-        xassert(bytes_received == sizeof(g_i2s_sampling_rate));
+        xassert(bytes_received == sizeof(g_i2s_nominal_sampling_rate));
         rtos_intertile_rx_data(
             intertile_ctx,
-            &g_i2s_sampling_rate,
+            &g_i2s_nominal_sampling_rate,
             bytes_received);
 
-        printf("Received I2S sample rate of %lu from the other tile\n", g_i2s_sampling_rate);
+        printf("Received I2S sample rate of %lu from the other tile\n", g_i2s_nominal_sampling_rate);
     }
 }
 
@@ -943,22 +942,21 @@ extern uint32_t g_usb_data_rate;
 static void supply_usb_rate_task(void *args)
 {
     (void)args;
-    int8_t tmp;
     size_t bytes_received;
-    uint32_t fs_ratio_old = 0;
     usb_to_i2s_rate_info_t usb_rate_info;
 
     for (;;)
     {
+        // Receive I2S nominal sampling rate
         bytes_received = rtos_intertile_rx_len(
             intertile_ctx,
             appconfUSB_RATE_NOTIFY_PORT,
             portMAX_DELAY);
-        xassert(bytes_received == sizeof(tmp));
+        xassert(bytes_received == sizeof(g_i2s_nominal_sampling_rate));
 
         rtos_intertile_rx_data(
             intertile_ctx,
-            &tmp,
+            &g_i2s_nominal_sampling_rate,
             bytes_received);
 
         int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
