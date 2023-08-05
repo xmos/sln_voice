@@ -309,11 +309,11 @@ void usb_audio_out_task(void *arg)
         // printuintln(end - start);
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_init_ctx.asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
-        if(n_samps_out != (240*4))
+        /*if(n_samps_out != (240*4))
         {
             //printchar('w');
             //printintln(n_samps_out);
-        }
+        }*/
         if (n_samps_out != n_samps_out_ch1)
         {
             printf("Error: USB to I2S ASRC. ch0 and ch1 returned different number of samples: ch0 %u, ch1 %u\n", n_samps_out, n_samps_out_ch1);

@@ -53,6 +53,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
         unsigned num_samps = usb_audio_recv(intertile_usb_audio_ctx,
                                             &usb_to_i2s_samps
                                         );
+        //printf("-- %d --\n",num_samps);
         if(num_samps)
         {
             rtos_i2s_tx(i2s_ctx,

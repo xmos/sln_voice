@@ -206,7 +206,7 @@ static uint32_t determine_I2S_rate(
     return result;
 }
 
-#define BUFFER_LEVEL_TERM   20000   //How much to apply the buffer level feedback term (effectively 1/I term)
+#define BUFFER_LEVEL_TERM   200000   //How much to apply the buffer level feedback term (effectively 1/I term)
 void rate_server(void *args)
 {
     unsigned fs_ratio_i2s_to_usb_old = 0;
@@ -259,6 +259,7 @@ void rate_server(void *args)
         // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
+            printintln(usb_buffer_fill_level_from_half);
             int32_t fs_ratio;
             fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
             fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
@@ -266,8 +267,8 @@ void rate_server(void *args)
 
             fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + usb_buffer_fill_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
-            fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
-                            (1 + OLD_VAL_WEIGHTING));
+            /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
+                            (1 + OLD_VAL_WEIGHTING));*/
 
             g_i2s_to_usb_rate_ratio = fs_ratio;
         }
@@ -279,13 +280,19 @@ void rate_server(void *args)
         // Calculate usb_to_i2s_rate_ratio only when we're recording
         if((i2s_rate != 0) && (usb_rate_info.mic_itf_open))
         {
+            //int32_t nom_rate = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             int32_t fs_ratio;
             fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             fs_ratio = dsp_math_divide_unsigned_64(usb_rate, i2s_rate, 28); // Samples per millisecond
+            //fs_ratio = 0x40000000;
+            //printchar(',');
+            //printhex(fs_ratio);
             fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
-            fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
-                            (1 + OLD_VAL_WEIGHTING));
+            /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
+                            (1 + OLD_VAL_WEIGHTING));*/
             usb_to_i2s_rate_ratio = fs_ratio;
+            //printchar(',');
+            //printhexln(usb_to_i2s_rate_ratio);
             //printf("usb_to_i2s_rate_ratio = %f\n", (float)usb_to_i2s_rate_ratio/(1<<28));
 
         }
