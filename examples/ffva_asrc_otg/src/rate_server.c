@@ -90,7 +90,7 @@ static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
     return 0xffffffff;
 }
 
-#define OLD_VAL_WEIGHTING (5)
+
 
 static uint32_t determine_I2S_rate(
     uint32_t timestamp,
@@ -206,7 +206,11 @@ static uint32_t determine_I2S_rate(
     return result;
 }
 
-#define BUFFER_LEVEL_TERM   200000   //How much to apply the buffer level feedback term (effectively 1/I term)
+#define OLD_VAL_WEIGHTING (64)
+#define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
+#define RATE_SERVER_MS  (20)
+#define TOTAL_ERROR_AVG_TIME_MS (1000)
+#define NUM_ERROR_BUCKETS   (TOTAL_ERROR_AVG_TIME_MS/RATE_SERVER_MS) // Avg over a 500ms period with snapshots every 20ms
 void rate_server(void *args)
 {
     unsigned fs_ratio_i2s_to_usb_old = 0;
@@ -216,6 +220,9 @@ void rate_server(void *args)
     uint32_t usb_to_i2s_rate_ratio = 0;
     int32_t usb_buffer_fill_level_from_half;
     usb_to_i2s_rate_info_t usb_rate_info;
+    int32_t error_buckets[NUM_ERROR_BUCKETS] = {0};
+    uint32_t rate_server_count = 0;
+    static bool error_buckets_full = false;
     for(;;)
     {
         vTaskDelay(pdMS_TO_TICKS(20));
@@ -256,25 +263,68 @@ void rate_server(void *args)
         usb_rate = (uint32_t)usb_rate_info.usb_data_rate;
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
 
+        // Avg the error
+        if(error_buckets_full == false)
+        {
+            error_buckets[rate_server_count] = usb_buffer_fill_level_from_half;
+            if(rate_server_count == NUM_ERROR_BUCKETS - 1)
+            {
+                error_buckets_full = true;
+            }
+        }
+        else
+        {
+            uint32_t oldest = rate_server_count % NUM_ERROR_BUCKETS;
+            error_buckets[oldest] = usb_buffer_fill_level_from_half;
+        }
+        int32_t total_error = 0;
+        for(int i=0; i< NUM_ERROR_BUCKETS; i++)
+        {
+            total_error = total_error + error_buckets[i];
+        }
+        int32_t avg_usv_to_host_buffer_error = total_error / NUM_ERROR_BUCKETS;
+
+        /*if(avg_usv_to_host_buffer_error > -128 && avg_usv_to_host_buffer_error < 128)
+        {
+            avg_usv_to_host_buffer_error = 0;
+        }*/
+
+        rate_server_count += 1;
+
+
         // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
-            printintln(usb_buffer_fill_level_from_half);
+            printint(usb_buffer_fill_level_from_half/8);
+            printchar(',');
+            printintln(avg_usv_to_host_buffer_error/8);
+
             int32_t fs_ratio;
-            fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
-            fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
-            //printf("i2s_to_usb_ratio = %lu\n", g_i2s_to_usb_rate_ratio);
+            // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
+            // fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
+            // //printf("i2s_to_usb_ratio = %lu\n", g_i2s_to_usb_rate_ratio);
+            // //printchar(',');
+            // //printhex(fs_ratio);
 
-            fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + usb_buffer_fill_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
+            fs_ratio = 0x40000000;
+            fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + avg_usv_to_host_buffer_error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
-            /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
-                            (1 + OLD_VAL_WEIGHTING));*/
+
+            // fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
+            //                 (1 + OLD_VAL_WEIGHTING));
 
             g_i2s_to_usb_rate_ratio = fs_ratio;
+
+            // printchar(',');
+            // printhexln(g_i2s_to_usb_rate_ratio);
         }
         else
         {
             g_i2s_to_usb_rate_ratio = 0;
+            rate_server_count = 0;
+            error_buckets_full = false;
+            memset(error_buckets, 0, sizeof(error_buckets));
+
         }
 
         // Calculate usb_to_i2s_rate_ratio only when we're recording

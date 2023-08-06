@@ -130,7 +130,7 @@ void platform_start(void)
 {
     rtos_intertile_start(intertile_ctx);
     rtos_intertile_start(intertile_usb_audio_ctx);
-
+    rtos_intertile_start(intertile_i2s_audio_ctx);
     gpio_start();
     flash_start();
     i2c_master_start();

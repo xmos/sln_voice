@@ -153,10 +153,12 @@ static void i2s_audio_recv_task(void *args)
         unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
 
         uint32_t end = get_reference_time();
-        if(max_time < (end - start))
+        /*if(max_time < (end - start))
         {
             max_time = end - start;
-        }
+            printchar('c');
+            printuintln(max_time);
+        }*/
 
 
 
@@ -182,7 +184,7 @@ static void i2s_audio_recv_task(void *args)
 
         if (min_samples > 0) {
             rtos_intertile_tx(
-                    intertile_ctx,
+                    intertile_i2s_audio_ctx,
                     appconfAUDIOPIPELINE_PORT,
                     frame_samples_interleaved,
                     min_samples*appconfAUDIO_PIPELINE_CHANNELS*sizeof(int32_t));

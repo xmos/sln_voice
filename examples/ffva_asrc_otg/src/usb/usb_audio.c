@@ -125,6 +125,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 #elif CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 4
     const int src_32_shift = 0;
 #endif
+    static uint32_t previous_ts = 0;
 
     memset(usb_audio_in_frame, 0, sizeof(usb_audio_in_frame));
     for (int i = 0; i < frame_count; i++)
@@ -137,6 +138,9 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
     if (mic_interface_open)
     {
+        uint32_t current_ts = get_reference_time();
+        printuintln(current_ts - previous_ts);
+        previous_ts = current_ts;
         if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes)
         {
             xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
@@ -794,7 +798,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     bytes_available = xStreamBufferBytesAvailable(samples_to_host_stream_buf);
 
-    if (bytes_available >= 2 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
+    if (bytes_available >= 3 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
     {
         /* wait until we have 2 full audio pipeline output frames in the buffer */
         ready = 1;
@@ -802,6 +806,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     if (!ready)
     {
+        printf("NOT READY\n");
         // we need to send something despite not being fully ready
         //  so, send all zeros
         memset(usb_audio_frames, 0, tx_size_bytes);
@@ -833,6 +838,12 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
+    xassert(num_rx_total == 384);
+    xassert(tx_size_bytes == 384);
+    //printchar('t');
+    //printuintln(get_reference_time());
+    //int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+    //printintln(usb_buffer_level_from_half/8);
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
 
@@ -960,6 +971,7 @@ static void supply_usb_rate_task(void *args)
             bytes_received);
 
         int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+        //usb_buffer_level_from_half = usb_buffer_level_from_half >> 3;
         usb_rate_info.mic_itf_open = mic_interface_open;
         usb_rate_info.spkr_itf_open = spkr_interface_open;
         usb_rate_info.usb_data_rate = g_usb_data_rate;

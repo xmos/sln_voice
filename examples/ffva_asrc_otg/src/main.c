@@ -40,7 +40,7 @@ void vApplicationMallocFailedHook(void)
 static void mem_analysis(void)
 {
 	for (;;) {
-		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
+		//rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
 		vTaskDelay(pdMS_TO_TICKS(5000));
 	}
 }
@@ -73,7 +73,7 @@ static void i2s_slave_to_usb_intertile(void *args) {
         size_t bytes_received;
 
         bytes_received = rtos_intertile_rx_len(
-                intertile_ctx,
+                intertile_i2s_audio_ctx,
                 appconfAUDIOPIPELINE_PORT,
                 portMAX_DELAY);
 
@@ -81,7 +81,7 @@ static void i2s_slave_to_usb_intertile(void *args) {
             xassert(bytes_received <= sizeof(i2s_to_usb_samps_interleaved));
 
             rtos_intertile_rx_data(
-                    intertile_ctx,
+                    intertile_i2s_audio_ctx,
                     i2s_to_usb_samps_interleaved,
                     bytes_received);
 
