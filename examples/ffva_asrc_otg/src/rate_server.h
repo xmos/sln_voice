@@ -1,7 +1,9 @@
 #ifndef RATE_SERVER_H
 #define RATE_SERVER_H
+#include "xmath/xmath.h"
 
 void rate_server(void *args);
+float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_t output_exp);
 
 #define SAMPLING_RATE_Q_FORMAT (23)
 
