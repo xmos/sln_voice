@@ -295,18 +295,18 @@ void rate_server(void *args)
         // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
-            printint(usb_buffer_fill_level_from_half/8);
-            printchar(',');
-            printintln(avg_usv_to_host_buffer_error/8);
+            //printint(usb_buffer_fill_level_from_half/8);
+            //printchar(',');
+            //printintln(avg_usv_to_host_buffer_error/8);
 
             int32_t fs_ratio;
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
-            // fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
+            fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
             // //printf("i2s_to_usb_ratio = %lu\n", g_i2s_to_usb_rate_ratio);
             // //printchar(',');
             // //printhex(fs_ratio);
 
-            fs_ratio = 0x40000000;
+            //fs_ratio = 0x40000000;
             fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + avg_usv_to_host_buffer_error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
 

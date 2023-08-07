@@ -108,7 +108,6 @@ static void i2s_audio_recv_task(void *args)
         }
         else if(g_i2s_nominal_sampling_rate != i2s_sampling_rate)
         {
-            printf("SAMPLING RATE CHANGE DETECTED. prev %lu, new %lu\n", i2s_sampling_rate, g_i2s_nominal_sampling_rate);
             i2s_sampling_rate = g_i2s_nominal_sampling_rate;
             asrc_init_ctx.fs_in = i2s_sampling_rate; // I2S rate is detected at runtime
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
@@ -118,8 +117,8 @@ static void i2s_audio_recv_task(void *args)
             nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
             nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
 
-            printf("i2s_audio_recv_task(): new nominal_fs_ratio %lu. g_i2s_to_usb_rate_ratio %lu\n", nominal_fs_ratio, g_i2s_to_usb_rate_ratio);
-            // We've been faffing about initialising asrc and such this frame so probably too late to do the asrc_process(), skip this frame
+            rtos_printf("i2s_audio_recv_task(): new nominal_fs_ratio %lu. g_i2s_to_usb_rate_ratio %lu\n", nominal_fs_ratio, g_i2s_to_usb_rate_ratio);
+            // We're too late to do the asrc_process(), skip this frame
             continue;
         }
         uint32_t current_rate_ratio = nominal_fs_ratio;
@@ -127,7 +126,6 @@ static void i2s_audio_recv_task(void *args)
         {
             current_rate_ratio = g_i2s_to_usb_rate_ratio;
         }
-        // g_i2s_nominal_sampling_rate is non-zero and equal to the i2s_sampling_rate
 
         for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
         {
@@ -137,7 +135,6 @@ static void i2s_audio_recv_task(void *args)
             }
         }
 
-        //printf("i2s_audio_recv_task(): nominal_fs_ratio %lu. using %lu\n", nominal_fs_ratio, current_rate_ratio);
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &tmp_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
@@ -163,18 +160,16 @@ static void i2s_audio_recv_task(void *args)
 
 
         // Wait for 2nd channel ASRC to finish
-
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_init_ctx.asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
 
         if(n_samps_out != n_samps_out_ch1)
         {
-            printf("Error: I2S to USB ASRC. ch0 and ch1 returned different number of samples: ch0 %u, ch1 %u\n", n_samps_out, n_samps_out_ch1);
+            rtos_printf("Error: I2S to USB ASRC. ch0 and ch1 returned different number of samples: ch0 %u, ch1 %u\n", n_samps_out, n_samps_out_ch1);
             xassert(0);
         }
-        uint32_t min_samples = (n_samps_out < n_samps_out_ch1) ? n_samps_out : n_samps_out_ch1;
 
-        for(int i=0; i<min_samples; i++)
+        for(int i=0; i<n_samps_out; i++)
         {
             for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
             {
@@ -182,12 +177,12 @@ static void i2s_audio_recv_task(void *args)
             }
         }
 
-        if (min_samples > 0) {
+        if (n_samps_out > 0) {
             rtos_intertile_tx(
                     intertile_i2s_audio_ctx,
                     appconfAUDIOPIPELINE_PORT,
                     frame_samples_interleaved,
-                    min_samples*appconfAUDIO_PIPELINE_CHANNELS*sizeof(int32_t));
+                    n_samps_out*appconfAUDIO_PIPELINE_CHANNELS*sizeof(int32_t));
         }
     }
 }
