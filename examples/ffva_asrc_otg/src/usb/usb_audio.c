@@ -63,13 +63,19 @@ static volatile bool spkr_interface_open = false;
 static uint32_t prev_n_bytes_received = 0;
 static bool host_streaming_out = false;
 
-static StreamBufferHandle_t samples_to_host_stream_buf;
+StreamBufferHandle_t samples_to_host_stream_buf;
 static StreamBufferHandle_t samples_from_host_stream_buf;
 static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_task_handle;
 
 static uint32_t g_usb_to_i2s_rate_ratio = 0;
-static uint32_t samples_to_host_stream_buf_size_bytes = 0;
+static int32_t g_usb_to_host_avg_buffer_fill_level = 0;
+uint32_t samples_to_host_stream_buf_size_bytes = 0;
+
+static uint32_t num_usb_to_host_samples_written = 0;
+static uint32_t num_usb_to_host_samples_read = 0;
+static uint32_t read_count = 0;
+static uint32_t write_count = 0;
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
@@ -115,6 +121,37 @@ typedef int32_t samp_t;
 #error CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX must be either 2 or 4
 #endif
 
+static int32_t calc_avg_buffer_level(int32_t buf_level)
+{
+    //#define WINDOW_SIZE (20)
+    const size_t window_size = 20;
+    static uint32_t counter = 0;
+    static int32_t buckets[window_size] = {0};
+    static bool buckets_full = false;
+    if(buckets_full == false)
+    {
+        buckets[counter] = buf_level;
+        if(counter == window_size-1)
+        {
+            buckets_full = true;
+        }
+    }
+    else
+    {
+        uint32_t oldest = counter % window_size;
+        buckets[oldest] = buf_level;
+    }
+    int32_t acc = 0;
+    for(int i=0; i<window_size; i++)
+    {
+        acc = acc + buckets[i];
+    }
+    int32_t avg = acc / (int32_t)window_size;
+    //printf("total = %ld, avg = %ld\n", acc, avg);
+    counter = counter + 1;
+    return avg;
+}
+
 void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved samples [samps][ch] format
                     size_t frame_count,
                     size_t num_chans)
@@ -145,6 +182,11 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
         {
             rtos_printf("lost VFE output samples\n");
         }
+        int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+        g_usb_to_host_avg_buffer_fill_level = calc_avg_buffer_level(usb_buffer_level_from_half);
+        printchar('W');
+        printintln(usb_buffer_level_from_half/8);
+
     }
 }
 
@@ -810,6 +852,12 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
+    int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+
+    //g_usb_to_host_avg_buffer_fill_level = calc_avg_buffer_level(usb_buffer_level_from_half);
+    printchar('R');
+    printintln(usb_buffer_level_from_half/8);
+    //printf("PULL: usb_buffer_level_from_half %ld, g_usb_to_host_avg_buffer_fill_level %ld\n", usb_buffer_level_from_half/8, g_usb_to_host_avg_buffer_fill_level/8);
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
 
@@ -913,12 +961,13 @@ static void supply_usb_rate_task(void *args)
             &g_i2s_nominal_sampling_rate,
             bytes_received);
 
-        int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+        //int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
         //usb_buffer_level_from_half = usb_buffer_level_from_half >> 3;
         usb_rate_info.mic_itf_open = mic_interface_open;
         usb_rate_info.spkr_itf_open = spkr_interface_open;
         usb_rate_info.usb_data_rate = g_usb_data_rate;
-        usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
+
+        usb_rate_info.samples_to_host_buf_fill_level = g_usb_to_host_avg_buffer_fill_level; //usb_buffer_level_from_half;
 
         rtos_intertile_tx(
             intertile_ctx,

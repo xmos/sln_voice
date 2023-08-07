@@ -23,6 +23,7 @@
 #include <rtos_interrupt.h>
 
 #include "platform/app_pll_ctrl.h"
+#include "stream_buffer.h"
 
 #ifndef USB_ADAPTIVE_TASK_PRIORITY
 #define USB_ADAPTIVE_TASK_PRIORITY (configMAX_PRIORITIES-1)
@@ -39,6 +40,9 @@ typedef struct usb_audio_rate_packet_desc {
 
 static QueueHandle_t data_event_queue = NULL;
 uint32_t g_usb_data_rate = 0; // Samples per ms in q19 format
+
+extern StreamBufferHandle_t samples_to_host_stream_buf;
+extern uint32_t samples_to_host_stream_buf_size_bytes;
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;

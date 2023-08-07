@@ -154,7 +154,7 @@ uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
     current_rate.mant = samples_per_transaction;
     current_rate.exp = -SAMPLING_RATE_Q_FORMAT;
 
-    avg_usb_rate = float_s32_ema(avg_usb_rate, current_rate, Q23(AVG_U2B_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
+    avg_usb_rate = my_ema_calc(avg_usb_rate, current_rate, Q23(AVG_U2B_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
     return avg_usb_rate.mant;
 }
 
