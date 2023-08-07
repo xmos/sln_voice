@@ -365,12 +365,14 @@ void rate_server(void *args)
 
         usb_rate = (uint32_t)usb_rate_info.usb_data_rate;
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
+        bool seen_stable = false;
 
         int32_t avg_usb_to_host_buffer_fill_level = get_average_usb_to_host_buf_fill_level(usb_buffer_fill_level_from_half, reset_buf_level);
         if(reset_buf_level)
         {
             reset_buf_level = false;
         }
+        static uint32_t prev_fs_ratio;
 
         // Avg the error
 
@@ -378,7 +380,7 @@ void rate_server(void *args)
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            printintln(usb_buffer_fill_level_from_half);
+            //printintln(usb_buffer_fill_level_from_half);
             //printchar(',');
             //printintln(avg_usb_to_host_buffer_fill_level);
 
@@ -387,7 +389,7 @@ void rate_server(void *args)
             fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
 
             // //printchar(',');
-            printhexln(fs_ratio);
+            //printhexln(fs_ratio);
 
             float_s32_t fs_ratio_s32;
             fs_ratio_s32.mant = fs_ratio;
@@ -396,14 +398,9 @@ void rate_server(void *args)
 
             //printchar(',');
             //printhex(avg_i2s_to_usb_rate_ratio.mant);
-            if((usb_buffer_fill_level_from_half < -40) || (usb_buffer_fill_level_from_half > 40))
-            {
-                buffer_level_term = BUFFER_LEVEL_TERM/2;
-            }
 
             //fs_ratio = 0x40000000;
             fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)avg_i2s_to_usb_rate_ratio.mant) / buffer_level_term);
-
 
 
             // fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
