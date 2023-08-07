@@ -44,8 +44,6 @@ static void usb_adaptive_clk_manager(void *args) {
     (void) args;
 
     usb_audio_rate_packet_desc_t pkt_data;
-    static uint64_t prev_s;
-    uint64_t s = 0;
 
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);

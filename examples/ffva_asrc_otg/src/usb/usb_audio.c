@@ -788,7 +788,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
 
     size_t tx_size_bytes_rate_adjusted = tx_size_bytes;
-    size_t tx_size_frames_rate_adjusted = tx_size_frames;
 
     /* We must always output samples equal to what we recv in adaptive
      * In the event we underflow send 0's. */
@@ -811,8 +810,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
-    xassert(num_rx_total == 384);
-    xassert(tx_size_bytes == 384);
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
 

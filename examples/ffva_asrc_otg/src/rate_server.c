@@ -213,8 +213,8 @@ static uint32_t determine_I2S_rate(
 #define NUM_ERROR_BUCKETS   (TOTAL_ERROR_AVG_TIME_MS/RATE_SERVER_MS) // Avg over a 500ms period with snapshots every 20ms
 void rate_server(void *args)
 {
-    unsigned fs_ratio_i2s_to_usb_old = 0;
-    unsigned fs_ratio_usb_to_i2s_old = 0;
+    //unsigned fs_ratio_i2s_to_usb_old = 0;
+    //unsigned fs_ratio_usb_to_i2s_old = 0;
     uint32_t prev_ts = get_reference_time();
     uint32_t prev_num_i2s_samples_recvd = i2s_ctx->recv_buffer.total_written;
     uint32_t usb_to_i2s_rate_ratio = 0;
@@ -332,7 +332,7 @@ void rate_server(void *args)
         {
             //int32_t nom_rate = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             int32_t fs_ratio;
-            fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
+            //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             fs_ratio = dsp_math_divide_unsigned_64(usb_rate, i2s_rate, 28); // Samples per millisecond
             //fs_ratio = 0x40000000;
             //printchar(',');

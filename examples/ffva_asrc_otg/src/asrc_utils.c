@@ -47,7 +47,6 @@ void asrc_one_channel_task(void *args)
 {
     asrc_init_t *asrc_init_ctx = (asrc_init_t*)args;
 
-    unsigned max_ticks = 0;
     for(;;)
     {
         asrc_process_frame_ctx_t *asrc_ctx = NULL;
