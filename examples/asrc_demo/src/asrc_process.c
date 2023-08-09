@@ -5,6 +5,7 @@
 
 #include <xcore/chanend.h>
 #include <xcore/channel.h>
+#include <xcore/hwtimer.h>
 
 
 #include "defines.h"
@@ -46,12 +47,12 @@ void asrc_task(chanend_t c_file_to_asrc, chanend_t c_asrc_to_file)
     printf("IN ASRC PROCESS TASK\n");
 
     // 1 ASRC instance per channel, so 2 for 2 channels. Each ASRC instance processes one channel
-    asrc_state_t     asrc_state[NUM_CHANNELS][ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
-    int              asrc_stack[NUM_CHANNELS][ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * INPUT_SAMPLES_PER_FRAME]; //Buffer between filter stages
-    asrc_ctrl_t      asrc_ctrl[NUM_CHANNELS][ASRC_CHANNELS_PER_INSTANCE];  //Control structure
-    asrc_adfir_coefs_t asrc_adfir_coefs[NUM_CHANNELS];
+    asrc_state_t     asrc_state[ASRC_NUM_INSTANCES][ASRC_CHANNELS_PER_INSTANCE]; //ASRC state machine state
+    int              asrc_stack[ASRC_NUM_INSTANCES][ASRC_CHANNELS_PER_INSTANCE][ASRC_STACK_LENGTH_MULT * INPUT_SAMPLES_PER_FRAME]; //Buffer between filter stages
+    asrc_ctrl_t      asrc_ctrl[ASRC_NUM_INSTANCES][ASRC_CHANNELS_PER_INSTANCE];  //Control structure
+    asrc_adfir_coefs_t asrc_adfir_coefs[ASRC_NUM_INSTANCES];
 
-    for(int ch=0; ch<NUM_CHANNELS; ch++)
+    for(int ch=0; ch<ASRC_NUM_INSTANCES; ch++)
     {
         for(int ui = 0; ui < ASRC_CHANNELS_PER_INSTANCE; ui++)
         {
@@ -70,42 +71,64 @@ void asrc_task(chanend_t c_file_to_asrc, chanend_t c_asrc_to_file)
     fs_code_t in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
     fs_code_t out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
     uint32_t nominal_fs_ratio;
-    nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
-    nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+    for(int i=0; i<ASRC_NUM_INSTANCES; i++)
+    {
+        nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[i][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
+    }
 
     printf("Nominal_fs_ratio = 0x%lx\n",nominal_fs_ratio);
 
     int32_t tmp[INPUT_SAMPLES_PER_FRAME][NUM_CHANNELS];
     int32_t tmp_deinterleaved[NUM_CHANNELS][INPUT_SAMPLES_PER_FRAME];
-    int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*2];
-    int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][appconfAUDIO_PIPELINE_CHANNELS] = {{0}};
+    int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*4 + I2S_TO_USB_ASRC_BLOCK_LENGTH];
+    int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*4 + I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS] = {{0}};
+    uint32_t max_time = 0;
+    float fFsRatioDeviation = 1; //0.990099;
+    uint32_t current_rate_ratio = (uint32_t)(nominal_fs_ratio * fFsRatioDeviation); //nominal_fs_ratio;
 
+    //uint32_t current_rate_ratio = 0x3f5dc832; //nominal_fs_ratio;
+    //uint32_t current_rate_ratio = 0x40a3d2d8; //nominal_fs_ratio;
+    //uint32_t current_rate_ratio =  0x40500000; //nominal_fs_ratio;
     for(;;)
     {
         chan_in_buf_word(c_file_to_asrc, (uint32_t*)tmp, sizeof(tmp)/sizeof(int32_t));
-
-        for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+        uint32_t start = get_reference_time();
+        if(ASRC_CHANNELS_PER_INSTANCE == 1) // process one channel per instance
         {
-            for(int sample=0; sample<I2S_TO_USB_ASRC_BLOCK_LENGTH; sample++)
+            for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
             {
-                tmp_deinterleaved[ch][sample] = tmp[sample][ch];
+                for(int sample=0; sample<I2S_TO_USB_ASRC_BLOCK_LENGTH; sample++)
+                {
+                    tmp_deinterleaved[ch][sample] = tmp[sample][ch];
+                }
             }
         }
-
-        //uint32_t current_rate_ratio = 0x3f5dc832; //nominal_fs_ratio;
-        //uint32_t current_rate_ratio = 0x40a3d2d8; //nominal_fs_ratio;
-        uint32_t current_rate_ratio = 0x3fcd0000; //nominal_fs_ratio;
-
-        unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
-
-        for(int i=0; i<n_samps_out; i++)
+        
+        unsigned n_samps_out;
+        if(ASRC_CHANNELS_PER_INSTANCE == 1) // process one channel per instance
         {
-            for(int ch=0; ch<1/*appconfAUDIO_PIPELINE_CHANNELS*/; ch++)
+            n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
+            for(int i=0; i<n_samps_out; i++)
             {
-                frame_samples_interleaved[i][ch] = frame_samples[ch][i];               
+                for(int ch=0; ch<1/*appconfAUDIO_PIPELINE_CHANNELS*/; ch++)
+                {
+                    frame_samples_interleaved[i][ch] = frame_samples[ch][i];               
+                }
             }
         }
+        else
+        {
+            n_samps_out = asrc_process((int *)&tmp[0][0], (int *)&frame_samples_interleaved[0][0], current_rate_ratio, &asrc_ctrl[0][0]);            
+        }
+        uint32_t end = get_reference_time();
 
+        if(max_time < (end - start))
+        {
+            max_time = end - start;
+        }
+
+
+        chan_out_word(c_file_to_asrc, max_time);
         chan_out_word(c_file_to_asrc, n_samps_out);
         chan_out_buf_word(c_file_to_asrc, (uint32_t*)frame_samples_interleaved, n_samps_out*appconfAUDIO_PIPELINE_CHANNELS);
     }

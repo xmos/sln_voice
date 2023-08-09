@@ -53,13 +53,13 @@ void fileio_task(const char *input_file_name, const char *output_file_name, chan
 
     printf("BLOCK count = %d\n",block_count);
     
-    int num_test_frames = 10000;
+    int num_test_frames = (INPUT_SAMPLE_RATE*20)/INPUT_SAMPLES_PER_FRAME;
     wav_form_header(&output_header_struct,
             input_header_struct.audio_format,
             NUM_CHANNELS,
-            48000,
+            OUTPUT_SAMPLE_RATE,
             32,
-            num_test_frames*(INPUT_SAMPLES_PER_FRAME/4));
+            num_test_frames*(INPUT_SAMPLES_PER_FRAME));
 
     file_write(&output_file, (uint8_t*)(&output_header_struct),  WAV_HEADER_BYTES);
     
@@ -67,8 +67,9 @@ void fileio_task(const char *input_file_name, const char *output_file_name, chan
     printf("bytes_per_frame = %d\n",bytes_per_frame);
 
     int32_t input_read_buffer[INPUT_SAMPLES_PER_FRAME * NUM_CHANNELS] = {0}; // Array for storing interleaved input read from wav file
-    int32_t output_buffer[INPUT_SAMPLES_PER_FRAME * NUM_CHANNELS] = {0}; // Array for storing interleaved input read from wav file
+    int32_t output_buffer[((INPUT_SAMPLES_PER_FRAME*4) + INPUT_SAMPLES_PER_FRAME)* NUM_CHANNELS] = {0}; // Array for storing interleaved input read from wav file
     uint32_t total_output_samples = 0;
+    uint32_t max_processing_time;
     for(unsigned b=0;b<num_test_frames;b++)
     {
         long input_location =  wav_get_frame_start(&input_header_struct, b*INPUT_SAMPLES_PER_FRAME , input_header_size);
@@ -77,20 +78,22 @@ void fileio_task(const char *input_file_name, const char *output_file_name, chan
         printf("Frame %d\n",b);
         chan_out_buf_word(c_file_to_asrc, (uint32_t*)input_read_buffer, (bytes_per_frame* INPUT_SAMPLES_PER_FRAME)/sizeof(int32_t));
         
+        max_processing_time = chan_in_word(c_file_to_asrc);
         unsigned n_samps_out = chan_in_word(c_file_to_asrc);
         total_output_samples += n_samps_out;
-        if(n_samps_out != 60)
-        {
-            printf("n_samps_out = %d\n", n_samps_out);
-        }
-        chan_in_buf_word(c_file_to_asrc, (uint32_t*)output_buffer, (n_samps_out * NUM_CHANNELS));
+        //printf("n_samps_out = %d\n", n_samps_out);
 
-        file_write(&output_file, (uint8_t*)(output_buffer), output_header_struct.bit_depth/8 * n_samps_out * NUM_CHANNELS);
+        chan_in_buf_word(c_file_to_asrc, (uint32_t*)output_buffer, (n_samps_out * NUM_CHANNELS));
+        
+        // Write in chunks
+        file_write(&output_file, (uint8_t*)(output_buffer), output_header_struct.bit_depth/8 * n_samps_out  * NUM_CHANNELS);
     }
+
+    printf("DONE. Max processing time for a frame = %ld\n", max_processing_time);
     wav_form_header(&output_header_struct,
             input_header_struct.audio_format,
             NUM_CHANNELS,
-            48000,
+            OUTPUT_SAMPLE_RATE,
             32,
             total_output_samples);
     file_seek (&output_file, 0, SEEK_SET); // Rewrite the header

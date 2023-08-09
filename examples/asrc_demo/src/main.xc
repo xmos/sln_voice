@@ -12,6 +12,7 @@
 extern "C" {
 void asrc_task(chanend_t c_file_to_asrc, chanend_t c_asrc_to_file);
 void fileio_task(const char *input_file_name, const char *output_file_name, chanend_t c_file_to_asrc, chanend_t c_asrc_to_file);
+void i2s_task();
 #if TEST_WAV_XSCOPE
     #include "xscope_io_device.h"
 #endif
@@ -39,6 +40,7 @@ int main (void)
                 _Exit(1);
             }
             asrc_task(c_file_to_asrc, c_asrc_to_file);
+            i2s_task();
         }
     }
   }
