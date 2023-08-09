@@ -1,0 +1,10 @@
+<xSCOPEconfig ioMode="basic" enabled="true">
+  <Probe name="open_file" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+  <Probe name="read_bytes" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+  <Probe name="write_setup" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+  <Probe name="write_bytes" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+  <Probe name="seek" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+  <Probe name="tell" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+  <Probe name="host_quit" type="CONTINUOUS" datatype="UINT" units="Value" enabled="true"/>
+</xSCOPEconfig>
+
