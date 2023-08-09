@@ -24,7 +24,7 @@
 #include "i2s_audio.h"
 #include "rate_server.h"
 
-#define TOTAL_TAIL_SECONDS (16)
+#define TOTAL_TAIL_SECONDS (1)
 #define STORED_PER_SECOND (4)
 
 #define TOTAL_STORED (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)
@@ -141,8 +141,8 @@ static uint32_t determine_I2S_rate_simple(
         return previous_result;
     }
 
-    uint64_t t = (uint64_t)(data_length) * 12500;
-    uint32_t samples_per_transaction = dsp_math_divide_unsigned_64(t, (timespan / 8), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    uint64_t t = (uint64_t)(data_length) * 100000;
+    uint32_t samples_per_transaction = dsp_math_divide_unsigned_64(t, (timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
     float_s32_t current_rate;
     current_rate.mant = samples_per_transaction;
     current_rate.exp = -SAMPLING_RATE_Q_FORMAT;
@@ -217,6 +217,8 @@ static uint32_t determine_I2S_rate(
         return previous_result;
     }
 
+    //return previous_result;
+
     if (update)
     {
         current_data_bucket_size += data_length;
@@ -225,10 +227,10 @@ static uint32_t determine_I2S_rate(
     uint32_t timespan = timestamp - first_timestamp;
 
     uint32_t total_data_intermed = current_data_bucket_size + sum_array(data_lengths, TOTAL_STORED);
-    uint64_t total_data = (uint64_t)(total_data_intermed) * 12500;
+    uint64_t total_data = (uint64_t)(total_data_intermed) * 100000;
     uint32_t total_timespan = timespan + sum_array(time_buckets, TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), SAMPLING_RATE_Q_FORMAT); // This is how much I'm getting from I2S every millisecond
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, total_timespan, SAMPLING_RATE_Q_FORMAT); // This is how much I'm getting from I2S every millisecond
 
 
     uint32_t result = data_per_sample;
@@ -337,6 +339,15 @@ void rate_server(void *args)
         uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
 
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
+        uint64_t total_data = (uint64_t)(samples) * 100000;
+
+        uint32_t rate = dsp_math_divide_unsigned_64(total_data, (current_ts - prev_ts), SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+
+        /*printuint(samples);
+        printchar(',');
+        printuintln(current_ts - prev_ts);
+        printuintln(rate);*/
+
         uint32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
 
 
@@ -373,6 +384,13 @@ void rate_server(void *args)
             reset_buf_level = false;
         }
         static uint32_t prev_fs_ratio;
+        //static uint32_t pre_computed_ratio = 0x3ffe5c9c; // 0.2s
+        //static uint32_t pre_computed_ratio = 0x3fffc000; // 1.3s
+        //static uint32_t pre_computed_ratio = 0x3fffd1dc; // 1.9s
+        //static uint32_t pre_computed_ratio = 0x3fffffee; // 1.9s
+
+        static uint32_t counter = 0;
+
 
         // Avg the error
 
@@ -380,27 +398,39 @@ void rate_server(void *args)
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            //printintln(usb_buffer_fill_level_from_half);
+            printint(usb_buffer_fill_level_from_half/8);
             //printchar(',');
             //printintln(avg_usb_to_host_buffer_fill_level);
 
             int32_t fs_ratio;
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
+            //printintln(usb_rate);
             fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
+
+            printchar(',');
+            printhexln(fs_ratio);
+            counter += 1;
+            /*if(counter < 1000)
+            {
+                fs_ratio = pre_computed_ratio;
+            }*/
+            //fs_ratio = pre_computed_ratio;
 
             // //printchar(',');
             //printhexln(fs_ratio);
 
-            float_s32_t fs_ratio_s32;
+            /*float_s32_t fs_ratio_s32;
             fs_ratio_s32.mant = fs_ratio;
             fs_ratio_s32.exp = -28;
-            avg_i2s_to_usb_rate_ratio = my_ema_calc(avg_i2s_to_usb_rate_ratio, fs_ratio_s32, Q30(SAMP_RATE_RATIO_FILTER_COEFF), -28);
+            avg_i2s_to_usb_rate_ratio = my_ema_calc(avg_i2s_to_usb_rate_ratio, fs_ratio_s32, Q30(SAMP_RATE_RATIO_FILTER_COEFF), -28);*/
 
             //printchar(',');
             //printhex(avg_i2s_to_usb_rate_ratio.mant);
 
-            //fs_ratio = 0x40000000;
-            fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)avg_i2s_to_usb_rate_ratio.mant) / buffer_level_term);
+            //fs_ratio = avg_i2s_to_usb_rate_ratio.mant;
+            //printhexln(fs_ratio);
+            //fs_ratio = 0x3FFE0000;
+            //fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)avg_i2s_to_usb_rate_ratio.mant) / buffer_level_term);
 
 
             // fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /

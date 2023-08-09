@@ -24,6 +24,7 @@
 
 #include "platform/app_pll_ctrl.h"
 #include "stream_buffer.h"
+#include "rate_server.h"
 
 #ifndef USB_ADAPTIVE_TASK_PRIORITY
 #define USB_ADAPTIVE_TASK_PRIORITY (configMAX_PRIORITIES-1)
@@ -44,15 +45,30 @@ uint32_t g_usb_data_rate = 0; // Samples per ms in q19 format
 extern StreamBufferHandle_t samples_to_host_stream_buf;
 extern uint32_t samples_to_host_stream_buf_size_bytes;
 
+extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
+
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
 
     usb_audio_rate_packet_desc_t pkt_data;
+    static uint32_t prev_time = 0;
 
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
 
         g_usb_data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+
+        uint32_t samples = pkt_data.xfer_len/8;
+        uint64_t total_data = (uint64_t)(samples) * 100000;
+        uint32_t rate = dsp_math_divide_unsigned_64(total_data, (pkt_data.cur_time - prev_time), SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+
+        //printuint(samples);
+        //printchar(',');
+        //printuintln(pkt_data.cur_time - prev_time);
+        //printuint(rate);
+        //printchar(',');
+        //printuintln(g_usb_data_rate);
+        prev_time = pkt_data.cur_time;
     }
 }
 

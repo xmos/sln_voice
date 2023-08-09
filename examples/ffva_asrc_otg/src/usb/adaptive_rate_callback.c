@@ -7,7 +7,7 @@
 #include "rate_server.h"
 
 #include "xmath/xmath.h"
-#define TOTAL_TAIL_SECONDS 16
+#define TOTAL_TAIL_SECONDS 1
 #define STORED_PER_SECOND 4
 
 #if __xcore__
@@ -234,10 +234,10 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     uint32_t timespan = timestamp - first_timestamp[direction];
 
     uint32_t total_data_intermed = current_data_bucket_size[direction] + sum_array(data_lengths[direction], TOTAL_STORED);
-    uint64_t total_data = (uint64_t)(total_data_intermed) * 12500;
+    uint64_t total_data = (uint64_t)(total_data_intermed) * 100000;
     uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan / 8), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
 
     uint32_t result = data_per_sample;
 

@@ -177,6 +177,8 @@ static void i2s_audio_recv_task(void *args)
                 frame_samples_interleaved[i][ch] = frame_samples[ch][i];
             }
         }
+        //printchar('c');
+        //printintln(n_samps_out);
 
         if (n_samps_out > 0) {
             rtos_intertile_tx(
