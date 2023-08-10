@@ -1,6 +1,12 @@
 XCORE-VOICE change log
 ======================
 
+2.1.0
+-----
+
+  * ADDED: Mic aggregator app that bridges between 16 mics and TDM16 slave or USB Audio
+  * CHANGED: Updated submodule fwk_io on to version 3.1.0 to add support for RDM slave and 16ch mic_array
+
 2.0.0
 -----
 
