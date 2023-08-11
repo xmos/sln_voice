@@ -69,7 +69,6 @@ static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_task_handle;
 
 static uint32_t g_usb_to_i2s_rate_ratio = 0;
-static int32_t g_usb_to_host_avg_buffer_fill_level = 0;
 uint32_t samples_to_host_stream_buf_size_bytes = 0;
 
 
