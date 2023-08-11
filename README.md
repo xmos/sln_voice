@@ -32,6 +32,8 @@ See the READMEs for the early example applications:
 
 [FFVA](https://github.com/xmos/sln_voice/blob/develop/examples/ffva/README.md)
 
+[Microphone Aggregator] (https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.md)
+
 ## Getting Help
 
 A [Github issue](https://github.com/xmos/sln_voice/issues/new/choose) should be the primary method of getting in touch with the XMOS development team.

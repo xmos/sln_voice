@@ -70,3 +70,4 @@ build/
 # ai_tools
 tools/ai/ai_tools
 *xcore_sdk_venv/*
+examples/mic_aggregator/src/par_decimator
