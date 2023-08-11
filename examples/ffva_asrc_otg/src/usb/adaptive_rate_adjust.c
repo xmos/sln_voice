@@ -40,10 +40,8 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
-float_s32_t g_usb_data_rate = {0,0};
+float_s32_t g_usb_data_rate = {.mant=0, .exp=0};
 
-extern StreamBufferHandle_t samples_to_host_stream_buf;
-extern uint32_t samples_to_host_stream_buf_size_bytes;
 
 extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
 
@@ -57,17 +55,6 @@ static void usb_adaptive_clk_manager(void *args) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
 
         g_usb_data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
-
-        uint32_t samples = pkt_data.xfer_len/8;
-        uint64_t total_data = (uint64_t)(samples) * 100000;
-        uint32_t rate = dsp_math_divide_unsigned_64(total_data, (pkt_data.cur_time - prev_time), SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
-
-        //printuint(samples);
-        //printchar(',');
-        //printuintln(pkt_data.cur_time - prev_time);
-        //printuint(rate);
-        //printchar(',');
-        //printuintln(g_usb_data_rate);
         prev_time = pkt_data.cur_time;
     }
 }
