@@ -49,8 +49,6 @@ set( APP_INCLUDES
     ${APP_SRC_PATH}/par_decimator
     ${MIC_ARRAY_DEMO_PATH}/common/src
 )
-message(STATUS APP_INCLUDES ${APP_INCLUDES})
-
 
 set(APP_COMPILE_DEFINITIONS
     DEBUG_PRINT_ENABLE=1

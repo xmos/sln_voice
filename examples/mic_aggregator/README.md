@@ -1,5 +1,6 @@
 # PDM Microphone Aggregator Example
-This example provides a bridge between 16 PDM mics to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR mics on a single 8b input port.
+
+This example provides a bridge between 16 PDM mics to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR mics on a single 8b input port. The example is written in 'bare-metal' and runs directly on the XCORE device without an RTOS.
 
 The decimators are configured to 48kHz PCM output. The 16 channels are loaded into a 16 slot TDM slave peripheral running at 24.576MHz bit clock or a USB Audio Class 2 asynchronous interface and are optionally amplified. The TDM build provides a simple I2C slave interface to allow gains to be controlled at run-time.
 
@@ -67,18 +68,6 @@ Following inital cmake build, as long as you don't add new source files, you may
     $ ninja example_mic_aggregator_usb.xe -j
 
 If you add new source files you will need to run the `cmake` step again.
-
-Known Issues
-============
-
-If using USB, there is currently a bug where an allocated timer is NULL causing an ET_ILLEGAL_RESOURCE at runtime. To work around this
-it is currently necessary to replace line 141 of `xud_device.xc` in `/modules/io/modules/xud/lib_xud/lib_xud/src/user/control/`:
-
-     t when timerafter(time+50000) :> void;
-
-with this line:
-
-    unsigned t_now = time; do{t :> t_now;}while timeafter(t_now, time+50000); 
 
 Running the app
 ===============

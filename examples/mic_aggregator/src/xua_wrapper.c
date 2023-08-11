@@ -45,7 +45,9 @@ void xud_wrapper(chanend_t *chanend_ep_out, const size_t num_ep_out, chanend_t *
 
 DECLARE_JOB(ep0_wrapper, (chanend_t, chanend_t, chanend_t));
 void ep0_wrapper(chanend_t c_ep0_out, chanend_t c_ep0_in, chanend_t c_aud_ctl){
+    hwtimer_realloc_xc_timer();
     XUA_Endpoint0(c_ep0_out, c_ep0_in, c_aud_ctl, 0, 0, 0, 0);
+    hwtimer_free_xc_timer();
 }
 
 DECLARE_JOB(buffer_wrapper, (chanend_t, chanend_t, chanend_t, chanend_t, chanend_t, port_t, chanend_t));
