@@ -79,7 +79,7 @@ set(APP_COMMON_LINK_LIBRARIES
 # Create Targets
 #*************************
 foreach(CONFIG tdm usb)
-    set(TARGET_NAME mic_aggregator_${CONFIG})
+    set(TARGET_NAME example_mic_aggregator_${CONFIG})
     add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL )
     target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES} ${XUA_SOURCES})
     target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})

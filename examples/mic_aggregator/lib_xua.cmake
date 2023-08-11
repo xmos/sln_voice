@@ -1,4 +1,5 @@
-# This file picks the sources and adds include files for the USB version
+# This file picks the sources and adds include files for the USB version of mic_aggregator
+# Note lib_xua is not currently a cmake supported lib so this file works around that
 
 set(XUA_SRC_PATH ${CMAKE_CURRENT_LIST_DIR}/../../modules/xua/lib_xua)
 

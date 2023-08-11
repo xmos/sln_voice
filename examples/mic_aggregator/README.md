@@ -1,7 +1,7 @@
-# mic_aggregator_demo
-This repo contains an app that provides 16 PDM mics to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple threads to support 16 DDR mics on a single 8b input port.
+# PDM Microphone Aggregator Example
+This example provides a bridge between 16 PDM mics to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR mics on a single 8b input port.
 
-The decimator is configured to 48kHz PCM output. The 16 channels are loaded into a 16 slot TDM slave running at 24.576MHz bit clock or a USB Audio Class 2 asynchronous interface and optionally amplified.
+The decimators are configured to 48kHz PCM output. The 16 channels are loaded into a 16 slot TDM slave peripheral running at 24.576MHz bit clock or a USB Audio Class 2 asynchronous interface and are optionally amplified. The TDM build provides a simple I2C slave interface to allow gains to be controlled at run-time.
 
 For the TDM build, a simple TDM16 master is included as well as a local 24.576MHz clock source so that mic_array and TDM16 slave may be tested standalone through the use of jumper cables. These may be removed when integrating into a system with TDM16 master supplied.
 
@@ -10,14 +10,14 @@ Obtaining the app files
 
 Download the main repo and submodules using:
 
-    $ git clone --recurse git@github.com:ed-xmos/mic_aggregator_demo.git
-    $ cd mic_aggregator_demo/
+    $ git clone --recurse git@github.com:xmos/sln_voice.git
+    $ cd sln_voice/
 
 
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. You should be able to see:
+First install and source the XTC version: 15.2.1 tools. You should be able to see something like this:
 
     $ xcc --version
     xcc: Build 19-198606c, Oct-25-2022
@@ -31,14 +31,14 @@ To build for the first time you will need to run cmake to create the make files:
 
     $ mkdir build
     $ cd build
-    $ cmake --toolchain ../fwk_io/xmos_cmake_toolchain/xs3a.cmake  ..
-    $ make mic_aggregator_tdm -j
-    $ make mic_aggregator_usb -j
+    $ cmake --toolchain ../xmos_cmake_toolchain/xs3a.cmake  ..
+    $ make example_mic_aggregator_tdm -j
+    $ make example_mic_aggregator_usb -j
 
 Following initial cmake build, as long as you don't add new source files, you may just type:
 
-    $ make mic_aggregator_tdm -j
-    $ make mic_aggregator_usb -j
+    $ make example_mic_aggregator_tdm -j
+    $ make example_mic_aggregator_usb -j
 
 If you add new source files you will need to run the `cmake` step again.
 
@@ -57,14 +57,14 @@ To build for the first time you will need to run cmake to create the make files:
 
     $ md build
     $ cd build
-    $ cmake -G "Ninja" --toolchain  ..\fwk_io\xmos_cmake_toolchain\xs3a.cmake ..
-    $ ninja mic_aggregator_tdm.xe -j
-    $ ninja mic_aggregator_usb.xe -j
+    $ cmake -G "Ninja" --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake ..
+    $ ninja example_mic_aggregator_tdm.xe -j
+    $ ninja example_mic_aggregator_usb.xe -j
 
 Following inital cmake build, as long as you don't add new source files, you may just type:
 
-    $ ninja mic_aggregator_tdm.xe -j
-    $ ninja mic_aggregator_usb.xe -j
+    $ ninja example_mic_aggregator_tdm.xe -j
+    $ ninja example_mic_aggregator_usb.xe -j
 
 If you add new source files you will need to run the `cmake` step again.
 
@@ -72,7 +72,7 @@ Known Issues
 ============
 
 If using USB, there is currently a bug where an allocated timer is NULL causing an ET_ILLEGAL_RESOURCE at runtime. To work around this
-it is currently necessary to replace line 141 of `xud_device.xc` in `/fwk_io/modules/xud/lib_xud/lib_xud/src/user/control/`:
+it is currently necessary to replace line 141 of `xud_device.xc` in `/modules/io/modules/xud/lib_xud/lib_xud/src/user/control/`:
 
      t when timerafter(time+50000) :> void;
 
@@ -85,8 +85,8 @@ Running the app
 
 Connect the explorer board to the host and type:
 
-    $ xrun app_mic_aggregator/mic_aggregator_tdm.xe 
-    $ xrun app_mic_aggregator/mic_aggregator_usb.xe 
+    $ xrun example_mic_aggregator_tdm.xe 
+    $ xrun example_mic_aggregator_usb.xe 
 
 Optionally, you may use xrun `--xscope` to provide debug output.
 
@@ -192,7 +192,7 @@ If using a raspberry Pi as the I2C host you may use the following commands:
     $ i2cget -y 1 0x3c 1 #Get the lower byte of gain on mic channel 0
 
     $ i2cset -y 1 0x3c 16 1 #Set the gain on mic channel 8 to 256
-    $ i2cset -y 1 0x3c 1 0 #Set the gain on mic channel 8 to 256
+    $ i2cset -y 1 0x3c 15 0 #Set the gain on mic channel 8 to 256
 
 
 
