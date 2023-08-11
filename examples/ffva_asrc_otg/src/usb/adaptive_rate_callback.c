@@ -85,6 +85,15 @@ uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32
     return (uint32_t)quotient;
 }
 
+uint32_t dsp_math_divide_unsigned_headroom(uint32_t dividend, uint32_t divisor, uint32_t q_format )
+{
+    uint32_t headroom = HR_S32(dividend);
+    uint64_t h = (uint64_t)dividend << (q_format + headroom);
+    uint64_t quotient = h / divisor;
+
+    return (uint32_t)(quotient >> headroom);
+}
+
 uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
 {
     uint32_t acc = 0;
@@ -153,6 +162,7 @@ uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
     // Samples per 1ms
     uint64_t t = (uint64_t)(data_length) * 100000;
     uint32_t samples_per_transaction = dsp_math_divide_unsigned_64(t, (timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+
     float_s32_t current_rate;
     current_rate.mant = samples_per_transaction;
     current_rate.exp = -SAMPLING_RATE_Q_FORMAT;
@@ -183,7 +193,8 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     static uint32_t times_overflowed[2];
     static uint32_t previous_result[2];
 
-    uint32_t nominal_samples_per_transaction = Q23(EXPECTED_OUT_SAMPLES_PER_TRANSACTION);
+    uint32_t nominal_samples_per_transaction = dsp_math_divide_unsigned_64((uint64_t)appconfUSB_AUDIO_SAMPLE_RATE, (REF_CLOCK_TICKS_PER_SECOND), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+
     previous_result[0] = nominal_samples_per_transaction;
     previous_result[1] = nominal_samples_per_transaction;
 
@@ -244,7 +255,10 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     uint64_t total_data = (uint64_t)(total_data_intermed) * 100000;
     uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    //uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64((uint64_t)total_data_intermed, (total_timespan), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+
 
     uint32_t result = data_per_sample;
 

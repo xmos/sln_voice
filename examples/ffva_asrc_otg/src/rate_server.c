@@ -38,6 +38,7 @@ volatile static bool hold_average = false;
 extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
 extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
 extern uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format );
+extern uint32_t dsp_math_divide_unsigned_headroom(uint32_t dividend, uint32_t divisor, uint32_t q_format );
 
 // Global variables shared with i2s_audio.c
 uint32_t g_i2s_to_usb_rate_ratio = 0;
@@ -227,7 +228,7 @@ static uint32_t determine_I2S_rate(
             time_buckets[i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
         prev_nominal_sampling_rate = g_i2s_nominal_sampling_rate;
-        previous_result = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+        previous_result = dsp_math_divide_unsigned_64((uint64_t)g_i2s_nominal_sampling_rate, (REF_CLOCK_TICKS_PER_SECOND), 32);
 
         return previous_result;
     }
@@ -245,7 +246,8 @@ static uint32_t determine_I2S_rate(
     uint64_t total_data = (uint64_t)(total_data_intermed) * 100000;
     uint32_t total_timespan = timespan + sum_array(time_buckets, TOTAL_STORED);
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, total_timespan, SAMPLING_RATE_Q_FORMAT); // This is how much I'm getting from I2S every millisecond
+    //uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, total_timespan, SAMPLING_RATE_Q_FORMAT); // This is how much I'm getting from I2S every millisecond
+    uint32_t data_per_sample = dsp_math_divide_unsigned_64((uint64_t)total_data_intermed, (REF_CLOCK_TICKS_PER_SECOND), 32);
 
 
     uint32_t result = data_per_sample;
@@ -409,10 +411,10 @@ void rate_server(void *args)
         printuintln(current_ts - prev_ts);
         printuintln(rate);*/
 
-        uint32_t i2s_rate = determine_I2S_rate_simple(current_ts, samples, true);
+        uint32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
         if(i2s_ctx->write_256samples_time != 0)
         {
-            rate = dsp_math_divide_unsigned_64(3840*100000, i2s_ctx->write_256samples_time, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+            rate = dsp_math_divide_unsigned_64(3840, i2s_ctx->write_256samples_time, 32); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             i2s_rate = rate;
         }
 
@@ -469,7 +471,8 @@ void rate_server(void *args)
             int32_t fs_ratio;
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
             //printintln(usb_rate);
-            fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
+            //fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28);
+            fs_ratio = dsp_math_divide_unsigned_headroom(i2s_rate, usb_rate, 28);
 
             printchar(',');
             printuint(i2s_rate);
