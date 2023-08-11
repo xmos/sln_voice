@@ -1038,7 +1038,7 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
 
 #define OLD_VAL_WEIGHTING (5)
 extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format);
-extern uint32_t g_usb_data_rate;
+extern float_s32_t g_usb_data_rate;
 static void supply_usb_rate_task(void *args)
 {
     (void)args;

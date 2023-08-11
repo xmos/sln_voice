@@ -40,7 +40,7 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
-uint32_t g_usb_data_rate = 0; // Samples per ms in q19 format
+float_s32_t g_usb_data_rate = {0,0};
 
 extern StreamBufferHandle_t samples_to_host_stream_buf;
 extern uint32_t samples_to_host_stream_buf_size_bytes;

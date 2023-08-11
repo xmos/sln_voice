@@ -39,6 +39,7 @@ extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor,
 extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
 extern uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format );
 extern uint32_t dsp_math_divide_unsigned_headroom(uint32_t dividend, uint32_t divisor, uint32_t q_format );
+float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);
 
 // Global variables shared with i2s_audio.c
 uint32_t g_i2s_to_usb_rate_ratio = 0;
@@ -170,7 +171,7 @@ static uint32_t determine_I2S_rate_simple(
 
 }
 
-static uint32_t determine_I2S_rate(
+static float_s32_t determine_I2S_rate(
     uint32_t timestamp,
     uint32_t data_length,
     bool update
@@ -182,7 +183,7 @@ static uint32_t determine_I2S_rate(
     static uint32_t first_timestamp;
     static bool buckets_full;
     static uint32_t times_overflowed;
-    static uint32_t previous_result = 0;
+    static float_s32_t previous_result = {.mant = 0, .exp = 0};
     static uint32_t prev_nominal_sampling_rate = 0;
     static uint32_t expected_nominal_samples_per_bucket = 0;
 
@@ -202,7 +203,8 @@ static uint32_t determine_I2S_rate(
     g_i2s_nominal_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
     if(g_i2s_nominal_sampling_rate == 0)
     {
-        return 0; // i2s_audio thread ensures we don't do asrc when g_i2s_nominal_sampling_rate is 0
+        float_s32_t t = {.mant=0, .exp=0};
+        return t; // i2s_audio thread ensures we don't do asrc when g_i2s_nominal_sampling_rate is 0
     }
     else if(g_i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
@@ -228,7 +230,7 @@ static uint32_t determine_I2S_rate(
             time_buckets[i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
         prev_nominal_sampling_rate = g_i2s_nominal_sampling_rate;
-        previous_result = dsp_math_divide_unsigned_headroom((uint64_t)g_i2s_nominal_sampling_rate, (REF_CLOCK_TICKS_PER_SECOND), 32);
+        previous_result = float_div((float_s32_t){g_i2s_nominal_sampling_rate, 0}, (float_s32_t){REF_CLOCK_TICKS_PER_SECOND, 0});
 
         return previous_result;
     }
@@ -246,11 +248,10 @@ static uint32_t determine_I2S_rate(
     uint64_t total_data = (uint64_t)(total_data_intermed) * 100000;
     uint32_t total_timespan = timespan + sum_array(time_buckets, TOTAL_STORED);
 
-    //uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, total_timespan, SAMPLING_RATE_Q_FORMAT); // This is how much I'm getting from I2S every millisecond
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64((uint64_t)total_data_intermed, (REF_CLOCK_TICKS_PER_SECOND), 32);
+    float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
 
 
-    uint32_t result = data_per_sample;
+    float_s32_t result = data_per_sample;
 
     if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))
     {
@@ -409,10 +410,13 @@ void rate_server(void *args)
         printuintln(current_ts - prev_ts);
         printuintln(rate);*/
 
-        uint32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
+        float_s32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
         if(i2s_ctx->write_256samples_time != 0)
         {
-            uint32_t rate = dsp_math_divide_unsigned_headroom(3840, i2s_ctx->write_256samples_time, 32); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+            float_s32_t a = {.mant=3840, .exp=0};
+            float_s32_t b = {.mant=i2s_ctx->write_256samples_time, .exp=0};
+
+            float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             i2s_rate = rate;
         }
 
@@ -428,7 +432,7 @@ void rate_server(void *args)
             sizeof(g_i2s_nominal_sampling_rate));
 
         size_t bytes_received;
-        uint32_t usb_rate;
+        float_s32_t usb_rate;
         bytes_received = rtos_intertile_rx_len(
                     intertile_ctx,
                     appconfUSB_RATE_NOTIFY_PORT,
@@ -440,7 +444,7 @@ void rate_server(void *args)
                         &usb_rate_info,
                         bytes_received);
 
-        usb_rate = (uint32_t)usb_rate_info.usb_data_rate;
+        usb_rate = usb_rate_info.usb_data_rate;
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
         usb_buffer_fill_level_from_half = usb_buffer_fill_level_from_half/8;
         bool seen_stable = false;
@@ -458,7 +462,7 @@ void rate_server(void *args)
         // Avg the error
 
         // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
-        if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
+        if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
 
@@ -466,16 +470,29 @@ void rate_server(void *args)
             //printchar(',');
             //printint(avg_usb_to_host_buffer_fill_level);
 
-            int32_t fs_ratio;
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
             //printintln(usb_rate);
             //fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28);
-            fs_ratio = dsp_math_divide_unsigned_headroom(i2s_rate, usb_rate, 28);
+            uint32_t fs_ratio;
+            float_s32_t float_s32_fs_ratio = float_div(i2s_rate, usb_rate);
+            if(float_s32_fs_ratio.exp > -28)
+            {
+                fs_ratio =  float_s32_fs_ratio.mant << (float_s32_fs_ratio.exp - (-28));
+            }
+            else
+            {
+                fs_ratio =  float_s32_fs_ratio.mant >> (-28 - float_s32_fs_ratio.exp);
+            }
 
+
+            /*printchar(',');
+            printuint(i2s_rate.mant);
             printchar(',');
-            printuint(i2s_rate);
+            printint(i2s_rate.exp);
             printchar(',');
-            printuint(usb_rate);
+            printuint(usb_rate.mant);
+            printchar(',');
+            printint(usb_rate.exp);*/
             printchar(',');
             printintln(fs_ratio);
             counter += 1;
@@ -541,12 +558,21 @@ void rate_server(void *args)
         }
 
         // Calculate usb_to_i2s_rate_ratio only when we're recording
-        if((i2s_rate != 0) && (usb_rate_info.mic_itf_open))
+        if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             //int32_t nom_rate = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
-            int32_t fs_ratio;
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
-            fs_ratio = dsp_math_divide_unsigned_64(usb_rate, i2s_rate, 28); // Samples per millisecond
+            float_s32_t float_s32_fs_ratio = float_div(usb_rate, i2s_rate);
+            uint32_t fs_ratio;
+            if(float_s32_fs_ratio.exp > -28)
+            {
+                fs_ratio =  float_s32_fs_ratio.mant << (float_s32_fs_ratio.exp - (-28));
+            }
+            else
+            {
+                fs_ratio =  float_s32_fs_ratio.mant >> (-28 - float_s32_fs_ratio.exp);
+            }
+
 
             //fs_ratio = 0x40000000;
             //printchar(',');

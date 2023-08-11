@@ -11,7 +11,7 @@ uint32_t my_ema_calc_custom(uint32_t x, uint32_t y, int input_exp, uint32_t alph
 typedef struct
 {
     /* data */
-    uint32_t usb_data_rate;
+    float_s32_t usb_data_rate;
     int32_t samples_to_host_buf_fill_level;
     bool mic_itf_open;
     bool spkr_itf_open;

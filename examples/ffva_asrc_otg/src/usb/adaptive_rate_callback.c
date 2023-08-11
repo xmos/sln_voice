@@ -87,16 +87,32 @@ uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32
 
 uint32_t dsp_math_divide_unsigned_headroom(uint32_t dividend, uint32_t divisor, uint32_t q_format )
 {
+    float_s32_t a, b;
+    a.mant = dividend;
+    a.exp = 0;
+
+    b.mant = divisor;
+    b.exp = 0;
+
+    float_s32_t res = float_s32_div(a, b);
+    printf("float_s32_div res = %d, %d\n", res.mant, res.exp);
+
     uint32_t headroom = HR_S32(dividend);
-   // printf("dividend %d, divisor %d, q_format %d, headroom = %d\n", dividend, divisor, q_format, headroom);
+    printf("dividend %d, divisor %d, q_format %d, headroom = %d\n", dividend, divisor, q_format, headroom);
     uint64_t h = (uint64_t)dividend << (q_format + headroom);
     uint64_t quotient = h / divisor;
 
 
-    //uint32_t q_hr = HR_S64(quotient);
-    //printf("Quotient %llu, headroom %d\n", quotient, q_hr);
+    uint32_t q_hr = HR_S64(quotient);
+    printf("Quotient %llu, headroom %d\n", quotient, q_hr);
 
     return (uint32_t)(quotient >> headroom);
+}
+
+float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
+{
+    float_s32_t res = float_s32_div(dividend, divisor);
+    return res;
 }
 
 uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
@@ -180,7 +196,7 @@ uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
     return avg_usb_rate_1;
 }
 
-uint32_t determine_USB_audio_rate(uint32_t timestamp,
+float_s32_t determine_USB_audio_rate(uint32_t timestamp,
                                     uint32_t data_length,
                                     uint32_t direction,
                                     bool update
@@ -196,9 +212,9 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     static uint32_t first_timestamp[2];
     static bool buckets_full[2];
     static uint32_t times_overflowed[2];
-    static uint32_t previous_result[2];
+    static float_s32_t previous_result[2];
 
-    uint32_t nominal_samples_per_transaction = dsp_math_divide_unsigned_64((uint64_t)appconfUSB_AUDIO_SAMPLE_RATE, (REF_CLOCK_TICKS_PER_SECOND), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    float_s32_t nominal_samples_per_transaction = float_div((float_s32_t){appconfUSB_AUDIO_SAMPLE_RATE, 0}, (float_s32_t){REF_CLOCK_TICKS_PER_SECOND});
 
     previous_result[0] = nominal_samples_per_transaction;
     previous_result[1] = nominal_samples_per_transaction;
@@ -262,10 +278,11 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
     //uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_headroom((uint64_t)total_data_intermed, (total_timespan), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    //uint32_t data_per_sample = dsp_math_divide_unsigned_headroom((uint64_t)total_data_intermed, (total_timespan), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    float_s32_t float_s32_data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
 
 
-    uint32_t result = data_per_sample;
+    float_s32_t result = float_s32_data_per_sample;
 
 
     if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))

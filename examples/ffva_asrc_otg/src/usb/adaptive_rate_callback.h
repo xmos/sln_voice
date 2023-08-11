@@ -5,9 +5,10 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <xmath/xmath.h>
 
 
-uint32_t determine_USB_audio_rate(uint32_t timestamp,
+float_s32_t determine_USB_audio_rate(uint32_t timestamp,
                                     uint32_t data_length,
                                     uint32_t direction,
                                     bool update);
