@@ -40,6 +40,7 @@ extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
 extern uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format );
 extern uint32_t dsp_math_divide_unsigned_headroom(uint32_t dividend, uint32_t divisor, uint32_t q_format );
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);
+int32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
 
 // Global variables shared with i2s_audio.c
 uint32_t g_i2s_to_usb_rate_ratio = 0;
@@ -473,16 +474,8 @@ void rate_server(void *args)
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
             //printintln(usb_rate);
             //fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28);
-            uint32_t fs_ratio;
-            float_s32_t float_s32_fs_ratio = float_div(i2s_rate, usb_rate);
-            if(float_s32_fs_ratio.exp > -28)
-            {
-                fs_ratio =  float_s32_fs_ratio.mant << (float_s32_fs_ratio.exp - (-28));
-            }
-            else
-            {
-                fs_ratio =  float_s32_fs_ratio.mant >> (-28 - float_s32_fs_ratio.exp);
-            }
+            int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate, 28);
+
 
 
             /*printchar(',');
@@ -562,17 +555,7 @@ void rate_server(void *args)
         {
             //int32_t nom_rate = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
-            float_s32_t float_s32_fs_ratio = float_div(usb_rate, i2s_rate);
-            uint32_t fs_ratio;
-            if(float_s32_fs_ratio.exp > -28)
-            {
-                fs_ratio =  float_s32_fs_ratio.mant << (float_s32_fs_ratio.exp - (-28));
-            }
-            else
-            {
-                fs_ratio =  float_s32_fs_ratio.mant >> (-28 - float_s32_fs_ratio.exp);
-            }
-
+            int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
             //fs_ratio = 0x40000000;
             //printchar(',');

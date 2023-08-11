@@ -115,6 +115,14 @@ float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
     return res;
 }
 
+int32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format)
+{
+    int lsh = output_q_format + (dividend.exp - divisor.exp);
+    int64_t h = (int64_t)dividend.mant << lsh;
+    int64_t quotient = h / divisor.mant;
+    return (int32_t)quotient;
+}
+
 uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
 {
     uint32_t acc = 0;
