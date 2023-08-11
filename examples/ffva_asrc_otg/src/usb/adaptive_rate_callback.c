@@ -7,7 +7,7 @@
 #include "rate_server.h"
 
 #include "xmath/xmath.h"
-#define TOTAL_TAIL_SECONDS 1
+#define TOTAL_TAIL_SECONDS 8
 #define STORED_PER_SECOND 4
 
 #if __xcore__
@@ -103,7 +103,7 @@ void reset_state()
     }
 }
 
-#define AVG_U2B_RATE_FILTER_COEFF (0.99)
+#define AVG_U2B_RATE_FILTER_COEFF (0.999)
 uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
                                         uint32_t data_length,
                                         uint32_t direction,
@@ -119,6 +119,7 @@ uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
     static uint32_t previous_timestamp = 0;
     static uint32_t first_time = 1;
     static float_s32_t avg_usb_rate;
+    static uint32_t avg_usb_rate_1;
 
     uint32_t timespan = timestamp - previous_timestamp;
     previous_timestamp = timestamp;
@@ -130,7 +131,8 @@ uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
         first_time = 0;
         avg_usb_rate.mant = nominal_samples_per_transaction;
         avg_usb_rate.exp = -SAMPLING_RATE_Q_FORMAT;
-        return avg_usb_rate.mant;
+        avg_usb_rate_1 = nominal_samples_per_transaction;
+        return avg_usb_rate_1;
     }
 
     if (data_seen == false)
@@ -144,18 +146,23 @@ uint32_t determine_USB_audio_rate_simple(uint32_t timestamp,
         previous_result = nominal_samples_per_transaction;
         avg_usb_rate.mant = nominal_samples_per_transaction;
         avg_usb_rate.exp = -SAMPLING_RATE_Q_FORMAT;
-        return avg_usb_rate.mant;
+        avg_usb_rate_1 = nominal_samples_per_transaction;
+        return avg_usb_rate_1;
     }
 
     // Samples per 1ms
-    uint64_t t = (uint64_t)(data_length) * 12500;
-    uint32_t samples_per_transaction = dsp_math_divide_unsigned_64(t, (timespan / 8), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    uint64_t t = (uint64_t)(data_length) * 100000;
+    uint32_t samples_per_transaction = dsp_math_divide_unsigned_64(t, (timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
     float_s32_t current_rate;
     current_rate.mant = samples_per_transaction;
     current_rate.exp = -SAMPLING_RATE_Q_FORMAT;
 
-    avg_usb_rate = my_ema_calc(avg_usb_rate, current_rate, Q23(AVG_U2B_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
-    return avg_usb_rate.mant;
+    avg_usb_rate = my_ema_calc(avg_usb_rate, current_rate, Q30(AVG_U2B_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
+
+    avg_usb_rate_1 = my_ema_calc_custom(avg_usb_rate_1, current_rate.mant, -SAMPLING_RATE_Q_FORMAT,  Q31(AVG_U2B_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
+
+
+    return avg_usb_rate_1;
 }
 
 uint32_t determine_USB_audio_rate(uint32_t timestamp,

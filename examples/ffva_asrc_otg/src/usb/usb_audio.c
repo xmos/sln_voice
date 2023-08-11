@@ -179,6 +179,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
         if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes)
         {
             xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
+            //printchar('W');
+            //printintln(xStreamBufferBytesAvailable(samples_to_host_stream_buf)/8);
         }
         else
         {
@@ -708,6 +710,8 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
                                     uint8_t cur_alt_setting)
 {
     (void)rhport;
+    static uint32_t prev_ts = 0;
+    uint32_t ts;
 
     uint8_t rx_data[CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ];
     samp_t usb_audio_frames[AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
@@ -814,6 +818,14 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     size_t bytes_available;
     size_t tx_size_bytes;
     size_t tx_size_frames;
+    static uint32_t prev_ts = 0;
+    uint32_t ts;
+    static bool first_frame_after_mic_interface_open = false;
+
+    //printcharln('R');
+    //ts = get_reference_time();
+    //printintln(ts - prev_ts);
+    //prev_ts = ts;
     /*
      * This buffer needs to be large enough to hold any size of transaction,
      * but if it's any bigger than twice nominal then we have bigger issues
@@ -842,11 +854,21 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
     tx_size_frames = tx_size_bytes / (sizeof(samp_t) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
 
-    if (!mic_interface_open)
+    //rtos_printf("mic_interface_open = %d, first_frame_after_mic_interface_open = %d\n", mic_interface_open, first_frame_after_mic_interface_open);
+
+    if(first_frame_after_mic_interface_open == true)
+    {
+        //rtos_printf("Finally opening mic interface\n");
+        first_frame_after_mic_interface_open = false;
+        mic_interface_open = true; // Consider mic interface open for the other end to start filling samples_to_host_stream_buf only when receiving the 2nd frame after itf alt setting is changed.
+    }
+    else if (!mic_interface_open)
     {
         ready = 0;
-        mic_interface_open = true;
+        first_frame_after_mic_interface_open = true;
     }
+
+
 
     /*
      * If the buffer becomes full, reset it in an attempt to
@@ -876,7 +898,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     if (!ready)
     {
-        rtos_printf("TX BUFFER NOT READY\n");
+        rtos_printf("TX BUFFER NOT READY, tx_size_bytes = %d\n", tx_size_bytes);
         // we need to send something despite not being fully ready
         //  so, send all zeros
         memset(usb_audio_frames, 0, tx_size_bytes);
@@ -934,6 +956,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     //printf("PULL: usb_buffer_level_from_half %ld, g_usb_to_host_avg_buffer_fill_level %ld\n", usb_buffer_level_from_half/8, g_usb_to_host_avg_buffer_fill_level/8);
 #endif
     xassert(tx_size_bytes == 384);
+
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
 
     return true;

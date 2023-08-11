@@ -53,7 +53,7 @@ void fileio_task(const char *input_file_name, const char *output_file_name, chan
 
     printf("BLOCK count = %d\n",block_count);
     
-    int num_test_frames = (INPUT_SAMPLE_RATE*20)/INPUT_SAMPLES_PER_FRAME;
+    int num_test_frames = (INPUT_SAMPLE_RATE*8)/INPUT_SAMPLES_PER_FRAME;
     wav_form_header(&output_header_struct,
             input_header_struct.audio_format,
             NUM_CHANNELS,

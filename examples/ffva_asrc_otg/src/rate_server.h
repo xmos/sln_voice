@@ -4,6 +4,7 @@
 
 void rate_server(void *args);
 float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_t output_exp);
+uint32_t my_ema_calc_custom(uint32_t x, uint32_t y, int input_exp, uint32_t alpha_q31, int32_t output_exp);
 
 #define SAMPLING_RATE_Q_FORMAT (23)
 

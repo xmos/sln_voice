@@ -83,7 +83,7 @@ void asrc_task(chanend_t c_file_to_asrc, chanend_t c_asrc_to_file)
     int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*4 + I2S_TO_USB_ASRC_BLOCK_LENGTH];
     int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*4 + I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS] = {{0}};
     uint32_t max_time = 0;
-    float fFsRatioDeviation = 1; //0.990099;
+    float fFsRatioDeviation = 0.990099;
     uint32_t current_rate_ratio = (uint32_t)(nominal_fs_ratio * fFsRatioDeviation); //nominal_fs_ratio;
 
     //uint32_t current_rate_ratio = 0x3f5dc832; //nominal_fs_ratio;

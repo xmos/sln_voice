@@ -59,6 +59,19 @@ float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_
     return temp;
 }
 
+uint32_t my_ema_calc_custom(uint32_t x, uint32_t y, int input_exp, uint32_t alpha_q31, int32_t output_exp)
+{
+    uint32_t one_minus_alpha = 0x7fffffff - alpha_q31;
+    uint64_t m1 = (uint64_t)x * alpha_q31;
+    uint64_t m2 = (uint64_t)y * one_minus_alpha;
+    uint64_t m3 = m1 + m2;
+    uint32_t m_exp = input_exp + (- 31);
+    int rsh = output_exp - m_exp;
+
+    uint32_t temp = (uint32_t)(m3 >> rsh);
+    return temp;
+}
+
 static inline bool in_range(uint32_t ticks, uint32_t ref)
 {
     if((ticks >= (ref-5)) && (ticks <= (ref+5)))
@@ -106,7 +119,7 @@ static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
     return 0xffffffff;
 }
 
-#define AVG_I2S_RATE_FILTER_COEFF (0.99)
+#define AVG_I2S_RATE_FILTER_COEFF (0.999)
 static uint32_t determine_I2S_rate_simple(
     uint32_t timestamp,
     uint32_t data_length,
@@ -118,6 +131,7 @@ static uint32_t determine_I2S_rate_simple(
     static uint32_t previous_result = 0;
     uint32_t timespan;
     static float_s32_t avg_i2s_rate;
+    static uint32_t avg_i2s_rate_1;
 
     timespan = timestamp - previous_timestamp;
     previous_timestamp = timestamp;
@@ -138,6 +152,7 @@ static uint32_t determine_I2S_rate_simple(
         previous_result = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
         avg_i2s_rate.mant = previous_result;
         avg_i2s_rate.exp = -SAMPLING_RATE_Q_FORMAT;
+        avg_i2s_rate_1 = previous_result;
         return previous_result;
     }
 
@@ -147,10 +162,10 @@ static uint32_t determine_I2S_rate_simple(
     current_rate.mant = samples_per_transaction;
     current_rate.exp = -SAMPLING_RATE_Q_FORMAT;
 
-    avg_i2s_rate = float_s32_ema(avg_i2s_rate, current_rate, Q23(AVG_I2S_RATE_FILTER_COEFF));
-    avg_i2s_rate = my_ema_calc(avg_i2s_rate, current_rate, Q23(AVG_I2S_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
+    //avg_i2s_rate = my_ema_calc(avg_i2s_rate, current_rate, Q30(AVG_I2S_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
+    avg_i2s_rate_1 = my_ema_calc_custom(avg_i2s_rate_1, current_rate.mant, -SAMPLING_RATE_Q_FORMAT,  Q31(AVG_I2S_RATE_FILTER_COEFF), -SAMPLING_RATE_Q_FORMAT);
 
-    return avg_i2s_rate.mant;
+    return avg_i2s_rate_1;
 
 }
 
@@ -331,6 +346,7 @@ void rate_server(void *args)
     for(;;)
     {
         vTaskDelay(pdMS_TO_TICKS(20));
+
         uint32_t current_ts = get_reference_time();
 
         size_t i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
@@ -348,7 +364,12 @@ void rate_server(void *args)
         printuintln(current_ts - prev_ts);
         printuintln(rate);*/
 
-        uint32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
+        uint32_t i2s_rate = determine_I2S_rate_simple(current_ts, samples, true);
+        if(i2s_ctx->write_256samples_time != 0)
+        {
+            rate = dsp_math_divide_unsigned_64(3840*100000, i2s_ctx->write_256samples_time, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+            i2s_rate = rate;
+        }
 
 
         prev_num_i2s_samples_recvd = current_num_i2s_samples;
@@ -398,7 +419,8 @@ void rate_server(void *args)
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            printint(usb_buffer_fill_level_from_half/8);
+            usb_buffer_fill_level_from_half = usb_buffer_fill_level_from_half/8;
+            printint(usb_buffer_fill_level_from_half);
             //printchar(',');
             //printintln(avg_usb_to_host_buffer_fill_level);
 
@@ -408,7 +430,11 @@ void rate_server(void *args)
             fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28); // Samples per millisecond
 
             printchar(',');
-            printhexln(fs_ratio);
+            printuint(i2s_rate);
+            printchar(',');
+            printuint(usb_rate);
+            printchar(',');
+            printintln(fs_ratio);
             counter += 1;
             /*if(counter < 1000)
             {
@@ -430,7 +456,21 @@ void rate_server(void *args)
             //fs_ratio = avg_i2s_to_usb_rate_ratio.mant;
             //printhexln(fs_ratio);
             //fs_ratio = 0x3FFE0000;
-            //fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)avg_i2s_to_usb_rate_ratio.mant) / buffer_level_term);
+
+            if(usb_buffer_fill_level_from_half > 80)
+            {
+                int error = usb_buffer_fill_level_from_half - 80;
+                fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
+            }
+            else if(usb_buffer_fill_level_from_half < -80)
+            {
+                int error = usb_buffer_fill_level_from_half - (-80);
+                fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
+            }
+            /*if((usb_buffer_fill_level_from_half > 60) || (usb_buffer_fill_level_from_half < -60))
+            {
+                fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)fs_ratio) / buffer_level_term);
+            }*/
 
 
             // fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
@@ -458,7 +498,7 @@ void rate_server(void *args)
             //fs_ratio = 0x40000000;
             //printchar(',');
             //printhex(fs_ratio);
-            fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
+            //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
                             (1 + OLD_VAL_WEIGHTING));*/
