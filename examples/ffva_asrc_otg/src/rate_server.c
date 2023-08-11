@@ -288,10 +288,10 @@ static uint32_t determine_I2S_rate(
 #define OLD_VAL_WEIGHTING (64)
 #define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
 #define RATE_SERVER_MS  (20)
-#define TOTAL_ERROR_AVG_TIME_MS (1000)
+#define TOTAL_ERROR_AVG_TIME_MS (32*RATE_SERVER_MS)
 #define NUM_ERROR_BUCKETS   (TOTAL_ERROR_AVG_TIME_MS/RATE_SERVER_MS) // Avg over a 500ms period with snapshots every 20ms
 
-#define SAMP_RATE_RATIO_FILTER_COEFF (0.99)
+#define SAMP_RATE_RATIO_FILTER_COEFF (0.95)
 
 static int32_t get_average_usb_to_host_buf_fill_level(int32_t current_fill_level, bool reset)
 {
@@ -304,6 +304,7 @@ static int32_t get_average_usb_to_host_buf_fill_level(int32_t current_fill_level
         rate_server_count = 0;
         error_buckets_full = false;
         memset(error_buckets, 0, sizeof(error_buckets));
+        return 0;
     }
 
     if(error_buckets_full == false)
@@ -313,6 +314,8 @@ static int32_t get_average_usb_to_host_buf_fill_level(int32_t current_fill_level
         {
             error_buckets_full = true;
         }
+        rate_server_count += 1;
+        return 0;
     }
     else
     {
@@ -327,8 +330,50 @@ static int32_t get_average_usb_to_host_buf_fill_level(int32_t current_fill_level
     int32_t avg_fill_level = total_error / NUM_ERROR_BUCKETS;
 
     rate_server_count += 1;
-
     return avg_fill_level;
+}
+
+#define TOTAL_RATE_AVG_TIME_MS (512*RATE_SERVER_MS)
+#define NUM_RATE_AVG_BUCKETS   (TOTAL_ERROR_AVG_TIME_MS/RATE_SERVER_MS) // Avg over a 500ms period with snapshots every 20ms
+static int32_t get_average_rate_ratio(uint32_t current_ratio, bool reset)
+{
+    static uint32_t buckets[NUM_RATE_AVG_BUCKETS] = {0};
+    static bool buckets_full = false;
+    static uint32_t rate_server_count = 0;
+
+    if(reset)
+    {
+        rate_server_count = 0;
+        buckets_full = false;
+        memset(buckets, 0, sizeof(buckets));
+        return 0;
+    }
+
+    if(buckets_full == false)
+    {
+        buckets[rate_server_count] = current_ratio;
+        if(rate_server_count == NUM_RATE_AVG_BUCKETS - 1)
+        {
+            buckets_full = true;
+        }
+        rate_server_count += 1;
+        return 0;
+    }
+    else
+    {
+        uint32_t oldest = rate_server_count % NUM_RATE_AVG_BUCKETS;
+        buckets[oldest] = current_ratio;
+    }
+    uint64_t total = 0;
+    for(int i=0; i< NUM_RATE_AVG_BUCKETS; i++)
+    {
+        total = total + (uint64_t)buckets[i];
+    }
+    uint32_t avg = total / NUM_RATE_AVG_BUCKETS;
+
+    rate_server_count += 1;
+
+    return avg;
 }
 
 void rate_server(void *args)
@@ -397,13 +442,10 @@ void rate_server(void *args)
 
         usb_rate = (uint32_t)usb_rate_info.usb_data_rate;
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
+        usb_buffer_fill_level_from_half = usb_buffer_fill_level_from_half/8;
         bool seen_stable = false;
 
         int32_t avg_usb_to_host_buffer_fill_level = get_average_usb_to_host_buf_fill_level(usb_buffer_fill_level_from_half, reset_buf_level);
-        if(reset_buf_level)
-        {
-            reset_buf_level = false;
-        }
         static uint32_t prev_fs_ratio;
         //static uint32_t pre_computed_ratio = 0x3ffe5c9c; // 0.2s
         //static uint32_t pre_computed_ratio = 0x3fffc000; // 1.3s
@@ -419,10 +461,10 @@ void rate_server(void *args)
         if((i2s_rate != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            usb_buffer_fill_level_from_half = usb_buffer_fill_level_from_half/8;
+
             printint(usb_buffer_fill_level_from_half);
             //printchar(',');
-            //printintln(avg_usb_to_host_buffer_fill_level);
+            //printint(avg_usb_to_host_buffer_fill_level);
 
             int32_t fs_ratio;
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
@@ -449,6 +491,12 @@ void rate_server(void *args)
             fs_ratio_s32.mant = fs_ratio;
             fs_ratio_s32.exp = -28;
             avg_i2s_to_usb_rate_ratio = my_ema_calc(avg_i2s_to_usb_rate_ratio, fs_ratio_s32, Q30(SAMP_RATE_RATIO_FILTER_COEFF), -28);*/
+
+            /*avg_i2s_to_usb_rate_ratio.mant = get_average_rate_ratio(fs_ratio, reset_buf_level);
+            if( avg_i2s_to_usb_rate_ratio.mant != 0)
+            {
+                fs_ratio = avg_i2s_to_usb_rate_ratio.mant;
+            }*/
 
             //printchar(',');
             //printhex(avg_i2s_to_usb_rate_ratio.mant);
@@ -478,6 +526,10 @@ void rate_server(void *args)
 
             g_i2s_to_usb_rate_ratio = fs_ratio;
 
+            if(reset_buf_level)
+            {
+                reset_buf_level = false;
+            }
             //printchar(',');
             //printhexln(g_i2s_to_usb_rate_ratio);
         }
