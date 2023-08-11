@@ -72,12 +72,6 @@ static uint32_t g_usb_to_i2s_rate_ratio = 0;
 static int32_t g_usb_to_host_avg_buffer_fill_level = 0;
 uint32_t samples_to_host_stream_buf_size_bytes = 0;
 
-static uint32_t num_usb_to_host_samples_written = 0;
-static uint32_t num_usb_to_host_samples_read = 0;
-static uint32_t num_reads = 0;
-static uint32_t num_writes = 0;
-static uint32_t global_num_samples_read = 0;
-static uint32_t global_num_samples_write = 0;
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
@@ -186,58 +180,6 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
         {
             rtos_printf("lost VFE output samples\n");
         }
-
-        num_usb_to_host_samples_written += usb_audio_in_size_bytes;
-        //printchar('W');
-        num_writes += 1;
-        if(num_writes == 16)
-        {
-            global_num_samples_write = num_usb_to_host_samples_written;
-            //num_usb_to_host_samples_written = 0;
-            num_writes = 0;
-        }
-        //int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-        //printchar('W');
-        //printintln(usb_buffer_level_from_half/8);
-
-#if 0
-        int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-
-        num_write_count += 1;
-        printchar('W');
-        printintln(usb_buffer_level_from_half);
-
-        //g_usb_to_host_avg_buffer_fill_level = calc_avg_buffer_level(usb_buffer_level_from_half);
-
-        static uint32_t prev_num_read_count = 0;
-
-        if(num_write_count % 32 == 0)
-        {
-            //printintln(num_read_count - prev_num_read_count);
-            if((num_read_count - prev_num_read_count) == 40)
-            {
-                int32_t num_unread = num_usb_to_host_samples_written - num_usb_to_host_samples_read;
-                int usb_buffer_level_from_half1 = num_unread - (samples_to_host_stream_buf_size_bytes / 2);
-                g_usb_to_host_avg_buffer_fill_level = usb_buffer_level_from_half1;
-                printchar('S');
-                printintln(g_usb_to_host_avg_buffer_fill_level);
-            }
-
-            prev_num_read_count = num_read_count;
-        }
-#endif
-
-
-
-        /*{
-
-            printchar('W');
-            printint(num_write_count);
-            printchar(',');
-            printintln(num_read_count);
-            //printintln(usb_buffer_level_from_half);
-        }*/
-
 
     }
 }
@@ -710,8 +652,6 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
                                     uint8_t cur_alt_setting)
 {
     (void)rhport;
-    static uint32_t prev_ts = 0;
-    uint32_t ts;
 
     uint8_t rx_data[CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ];
     samp_t usb_audio_frames[AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
@@ -818,8 +758,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     size_t bytes_available;
     size_t tx_size_bytes;
     size_t tx_size_frames;
-    static uint32_t prev_ts = 0;
-    uint32_t ts;
     static bool first_frame_after_mic_interface_open = false;
 
     //printcharln('R');
@@ -929,32 +867,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
-    num_usb_to_host_samples_read += num_rx_total;
-    int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-    //printchar('R');
-    //printintln(usb_buffer_level_from_half/8);
 
-    num_reads += 1;
-    if(num_reads == 20)
-    {
-        global_num_samples_read = num_usb_to_host_samples_read;
-        //num_usb_to_host_samples_read = 0;
-        num_reads = 0;
-    }
-
-#if 0
-    int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-
-    num_read_count += 1;
-
-    printchar('R');
-    printintln(usb_buffer_level_from_half);
-
-    //g_usb_to_host_avg_buffer_fill_level = calc_avg_buffer_level(usb_buffer_level_from_half);
-    //printchar('R');
-    //printintln(usb_buffer_level_from_half/8);
-    //printf("PULL: usb_buffer_level_from_half %ld, g_usb_to_host_avg_buffer_fill_level %ld\n", usb_buffer_level_from_half/8, g_usb_to_host_avg_buffer_fill_level/8);
-#endif
     xassert(tx_size_bytes == 384);
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
@@ -1044,9 +957,6 @@ static void supply_usb_rate_task(void *args)
     (void)args;
     size_t bytes_received;
     usb_to_i2s_rate_info_t usb_rate_info;
-    static uint32_t prev_num_read = 0;
-    static uint32_t prev_num_written = 0;
-
 
     for (;;)
     {
@@ -1068,14 +978,6 @@ static void supply_usb_rate_task(void *args)
         usb_rate_info.mic_itf_open = mic_interface_open;
         usb_rate_info.spkr_itf_open = spkr_interface_open;
         usb_rate_info.usb_data_rate = g_usb_data_rate;
-
-        //usb_rate_info.samples_to_host_buf_fill_level = g_usb_to_host_avg_buffer_fill_level; //usb_buffer_level_from_half;
-        //usb_rate_info.samples_to_host_buf_fill_level = global_num_samples_write - global_num_samples_read - (samples_to_host_stream_buf_size_bytes / 2);
-        //int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-        //printintln((usb_rate_info.samples_to_host_buf_fill_level)/8);
-        //printint((global_num_samples_write)/8);
-        //printchar(',');
-        //printintln((global_num_samples_read)/8);
 
         rtos_intertile_tx(
             intertile_ctx,
