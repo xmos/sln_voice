@@ -88,8 +88,13 @@ uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32
 uint32_t dsp_math_divide_unsigned_headroom(uint32_t dividend, uint32_t divisor, uint32_t q_format )
 {
     uint32_t headroom = HR_S32(dividend);
+   // printf("dividend %d, divisor %d, q_format %d, headroom = %d\n", dividend, divisor, q_format, headroom);
     uint64_t h = (uint64_t)dividend << (q_format + headroom);
     uint64_t quotient = h / divisor;
+
+
+    //uint32_t q_hr = HR_S64(quotient);
+    //printf("Quotient %llu, headroom %d\n", quotient, q_hr);
 
     return (uint32_t)(quotient >> headroom);
 }
@@ -257,7 +262,7 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
     //uint32_t data_per_sample = dsp_math_divide_unsigned_64(total_data, (total_timespan), SAMPLING_RATE_Q_FORMAT); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
 
-    uint32_t data_per_sample = dsp_math_divide_unsigned_64((uint64_t)total_data_intermed, (total_timespan), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
+    uint32_t data_per_sample = dsp_math_divide_unsigned_headroom((uint64_t)total_data_intermed, (total_timespan), 32); // Samples per millisecond in SAMPLING_RATE_Q_FORMAT
 
 
     uint32_t result = data_per_sample;

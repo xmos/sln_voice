@@ -228,7 +228,7 @@ static uint32_t determine_I2S_rate(
             time_buckets[i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
         prev_nominal_sampling_rate = g_i2s_nominal_sampling_rate;
-        previous_result = dsp_math_divide_unsigned_64((uint64_t)g_i2s_nominal_sampling_rate, (REF_CLOCK_TICKS_PER_SECOND), 32);
+        previous_result = dsp_math_divide_unsigned_headroom((uint64_t)g_i2s_nominal_sampling_rate, (REF_CLOCK_TICKS_PER_SECOND), 32);
 
         return previous_result;
     }
@@ -404,8 +404,6 @@ void rate_server(void *args)
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
         uint64_t total_data = (uint64_t)(samples) * 100000;
 
-        uint32_t rate = dsp_math_divide_unsigned_64(total_data, (current_ts - prev_ts), SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
-
         /*printuint(samples);
         printchar(',');
         printuintln(current_ts - prev_ts);
@@ -414,7 +412,7 @@ void rate_server(void *args)
         uint32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
         if(i2s_ctx->write_256samples_time != 0)
         {
-            rate = dsp_math_divide_unsigned_64(3840, i2s_ctx->write_256samples_time, 32); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+            uint32_t rate = dsp_math_divide_unsigned_headroom(3840, i2s_ctx->write_256samples_time, 32); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             i2s_rate = rate;
         }
 
