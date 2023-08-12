@@ -239,9 +239,7 @@ static float_s32_t determine_I2S_rate(
 
 #define OLD_VAL_WEIGHTING (64)
 #define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
-#define RATE_SERVER_MS  (20)
-#define TOTAL_ERROR_AVG_TIME_MS (32*RATE_SERVER_MS)
-#define NUM_ERROR_BUCKETS   (TOTAL_ERROR_AVG_TIME_MS/RATE_SERVER_MS) // Avg over a 500ms period with snapshots every 20ms
+#define NUM_ERROR_BUCKETS   (256)
 
 #define SAMP_RATE_RATIO_FILTER_COEFF (0.95)
 
@@ -285,8 +283,7 @@ static int32_t get_average_usb_to_host_buf_fill_level(int32_t current_fill_level
     return avg_fill_level;
 }
 
-#define TOTAL_RATE_AVG_TIME_MS (512*RATE_SERVER_MS)
-#define NUM_RATE_AVG_BUCKETS   (TOTAL_ERROR_AVG_TIME_MS/RATE_SERVER_MS) // Avg over a 500ms period with snapshots every 20ms
+#define NUM_RATE_AVG_BUCKETS   (512) // Avg over a 500ms period with snapshots every 20ms
 static int32_t get_average_rate_ratio(uint32_t current_ratio, bool reset)
 {
     static uint32_t buckets[NUM_RATE_AVG_BUCKETS] = {0};
@@ -381,14 +378,14 @@ void rate_server(void *args)
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
 
         float_s32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
-        /*if(i2s_ctx->write_256samples_time != 0)
+        if(i2s_ctx->write_256samples_time != 0)
         {
             float_s32_t a = {.mant=3840, .exp=0};
             float_s32_t b = {.mant=i2s_ctx->write_256samples_time, .exp=0};
 
             float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             i2s_rate = rate;
-        }*/
+        }
 
         prev_num_i2s_samples_recvd = current_num_i2s_samples;
         prev_ts = current_ts;
@@ -422,7 +419,7 @@ void rate_server(void *args)
             printchar(',');
             printintln(fs_ratio);
 
-            int guard_level = 100;
+            int guard_level = 60;
             if(usb_buffer_fill_level_from_half > guard_level)
             {
                 int error = usb_buffer_fill_level_from_half - guard_level;

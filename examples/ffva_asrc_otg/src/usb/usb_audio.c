@@ -918,7 +918,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
-
+    //printchar('R');
     xassert(tx_size_bytes == 384);
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
@@ -1000,68 +1000,6 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
     return true;
 }
 
-#if 0
-#define OLD_VAL_WEIGHTING (5)
-static void supply_usb_rate_task(void *args)
-{
-    (void)args;
-    size_t bytes_received;
-    usb_to_i2s_rate_info_t usb_rate_info;
-
-    for (;;)
-    {
-        // Receive I2S nominal sampling rate
-        bytes_received = rtos_intertile_rx_len(
-            intertile_ctx,
-            appconfUSB_RATE_NOTIFY_PORT,
-            portMAX_DELAY);
-        xassert(bytes_received == sizeof(g_i2s_nominal_sampling_rate));
-
-        rtos_intertile_rx_data(
-            intertile_ctx,
-            &g_i2s_nominal_sampling_rate,
-            bytes_received);
-
-        int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-        usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
-        //usb_buffer_level_from_half = usb_buffer_level_from_half >> 3;
-        usb_rate_info.mic_itf_open = mic_interface_open;
-        usb_rate_info.spkr_itf_open = spkr_interface_open;
-        usb_rate_info.usb_data_rate = g_usb_data_rate;
-
-        rtos_intertile_tx(
-            intertile_ctx,
-            appconfUSB_RATE_NOTIFY_PORT,
-            &usb_rate_info,
-            sizeof(usb_rate_info));
-
-        i2s_to_usb_rate_info_t i2s_rate_info;
-
-        bytes_received = rtos_intertile_rx_len(
-            intertile_ctx,
-            appconfUSB_RATE_NOTIFY_PORT,
-            portMAX_DELAY);
-        xassert(bytes_received == sizeof(i2s_rate_info));
-
-        rtos_intertile_rx_data(
-            intertile_ctx,
-            &i2s_rate_info,
-            bytes_received);
-
-        // Update ratio only when both rates are valid
-        if (i2s_rate_info.usb_to_i2s_rate_ratio != 0)
-        {
-            g_usb_to_i2s_rate_ratio = usb_to_i2s_rate_ratio;
-        }
-        else
-        {
-            g_usb_to_i2s_rate_ratio = 0;
-        }
-        g_i2s_nominal_sampling_rate = i2s_rate_info.nominal_i2s_freq
-    }
-}
-#endif
-
 void usb_audio_init(rtos_intertile_t *intertile_ctx,
                     unsigned priority)
 {
@@ -1093,6 +1031,4 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
     samples_to_host_stream_buf = xStreamBufferCreate(samples_to_host_stream_buf_size_bytes, 0);
 
     xTaskCreate((TaskFunction_t)usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
-
-    //xTaskCreate((TaskFunction_t)supply_usb_rate_task, "supply_usb_rate_task", portTASK_STACK_DEPTH(supply_usb_rate_task), NULL, priority, NULL);
 }
