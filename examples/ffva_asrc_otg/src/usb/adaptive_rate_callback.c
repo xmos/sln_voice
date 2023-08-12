@@ -7,7 +7,7 @@
 #include "rate_server.h"
 
 #include "xmath/xmath.h"
-#define TOTAL_TAIL_SECONDS 4
+#define TOTAL_TAIL_SECONDS 16
 #define STORED_PER_SECOND 4
 
 #if __xcore__
