@@ -397,7 +397,7 @@ void rate_server(void *args)
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
 
-            printint(usb_buffer_fill_level_from_half);
+            //printint(usb_buffer_fill_level_from_half);
             //printchar(',');
             //printint(avg_usb_to_host_buffer_fill_level);
 
@@ -416,8 +416,8 @@ void rate_server(void *args)
             printuint(usb_rate.mant);
             printchar(',');
             printint(usb_rate.exp);*/
-            printchar(',');
-            printintln(fs_ratio);
+            //printchar(',');
+            //printintln(fs_ratio);
 
             int guard_level = 60;
             if(usb_buffer_fill_level_from_half > guard_level)
@@ -457,14 +457,14 @@ void rate_server(void *args)
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
-            printint(usb_buffer_fill_level_from_half);
+            printint(i2s_buffer_level_from_half);
             printchar(',');
             printintln(fs_ratio);
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
                             (1 + OLD_VAL_WEIGHTING));*/
-            usb_to_i2s_rate_ratio = fs_ratio;
+
 
             int guard_level = 100;
             if(i2s_buffer_level_from_half > guard_level)
@@ -480,6 +480,7 @@ void rate_server(void *args)
             //printchar(',');
             //printhexln(usb_to_i2s_rate_ratio);
             //printf("usb_to_i2s_rate_ratio = %f\n", (float)usb_to_i2s_rate_ratio/(1<<28));
+            usb_to_i2s_rate_ratio = fs_ratio;
 
         }
         else
