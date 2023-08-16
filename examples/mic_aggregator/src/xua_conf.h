@@ -21,8 +21,8 @@
 #define VENDOR_ID 0x20B1
 #define PRODUCT_STR_A2 "Mic Aggregator"
 #define PRODUCT_STR_A1 "Mic Aggregator"
-#define PID_AUDIO_1 1
-#define PID_AUDIO_2 2
+#define PID_AUDIO_1 0x4003
+#define PID_AUDIO_2 0x4004
 #define AUDIO_CLASS 2
 #define UAC_FORCE_FEEDBACK_EP 1
 #define AUDIO_CLASS_FALLBACK 0
