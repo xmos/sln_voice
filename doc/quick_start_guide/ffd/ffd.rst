@@ -22,14 +22,15 @@ Example designs
 ***************
 
 Demonstration
-===============================
+=============
 
-This is the far-field voice local command (FFD) example design with Sensory TrulyHandsfree™ (THF) speech recognition and local dictionary.
+This is the far-field voice local command (FFD) example design. Two examples are provided: both examples include a speech recognition and a local dictionary. One example use the Sensory TrulyHandsfree™ (THF) libraries and one the Cyberon CListener libraries.
 
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
-
 Sensory's THF software ships with an expiring development license. It will suspend recognition after 11.4 hours or 107 recognition events; after which, a device reset is required to resume normal operation. To perform a reset, either power cycle the device or press the SW2 button.
+
+Cyberon's software only runs on a board with the correct OTP key.
 
 **Requirements**
 
@@ -93,8 +94,11 @@ There are three LED states:
 - Solid Red & Green = Waiting for or Processing Command
 - Fast Flashing Red = Evaluation period has expired
 
-The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS,' waiting begins for a command (solid red & green).
+The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS', waiting begins for a command (solid red & green).
 After a period of inactivity, or successful command processing the application returns to waiting for wakeword (flashing green).
+
+Sensory TrulyHandsfree™
+~~~~~~~~~~~~~~~~~~~~~~~
 
 **Wakewords**
 
@@ -118,5 +122,32 @@ After a period of inactivity, or successful command processing the application r
 - Slow down the fan
 - Set higher temperature
 - Set lower temperature
+
+Cyberon CListener™
+~~~~~~~~~~~~~~~~~~
+
+**Wakewords**
+
+- Hello XMOS
+- Hello Cyberon
+
+**Dictionary Commands**
+
+ - Switch on the TV
+ - Switch off the TV
+ - Channel up
+ - Channel down
+ - Volume up
+ - Volume down
+ - Switch on the lights
+ - Switch off the lights
+ - Brightness up
+ - Brightness down
+ - Switch on the fan
+ - Switch off the Fan
+ - Speed up the fan
+ - Slow down the fan
+ - Set higher temperature
+ - Set lower temperature
 
 |newpage|

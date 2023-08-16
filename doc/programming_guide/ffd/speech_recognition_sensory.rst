@@ -3,9 +3,9 @@
 
 .. _sln_voice_ffd_speech_recognition:
 
-##################
-Speech Recognition
-##################
+############################
+Speech Recognition - Sensory
+############################
 
 License
 =======
@@ -21,7 +21,7 @@ Overview
 
 The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream.  Models can be generated using `VoiceHub <https://voicehub.sensory.com/>`__. 
 
-Two models are provided - one in US English and one in Mainland Mandarin. The US English model is used by default.  To modify the software to use the Mandarin model, see the comment at the top of the ``ffd.cmake`` file. Make sure run the following commands to rebuild and re-flash the data partition:
+Two models are provided - one in US English and one in Mainland Mandarin. The US English model is used by default.  To modify the software to use the Mandarin model, see the comment at the top of the ``ffd_sensory.cmake`` file. Make sure run the following commands to rebuild and re-flash the data partition:
 
 .. code-block:: console
     
