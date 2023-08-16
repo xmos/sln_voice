@@ -9,7 +9,7 @@ Memory and CPU Requirements
 ******
 Memory 
 ******
-.. todo: add info for Cyberon
+
 The table below lists the approximate memory requirements for the larger software components.  All memory use estimates in the table below are based on the default configuration for the feature.  Alternate configurations will require more or less memory.  The estimates are provided as guideline to assist application developers judge the memory cost of extending the application or benefit of removing an existing feature.  It can be assumed that the memory requirement of components not listed in the table below are under 5 kB.
 
 .. list-table:: Memory Requirements
@@ -23,6 +23,8 @@ The table below lists the approximate memory requirements for the larger softwar
       - 275
     * - Sensory Speech Recognition Engine
       - 180
+    * - Cyberon Speech Recognition Engine
+      - 290
     * - Interference Canceler (IC) + Voice To Noise Ratio Estimator (VNR)
       - 130
     * - USB
@@ -73,4 +75,4 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - Adaptive Gain Control (AGC)
       - 5
       - 6
-      
+
