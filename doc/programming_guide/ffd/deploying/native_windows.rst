@@ -6,7 +6,16 @@
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `NMake`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
+This document explains how to deploy the software using ``CMake`` and ``Ninja``. If you are not using native Windows build tools and instead using a Linux emulation tool such as WSL, refer to :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
+
+It is highly recommended to use ``Ninja`` as the make system under cmake. Not only is it a lot faster
+than MSVC ``nmake``, it also works around an issue where certain path names may cause an issue with the XMOS compiler under windows.
+
+To install Ninja, follow these steps:
+
+- Download ``ninja.exe`` from https://github.com/ninja-build/ninja/releases. This firmware has been tested with Ninja version v1.11.1
+- Ensure Ninja is on the command line path. You can add to the path permanently by following these steps https://www.computerhope.com/issues/ch000549.htm. Alternatively you may set the path in the current command line session using something like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
+
 
 .. note::
 
@@ -31,9 +40,9 @@ Then build the host application:
 
 .. code-block:: console
 
-  cmake -G "NMake Makefiles" -B build_host
+  cmake -G "Ninja" -B build_host
   cd build_host
-  nmake install
+  ninja install
 
 The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
@@ -44,9 +53,9 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G "Ninja" -B build --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake
     cd build
-    nmake example_ffd_<speech_engine>
+    ninja example_ffd_<speech_engine>
 
 Running the Firmware
 ====================
@@ -57,7 +66,7 @@ Within the root of the build folder, run:
 
 .. code-block:: console
 
-    nmake flash_app_example_ffd_<speech_engine>
+    ninja flash_app_example_ffd_<speech_engine>
 
 
 After this command completes, the application will be running.
@@ -68,7 +77,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    nmake run_example_ffd_<speech_engine>
+    ninja run_example_ffd_<speech_engine>
 
 
 Debugging the Firmware
@@ -78,6 +87,6 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    nmake debug_example_ffd_<speech_engine>
+    ninja debug_example_ffd_<speech_engine>
 :browse confirm wa
 

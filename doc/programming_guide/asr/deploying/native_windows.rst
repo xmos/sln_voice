@@ -4,7 +4,15 @@
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `NMake`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_asr_deploying_linux_macos_programming_guide`.
+This document explains how to deploy the software using `CMake` and `Ninja`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_asr_deploying_linux_macos_programming_guide`.
+
+It is highly recommended to use ``Ninja`` as the make system under cmake. Not only is it a lot faster
+than MSVC ``nmake``, it also works around an issue where certain path names may cause an issue with the XMOS compiler under windows.
+
+To install Ninja, follow these steps:
+
+- Download ``ninja.exe`` from https://github.com/ninja-build/ninja/releases. This firmware has been tested with Ninja version v1.11.1
+- Ensure Ninja is on the command line path. You can add to the path permanently by following these steps https://www.computerhope.com/issues/ch000549.htm. Alternatively you may set the path in the current command line session using something like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
 Building the Host Server
 ========================
@@ -27,10 +35,10 @@ Then build the host application:
 
 .. code-block:: console
 
-  cmake -G "NMake Makefiles" -B build_host
+  cmake -G "Ninja" -B build_host
   cd build_host
-  nmake xscope_host_endpoint
-  nmake install
+  ninja xscope_host_endpoint
+  ninja install
 
 The host application, ``xscope_host_endpoint.exe``, will install at ``<USERPROFILE>\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
@@ -43,9 +51,9 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G "Ninja" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_asr
+    ninja example_asr
 
 .. _sln_voice_asr_programming_guide_flash_model:
 
@@ -58,7 +66,7 @@ Run the following commands in the build folder to create the data partition:
 
 .. code-block:: console
 
-    nmake make_data_partition_example_asr
+    ninja make_data_partition_example_asr
 
 Then run the following commands in the build folder to flash the data partition:
 
@@ -73,7 +81,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    nmake run_example_asr
+    ninja run_example_asr
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 
