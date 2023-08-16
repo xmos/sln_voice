@@ -40,7 +40,7 @@ Then build the host application:
 
 .. code-block:: console
 
-  cmake -G "Ninja" -B build_host
+  cmake -G Ninja -B build_host
   cd build_host
   ninja install
 
@@ -53,7 +53,7 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -G "Ninja" -B build --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake
+    cmake -G Ninja -B build --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake
     cd build
     ninja example_ffd_<speech_engine>
 
