@@ -108,35 +108,16 @@ void hub(chanend_t c_mic_array, chanend_t c_i2c_reg, chanend_t c_aud, audio_fram
 }
 
 
-// Debug task only
-extern volatile int32_t t_dec_exec;
-extern volatile int32_t t_dec_per;
-volatile int32_t samp;
-
-DECLARE_JOB(monitor_tile0, (void));
-void monitor_tile0(void) {
-    printf("monitor_tile0\n");
-
-    hwtimer_t tmr = hwtimer_alloc();
-
-    while(1){
-        hwtimer_delay(tmr, XS1_TIMER_KHZ * 1000);
-        // printf("dec period: %ld exec: %ld\n", t_dec_per, t_dec_exec);
-    }
-}
-
-
 
 ///////// Tile main functions where we par off the threads ///////////
 
 void main_tile_0(chanend_t c_cross_tile[2]){
     PAR_JOBS(
         PJOB(pdm_mic_16, (c_cross_tile[0])), // Note spawns MIC_ARRAY_NUM_DECIMATOR_TASKS threads
-        PJOB(pdm_mic_16_front_end, ()),
+        PJOB(pdm_mic_16_front_end, ())
 #if CONFIG_TDM
-        PJOB(i2c_control, (c_cross_tile[1])),
+        ,PJOB(i2c_control, (c_cross_tile[1]))
 #endif
-        PJOB(monitor_tile0, ())
     );
 }
 
@@ -160,7 +141,7 @@ void main_tile_1(chanend_t c_cross_tile[2]){
         PJOB(tdm16_master_simple, ()),
         PJOB(tdm_master_monitor, ()) // Temp monitor for checking reception of TDM frames. Separate task so non-intrusive
 #else
-        PJOB(xua_wrapper, (c_aud.end_a))
+        PJOB(xua_wrapper, (c_aud.end_a)) // This spawns 4 tasks
 #endif
     );
 }
