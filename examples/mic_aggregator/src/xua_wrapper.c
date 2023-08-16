@@ -52,7 +52,9 @@ void ep0_wrapper(chanend_t c_ep0_out, chanend_t c_ep0_in, chanend_t c_aud_ctl){
 
 DECLARE_JOB(buffer_wrapper, (chanend_t, chanend_t, chanend_t, chanend_t, chanend_t, port_t, chanend_t));
 void buffer_wrapper(chanend_t c_ep_aud_out, chanend_t c_ep_aud_in, chanend_t c_ep_fb, chanend_t c_sof, chanend_t c_aud_ctl, port_t p_for_mclk_count, chanend_t c_aud){
+    hwtimer_realloc_xc_timer();
     XUA_Buffer(c_ep_aud_out, c_ep_aud_in, c_ep_fb, c_sof, c_aud_ctl, p_for_mclk_count, c_aud);
+    hwtimer_free_xc_timer();
 }
 
 
