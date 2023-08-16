@@ -1,6 +1,6 @@
 # PDM Microphone Aggregator Example
 
-This example provides a bridge between 16 PDM microphones to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR microphones on a single 8 bit input port. The example is written in 'bare-metal' and runs directly on the XCORE device without an RTOS.
+This example provides a bridge between 16 PDM microphones to either TDM16 slave or USB Audio and targets the XCORE-AI explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR microphones on a single 8 bit input port. The example is written in 'bare-metal' and runs directly on the XCORE device without an RTOS.
 
 The decimators are configured to 48 kHz PCM output. The 16 channels are loaded into a 16 slot TDM slave peripheral running at 24.576 MHz bit clock or a USB Audio Class 2 asynchronous interface and are optionally amplified. The TDM build provides a simple I2C slave interface to allow gains to be controlled at run-time.
 
@@ -83,7 +83,7 @@ Optionally, you may use xrun `--xscope` to provide debug output.
 Required Hardware
 =================
 
-The demo runs on the XCORE-AI Explorer board version 2 (with integrated XTAG debug adapter). You will require in addition:
+The application runs on the XCORE-AI Explorer board version 2 (with integrated XTAG debug adapter). You will require in addition:
 
 - The dual DDR microphone board that attaches via the flat flex connector.
 - Header pins soldered into:
@@ -104,7 +104,7 @@ Make the following connections using flying leads:
 
 - MIC CLK <-> J14 '00'. This is the microphone clock which is to be sent to the PDM microphones from J14.
 - MIC DATA <-> J14 '14' initially. This is the data line for microphones 0 and 8. See below..
-- I2S LRCLK <-> J10 '36'. This is the FSYCNH input for TDM slave. J10 '36' is the TDM master FSYNCH output for the demo.
+- I2S LRCLK <-> J10 '36'. This is the FSYCNH input for TDM slave. J10 '36' is the TDM master FSYNCH output for the application.
 - I2S MCLK <-> I2S BCLK. MCLK is the 24.576MHz clock which directly drives the BCLK input for the TDM slave.
 - I2S DAC <-> J10 '38'. I2S DAC is the TDM Slave Tx out which is read by the TDM Master Rx input on J10.
 
