@@ -11,3 +11,4 @@ Example Designs
    low_power_ffd/low_power_ffd
    ffva/ffva
    asr/asr
+   mic_aggregator/mic_aggregator
