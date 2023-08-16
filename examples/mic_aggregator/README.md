@@ -1,10 +1,12 @@
 # PDM Microphone Aggregator Example
 
-This example provides a bridge between 16 PDM mics to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR mics on a single 8b input port. The example is written in 'bare-metal' and runs directly on the XCORE device without an RTOS.
+This example provides a bridge between 16 PDM microphones to either TDM16 slave or USB Audio demo running on the explorer board. It uses a modified mic_array with multiple decimator threads to support 16 DDR microphones on a single 8 bit input port. The example is written in 'bare-metal' and runs directly on the XCORE device without an RTOS.
 
-The decimators are configured to 48kHz PCM output. The 16 channels are loaded into a 16 slot TDM slave peripheral running at 24.576MHz bit clock or a USB Audio Class 2 asynchronous interface and are optionally amplified. The TDM build provides a simple I2C slave interface to allow gains to be controlled at run-time.
+The decimators are configured to 48 kHz PCM output. The 16 channels are loaded into a 16 slot TDM slave peripheral running at 24.576 MHz bit clock or a USB Audio Class 2 asynchronous interface and are optionally amplified. The TDM build provides a simple I2C slave interface to allow gains to be controlled at run-time.
 
-For the TDM build, a simple TDM16 master is included as well as a local 24.576MHz clock source so that mic_array and TDM16 slave may be tested standalone through the use of jumper cables. These may be removed when integrating into a system with TDM16 master supplied.
+For the TDM build, a simple TDM16 master is included as well as a local 24.576 MHz clock source so that mic_array and TDM16 slave may be tested standalone through the use of jumper cables. These may be removed when integrating into a system with TDM16 master supplied.
+
+The application uses four hardware threads on tile[0] for the microphone capture and decimation and two active hardware threads for the TDM configuration or five hardware threads on Tile[1] for the USB configuration. The TDM build consumes less than 50 kB of memory total and the USB build consumes less than 80kB of memory total across both tiles.
 
 Obtaining the app files
 =======================
@@ -28,7 +30,7 @@ First install and source the XTC version: 15.2.1 tools. You should be able to se
 Linux or Mac
 ------------
 
-To build for the first time you will need to run cmake to create the make files:
+To build for the first time you will need to run `cmake` to create the make files:
 
     $ mkdir build
     $ cd build
@@ -36,7 +38,7 @@ To build for the first time you will need to run cmake to create the make files:
     $ make example_mic_aggregator_tdm -j
     $ make example_mic_aggregator_usb -j
 
-Following initial cmake build, as long as you don't add new source files, you may just type:
+Following initial `cmake` build, as long as you don't add new source files, you may just type:
 
     $ make example_mic_aggregator_tdm -j
     $ make example_mic_aggregator_usb -j
@@ -46,15 +48,14 @@ If you add new source files you will need to run the `cmake` step again.
 Windows
 -------
 
-It is highly recommended to use `Ninja` as the make system under cmake. Not only is it a lot faster
-than MSVC `nmake`, it also works around an issue where certain path names may cause an issue with the XMOS compiler under windows.
+It is highly recommended to use `Ninja` as the make system under `cmake`. Not only is it a lot faster than MSVC `nmake`, it also works around an issue where certain path names may cause an issue with the XMOS compiler under windows.
 
 To install Ninja, follow these steps:
 
 - Download `ninja.exe` from https://github.com/ninja-build/ninja/releases. This firmware has been tested with Ninja version v1.11.1
-- Ensure Ninja is on the command line path. You can add to the path permenantly by following these steps https://www.computerhope.com/issues/ch000549.htm. Alternatively you may set the path in the current command line session using something like `set PATH=%PATH%;C:\Users\xmos\utils\ninja`
+- Ensure Ninja is on the command line path. You can add to the path permanently by following these steps https://www.computerhope.com/issues/ch000549.htm. Alternatively you may set the path in the current command line session using something like `set PATH=%PATH%;C:\Users\xmos\utils\ninja`
 
-To build for the first time you will need to run cmake to create the make files:
+To build for the first time you will need to run `cmake` to create the make files:
 
     $ md build
     $ cd build
@@ -62,7 +63,7 @@ To build for the first time you will need to run cmake to create the make files:
     $ ninja example_mic_aggregator_tdm.xe -j
     $ ninja example_mic_aggregator_usb.xe -j
 
-Following inital cmake build, as long as you don't add new source files, you may just type:
+Following initial `cmake` build, as long as you don't add new source files, you may just type:
 
     $ ninja example_mic_aggregator_tdm.xe -j
     $ ninja example_mic_aggregator_usb.xe -j
@@ -84,16 +85,16 @@ Required Hardware
 
 The demo runs on the XCORE-AI Explorer board version 2 (with integrated XTAG debug adapter). You will require in addition:
 
-- The dual DDR microphone board that attaches via the flat flex connector
-- Header pins soldered into
-    - J14, J10, SCL/SDA IOT, the I2S expansion header, MIC data and MIC clock
-- A handful of jumper wires connected as below
+- The dual DDR microphone board that attaches via the flat flex connector.
+- Header pins soldered into:
+    - J14, J10, SCL/SDA IOT, the I2S expansion header, MIC data and MIC clock.
+- A handful of jumper wires connected as below.
 
 An oscilloscope will also be handy in case of debug needed.
 
-*Note you will only be able to inject PDM data to two channels at a time due to a single pair of mics on the HW*
+*Note you will only be able to inject PDM data to two channels at a time due to a single pair of microphones on the HW.*
 
-If you wish to see all 16 mics running then an external mic board with 16 mics (DDR connected to 8 data lines) is required.
+If you wish to see all 16 microphones running then an external mic board with 16 microphones (DDR connected to 8 data lines) is required.
 
 
 Jumper Connections
@@ -101,13 +102,13 @@ Jumper Connections
 
 Make the following connections using flying leads:
 
-- MIC CLK <-> J14 '00'. This is the mic clock which is to be sent to the PDM mics from J14.
-- MIC DATA <-> J14 '14' initially. This is the data line for mics 0 and 8. See below..
-- I2S LRCLK <-> J10 '36'. This is the FSYCNH input for TDM slave. J10 '36' is the TDM master FSYNCH output for the demo
-- I2S MCLK <-> I2S BCLK. MCLK is the 24.576MHz clock which directly drives the BCLK input for the TDM slave
+- MIC CLK <-> J14 '00'. This is the microphone clock which is to be sent to the PDM microphones from J14.
+- MIC DATA <-> J14 '14' initially. This is the data line for microphones 0 and 8. See below..
+- I2S LRCLK <-> J10 '36'. This is the FSYCNH input for TDM slave. J10 '36' is the TDM master FSYNCH output for the demo.
+- I2S MCLK <-> I2S BCLK. MCLK is the 24.576MHz clock which directly drives the BCLK input for the TDM slave.
 - I2S DAC <-> J10 '38'. I2S DAC is the TDM Slave Tx out which is read by the TDM Master Rx input on J10.
 
-To access other mic inputs use the following:
+To access other microphone inputs use the following:
 
 | Mic pair | J14 pin |
 | -------- | ------- |
@@ -123,15 +124,15 @@ To access other mic inputs use the following:
 
 For I2C control, make the following connections:
 
-- SCL IOL <-> Your I2C host SCL
-- SDA IOL <-> Your I2C host SDA
-- GND <-> Your I2C host ground
+- SCL IOL <-> Your I2C host SCL.
+- SDA IOL <-> Your I2C host SDA.
+- GND <-> Your I2C host ground.
 
-The I2C slave is tested to 100kHz SCL.
+The I2C slave is tested to 100 kHz SCL.
 
 There are 32 registers which control the gain of each of the 16 output channels. The 8b registers contain the 
-upper 8b and lower 8b of the mic gain respectively. The initial gain is set to 100, since 1 is quiet due to the 
-mic_array output being scaled to allow acoustic overload of the mics without clipping. Typically a gain of
+upper 8b and lower 8b of the microphone gain respectively. The initial gain is set to 100, since 1 is quiet due to the 
+mic_array output being scaled to allow acoustic overload of the microphones without clipping. Typically a gain of
 a few hundred works for normal conditions. The gain is only applied after the lower byte is written.
 
 The gain applied is saturating so no overflow will occur, only clipping.
