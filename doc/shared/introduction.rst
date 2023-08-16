@@ -27,7 +27,7 @@ The C SDK is composed of the following components:
 Key Features 
 ############
 
-The XCORE-VOICE Solution takes advantage of the flexible software-defined xcore-ai architecture to support numerous far-field voice use cases through the available example designs and the ability to construct user-defined audio pipeline from the SW components and libraries in the C-based SDK. 
+The XCORE-VOICE Solution takes advantage of the flexible software-defined xcore-ai architecture to support numerous far-field voice use cases through the available example designs and the ability to construct user-defined audio pipeline from the SW components and libraries in the C-based SDK.
 
 These include: 
 
@@ -41,7 +41,7 @@ These include:
 - Switchable stationary noise suppressor 
 - Programmable Automatic Gain Control (AGC) 
 - Flexible audio output routing and filtering 
-- Support for Sensory or other 3rd party Automatic Speech Recognition (ASR) software
+- Support for Sensory, Cyberon or other 3rd party Automatic Speech Recognition (ASR) software
 
 **Device Interface components**
 

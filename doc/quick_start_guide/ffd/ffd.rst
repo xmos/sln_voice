@@ -94,15 +94,17 @@ There are three LED states:
 - Solid Red & Green = Waiting for or Processing Command
 - Fast Flashing Red = Evaluation period has expired
 
-The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS', waiting begins for a command (solid red & green).
+The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS' or 'Hello Cyberon' (CListener™ model only), waiting begins for a command (solid red & green).
 After a period of inactivity, or successful command processing the application returns to waiting for wakeword (flashing green).
 
-Sensory TrulyHandsfree™
-~~~~~~~~~~~~~~~~~~~~~~~
+Sensory TrulyHandsfree™ and Cyberon CListener™ models detect the same commands, as listed below.
+
+
 
 **Wakewords**
 
 - Hello XMOS
+- Hello Cyberon' (CListener™ model only)
 
 **Dictionary Commands**
 
@@ -122,32 +124,5 @@ Sensory TrulyHandsfree™
 - Slow down the fan
 - Set higher temperature
 - Set lower temperature
-
-Cyberon CListener™
-~~~~~~~~~~~~~~~~~~
-
-**Wakewords**
-
-- Hello XMOS
-- Hello Cyberon
-
-**Dictionary Commands**
-
- - Switch on the TV
- - Switch off the TV
- - Channel up
- - Channel down
- - Volume up
- - Volume down
- - Switch on the lights
- - Switch off the lights
- - Brightness up
- - Brightness down
- - Switch on the fan
- - Switch off the Fan
- - Speed up the fan
- - Slow down the fan
- - Set higher temperature
- - Set lower temperature
 
 |newpage|
