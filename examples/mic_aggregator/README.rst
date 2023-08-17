@@ -89,7 +89,7 @@ To install Ninja, follow these steps:
 
 -  Download ``ninja.exe`` from
    https://github.com/ninja-build/ninja/releases. This firmware has been
-   tested with Ninja version v1.11.1
+   tested with Ninja version v1.11.1.
 -  Ensure Ninja is on the command line path. You can add to the path
    permanently by following these steps
    https://www.computerhope.com/issues/ch000549.htm. Alternatively you
@@ -161,7 +161,7 @@ Make the following connections using flying leads:
 -  MIC CLK <-> J14 ‘00’. This is the microphone clock which is to be
    sent to the PDM microphones from J14.
 -  MIC DATA <-> J14 ‘14’ initially. This is the data line for
-   microphones 0 and 8. See below..
+   microphones 0 and 8. See below.
 -  I2S LRCLK <-> J10 ‘36’. This is the FSYCNH input for TDM slave. J10
    ‘36’ is the TDM master FSYNCH output for the application.
 -  I2S MCLK <-> I2S BCLK. MCLK is the 24.576MHz clock which directly
