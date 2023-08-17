@@ -1,7 +1,7 @@
 .. include:: <isonum.txt>
 .. include:: ../../substitutions.rst
 
-.. _sln_voice_ffd_speech_recognition:
+.. _sln_voice_ffd_speech_recognition_cyberon:
 
 ############################
 Speech Recognition - Cyberon
@@ -10,20 +10,16 @@ Speech Recognition - Cyberon
 License
 =======
 
-.. todo: Update info for Cyberon
+Cyberon DSpotter™ software requires a commercial license granted by `Cyberon Corporation <https://www.cyberon.com.tw/>`_.
+For any questions about licensing the Cybero DSpotter™ speech recognition library please contact Cyberon.
 
-The Sensory TrulyHandsFree™ (THF) speech recognition library is `Copyright (C) 1995-2022 Sensory Inc., All Rights Reserved`.
-
-Sensory THF software requires a commercial license granted by `Sensory Inc <https://www.sensory.com/>`_.
-This software ships with an expiring development license. It will suspend recognition after 11.4 hours
-or 107 recognition events.
 
 Overview
 ========
 
-The Cyberon CListener speech recognition engine runs proprietary models to identify keywords in an audio stream.
+The Cyberon DSpotter™ speech recognition engine runs proprietary models to identify keywords in an audio stream.
 
-One model for US English is provided.
+One model for US English is provided. For any technical question or additional models please contact Cyberon.
 
 To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 

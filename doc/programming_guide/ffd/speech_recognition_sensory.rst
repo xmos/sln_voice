@@ -1,7 +1,7 @@
 .. include:: <isonum.txt>
 .. include:: ../../substitutions.rst
 
-.. _sln_voice_ffd_speech_recognition:
+.. _sln_voice_ffd_speech_recognition_sensory:
 
 ############################
 Speech Recognition - Sensory

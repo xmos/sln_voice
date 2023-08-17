@@ -24,7 +24,7 @@ Example designs
 Demonstration
 =============
 
-This is the far-field voice local command (FFD) example design. Two examples are provided: both examples include a speech recognition and a local dictionary. One example use the Sensory TrulyHandsfree™ (THF) libraries and one the Cyberon CListener libraries.
+This is the far-field voice local command (FFD) example design. Two examples are provided: both examples include a speech recognition and a local dictionary. One example use the Sensory TrulyHandsfree™ (THF) libraries and one the Cyberon DSPotter™ libraries.
 
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
@@ -97,14 +97,14 @@ There are three LED states:
 The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS' or 'Hello Cyberon' (CListener™ model only), waiting begins for a command (solid red & green).
 After a period of inactivity, or successful command processing the application returns to waiting for wakeword (flashing green).
 
-Sensory TrulyHandsfree™ and Cyberon CListener™ models detect the same commands, as listed below.
+Sensory TrulyHandsfree™ and Cyberon DSpotter™ models detect the same commands, as listed below.
 
 
 
 **Wakewords**
 
 - Hello XMOS
-- Hello Cyberon' (CListener™ model only)
+- Hello Cyberon' (DSpotter™ model only)
 
 **Dictionary Commands**
 
