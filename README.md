@@ -32,7 +32,7 @@ See the READMEs for the early example applications:
 
 [FFVA](https://github.com/xmos/sln_voice/blob/develop/examples/ffva/README.md)
 
-[Microphone Aggregator] (https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.md)
+[Microphone Aggregator] (https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.rst)
 
 ## Getting Help
 
