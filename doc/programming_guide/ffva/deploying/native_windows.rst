@@ -24,6 +24,10 @@ This application requires a host application to create the flash data partition.
 
   Permissions may be required to install the host applications.
 
+.. note::
+
+  A C/C++ compiler must be included in the path.
+
 Before building the host application, you will need to add the path to the XTC Tools to your environment.
 
 .. code-block:: console
