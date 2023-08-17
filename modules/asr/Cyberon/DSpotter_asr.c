@@ -139,8 +139,13 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 #ifdef SKIP_DSPOTTER_RECOG
 	return ASR_ERROR;
 #endif
+    // uint32_t timer_start = get_reference_time();
 
 	int nRet = DSpotterHL_AddSampleNoFlow(audio_buf, buf_len);
+
+    // uint32_t timer_end = get_reference_time();
+    // DBG_TRACE("Duration: %lu (us)\n", (timer_end - timer_start) / 100);
+
 	if (nRet == DSPOTTER_SUCCESS)
 	{
 		return ASR_OK;
