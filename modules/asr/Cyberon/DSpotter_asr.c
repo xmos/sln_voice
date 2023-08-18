@@ -145,7 +145,7 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     // if (duration>max_duration) {
     // DBG_TRACE("Duration: %lu (us)\n", duration / 100);
     // max_duration = duration;
-    }
+    // }
 
     if (nRet == DSPOTTER_SUCCESS)
     {
