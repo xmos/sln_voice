@@ -24,12 +24,7 @@
 #include "i2s_audio.h"
 #include "rate_server.h"
 
-#define TOTAL_TAIL_SECONDS (8)
-#define STORED_PER_SECOND (4)
-
-#define TOTAL_STORED (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
-#define REF_CLOCK_TICKS_PER_STORED_AVG (REF_CLOCK_TICKS_PER_SECOND / STORED_PER_SECOND)
 
 volatile static bool data_seen = false;
 volatile static bool hold_average = false;
@@ -121,21 +116,23 @@ static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
     return 0xffffffff;
 }
 
-static float_s32_t determine_I2S_rate(
-    uint32_t timestamp,
-    uint32_t data_length,
+
+#define TOTAL_STORED_AVG_I2S_RATE (16)
+static float_s32_t determine_avg_I2S_rate_from_driver(
+    uint32_t timespan,
+    uint32_t num_samples,
     bool update
     )
 {
-    static uint32_t data_lengths[TOTAL_STORED];
-    static uint32_t time_buckets[TOTAL_STORED];
+    static uint32_t data_lengths[TOTAL_STORED_AVG_I2S_RATE];
+    static uint32_t time_buckets[TOTAL_STORED_AVG_I2S_RATE];
     static uint32_t current_data_bucket_size;
-    static uint32_t first_timestamp;
     static bool buckets_full;
     static uint32_t times_overflowed;
     static float_s32_t previous_result = {.mant = 0, .exp = 0};
     static uint32_t prev_nominal_sampling_rate = 0;
-    static uint32_t expected_nominal_samples_per_bucket = 0;
+    static uint32_t counter = 0;
+    static uint32_t timespan_current_bucket = 0;
 
     if (data_seen == false)
     {
@@ -145,7 +142,8 @@ static float_s32_t determine_I2S_rate(
     if (hold_average)
     {
         hold_average = false;
-        first_timestamp = timestamp;
+        counter = 0;
+        timespan_current_bucket = 0;
         current_data_bucket_size = 0;
         return previous_result;
     }
@@ -158,9 +156,8 @@ static float_s32_t determine_I2S_rate(
     }
     else if(g_i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
-        expected_nominal_samples_per_bucket = g_i2s_nominal_sampling_rate / STORED_PER_SECOND; // samples_per_second / number_of_buckets_per_second
-
-        first_timestamp = timestamp;
+        counter = 0;
+        timespan_current_bucket = 0;
 
         // Because we use "first_time" to also reset the rate determinator,
         // reset all the static variables to default.
@@ -168,66 +165,76 @@ static float_s32_t determine_I2S_rate(
         times_overflowed = 0;
         buckets_full = false;
 
-        for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
+        for (int i = 0; i < TOTAL_STORED_AVG_I2S_RATE; i++)
         {
             data_lengths[i] = 0;
             time_buckets[i] = 0;
         }
-        // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
-        for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
-        {
-            data_lengths[i] = expected_nominal_samples_per_bucket;
-            time_buckets[i] = REF_CLOCK_TICKS_PER_STORED_AVG;
-        }
         prev_nominal_sampling_rate = g_i2s_nominal_sampling_rate;
-        previous_result = float_div((float_s32_t){g_i2s_nominal_sampling_rate, 0}, (float_s32_t){REF_CLOCK_TICKS_PER_SECOND, 0});
+        float_s32_t a = {.mant=g_i2s_nominal_sampling_rate, .exp=0};
+        float_s32_t b = {.mant=REF_CLOCK_TICKS_PER_SECOND, .exp=0};
+
+        float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+        previous_result = rate;
 
         return previous_result;
     }
+    else if(timespan == 0)
+    {
+        float_s32_t a = {.mant=prev_nominal_sampling_rate, .exp=0};
+        float_s32_t b = {.mant=REF_CLOCK_TICKS_PER_SECOND, .exp=0};
 
-    //return previous_result;
+        float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+        previous_result = rate;
+
+        return previous_result;
+
+    }
+
+    counter += 1;
 
     if (update)
     {
-        current_data_bucket_size += data_length;
+        current_data_bucket_size += num_samples;
+        timespan_current_bucket += timespan;
     }
 
-    uint32_t timespan = timestamp - first_timestamp;
-
-    uint32_t total_data_intermed = current_data_bucket_size + sum_array(data_lengths, TOTAL_STORED);
-    uint32_t total_timespan = timespan + sum_array(time_buckets, TOTAL_STORED);
+    uint32_t total_data_intermed = current_data_bucket_size + sum_array(data_lengths, TOTAL_STORED_AVG_I2S_RATE);
+    uint32_t total_timespan = timespan_current_bucket + sum_array(time_buckets, TOTAL_STORED_AVG_I2S_RATE);
 
     float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
 
 
     float_s32_t result = data_per_sample;
 
-    if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))
+    if (update && (counter >= 16))
     {
         if (buckets_full)
         {
             // We've got enough data for a new bucket - replace the oldest bucket data with this new data
-            uint32_t oldest_bucket = times_overflowed % TOTAL_STORED;
+            uint32_t oldest_bucket = times_overflowed % TOTAL_STORED_AVG_I2S_RATE;
 
-            time_buckets[oldest_bucket] = timespan;
+            time_buckets[oldest_bucket] = timespan_current_bucket;
             data_lengths[oldest_bucket] = current_data_bucket_size;
 
             current_data_bucket_size = 0;
-            first_timestamp = timestamp;
+            counter = 0;
+            timespan_current_bucket = 0;
 
             times_overflowed++;
         }
         else
         {
             // We've got enough data for this bucket - save this one and start the next one
-            time_buckets[times_overflowed] = timespan;
+            time_buckets[times_overflowed] = timespan_current_bucket;
             data_lengths[times_overflowed] = current_data_bucket_size;
 
             current_data_bucket_size = 0;
-            first_timestamp = timestamp;
+            counter = 0;
+            timespan_current_bucket = 0;
 
             times_overflowed++;
-            if (times_overflowed == TOTAL_STORED)
+            if (times_overflowed == TOTAL_STORED_AVG_I2S_RATE)
             {
                 buckets_full = true;
             }
@@ -237,9 +244,10 @@ static float_s32_t determine_I2S_rate(
     return result;
 }
 
+
 #define OLD_VAL_WEIGHTING (64)
 #define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
-#define NUM_ERROR_BUCKETS   (256)
+#define NUM_ERROR_BUCKETS   (2048)
 
 #define SAMP_RATE_RATIO_FILTER_COEFF (0.95)
 
@@ -336,6 +344,8 @@ void rate_server(void *args)
     static bool reset_buf_level = false;
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
+    static int32_t max_seen_buffer_level = -10000;
+    static int32_t min_seen_buffer_level = 10000;
 
     while(g_i2s_nominal_sampling_rate == 0)
     {
@@ -345,7 +355,8 @@ void rate_server(void *args)
         uint32_t current_ts = get_reference_time();
         uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
-        float_s32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
+        float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
+        float_s32_t i2s_rate = avg_rate;
     }
     rtos_printf("ready to start! I2S rate %d\n", g_i2s_nominal_sampling_rate);
 
@@ -377,28 +388,28 @@ void rate_server(void *args)
 
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
 
-        float_s32_t i2s_rate = determine_I2S_rate(current_ts, samples, true);
-        if(i2s_ctx->write_256samples_time != 0)
-        {
-            float_s32_t a = {.mant=3840, .exp=0};
-            float_s32_t b = {.mant=i2s_ctx->write_256samples_time, .exp=0};
-
-            float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
-            i2s_rate = rate;
-        }
+        float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
+        float_s32_t i2s_rate = avg_rate;
 
         prev_num_i2s_samples_recvd = current_num_i2s_samples;
         prev_ts = current_ts;
 
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level / 8;
 
+        //int32_t avg_buffer_fill_level = get_average_usb_to_host_buf_fill_level(usb_buffer_fill_level_from_half, false);
+
         // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
 
-            //printint(usb_buffer_fill_level_from_half);
-            //printchar(',');
+            max_seen_buffer_level = (usb_buffer_fill_level_from_half > max_seen_buffer_level) ? usb_buffer_fill_level_from_half : max_seen_buffer_level;
+            min_seen_buffer_level = (usb_buffer_fill_level_from_half < min_seen_buffer_level) ? usb_buffer_fill_level_from_half : min_seen_buffer_level;
+
+
+            printint(usb_buffer_fill_level_from_half);
+            printchar(',');
+
             //printint(avg_usb_to_host_buffer_fill_level);
 
             // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
@@ -417,7 +428,10 @@ void rate_server(void *args)
             printchar(',');
             printint(usb_rate.exp);*/
             //printchar(',');
-            //printintln(fs_ratio);
+
+            printintln(fs_ratio);
+
+            //fs_ratio = fs_ratio + 0x00000020;
 
             int guard_level = 60;
             if(usb_buffer_fill_level_from_half > guard_level)
@@ -430,6 +444,9 @@ void rate_server(void *args)
                 int error = usb_buffer_fill_level_from_half - (-guard_level);
                 fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
             }
+
+            //fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)fs_ratio) / buffer_level_term);
+
 
 
             // fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
@@ -457,9 +474,9 @@ void rate_server(void *args)
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
-            printint(i2s_buffer_level_from_half);
-            printchar(',');
-            printintln(fs_ratio);
+            //printint(i2s_buffer_level_from_half);
+            //printchar(',');
+            //printintln(fs_ratio);
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
