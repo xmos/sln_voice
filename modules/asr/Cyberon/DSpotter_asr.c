@@ -24,9 +24,7 @@
 #include "DSpotterSDKApi_Const.h"
 #include "DbgTrace.h"
 #include "Convert2TransferBuffer.h"
-
-#include "Model_on_RAM/Hello_XMOS_pack_WithTxt_Enc.h"
-//#include "Model_on_RAM/HeySiri_OpenCamera_pack_WithTxt.h"
+#include "FlashReadData.h"
 
 #define MAX_COMMAND_TIME         (5000/10)               // Trigger and command must be spoke in 5000 ms (500 frames).
 #define DSPOTTER_FRAME_SAMPLE    480                     // DSpotter compute every 30 ms, it is 480 samples dor 16 KHz.
@@ -35,10 +33,7 @@
 
 static uint8_t *g_lpbyDSpotterMem = NULL;
 static size_t g_nRecordFrameCount = 0;
-static devmem_manager_t *devmem_ctx = NULL;
-
-static const uint32_t *g_pModel = (const uint32_t *)g_lpdwHello_XMOS_pack_WithTxt_Enc;
-//static const uint32_t *g_pModel = (const uint32_t *)g_lpdwHeySiri_OpenCamera_pack_WithTxt;
+devmem_manager_t *devmem_ctx = NULL;
 
 
 //https://www.xmos.ai/documentation/XM-014363-PC-4/html/prog-guide/prog-ref/xcc-pragma-directives/pragmas.html
@@ -71,9 +66,9 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
 	oDSpotterInitData.nCommandStageFlowControl = COMMAND_STAGE_MULTI_COMMAND;
 	oDSpotterInitData.byAGC_Gain = (uint8_t)(VOLUME_SCALE_RECONG / 100);
 	oDSpotterInitData.bOneShotMode = true;
-	oDSpotterInitData.bExternalFlashModel = false;
-
-	nMemSize = DSpotterHL_GetMemoryUsage(g_pModel, &oDSpotterInitData);
+	oDSpotterInitData.bExternalFlashModel = true;
+	
+	nMemSize = DSpotterHL_GetMemoryUsage((const uint32_t *)model, &oDSpotterInitData);
 	DBG_TRACE("The DSpotter memory usage is %d.\r\n", nMemSize);
 	g_lpbyDSpotterMem = devmem_malloc(devmem_ctx, nMemSize);
 	if (g_lpbyDSpotterMem == NULL)
@@ -83,7 +78,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
 	}
 
 	DBG_TRACE("DSpotterHL_Init\r\n");
-	nRet = DSpotterHL_Init(g_pModel, &oDSpotterInitData, g_lpbyDSpotterMem, nMemSize);
+	nRet = DSpotterHL_Init((const uint32_t *)model, &oDSpotterInitData, g_lpbyDSpotterMem, nMemSize);
 	if (nRet != DSPOTTER_SUCCESS)
 	{
 		DBG_TRACE("DSpotterHL_Init() fail, error = %d!\r\n", nRet);

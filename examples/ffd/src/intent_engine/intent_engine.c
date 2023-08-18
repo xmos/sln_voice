@@ -47,11 +47,7 @@ void* grammar = NULL;
 // Model file is in flash at the offset specified in the CMakeLists
 // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
 // to be added so the address in in the SwMem range.
-#ifdef QSPI_FLASH_MODEL_START_ADDRESS
 uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
-#else
-uint16_t *model = NULL;
-#endif
 
 typedef enum intent_state {
     STATE_EXPECTING_WAKEWORD,

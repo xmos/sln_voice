@@ -46,7 +46,7 @@ target_sources(asr_Cyberon
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/device_memory.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/DSpotter_asr.c
-        ${CMAKE_CURRENT_LIST_DIR}/Cyberon/flash_read_ext.c
+        ${CMAKE_CURRENT_LIST_DIR}/Cyberon/FlashReadData.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/Convert2TransferBuffer.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/Convert2TransferBuffer.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/DbgTrace.c
@@ -64,7 +64,7 @@ target_link_options(asr_Cyberon
 )
 target_link_libraries(asr_Cyberon
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/Cyberon/lib/libDSpotter.a
+        ${CMAKE_CURRENT_LIST_DIR}/Cyberon/lib/libDSpotterTrial.a
 )
 
 target_compile_definitions(asr_Cyberon
