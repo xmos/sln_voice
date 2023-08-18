@@ -53,13 +53,28 @@ static void usb_to_i2s_slave_intertile(void *args) {
         unsigned num_samps = usb_audio_recv(intertile_usb_audio_ctx,
                                             &usb_to_i2s_samps
                                         );
-        //printf("-- %d --\n",num_samps);
+
+        int i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
+        int i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full. Per channel
+
+        //printf("-- %d --\n",i2s_send_buffer_unread/2);
         if(num_samps)
         {
             rtos_i2s_tx(i2s_ctx,
                 (int32_t*) usb_to_i2s_samps,
                 num_samps,
                 portMAX_DELAY);
+
+            i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
+            i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
+            //printint(i2s_send_buffer_unread);
+            printchar('c');
+            printintln((i2s_buffer_level_from_half / 2));
+
+            if(i2s_send_buffer_unread >= (i2s_ctx->send_buffer.buf_size / 2))
+            {
+                i2s_ctx->okay_to_send = true;
+            }
         }
     }
 }
