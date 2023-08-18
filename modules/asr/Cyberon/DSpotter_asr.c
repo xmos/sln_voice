@@ -115,6 +115,8 @@ asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes)
     return ASR_NOT_SUPPORTED;
 }
 
+//static int max_duration = 0;
+
 asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 {
 #ifdef UART_DUMP_RECORD
@@ -139,7 +141,11 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     int nRet = DSpotterHL_AddSampleNoFlow(audio_buf, buf_len);
 
     // uint32_t timer_end = get_reference_time();
-    // DBG_TRACE("Duration: %lu (us)\n", (timer_end - timer_start) / 100);
+    // uint32_t duration = timer_end - timer_start;
+    // if (duration>max_duration) {
+    // DBG_TRACE("Duration: %lu (us)\n", duration / 100);
+    // max_duration = duration;
+    }
 
     if (nRet == DSPOTTER_SUCCESS)
     {
