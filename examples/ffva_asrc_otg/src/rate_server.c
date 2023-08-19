@@ -34,7 +34,7 @@ extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor,
 extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
 extern uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format );
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);
-int32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
+uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
 
 // Global variables shared with i2s_audio.c
 uint32_t g_i2s_to_usb_rate_ratio = 0;
@@ -203,7 +203,6 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     uint32_t total_timespan = timespan_current_bucket + sum_array(time_buckets, TOTAL_STORED_AVG_I2S_RATE);
 
     float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
-
 
     float_s32_t result = data_per_sample;
 
@@ -407,8 +406,8 @@ void rate_server(void *args)
             min_seen_buffer_level = (usb_buffer_fill_level_from_half < min_seen_buffer_level) ? usb_buffer_fill_level_from_half : min_seen_buffer_level;
 
 
-            //printint(usb_buffer_fill_level_from_half);
-            //printchar(',');
+            printint(usb_buffer_fill_level_from_half);
+            printchar(',');
 
             //printint(avg_usb_to_host_buffer_fill_level);
 
@@ -429,9 +428,9 @@ void rate_server(void *args)
             printint(usb_rate.exp);*/
             //printchar(',');
 
-            //printintln(fs_ratio);
+            printintln(fs_ratio);
 
-            //fs_ratio = fs_ratio + 0x00000020;
+            fs_ratio = fs_ratio;
 
             int guard_level = 60;
             if(usb_buffer_fill_level_from_half > guard_level)
@@ -474,9 +473,9 @@ void rate_server(void *args)
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
-            printint(i2s_buffer_level_from_half);
-            printchar(',');
-            printintln(fs_ratio);
+            //printint(i2s_buffer_level_from_half);
+            //printchar(',');
+            //printintln(fs_ratio);
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /

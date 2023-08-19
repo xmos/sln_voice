@@ -68,8 +68,8 @@ static void usb_to_i2s_slave_intertile(void *args) {
             i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
             //printint(i2s_send_buffer_unread);
-            printchar('c');
-            printintln((i2s_buffer_level_from_half / 2));
+            //printchar(',');
+            //printintln((i2s_buffer_level_from_half / 2));
 
             if(i2s_send_buffer_unread >= (i2s_ctx->send_buffer.buf_size / 2))
             {

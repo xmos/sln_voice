@@ -87,16 +87,71 @@ uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32
 
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 {
-    float_s32_t res = float_s32_div(dividend, divisor);
+    /*int32_t a = 0xf0000000;
+    unsigned hr;
+    asm( "clz %0, %1" : "=r"(hr) : "r"(a) );
+    printf("a=0x%x, hr = %d\n", a, hr);*/
+
+
+    float_s32_t res;// = float_s32_div(dividend, divisor);
+
+    //int dividend_hr = CLS_S32(dividend.mant);
+    //int divisor_hr = CLS_S32(divisor.mant);
+    int dividend_hr;
+    int divisor_hr;
+
+    asm( "clz %0, %1" : "=r"(dividend_hr) : "r"(dividend.mant) );
+    asm( "clz %0, %1" : "=r"(divisor_hr) : "r"(divisor.mant) );
+
+    int dividend_exp = dividend.exp - dividend_hr;
+    int divisor_exp = divisor.exp - divisor_hr;
+
+    uint64_t h_dividend = (uint64_t)((uint32_t)dividend.mant) << (dividend_hr);
+    //printf("dividend: (0x%llx, %d, %d)\n", h_dividend, dividend_exp, dividend_hr);
+
+    uint32_t h_divisor = ((uint32_t)divisor.mant) << (divisor_hr);
+    //printf("divisor: (0x%x, %d, %d)\n", h_divisor, divisor_exp, divisor_hr);
+
+    uint32_t lhs = (h_dividend > h_divisor) ? 31 : 32;
+    //printf("lhs: %d\n", lhs);
+
+    uint64_t quotient = (h_dividend << lhs) / h_divisor;
+
+    res.exp = dividend_exp - divisor_exp - lhs;
+
+    res.mant = (uint32_t)(quotient) ;
+    //printf("float_div: dividend = (0x%x, %d), divisor = (0x%x, %d), result = (0x%x, %d)\n", dividend.mant, dividend.exp, divisor.mant, divisor.exp, res.mant, res.exp);
     return res;
 }
 
-int32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format)
+uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format)
 {
-    int lsh = output_q_format + (dividend.exp - divisor.exp);
-    int64_t h = (int64_t)dividend.mant << lsh;
-    int64_t quotient = h / divisor.mant;
-    return (int32_t)quotient;
+    int op_q = -output_q_format;
+    float_s32_t res = float_div(dividend, divisor);
+    //printf("ratio: dividend = (0x%x, %d), divisor = (0x%x, %d), res = (0x%x, %d)\n", dividend.mant, dividend.exp, divisor.mant, divisor.exp, res.mant, res.exp);
+    uint32_t quotient;
+    if(res.exp < op_q)
+    {
+        int rsh = op_q - res.exp;
+        quotient = ((uint32_t)res.mant >> rsh) + (((uint32_t)res.mant >> (rsh-1)) & 0x1);
+    }
+    else
+    {
+        int lsh = res.exp - op_q;
+        quotient = (uint32_t)res.mant << lsh;
+    }
+    //printf("res = %u\n", (uint32_t)quotient);
+    return quotient;
+
+    /*int lsh = output_q_format + (dividend.exp - divisor.exp);
+    //printf("lsh = %d\n", lsh);
+    uint64_t h = ((uint64_t)((uint32_t)dividend.mant)) << lsh;
+    //printf("h = %llu\n", h);
+    uint64_t quotient = h / (uint32_t)divisor.mant;
+    //printf("quotient = %llu\n", quotient);
+    //printf("result = %d\n", (uint32_t)quotient);
+
+    return (uint32_t)quotient;*/
 }
 
 uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
