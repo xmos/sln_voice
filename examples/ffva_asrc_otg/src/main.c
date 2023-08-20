@@ -55,10 +55,19 @@ static void mem_analysis(void)
 
 int32_t g_avg_i2s_send_buffer_level = 0;
 int32_t g_prev_avg_i2s_send_buffer_level = 0;
-int32_t calc_avg_i2s_buffer_level(int current_level)
+static int32_t calc_avg_i2s_buffer_level(int current_level, bool reset)
 {
     static int64_t error_accum = 0;
     static int32_t count = 0;
+
+    if(reset == true)
+    {
+        error_accum = 0;
+        count = 0;
+        g_avg_i2s_send_buffer_level = 0;
+        g_prev_avg_i2s_send_buffer_level = 0;
+        rtos_printf("Reset avg I2S send buffer level\n");
+    }
 
     error_accum += current_level;
     count += 1;
@@ -108,7 +117,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
 
             i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
-            int32_t avg_buffer_level = calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2); // Per channel
+            int32_t avg_buffer_level = calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
             //printint(i2s_send_buffer_unread);
             //printint((i2s_buffer_level_from_half / 2));
             //printchar(',');

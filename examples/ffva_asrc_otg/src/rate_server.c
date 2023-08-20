@@ -470,9 +470,9 @@ void rate_server(void *args)
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
 
 
-            //printint(total_error);
-            //printchar(',');
-            //printintln(g_avg_i2s_send_buffer_level);
+            printint(total_error);
+            printchar(',');
+            printintln(g_avg_i2s_send_buffer_level);
 
 
             //printintln(fs_ratio);
