@@ -40,6 +40,9 @@ uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divis
 uint32_t g_i2s_to_usb_rate_ratio = 0;
 uint32_t g_i2s_nominal_sampling_rate = 0;
 
+extern int32_t g_avg_i2s_send_buffer_level;
+extern int32_t g_prev_avg_i2s_send_buffer_level;
+
 float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_t output_exp)
 {
     float_s32_t temp = float_s32_ema(x, y, alpha_q30);
@@ -332,6 +335,10 @@ static int32_t get_average_rate_ratio(uint32_t current_ratio, bool reset)
     return avg;
 }
 
+typedef int32_t sw_pll_15q16_t; // Type for 15.16 signed fixed point
+#define SW_PLL_NUM_FRAC_BITS 16
+#define SW_PLL_15Q16(val) ((sw_pll_15q16_t)((float)val * (1 << SW_PLL_NUM_FRAC_BITS)))
+
 void rate_server(void *args)
 {
     //unsigned fs_ratio_i2s_to_usb_old = 0;
@@ -345,6 +352,9 @@ void rate_server(void *args)
     i2s_to_usb_rate_info_t i2s_rate_info;
     static int32_t max_seen_buffer_level = -10000;
     static int32_t min_seen_buffer_level = 10000;
+
+    const sw_pll_15q16_t Ki = SW_PLL_15Q16(0.2);
+    const sw_pll_15q16_t Kd = SW_PLL_15Q16(0.25634765625);
 
     while(g_i2s_nominal_sampling_rate == 0)
     {
@@ -380,9 +390,6 @@ void rate_server(void *args)
         // Compute I2S rate
         uint32_t current_ts = get_reference_time();
 
-        int i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
-        int i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2))/2;    //Level w.r.t. half full. Per channel
-
         uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
 
         uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
@@ -406,8 +413,8 @@ void rate_server(void *args)
             min_seen_buffer_level = (usb_buffer_fill_level_from_half < min_seen_buffer_level) ? usb_buffer_fill_level_from_half : min_seen_buffer_level;
 
 
-            printint(usb_buffer_fill_level_from_half);
-            printchar(',');
+            //printint(usb_buffer_fill_level_from_half);
+            //printchar(',');
 
             //printint(avg_usb_to_host_buffer_fill_level);
 
@@ -428,7 +435,7 @@ void rate_server(void *args)
             printint(usb_rate.exp);*/
             //printchar(',');
 
-            printintln(fs_ratio);
+            //printintln(fs_ratio);
 
             fs_ratio = fs_ratio;
 
@@ -473,30 +480,36 @@ void rate_server(void *args)
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
-            //printint(i2s_buffer_level_from_half);
-            //printchar(',');
+            int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
+            int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);
+
+            int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
+
+            printint(total_error);
+            printchar(',');
+            printintln(g_avg_i2s_send_buffer_level);
             //printintln(fs_ratio);
-            //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + i2s_buffer_level_from_half) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
+            //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
                             (1 + OLD_VAL_WEIGHTING));*/
 
 
             /*int guard_level = 100;
-            if(i2s_buffer_level_from_half > guard_level)
+            if(g_avg_i2s_send_buffer_level > guard_level)
             {
-                int error = i2s_buffer_level_from_half - guard_level;
+                int error = g_avg_i2s_send_buffer_level - guard_level;
                 fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
             }
-            else if(i2s_buffer_level_from_half < -guard_level)
+            else if(g_avg_i2s_send_buffer_level < -guard_level)
             {
-                int error = i2s_buffer_level_from_half - (-guard_level);
+                int error = g_avg_i2s_send_buffer_level - (-guard_level);
                 fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
             }*/
             //printchar(',');
             //printhexln(usb_to_i2s_rate_ratio);
             //printf("usb_to_i2s_rate_ratio = %f\n", (float)usb_to_i2s_rate_ratio/(1<<28));
-            usb_to_i2s_rate_ratio = fs_ratio;
+            usb_to_i2s_rate_ratio = fs_ratio + total_error;
 
         }
         else
