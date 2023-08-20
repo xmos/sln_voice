@@ -1,9 +1,14 @@
 // Copyright (c) 2020-2022 XMOS LIMITED. This Software is subject to the terms of the
 // XMOS Public License: Version 1
 
+#define DEBUG_UNIT APP_MAIN
+#define DEBUG_PRINT_ENABLE_APP_MAIN 1
+
 #include <platform.h>
 #include <xs1.h>
 #include <xcore/channel.h>
+
+#include <rtos_printf.h>
 
 /* FreeRTOS headers */
 #include "FreeRTOS.h"
@@ -26,9 +31,12 @@
 
 #include "gpio_test/gpio_test.h"
 #include "i2s_audio.h"
+#include "rate_server.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
+
+extern bool g_spkr_itf_close_to_open;
 
 void vApplicationMallocFailedHook(void)
 {
@@ -75,12 +83,24 @@ static void usb_to_i2s_slave_intertile(void *args) {
                                             &usb_to_i2s_samps
                                         );
 
-        int i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
-        int i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full. Per channel
+        int i2s_send_buffer_unread;
+        int i2s_buffer_level_from_half;
 
         //printf("-- %d --\n",i2s_send_buffer_unread/2);
         if(num_samps)
         {
+            if(g_spkr_itf_close_to_open == true)
+            {
+                i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
+                if(i2s_send_buffer_unread > 0)
+                {
+                    // Wait for i2s send buffer to drain fully before refilling it, so there's no chance we start at a fill level greater than 0
+                    continue;
+                }
+                g_spkr_itf_close_to_open = false;
+                i2s_ctx->okay_to_send = false; // We wait for buffer to be half full before resuming send on I2S
+            }
+
             rtos_i2s_tx(i2s_ctx,
                 (int32_t*) usb_to_i2s_samps,
                 num_samps,
@@ -88,16 +108,15 @@ static void usb_to_i2s_slave_intertile(void *args) {
 
             i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
-            int32_t avg_buffer_level = calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2);
+            int32_t avg_buffer_level = calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2); // Per channel
             //printint(i2s_send_buffer_unread);
             //printint((i2s_buffer_level_from_half / 2));
             //printchar(',');
             //printintln(avg_buffer_level);
 
-
-
-            if(i2s_send_buffer_unread >= (i2s_ctx->send_buffer.buf_size / 2))
+            if((i2s_ctx->okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
             {
+                rtos_printf("Start sending over I2S. I2S send buffer fill level = %d\n", i2s_buffer_level_from_half);
                 i2s_ctx->okay_to_send = true;
             }
         }

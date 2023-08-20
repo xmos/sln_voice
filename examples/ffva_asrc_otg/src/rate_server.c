@@ -43,6 +43,8 @@ uint32_t g_i2s_nominal_sampling_rate = 0;
 extern int32_t g_avg_i2s_send_buffer_level;
 extern int32_t g_prev_avg_i2s_send_buffer_level;
 
+bool g_spkr_itf_close_to_open = false;
+
 float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_t output_exp)
 {
     float_s32_t temp = float_s32_ema(x, y, alpha_q30);
@@ -341,17 +343,12 @@ typedef int32_t sw_pll_15q16_t; // Type for 15.16 signed fixed point
 
 void rate_server(void *args)
 {
-    //unsigned fs_ratio_i2s_to_usb_old = 0;
-    //unsigned fs_ratio_usb_to_i2s_old = 0;
-    uint32_t prev_ts = get_reference_time();
-    uint32_t prev_num_i2s_samples_recvd = i2s_ctx->recv_buffer.total_written;
     uint32_t usb_to_i2s_rate_ratio = 0;
     int32_t usb_buffer_fill_level_from_half;
     static bool reset_buf_level = false;
+    static bool prev_spkr_itf_open = false;
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
-    static int32_t max_seen_buffer_level = -10000;
-    static int32_t min_seen_buffer_level = 10000;
 
     const sw_pll_15q16_t Ki = SW_PLL_15Q16(0.2);
     const sw_pll_15q16_t Kd = SW_PLL_15Q16(0.25634765625);
@@ -361,9 +358,6 @@ void rate_server(void *args)
         // Make sure we establish I2S rate before starting, so that the i2s_audio_recv_task() can get going and start sending
         // frames to the other tile, which will prompt the periodic rate monitoring
         vTaskDelay(pdMS_TO_TICKS(1));
-        uint32_t current_ts = get_reference_time();
-        uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
-        uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
         float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
         float_s32_t i2s_rate = avg_rate;
     }
@@ -387,32 +381,22 @@ void rate_server(void *args)
 
         usb_rate = usb_rate_info.usb_data_rate;
 
+        if((prev_spkr_itf_open == false) && (usb_rate_info.spkr_itf_open == true))
+        {
+            g_spkr_itf_close_to_open = true;
+        }
+        prev_spkr_itf_open = usb_rate_info.spkr_itf_open;
+
         // Compute I2S rate
-        uint32_t current_ts = get_reference_time();
-
-        uint32_t current_num_i2s_samples = i2s_ctx->recv_buffer.total_written;
-
-        uint32_t samples = (current_num_i2s_samples - prev_num_i2s_samples_recvd) >> 1; // 2 channels per sample
-
         float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
         float_s32_t i2s_rate = avg_rate;
 
-        prev_num_i2s_samples_recvd = current_num_i2s_samples;
-        prev_ts = current_ts;
-
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level / 8;
 
-        //int32_t avg_buffer_fill_level = get_average_usb_to_host_buf_fill_level(usb_buffer_fill_level_from_half, false);
-
-        // Calculate g_i2s_to_usb_rate_ratio only when we're streaming out
-        if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
+        // Calculate g_i2s_to_usb_rate_ratio only when the host is recording data from the device
+        if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-
-            max_seen_buffer_level = (usb_buffer_fill_level_from_half > max_seen_buffer_level) ? usb_buffer_fill_level_from_half : max_seen_buffer_level;
-            min_seen_buffer_level = (usb_buffer_fill_level_from_half < min_seen_buffer_level) ? usb_buffer_fill_level_from_half : min_seen_buffer_level;
-
-
             //printint(usb_buffer_fill_level_from_half);
             //printchar(',');
 
@@ -473,8 +457,8 @@ void rate_server(void *args)
             reset_buf_level = true;
         }
 
-        // Calculate usb_to_i2s_rate_ratio only when we're recording
-        if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
+        // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
+        if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
             //int32_t nom_rate = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
             //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
@@ -485,9 +469,12 @@ void rate_server(void *args)
 
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
 
-            printint(total_error);
-            printchar(',');
-            printintln(g_avg_i2s_send_buffer_level);
+
+            //printint(total_error);
+            //printchar(',');
+            //printintln(g_avg_i2s_send_buffer_level);
+
+
             //printintln(fs_ratio);
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
