@@ -145,7 +145,6 @@ static int32_t calc_avg_buffer_level(int32_t buf_level)
         acc = acc + buckets[i];
     }
     int32_t avg = acc / (int32_t)window_size;
-    //printf("total = %ld, avg = %ld\n", acc, avg);
     counter = counter + 1;
     return avg;
 }
@@ -156,6 +155,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 {
     static int32_t prev_i2s_sampling_rate = 0;
     static uint32_t num_host_buf_writes = 0;
+    static uint32_t num_dummy_writes = 0;
 
     samp_t usb_audio_in_frame[I2S_TO_USB_ASRC_BLOCK_LENGTH * 2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 #if CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 2
@@ -241,43 +241,46 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
     else
     {
-        // Send mic and spkr interface open anyway.
-        usb_to_i2s_rate_info_t usb_rate_info;
-        i2s_to_usb_rate_info_t i2s_rate_info;
-        int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-        usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
-        usb_rate_info.mic_itf_open = mic_interface_open;
-        usb_rate_info.spkr_itf_open = spkr_interface_open;
-        usb_rate_info.usb_data_rate = g_usb_data_rate;
-        rtos_intertile_tx(
-        intertile_ctx,
-            appconfUSB_RATE_NOTIFY_PORT,
-            &usb_rate_info,
-            sizeof(usb_rate_info));
-
-        size_t bytes_received = rtos_intertile_rx_len(
-            intertile_ctx,
-            appconfUSB_RATE_NOTIFY_PORT,
-            portMAX_DELAY);
-        xassert(bytes_received == sizeof(i2s_rate_info));
-
-        rtos_intertile_rx_data(
-            intertile_ctx,
-            &i2s_rate_info,
-            bytes_received);
-
-        if (i2s_rate_info.usb_to_i2s_rate_ratio != 0)
+        num_dummy_writes += 1;
+        if(num_dummy_writes % 16 == 0)
         {
-            g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
-        }
-        else
-        {
-            g_usb_to_i2s_rate_ratio = 0;
-        }
+            // Send mic and spkr interface open anyway.
+            usb_to_i2s_rate_info_t usb_rate_info;
+            i2s_to_usb_rate_info_t i2s_rate_info;
+            int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+            usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
+            usb_rate_info.mic_itf_open = mic_interface_open;
+            usb_rate_info.spkr_itf_open = spkr_interface_open;
+            usb_rate_info.usb_data_rate = g_usb_data_rate;
+            rtos_intertile_tx(
+            intertile_ctx,
+                appconfUSB_RATE_NOTIFY_PORT,
+                &usb_rate_info,
+                sizeof(usb_rate_info));
 
-        prev_i2s_sampling_rate  = g_i2s_nominal_sampling_rate;
-        g_i2s_nominal_sampling_rate = i2s_rate_info.nominal_i2s_freq;
+            size_t bytes_received = rtos_intertile_rx_len(
+                intertile_ctx,
+                appconfUSB_RATE_NOTIFY_PORT,
+                portMAX_DELAY);
+            xassert(bytes_received == sizeof(i2s_rate_info));
 
+            rtos_intertile_rx_data(
+                intertile_ctx,
+                &i2s_rate_info,
+                bytes_received);
+
+            if (i2s_rate_info.usb_to_i2s_rate_ratio != 0)
+            {
+                g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
+            }
+            else
+            {
+                g_usb_to_i2s_rate_ratio = 0;
+            }
+
+            prev_i2s_sampling_rate  = g_i2s_nominal_sampling_rate;
+            g_i2s_nominal_sampling_rate = i2s_rate_info.nominal_i2s_freq;
+        }
     }
 }
 
@@ -383,7 +386,6 @@ void usb_audio_out_task(void *arg)
         // while(xStreamBufferBytesAvailable(samples_from_host_stream_buf) < sizeof(usb_audio_out_frame));
         bytes_received = xStreamBufferReceive(samples_from_host_stream_buf, usb_audio_out_frame, sizeof(usb_audio_out_frame), 0);
 
-        //printf("asrc_init_ctx.fs_out = %d, g_i2s_nominal_sampling_rate = %d\n", asrc_init_ctx.fs_out, g_i2s_nominal_sampling_rate);
         if(g_i2s_nominal_sampling_rate == 0)
         {
             continue;
@@ -898,13 +900,11 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     if(first_frame_after_mic_interface_open == true)
     {
-        printf("first frame after mic interface open\n");
         first_frame_after_mic_interface_open = false;
         mic_interface_open = true; // Consider mic interface open for the other end to start filling samples_to_host_stream_buf only when receiving the 2nd frame after itf alt setting is changed.
     }
     else if (!mic_interface_open)
     {
-        printf("Mic interface not open\n");
         ready = 0;
         first_frame_after_mic_interface_open = true;
     }
