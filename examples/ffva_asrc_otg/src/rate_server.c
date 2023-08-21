@@ -207,8 +207,9 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     uint32_t total_data_intermed = current_data_bucket_size + sum_array(data_lengths, TOTAL_STORED_AVG_I2S_RATE);
     uint32_t total_timespan = timespan_current_bucket + sum_array(time_buckets, TOTAL_STORED_AVG_I2S_RATE);
 
-    float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
+    //float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
 
+    float_s32_t data_per_sample = float_div((float_s32_t){num_samples, 0}, (float_s32_t){timespan, 0});
     float_s32_t result = data_per_sample;
 
     if (update && (counter >= 16))
@@ -470,12 +471,12 @@ void rate_server(void *args)
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
 
 
-            printint(total_error);
-            printchar(',');
-            printintln(g_avg_i2s_send_buffer_level);
+            //printint(total_error);
+            //printchar(',');
+            //printint(g_avg_i2s_send_buffer_level);
+            //printchar(',');
 
 
-            //printintln(fs_ratio);
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
@@ -496,7 +497,8 @@ void rate_server(void *args)
             //printchar(',');
             //printhexln(usb_to_i2s_rate_ratio);
             //printf("usb_to_i2s_rate_ratio = %f\n", (float)usb_to_i2s_rate_ratio/(1<<28));
-            usb_to_i2s_rate_ratio = fs_ratio + total_error;
+            usb_to_i2s_rate_ratio = fs_ratio/* + total_error*/;
+            //printintln(usb_to_i2s_rate_ratio);
 
         }
         else

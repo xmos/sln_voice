@@ -104,6 +104,7 @@ static void i2s_audio_recv_task(void *args)
     for(;;)
     {
         recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
+        rtos_printf("g_i2s_nominal_sampling_rate = %d\n", g_i2s_nominal_sampling_rate);
         if(g_i2s_nominal_sampling_rate == 0) {
             continue;
         }

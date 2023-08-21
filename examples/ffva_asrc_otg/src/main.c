@@ -37,6 +37,7 @@ volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
 extern bool g_spkr_itf_close_to_open;
+extern uint32_t g_i2s_nominal_sampling_rate;
 
 void vApplicationMallocFailedHook(void)
 {
@@ -94,20 +95,39 @@ static void usb_to_i2s_slave_intertile(void *args) {
 
         int i2s_send_buffer_unread;
         int i2s_buffer_level_from_half;
+        static uint32_t prev_i2s_sampling_rate = 0;
 
         //printf("-- %d --\n",i2s_send_buffer_unread/2);
         if(num_samps)
         {
+            i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
             if(g_spkr_itf_close_to_open == true)
             {
-                i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
                 if(i2s_send_buffer_unread > 0)
                 {
+                    i2s_ctx->okay_to_send = true;
+                    rtos_printf("USB spkr interface opened. i2s_send_buffer_unread = %d. fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
                     // Wait for i2s send buffer to drain fully before refilling it, so there's no chance we start at a fill level greater than 0
                     continue;
                 }
+                rtos_printf("USB spkr interface opened. i2s_send_buffer_unread = %d. fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
                 g_spkr_itf_close_to_open = false;
                 i2s_ctx->okay_to_send = false; // We wait for buffer to be half full before resuming send on I2S
+            }
+
+            // If there's a change in sampling rate detected
+            if(prev_i2s_sampling_rate != g_i2s_nominal_sampling_rate)
+            {
+                if(i2s_send_buffer_unread > 0)
+                {
+                    i2s_ctx->okay_to_send = true;
+                    rtos_printf("I2S sampling rate change detected. i2s_send_buffer_unread = %d. fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                    // Wait for i2s send buffer to drain fully before refilling it, so there's no chance we start at a fill level greater than 0
+                    continue;
+                }
+                rtos_printf("I2S sampling rate change detected. i2s_send_buffer_unread = %d, fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                prev_i2s_sampling_rate = g_i2s_nominal_sampling_rate;
+                i2s_ctx->okay_to_send = false;
             }
 
             rtos_i2s_tx(i2s_ctx,
@@ -118,8 +138,8 @@ static void usb_to_i2s_slave_intertile(void *args) {
             i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
             int32_t avg_buffer_level = calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
-            //printint(i2s_send_buffer_unread);
-            //printint((i2s_buffer_level_from_half / 2));
+
+            printintln((i2s_buffer_level_from_half / 2));
             //printchar(',');
             //printintln(avg_buffer_level);
 
