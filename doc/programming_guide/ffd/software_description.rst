@@ -10,7 +10,6 @@ Software Description
    :maxdepth: 1
 
    software_desc/overview
-   software_desc/asr
    software_desc/bsp_config
    software_desc/ext
    software_desc/filesystem_support
