@@ -31,7 +31,7 @@ commands in the root folder to build the host application using your native tool
 
 .. note::
 
-  A C/C++ compiler must be included in the path.
+  A C/C++ compiler, such as Visual Studio or MinGW, must be included in the path.
 
 Before building the host application, you will need to add the path to the XTC Tools to your environment.
 

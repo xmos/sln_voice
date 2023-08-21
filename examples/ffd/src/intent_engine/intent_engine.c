@@ -113,7 +113,7 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
     }
 }
 
-#pragma stackfunction 1500
+#pragma stackfunction 1000
 void intent_engine_task(void *args)
 {
     intent_state = STATE_EXPECTING_WAKEWORD;
@@ -127,7 +127,7 @@ void intent_engine_task(void *args)
         vIntentTimerCallback);
 
     devmem_init(&devmem_ctx);
-    printf("Call asr_init(). maodel = 0x%x, grammar = 0x%x\n",model, grammar);
+    printf("Call asr_init(). model = 0x%x, grammar = 0x%x\n", (unsigned int) model, (unsigned int) grammar);
     asr_ctx = asr_init((int32_t *)model, (int32_t *)grammar, &devmem_ctx);
 
     int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
