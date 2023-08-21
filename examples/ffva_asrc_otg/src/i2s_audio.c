@@ -187,6 +187,12 @@ static void i2s_audio_recv_task(void *args)
 
         if (n_samps_out > 0) {
             rtos_intertile_tx(
+                intertile_i2s_audio_ctx,
+                appconfAUDIOPIPELINE_PORT,
+                &i2s_sampling_rate,
+                sizeof(uint32_t));
+
+            rtos_intertile_tx(
                     intertile_i2s_audio_ctx,
                     appconfAUDIOPIPELINE_PORT,
                     frame_samples_interleaved,

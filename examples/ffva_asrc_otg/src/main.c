@@ -114,7 +114,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
             }
 
             // If there's a change in sampling rate detected
-            if(prev_i2s_sampling_rate != g_i2s_nominal_sampling_rate)
+            if(prev_i2s_sampling_rate != i2s_ctx->i2s_nominal_sampling_rate)
             {
                 if(i2s_send_buffer_unread > 0)
                 {
@@ -124,7 +124,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
                     continue;
                 }
                 rtos_printf("I2S sampling rate change detected. i2s_send_buffer_unread = %d, fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
-                prev_i2s_sampling_rate = g_i2s_nominal_sampling_rate;
+                prev_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
                 i2s_ctx->okay_to_send = false;
             }
 
@@ -137,7 +137,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
             calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
 
-            printintln((i2s_buffer_level_from_half / 2));
+            //printintln((i2s_buffer_level_from_half / 2));
 
             if((i2s_ctx->okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
             {
@@ -155,6 +155,17 @@ static void i2s_slave_to_usb_intertile(void *args) {
     for(;;)
     {
         size_t bytes_received;
+
+        bytes_received = rtos_intertile_rx_len(
+                intertile_i2s_audio_ctx,
+                appconfAUDIOPIPELINE_PORT,
+                portMAX_DELAY);
+        xassert(bytes_received <= sizeof(g_i2s_nominal_sampling_rate));
+
+        rtos_intertile_rx_data(
+                    intertile_i2s_audio_ctx,
+                    &g_i2s_nominal_sampling_rate,
+                    bytes_received);
 
         bytes_received = rtos_intertile_rx_len(
                 intertile_i2s_audio_ctx,

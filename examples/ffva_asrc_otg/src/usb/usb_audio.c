@@ -173,8 +173,16 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
         }
     }
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
+
     if (mic_interface_open)
     {
+        if((prev_i2s_sampling_rate != g_i2s_nominal_sampling_rate) && (g_i2s_nominal_sampling_rate != 0))
+        {
+            rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, g_i2s_nominal_sampling_rate);
+            g_i2s_sr_change_detected = true;
+        }
+        prev_i2s_sampling_rate = g_i2s_nominal_sampling_rate;
+
         if(g_i2s_sr_change_detected == false)
         {
             if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes)
@@ -215,22 +223,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
                         bytes_received);
 
                     // Update ratio only when both rates are valid
-                    if (i2s_rate_info.usb_to_i2s_rate_ratio != 0)
-                    {
-                        g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
-                    }
-                    else
-                    {
-                        g_usb_to_i2s_rate_ratio = 0;
-                    }
-                    g_i2s_nominal_sampling_rate = i2s_rate_info.nominal_i2s_freq;
-
-                    if((prev_i2s_sampling_rate != g_i2s_nominal_sampling_rate) && (g_i2s_nominal_sampling_rate != 0))
-                    {
-                        rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, g_i2s_nominal_sampling_rate);
-                        g_i2s_sr_change_detected = true;
-                    }
-                    prev_i2s_sampling_rate = g_i2s_nominal_sampling_rate;
+                    g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
                 }
             }
             else
@@ -277,9 +270,6 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             {
                 g_usb_to_i2s_rate_ratio = 0;
             }
-
-            prev_i2s_sampling_rate  = g_i2s_nominal_sampling_rate;
-            g_i2s_nominal_sampling_rate = i2s_rate_info.nominal_i2s_freq;
         }
     }
 }
@@ -393,6 +383,7 @@ void usb_audio_out_task(void *arg)
         if (asrc_init_ctx.fs_out != g_i2s_nominal_sampling_rate)
         {
             // Time to initialise asrc
+            g_usb_to_i2s_rate_ratio = 0;
             asrc_init_ctx.fs_out = g_i2s_nominal_sampling_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in); // Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);

@@ -88,13 +88,13 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     static uint32_t counter = 0;
     static uint32_t timespan_current_bucket = 0;
 
-    g_i2s_nominal_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
-    if(g_i2s_nominal_sampling_rate == 0)
+    uint32_t i2s_nominal_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
+    if(i2s_nominal_sampling_rate == 0)
     {
         float_s32_t t = {.mant=0, .exp=0};
-        return t; // i2s_audio thread ensures we don't do asrc when g_i2s_nominal_sampling_rate is 0
+        return t; // i2s_audio thread ensures we don't do asrc when i2s_nominal_sampling_rate is 0
     }
-    else if(g_i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
+    else if(i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
         rtos_printf("determine_avg_I2S_rate_from_driver() SR change detected\n");
         counter = 0;
@@ -111,8 +111,8 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
             data_lengths[i] = 0;
             time_buckets[i] = 0;
         }
-        prev_nominal_sampling_rate = g_i2s_nominal_sampling_rate;
-        float_s32_t a = {.mant=g_i2s_nominal_sampling_rate, .exp=0};
+        prev_nominal_sampling_rate = i2s_nominal_sampling_rate;
+        float_s32_t a = {.mant=i2s_nominal_sampling_rate, .exp=0};
         float_s32_t b = {.mant=REF_CLOCK_TICKS_PER_SECOND, .exp=0};
 
         float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
@@ -301,16 +301,6 @@ void rate_server(void *args)
     const sw_pll_15q16_t Ki = SW_PLL_15Q16(0.2);
     const sw_pll_15q16_t Kd = SW_PLL_15Q16(0.25634765625);
 
-    while(g_i2s_nominal_sampling_rate == 0)
-    {
-        // Make sure we establish I2S rate before starting, so that the i2s_audio_recv_task() can get going and start sending
-        // frames to the other tile, which will prompt the periodic rate monitoring
-        vTaskDelay(pdMS_TO_TICKS(1));
-        float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
-        (void)avg_rate;
-    }
-    rtos_printf("ready to start! I2S rate %d\n", g_i2s_nominal_sampling_rate);
-
     for(;;)
     {
         // Get USB rate and buffer information from the other tile
@@ -397,8 +387,6 @@ void rate_server(void *args)
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
-            //int32_t nom_rate = dsp_math_divide_unsigned_64(g_i2s_nominal_sampling_rate, 1000, SAMPLING_RATE_Q_FORMAT); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
-            //fs_ratio_usb_to_i2s_old = usb_to_i2s_rate_ratio;
             int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
             int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
@@ -442,8 +430,7 @@ void rate_server(void *args)
             usb_to_i2s_rate_ratio = 0;
         }
 
-        i2s_rate_info.nominal_i2s_freq = g_i2s_nominal_sampling_rate;
-        i2s_rate_info.usb_to_i2s_rate_ratio = usb_to_i2s_rate_ratio ;
+        i2s_rate_info.usb_to_i2s_rate_ratio = usb_to_i2s_rate_ratio;
 
         rtos_intertile_tx(
             intertile_ctx,

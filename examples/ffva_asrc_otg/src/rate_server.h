@@ -20,7 +20,6 @@ typedef struct
 typedef struct
 {
     /* data */
-    uint32_t nominal_i2s_freq;
     uint32_t usb_to_i2s_rate_ratio;
 }i2s_to_usb_rate_info_t;
 
