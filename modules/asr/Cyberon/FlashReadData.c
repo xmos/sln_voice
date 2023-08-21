@@ -29,4 +29,3 @@ size_t FlashReadData(void * dst, const void * src, size_t size)
 	return size;
 }
 
-#endif
