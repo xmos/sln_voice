@@ -41,53 +41,6 @@ static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
 
 }
 
-static inline bool in_range(uint32_t ticks, uint32_t ref)
-{
-    if((ticks >= (ref-5)) && (ticks <= (ref+5)))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
-{
-    if(in_range(average_callback_ticks, 2267))
-    {
-        return 44100;
-    }
-    else if(in_range(average_callback_ticks, 2083))
-    {
-        return 48000;
-    }
-    else if(in_range(average_callback_ticks, 1133))
-    {
-        return 88200;
-    }
-    else if(in_range(average_callback_ticks, 1041))
-    {
-        return 96000;
-    }
-    else if(in_range(average_callback_ticks, 566))
-    {
-        return 176400;
-    }
-    else if(in_range(average_callback_ticks, 520))
-    {
-        return 192000;
-    }
-    else if(average_callback_ticks == 0)
-    {
-        return 0;
-    }
-    printf("ERROR: avg_callback_ticks %lu do not match any sampling rate!!\n", average_callback_ticks);
-    xassert(0);
-    return 0xffffffff;
-}
-
 #define NUM_I2S_CHANS (2)
 static void i2s_audio_recv_task(void *args)
 {
@@ -152,7 +105,8 @@ static void i2s_audio_recv_task(void *args)
     for(;;)
     {
         recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
-        new_i2s_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
+        uint32_t start_sr_detect = get_reference_time();
+        new_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
 
         if(new_i2s_sampling_rate == 0) {
             continue;

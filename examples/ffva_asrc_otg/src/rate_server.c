@@ -74,54 +74,6 @@ uint32_t my_ema_calc_custom(uint32_t x, uint32_t y, int input_exp, uint32_t alph
     return temp;
 }
 
-static inline bool in_range(uint32_t ticks, uint32_t ref)
-{
-    if((ticks >= (ref-5)) && (ticks <= (ref+5)))
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
-{
-    if(in_range(average_callback_ticks, 2267))
-    {
-        return 44100;
-    }
-    else if(in_range(average_callback_ticks, 2083))
-    {
-        return 48000;
-    }
-    else if(in_range(average_callback_ticks, 1133))
-    {
-        return 88200;
-    }
-    else if(in_range(average_callback_ticks, 1041))
-    {
-        return 96000;
-    }
-    else if(in_range(average_callback_ticks, 566))
-    {
-        return 176400;
-    }
-    else if(in_range(average_callback_ticks, 520))
-    {
-        return 192000;
-    }
-    else if(average_callback_ticks == 0)
-    {
-        return 0;
-    }
-    printf("ERROR: avg_callback_ticks %lu do not match any sampling rate!!\n", average_callback_ticks);
-    xassert(0);
-    return 0xffffffff;
-}
-
-
 #define TOTAL_STORED_AVG_I2S_RATE (16)
 static float_s32_t determine_avg_I2S_rate_from_driver(
     uint32_t timespan,
@@ -153,7 +105,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
         return previous_result;
     }
 
-    g_i2s_nominal_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
+    g_i2s_nominal_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
     if(g_i2s_nominal_sampling_rate == 0)
     {
         float_s32_t t = {.mant=0, .exp=0};
