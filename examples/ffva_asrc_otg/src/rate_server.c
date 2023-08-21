@@ -353,11 +353,6 @@ void rate_server(void *args)
             //printint(usb_buffer_fill_level_from_half);
             //printchar(',');
 
-            //printint(avg_usb_to_host_buffer_fill_level);
-
-            // fs_ratio_i2s_to_usb_old = g_i2s_to_usb_rate_ratio;
-            //printintln(usb_rate);
-            //fs_ratio = dsp_math_divide_unsigned_64(i2s_rate, usb_rate, 28);
             int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate, 28);
 
 
@@ -390,10 +385,6 @@ void rate_server(void *args)
 
             //fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)fs_ratio) / buffer_level_term);
 
-
-
-            // fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_i2s_to_usb_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
-            //                 (1 + OLD_VAL_WEIGHTING));
 
             g_i2s_to_usb_rate_ratio = fs_ratio;
 
