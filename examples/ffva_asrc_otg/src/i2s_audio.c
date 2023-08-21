@@ -41,6 +41,53 @@ static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
 
 }
 
+static inline bool in_range(uint32_t ticks, uint32_t ref)
+{
+    if((ticks >= (ref-5)) && (ticks <= (ref+5)))
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
+{
+    if(in_range(average_callback_ticks, 2267))
+    {
+        return 44100;
+    }
+    else if(in_range(average_callback_ticks, 2083))
+    {
+        return 48000;
+    }
+    else if(in_range(average_callback_ticks, 1133))
+    {
+        return 88200;
+    }
+    else if(in_range(average_callback_ticks, 1041))
+    {
+        return 96000;
+    }
+    else if(in_range(average_callback_ticks, 566))
+    {
+        return 176400;
+    }
+    else if(in_range(average_callback_ticks, 520))
+    {
+        return 192000;
+    }
+    else if(average_callback_ticks == 0)
+    {
+        return 0;
+    }
+    printf("ERROR: avg_callback_ticks %lu do not match any sampling rate!!\n", average_callback_ticks);
+    xassert(0);
+    return 0xffffffff;
+}
+
 #define NUM_I2S_CHANS (2)
 static void i2s_audio_recv_task(void *args)
 {
@@ -91,6 +138,7 @@ static void i2s_audio_recv_task(void *args)
     int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
     int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
     uint32_t i2s_sampling_rate = 0;
+    uint32_t new_i2s_sampling_rate = 0;
 
     // Initialise CH0 ASRC context
     fs_code_t in_fs_code;
@@ -104,14 +152,16 @@ static void i2s_audio_recv_task(void *args)
     for(;;)
     {
         recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
-        rtos_printf("g_i2s_nominal_sampling_rate = %d\n", g_i2s_nominal_sampling_rate);
-        if(g_i2s_nominal_sampling_rate == 0) {
+        new_i2s_sampling_rate = detect_i2s_sampling_rate(i2s_ctx->average_callback_time);
+
+        if(new_i2s_sampling_rate == 0) {
             continue;
         }
-        else if(g_i2s_nominal_sampling_rate != i2s_sampling_rate)
+        else if(new_i2s_sampling_rate != i2s_sampling_rate)
         {
-            i2s_sampling_rate = g_i2s_nominal_sampling_rate;
-            asrc_init_ctx.fs_in = i2s_sampling_rate; // I2S rate is detected at runtime
+            g_i2s_to_usb_rate_ratio = 0;
+            i2s_sampling_rate = new_i2s_sampling_rate;
+            asrc_init_ctx.fs_in = i2s_sampling_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
 
