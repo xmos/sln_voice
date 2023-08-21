@@ -96,6 +96,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     }
     else if(g_i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
+        rtos_printf("determine_avg_I2S_rate_from_driver() SR change detected\n");
         counter = 0;
         timespan_current_bucket = 0;
 
@@ -142,9 +143,18 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     uint32_t total_data_intermed = current_data_bucket_size + sum_array(data_lengths, TOTAL_STORED_AVG_I2S_RATE);
     uint32_t total_timespan = timespan_current_bucket + sum_array(time_buckets, TOTAL_STORED_AVG_I2S_RATE);
 
-    //float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
+    float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
 
-    float_s32_t data_per_sample = float_div((float_s32_t){num_samples, 0}, (float_s32_t){timespan, 0});
+    /*float_s32_t data_per_sample1 = float_div((float_s32_t){num_samples, 0}, (float_s32_t){timespan, 0});
+
+    printuint(data_per_sample.mant);
+    printchar(',');
+    printint(data_per_sample.exp);
+    printchar(',');
+    printuint(data_per_sample1.mant);
+    printchar(',');
+    printintln(data_per_sample1.exp);*/
+
     float_s32_t result = data_per_sample;
 
     if (update && (counter >= 16))

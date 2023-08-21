@@ -137,7 +137,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
             calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
 
-            //printintln((i2s_buffer_level_from_half / 2));
+            printintln((i2s_buffer_level_from_half / 2));
 
             if((i2s_ctx->okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
             {
