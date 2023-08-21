@@ -27,7 +27,7 @@
 #include "FlashReadData.h"
 
 #define MAX_COMMAND_TIME         (5000/10)               // Trigger and command must be spoke in 5000 ms (500 frames).
-#define DSPOTTER_FRAME_SAMPLE    480                     // DSpotter compute every 30 ms, it is 480 samples dor 16 KHz.
+#define DSPOTTER_FRAME_SAMPLE    480                     // DSpotter compute every 30 ms, it is 480 samples or 16 KHz.
 #define COMMAND_STAGE_TIMEOUT    appconfINTENT_RESET_DELAY_MS  // When no result at command recognition stage, the minimum recording time in ms.
 #define VOLUME_SCALE_RECONG      800                     // The AGC volume scale percentage for recognition. It depends on original microphone data.
 
@@ -136,10 +136,12 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
 #ifdef SKIP_DSPOTTER_RECOG
     return ASR_ERROR;
 #endif
-    // uint32_t timer_start = get_reference_time();
+    // Enable the line below to profile the DSpotter processing time
+    // uintu32_t timer_start = get_reference_time();
 
     int nRet = DSpotterHL_AddSampleNoFlow(audio_buf, buf_len);
 
+    // Enable the lines below to profile the DSpotter processing time
     // uint32_t timer_end = get_reference_time();
     // uint32_t duration = timer_end - timer_start;
     // if (duration>max_duration) {

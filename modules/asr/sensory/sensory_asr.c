@@ -129,10 +129,12 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     sensory_asr->brick_count++;
     sensory_asr->word_id = -1;
 
+    // Enable the line below to profile the THF processing time
     // uint32_t timer_start = get_reference_time();
 
     error = SensoryProcessData((s16 *) audio_buf, app);
 
+    // Enable the lines below to profile the THF processing time
     // uint32_t timer_end = get_reference_time();
     // asr_printf("Duration: %lu (us)\n", (timer_end - timer_start) / 100);
 

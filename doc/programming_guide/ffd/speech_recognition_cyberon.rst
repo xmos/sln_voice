@@ -11,7 +11,7 @@ License
 =======
 
 Cyberon DSpotter™ software requires a commercial license granted by `Cyberon Corporation <https://www.cyberon.com.tw/>`_.
-This software ships with an expiring development license. It will suspend recognition after 100 recognition events.
+Cyberon DSpotter™ software should run on a chip with the correct OTP key programmed. If this is not the case, it will suspend recognition after 100 recognition events.
 
 For any questions about licensing the Cyberon DSpotter™ speech recognition library please contact Cyberon.
 
@@ -21,7 +21,7 @@ Overview
 
 The Cyberon DSpotter™ speech recognition engine runs proprietary models to identify keywords in an audio stream.
 
-One model for US English is provided. For any technical question or additional models please contact Cyberon.
+One model for US English is provided. For any technical questions or additional models please contact Cyberon.
 
 To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
