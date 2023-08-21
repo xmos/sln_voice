@@ -56,7 +56,7 @@ static void mem_analysis(void)
 
 int32_t g_avg_i2s_send_buffer_level = 0;
 int32_t g_prev_avg_i2s_send_buffer_level = 0;
-static int32_t calc_avg_i2s_buffer_level(int current_level, bool reset)
+static void calc_avg_i2s_buffer_level(int current_level, bool reset)
 {
     static int64_t error_accum = 0;
     static int32_t count = 0;
@@ -80,8 +80,6 @@ static int32_t calc_avg_i2s_buffer_level(int current_level, bool reset)
         count = 0;
         error_accum = 0;
     }
-
-    return g_avg_i2s_send_buffer_level;
 }
 
 static void usb_to_i2s_slave_intertile(void *args) {
@@ -137,11 +135,9 @@ static void usb_to_i2s_slave_intertile(void *args) {
 
             i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
             i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
-            int32_t avg_buffer_level = calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
+            calc_avg_i2s_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
 
-            printintln((i2s_buffer_level_from_half / 2));
-            //printchar(',');
-            //printintln(avg_buffer_level);
+            //printintln((i2s_buffer_level_from_half / 2));
 
             if((i2s_ctx->okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
             {

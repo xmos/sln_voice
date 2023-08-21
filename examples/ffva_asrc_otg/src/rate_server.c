@@ -26,9 +26,6 @@
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
-volatile static bool data_seen = false;
-volatile static bool hold_average = false;
-
 
 extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
 extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
@@ -90,20 +87,6 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     static uint32_t prev_nominal_sampling_rate = 0;
     static uint32_t counter = 0;
     static uint32_t timespan_current_bucket = 0;
-
-    if (data_seen == false)
-    {
-        data_seen = true;
-    }
-
-    if (hold_average)
-    {
-        hold_average = false;
-        counter = 0;
-        timespan_current_bucket = 0;
-        current_data_bucket_size = 0;
-        return previous_result;
-    }
 
     g_i2s_nominal_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
     if(g_i2s_nominal_sampling_rate == 0)
@@ -201,9 +184,8 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     return result;
 }
 
-
+#if 0
 #define OLD_VAL_WEIGHTING (64)
-#define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
 #define NUM_ERROR_BUCKETS   (2048)
 
 #define SAMP_RATE_RATIO_FILTER_COEFF (0.95)
@@ -289,10 +271,13 @@ static int32_t get_average_rate_ratio(uint32_t current_ratio, bool reset)
 
     return avg;
 }
+#endif
 
 typedef int32_t sw_pll_15q16_t; // Type for 15.16 signed fixed point
 #define SW_PLL_NUM_FRAC_BITS 16
 #define SW_PLL_15Q16(val) ((sw_pll_15q16_t)((float)val * (1 << SW_PLL_NUM_FRAC_BITS)))
+
+#define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
 
 void rate_server(void *args)
 {
@@ -312,7 +297,7 @@ void rate_server(void *args)
         // frames to the other tile, which will prompt the periodic rate monitoring
         vTaskDelay(pdMS_TO_TICKS(1));
         float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
-        float_s32_t i2s_rate = avg_rate;
+        (void)avg_rate;
     }
     rtos_printf("ready to start! I2S rate %d\n", g_i2s_nominal_sampling_rate);
 
@@ -369,9 +354,7 @@ void rate_server(void *args)
 
             //printintln(fs_ratio);
 
-            fs_ratio = fs_ratio;
-
-            int guard_level = 60;
+            int guard_level = 100;
             if(usb_buffer_fill_level_from_half > guard_level)
             {
                 int error = usb_buffer_fill_level_from_half - guard_level;
@@ -412,7 +395,7 @@ void rate_server(void *args)
             int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);
 
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
-
+            (void)total_error;
 
             //printint(total_error);
             //printchar(',');
