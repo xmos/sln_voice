@@ -11,7 +11,9 @@ License
 =======
 
 Cyberon DSpotter™ software requires a commercial license granted by `Cyberon Corporation <https://www.cyberon.com.tw/>`_.
-For any questions about licensing the Cybero DSpotter™ speech recognition library please contact Cyberon.
+This software ships with an expiring development license. It will suspend recognition after 100 recognition events.
+
+For any questions about licensing the Cyberon DSpotter™ speech recognition library please contact Cyberon.
 
 
 Overview

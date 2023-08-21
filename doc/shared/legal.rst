@@ -13,7 +13,7 @@ All original source code is licensed under the `XMOS License <https://github.com
 
 Third-Party
 ^^^^^^^^^^^
-.. todo: add info about Cyberon
+
 Additional third party code is included under the following copyrights and licenses:
 
 .. list-table:: Third Party Module Copyrights & Licenses
