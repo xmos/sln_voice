@@ -7,7 +7,7 @@ Deploying the Firmware with Native Windows
 This document explains how to deploy the software using `CMake` and `Ninja`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_asr_deploying_linux_macos_programming_guide`.
 
 It is highly recommended to use ``Ninja`` as the make system under cmake. Not only is it a lot faster
-than MSVC ``nmake``, it also works around an issue where certain path names may cause an issue with the XMOS compiler under windows.
+than MSVC ``nmake``, it also works around an issue where certain path names may cause an issue with the XMOS compiler under Windows.
 
 To install Ninja, follow these steps:
 
@@ -51,7 +51,7 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -G Ninja -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_asr
 

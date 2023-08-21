@@ -47,7 +47,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
 .. code-block:: console
 
-    cmake -G Ninja -B build --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake
+    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=..\xmos_cmake_toolchain\xs3a.cmake
     cd build
     ninja example_ffva_int_fixed_delay
 
