@@ -26,6 +26,5 @@ typedef struct
 
 // Extern variables
 extern uint32_t g_i2s_to_usb_rate_ratio;
-extern uint32_t g_i2s_nominal_sampling_rate;
 
 #endif

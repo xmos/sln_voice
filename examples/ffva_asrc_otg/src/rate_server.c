@@ -35,7 +35,7 @@ uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divis
 
 // Global variables shared with i2s_audio.c
 uint32_t g_i2s_to_usb_rate_ratio = 0;
-uint32_t g_i2s_nominal_sampling_rate = 0;
+
 
 extern int32_t g_avg_i2s_send_buffer_level;
 extern int32_t g_prev_avg_i2s_send_buffer_level;
@@ -396,9 +396,9 @@ void rate_server(void *args)
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
             (void)total_error;
 
-            printint(total_error);
-            printchar(',');
-            printintln(g_avg_i2s_send_buffer_level);
+            //printint(total_error);
+            //printchar(',');
+            //printintln(g_avg_i2s_send_buffer_level);
 
 
 

@@ -73,9 +73,20 @@ uint32_t samples_to_host_stream_buf_size_bytes = 0;
 
 extern float_s32_t g_usb_data_rate;
 static bool g_i2s_sr_change_detected = false;
+static uint32_t g_i2s_nominal_sampling_rate = 0;
 
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
+
+void update_i2s_nominal_sampling_rate(uint32_t i2s_rate)
+{
+    g_i2s_nominal_sampling_rate = i2s_rate;
+}
+
+uint32_t get_i2s_nominal_sampling_rate()
+{
+    return g_i2s_nominal_sampling_rate;
+}
 
 //--------------------------------------------------------------------+
 // Device callbacks
@@ -176,12 +187,14 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
     if (mic_interface_open)
     {
-        if((prev_i2s_sampling_rate != g_i2s_nominal_sampling_rate) && (g_i2s_nominal_sampling_rate != 0))
+        uint32_t current_i2s_rate = get_i2s_nominal_sampling_rate();
+
+        if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
-            rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, g_i2s_nominal_sampling_rate);
+            rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, current_i2s_rate);
             g_i2s_sr_change_detected = true;
         }
-        prev_i2s_sampling_rate = g_i2s_nominal_sampling_rate;
+        prev_i2s_sampling_rate = current_i2s_rate;
 
         if(g_i2s_sr_change_detected == false)
         {
@@ -375,16 +388,17 @@ void usb_audio_out_task(void *arg)
         (void)ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
         // while(xStreamBufferBytesAvailable(samples_from_host_stream_buf) < sizeof(usb_audio_out_frame));
         bytes_received = xStreamBufferReceive(samples_from_host_stream_buf, usb_audio_out_frame, sizeof(usb_audio_out_frame), 0);
+        uint32_t current_i2s_rate = get_i2s_nominal_sampling_rate();
 
-        if(g_i2s_nominal_sampling_rate == 0)
+        if(current_i2s_rate == 0)
         {
             continue;
         }
-        if (asrc_init_ctx.fs_out != g_i2s_nominal_sampling_rate)
+        if (asrc_init_ctx.fs_out != current_i2s_rate)
         {
             // Time to initialise asrc
             g_usb_to_i2s_rate_ratio = 0;
-            asrc_init_ctx.fs_out = g_i2s_nominal_sampling_rate;
+            asrc_init_ctx.fs_out = current_i2s_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in); // Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
             rtos_printf("USB tile initialising ASRC for fs_in %lu, fs_out %lu\n", asrc_init_ctx.fs_in, asrc_init_ctx.fs_out);

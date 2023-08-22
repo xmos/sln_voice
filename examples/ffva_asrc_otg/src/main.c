@@ -37,7 +37,7 @@ volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
 extern bool g_spkr_itf_close_to_open;
-extern uint32_t g_i2s_nominal_sampling_rate;
+
 
 void vApplicationMallocFailedHook(void)
 {
@@ -56,6 +56,8 @@ static void mem_analysis(void)
 
 int32_t g_avg_i2s_send_buffer_level = 0;
 int32_t g_prev_avg_i2s_send_buffer_level = 0;
+extern void update_i2s_nominal_sampling_rate(uint32_t i2s_rate);
+
 static void calc_avg_i2s_buffer_level(int current_level, bool reset)
 {
     static int64_t error_accum = 0;
@@ -151,6 +153,7 @@ static void usb_to_i2s_slave_intertile(void *args) {
 static void i2s_slave_to_usb_intertile(void *args) {
     (void) args;
     int32_t i2s_to_usb_samps_interleaved[240*2][2]; // TODO fix all the hardcodings
+    uint32_t i2s_nominal_sampling_rate;
 
     for(;;)
     {
@@ -160,12 +163,14 @@ static void i2s_slave_to_usb_intertile(void *args) {
                 intertile_i2s_audio_ctx,
                 appconfAUDIOPIPELINE_PORT,
                 portMAX_DELAY);
-        xassert(bytes_received <= sizeof(g_i2s_nominal_sampling_rate));
+        xassert(bytes_received <= sizeof(i2s_nominal_sampling_rate));
 
         rtos_intertile_rx_data(
                     intertile_i2s_audio_ctx,
-                    &g_i2s_nominal_sampling_rate,
+                    &i2s_nominal_sampling_rate,
                     bytes_received);
+
+        update_i2s_nominal_sampling_rate(i2s_nominal_sampling_rate);
 
         bytes_received = rtos_intertile_rx_len(
                 intertile_i2s_audio_ctx,
