@@ -299,7 +299,8 @@ void rate_server(void *args)
     i2s_to_usb_rate_info_t i2s_rate_info;
 
     const sw_pll_15q16_t Ki = SW_PLL_15Q16(0.2);
-    const sw_pll_15q16_t Kd = SW_PLL_15Q16(0.25634765625);
+    //const sw_pll_15q16_t Kd = SW_PLL_15Q16(0.25634765625);
+    const sw_pll_15q16_t Kd = SW_PLL_15Q16(3);
 
     for(;;)
     {
@@ -395,10 +396,10 @@ void rate_server(void *args)
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
             (void)total_error;
 
-            //printint(total_error);
-            //printchar(',');
-            //printint(g_avg_i2s_send_buffer_level);
-            //printchar(',');
+            printint(total_error);
+            printchar(',');
+            printintln(g_avg_i2s_send_buffer_level);
+
 
 
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
@@ -421,7 +422,7 @@ void rate_server(void *args)
             //printchar(',');
             //printhexln(usb_to_i2s_rate_ratio);
             //printf("usb_to_i2s_rate_ratio = %f\n", (float)usb_to_i2s_rate_ratio/(1<<28));
-            usb_to_i2s_rate_ratio = fs_ratio/* + total_error*/;
+            usb_to_i2s_rate_ratio = fs_ratio + total_error;
             //printintln(usb_to_i2s_rate_ratio);
 
         }
