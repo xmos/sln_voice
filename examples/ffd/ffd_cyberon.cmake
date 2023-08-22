@@ -21,8 +21,6 @@ set(RTOS_CONF_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/rtos_conf
 )
 
-#include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
-
 #**********************
 # QSPI Flash Layout
 #**********************
