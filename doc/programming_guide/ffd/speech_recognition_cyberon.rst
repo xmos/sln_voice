@@ -13,7 +13,7 @@ License
 Cyberon DSpotter™ software requires a commercial license granted by `Cyberon Corporation <https://www.cyberon.com.tw/>`_.
 This software ships with an expiring development license. It will suspend recognition after 100 recognition events.
 
-Production software runs on a special device - need to contact Cyberon or XMOS sale for information on that.
+Production versions of the DSpotter™ library are unrestricted when running on a specially licensed XMOS device. Please contact Cyberon or XMOS sales for further information.
 
 Overview
 ========
