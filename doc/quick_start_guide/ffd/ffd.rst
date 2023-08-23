@@ -28,11 +28,9 @@ This is the far-field voice local command (FFD) example design. Two examples are
 
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
-Sensory's THF software ships with an expiring development license. It will suspend recognition after 11.4 hours or 107 recognition events.
+Sensory's THF and Cyberon's DSpotter™ libraries ship with an expiring development license. The Sensory one will suspend recognition after 11.4 hours or 107 recognition events, and the Cyberon one will suspend recognition after 100 recognition events. Ater the maximum number of recognitions is reached, a device reset is required to resume normal operation.To perform a reset, either power cycle the device or press the SW2 button.
 
-Cyberon's DSpotter™ software should run on a board with the correct OTP key programmed. If this is not the case, it will use an expiring development license. It will suspend recognition after 100 recognition events.
-
- Ater the maximum number of recognitions is reached, a device reset is required to resume normal operation.To perform a reset, either power cycle the device or press the SW2 button.
+Production software runs on a special device - need to contact Cyberon, Sensory or XMOS sale for information on that.
 
 **Requirements**
 

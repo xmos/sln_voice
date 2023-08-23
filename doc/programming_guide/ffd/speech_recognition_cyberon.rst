@@ -11,10 +11,9 @@ License
 =======
 
 Cyberon DSpotter™ software requires a commercial license granted by `Cyberon Corporation <https://www.cyberon.com.tw/>`_.
-Cyberon DSpotter™ software should run on a chip with the correct OTP key programmed. If this is not the case, it will suspend recognition after 100 recognition events.
+This software ships with an expiring development license. It will suspend recognition after 100 recognition events.
 
-For any questions about licensing the Cyberon DSpotter™ speech recognition library please contact Cyberon.
-
+Production versions of the DSpotter™ library are unrestricted when running on a specially licensed XMOS device. Please contact Cyberon or XMOS sales for further information.
 
 Overview
 ========
