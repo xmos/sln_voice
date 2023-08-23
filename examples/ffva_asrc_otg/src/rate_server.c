@@ -336,8 +336,8 @@ void rate_server(void *args)
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            //printint(usb_buffer_fill_level_from_half);
-            //printchar(',');
+            printint(usb_buffer_fill_level_from_half);
+            printchar(',');
 
             int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate, 28);
 
@@ -353,7 +353,7 @@ void rate_server(void *args)
             printint(usb_rate.exp);*/
             //printchar(',');
 
-            //printintln(fs_ratio);
+            printintln(fs_ratio);
 
             int guard_level = 100;
             if(usb_buffer_fill_level_from_half > guard_level)

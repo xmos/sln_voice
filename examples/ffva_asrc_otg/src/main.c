@@ -121,11 +121,11 @@ static void usb_to_i2s_slave_intertile(void *args) {
                 if(i2s_send_buffer_unread > 0)
                 {
                     i2s_ctx->okay_to_send = true;
-                    rtos_printf("I2S sampling rate change detected. i2s_send_buffer_unread = %d. fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                    rtos_printf("I2S sampling rate change detected. prev = %u, current = %u. i2s_send_buffer_unread = %d. fill level = %d\n", prev_i2s_sampling_rate, i2s_ctx->i2s_nominal_sampling_rate, i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
                     // Wait for i2s send buffer to drain fully before refilling it, so there's no chance we start at a fill level greater than 0
                     continue;
                 }
-                rtos_printf("I2S sampling rate change detected. i2s_send_buffer_unread = %d, fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                rtos_printf("I2S sampling rate change detected. prev = %u, current = %u. i2s_send_buffer_unread = %d, fill level = %d\n", prev_i2s_sampling_rate, i2s_ctx->i2s_nominal_sampling_rate, i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
                 prev_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
                 i2s_ctx->okay_to_send = false;
             }

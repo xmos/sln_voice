@@ -201,6 +201,10 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= usb_audio_in_size_bytes)
             {
                 xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
+
+                //printintln(usb_buffer_level_from_half/8);
+
+
                 //printchar('W');
                 //printintln(xStreamBufferBytesAvailable(samples_to_host_stream_buf)/8);
                 num_host_buf_writes += 1;
@@ -439,8 +443,8 @@ void usb_audio_out_task(void *arg)
         if(max_time < (end - start))
         {
             max_time = end - start;
-            printchar('c');
-            printuintln(max_time);
+            //printchar('c');
+            //printuintln(max_time);
         }
 
         unsigned n_samps_out_ch1;
@@ -466,8 +470,6 @@ void usb_audio_out_task(void *arg)
          */
         if (n_samps_out > 0)
         {
-            //printchar('s');
-            //printuintln(current_rate_ratio);
             rtos_intertile_tx(
                 intertile_ctx,
                 appconfUSB_AUDIO_PORT,
@@ -983,8 +985,9 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
+
     //printchar('R');
-    xassert(tx_size_bytes == 384);
+
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
 
