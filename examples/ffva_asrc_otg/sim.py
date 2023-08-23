@@ -41,27 +41,96 @@ class Buffer():
         unread = self.num_samples_written - self.num_samples_read
         return unread - (self.total_size/2)
 
+class Rate_monitor():
+    def __init__(self, nominal_rate_ratio, window_size):
+        self.nominal_rate_ratio = nominal_rate_ratio
+        self.window_size = window_size
+        self.accum = 0
+        self.count = 0
+        self.max = -1000
+        self.min = 1000
+        self.window_avg = 0
+        self.window_max = 0
+        self.window_min = 0
+        self.window_max_min_avg = 0
+
+        self.prev_window_avg = 0
+        self.prev_window_max = 0
+        self.prev_window_min = 0
+        self.prev_window_max_min_avg = 0
+        self.avg_valid = False
+        self.first_value_calculated = False
+
+    def calc_avg_rate(self, current_fill_level):
+        self.accum = self.accum + current_fill_level
+        if current_fill_level > self.max:
+            self.max = current_fill_level
+        if current_fill_level < self.min:
+            self.min = current_fill_level
+        self.count += 1
+        if self.count == self.window_size:
+            if self.first_value_calculated:
+                self.avg_valid = True
+            self.prev_window_avg = self.window_avg
+            self.prev_window_max = self.window_max
+            self.prev_window_min = self.window_min
+            self.prev_window_max_min_avg = self.window_max_min_avg
+
+            self.window_avg = self.accum / self.window_size
+            self.window_max = self.max
+            self.window_min = self.min
+            self.window_max_min_avg = (self.window_max + self.window_min) / 2
+            self.count = 0
+            self.accum = 0
+            self.max = -1000
+            self.min = 1000
+            self.first_value_calculated = True
+        return self.avg_valid, self.window_avg, self.window_max_min_avg - self.prev_window_max_min_avg
+
+        
+    
 class Producer(sim.Component):
     def __init__(self, buffer, actual_rate_ratio, input_period, nominal_input_rate, nominal_output_rate, input_block_size):
         self.num_write_calls = 0
         self.buffer = buffer
         self.buf_fill_levels = []
+        self.avg_buf_fill_levels = []
+        self.diff_levels = []
         self.fs_in = nominal_input_rate
         self.fs_out = nominal_output_rate
         self.block_size = input_block_size
         self.asrc = Asrc(self.fs_in, self.fs_out, self.block_size)
         self.nominal_rate_ratio = self.fs_in / self.fs_out 
-        self.actual_rate_ratio = actual_rate_ratio - 5e-7
+
+        self.rate_monitor = Rate_monitor(self.nominal_rate_ratio, 8192)
+        self.actual_rate_ratio = actual_rate_ratio - 4e-7
         self.input_period = input_period
+        self.rate_ratio = self.actual_rate_ratio
         super().__init__()
+    
+    def pi_controller(self, avg_level, diff):
+        self.Kd = 250
+        error = self.Kd*diff
+        return error
 
     def process(self):
         while True:
-            num_samples = self.asrc.process_frame(self.actual_rate_ratio)
+            num_samples = self.asrc.process_frame(self.rate_ratio)
             self.buffer.write(num_samples)
             self.num_write_calls = self.num_write_calls + 1
             if self.num_write_calls % 16 == 0:
-                self.buf_fill_levels.append(self.buffer.fill_level())
+                current_fill_level = self.buffer.fill_level()
+                self.buf_fill_levels.append(current_fill_level)
+                valid, avg_buf_level, diff_level = self.rate_monitor.calc_avg_rate(current_fill_level)
+
+                if valid:
+                    error = self.pi_controller(avg_buf_level, diff_level)
+                    self.avg_buf_fill_levels.append(avg_buf_level)
+                    self.diff_levels.append(diff_level)
+                    self.rate_ratio = self.actual_rate_ratio + (error / (1<<28))                   
+                    #print(self.rate_ratio)
+                
+
             yield self.hold(self.input_period)
 
 class Consumer(sim.Component):
@@ -97,7 +166,7 @@ buf.write(buf.size()/2)
 print(f"At the start of sim, fill level = {buf.fill_level()}")
 p = Producer(buf, actual_rate_ratio_fp_to_f, input_period, nominal_i2s_rate, nominal_usb_rate, input_block_size)
 c = Consumer(buf, sof_period)
-test_time_s = 60*60
+test_time_s = 60 * 60
 env.run(till=1000*test_time_s)
 
 plt.plot(p.buf_fill_levels)
@@ -109,42 +178,6 @@ print(f"After SIM. num_write_calls = {p.num_write_calls}")
 print(f"After SIM. num_read_calls = {c.num_read_calls}")
 print(f"After SIM. fill_level = {buf.fill_level()}")
 
-data = np.array(p.buf_fill_levels, dtype=np.float64)
-windowed_avgs = []
-windowed_avg_snapshot = 0
-max_val = -1000
-max_val_snapshot = 0
-max_over_a_window = []
-
-min_val = 1000
-min_val_snapshot = 0
-min_over_a_window = []
-
-accum = 0
-count = 0
-window_len = 4096
-for d in data:
-    count += 1
-    accum = accum + d
-    if d > max_val:
-        max_val = d
-    if d < min_val:
-        min_val = d
-
-    if(count == window_len):
-        windowed_avg_snapshot = accum / window_len
-        count = 0
-        accum = 0
-        max_val_snapshot = max_val
-        max_val = -1000
-        min_val_snapshot = min_val
-        min_val = 1000
-    windowed_avgs.append(windowed_avg_snapshot)
-    max_over_a_window.append(max_val_snapshot) 
-    min_over_a_window.append(min_val_snapshot) 
-
-#plt.plot(windowed_avgs)
-#plt.plot(max_over_a_window)
-#plt.plot(min_over_a_window)
-plt.plot((np.array(max_over_a_window) + np.array(min_over_a_window))/2)
+#plt.plot(p.avg_buf_fill_levels)
+plt.plot(p.diff_levels)
 plt.show()
