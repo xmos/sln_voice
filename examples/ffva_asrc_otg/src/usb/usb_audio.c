@@ -71,7 +71,7 @@ static TaskHandle_t usb_audio_out_task_handle;
 static uint32_t g_usb_to_i2s_rate_ratio = 0;
 uint32_t samples_to_host_stream_buf_size_bytes = 0;
 
-extern float_s32_t g_usb_data_rate;
+extern float_s32_t g_usb_data_rate[2];
 static bool g_i2s_sr_change_detected = false;
 static uint32_t g_i2s_nominal_sampling_rate = 0;
 
@@ -220,7 +220,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
                     usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
                     usb_rate_info.mic_itf_open = mic_interface_open;
                     usb_rate_info.spkr_itf_open = spkr_interface_open;
-                    usb_rate_info.usb_data_rate = g_usb_data_rate;
+                    usb_rate_info.usb_data_rate = g_usb_data_rate[TUSB_DIR_IN];
                     rtos_intertile_tx(
                     intertile_ctx,
                         appconfUSB_RATE_NOTIFY_PORT,
@@ -261,7 +261,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
             usb_rate_info.mic_itf_open = mic_interface_open;
             usb_rate_info.spkr_itf_open = spkr_interface_open;
-            usb_rate_info.usb_data_rate = g_usb_data_rate;
+            usb_rate_info.usb_data_rate = g_usb_data_rate[TUSB_DIR_IN];
             rtos_intertile_tx(
             intertile_ctx,
                 appconfUSB_RATE_NOTIFY_PORT,

@@ -30,7 +30,7 @@
 #define USB_ADAPTIVE_TASK_PRIORITY (configMAX_PRIORITIES-1)
 #endif /* USB_ADAPTIVE_TASK_PRIORITY */
 
-#define DATA_EVENT_QUEUE_SIZE 1
+#define DATA_EVENT_QUEUE_SIZE 2
 
 typedef struct usb_audio_rate_packet_desc {
     uint32_t cur_time;
@@ -40,10 +40,7 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
-float_s32_t g_usb_data_rate = {.mant=0, .exp=0};
-
-
-extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
+float_s32_t g_usb_data_rate[2] = {0};
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
@@ -53,16 +50,15 @@ static void usb_adaptive_clk_manager(void *args) {
 
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
-
-        g_usb_data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+        g_usb_data_rate[pkt_data.ep_dir] = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+        uint32_t end = get_reference_time();
         prev_time = pkt_data.cur_time;
     }
 }
 
 bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size_t xfer_len)
 {
-    if (ep_num == USB_AUDIO_EP &&
-        ep_dir == USB_DIR_OUT)
+    if (ep_num == USB_AUDIO_EP)
     {
         if(data_event_queue != NULL) {
             BaseType_t xHigherPriorityTaskWoken;
