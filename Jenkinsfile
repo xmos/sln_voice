@@ -4,7 +4,7 @@ getApproval()
 
 pipeline {
     agent {
-        label 'vrd-us'
+        label 'xcore.ai'
     }
     options {
         disableConcurrentBuilds()
