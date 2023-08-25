@@ -23,6 +23,7 @@
 #include "asrc_utils.h"
 #include "i2s_audio.h"
 #include "rate_server.h"
+#include "tusb.h"
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
@@ -299,14 +300,13 @@ void rate_server(void *args)
     i2s_to_usb_rate_info_t i2s_rate_info;
 
     const sw_pll_15q16_t Ki = SW_PLL_15Q16(0.2);
-    //const sw_pll_15q16_t Kd = SW_PLL_15Q16(0.25634765625);
     const sw_pll_15q16_t Kd = SW_PLL_15Q16(3);
 
     for(;;)
     {
         // Get USB rate and buffer information from the other tile
         size_t bytes_received;
-        float_s32_t usb_rate;
+        float_s32_t usb_rate[2];
         bytes_received = rtos_intertile_rx_len(
                     intertile_ctx,
                     appconfUSB_RATE_NOTIFY_PORT,
@@ -318,7 +318,8 @@ void rate_server(void *args)
                         &usb_rate_info,
                         bytes_received);
 
-        usb_rate = usb_rate_info.usb_data_rate;
+        usb_rate[TUSB_DIR_OUT] = usb_rate_info.usb_data_rate[TUSB_DIR_OUT];
+        usb_rate[TUSB_DIR_IN] = usb_rate_info.usb_data_rate[TUSB_DIR_IN];
 
         if((prev_spkr_itf_open == false) && (usb_rate_info.spkr_itf_open == true))
         {
@@ -339,7 +340,7 @@ void rate_server(void *args)
             printint(usb_buffer_fill_level_from_half);
             printchar(',');
 
-            int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate, 28);
+            int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
 
 
 
@@ -348,9 +349,9 @@ void rate_server(void *args)
             printchar(',');
             printint(i2s_rate.exp);
             printchar(',');
-            printuint(usb_rate.mant);
+            printuint(usb_rate[TUSB_DIR_IN].mant);
             printchar(',');
-            printint(usb_rate.exp);*/
+            printint(usb_rate[TUSB_DIR_IN].exp);*/
             //printchar(',');
 
             printintln(fs_ratio);
@@ -388,7 +389,7 @@ void rate_server(void *args)
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
-            int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
+            int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate[TUSB_DIR_OUT], i2s_rate, 28);
 
             int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
             int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);

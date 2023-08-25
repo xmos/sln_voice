@@ -40,7 +40,7 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
-float_s32_t g_usb_data_rate[2] = {0};
+float_s32_t g_usb_data_rate[2] = {{0}};
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
