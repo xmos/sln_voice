@@ -299,7 +299,7 @@ void rate_server(void *args)
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
 
-    const sw_pll_15q16_t Ki = SW_PLL_15Q16(0.2);
+    const sw_pll_15q16_t Ki = SW_PLL_15Q16(3);
     const sw_pll_15q16_t Kd = SW_PLL_15Q16(3);
 
     for(;;)
@@ -337,8 +337,8 @@ void rate_server(void *args)
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            printint(usb_buffer_fill_level_from_half);
-            printchar(',');
+            //printint(usb_buffer_fill_level_from_half);
+            //printchar(',');
 
             int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
 
@@ -354,7 +354,7 @@ void rate_server(void *args)
             printint(usb_rate[TUSB_DIR_IN].exp);*/
             //printchar(',');
 
-            printintln(fs_ratio);
+            //printintln(fs_ratio);
 
             int guard_level = 100;
             if(usb_buffer_fill_level_from_half > guard_level)
@@ -395,11 +395,19 @@ void rate_server(void *args)
             int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);
 
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
-            (void)total_error;
+            if(total_error > 200)
+            {
+                total_error = 200;
+            }
+            else if(total_error < -200)
+            {
+                total_error = -200;
+            }
 
-            //printint(total_error);
-            //printchar(',');
-            //printintln(g_avg_i2s_send_buffer_level);
+
+            printint(total_error);
+            printchar(',');
+            printintln(g_avg_i2s_send_buffer_level);
 
 
 
