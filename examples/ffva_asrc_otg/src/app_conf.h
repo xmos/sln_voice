@@ -149,4 +149,6 @@
     #define MIC_ARRAY_SAMPLING_FREQ (16000)
 #endif
 
+#define NUM_I2S_CHANS (2)
+
 #endif /* APP_CONF_H_ */

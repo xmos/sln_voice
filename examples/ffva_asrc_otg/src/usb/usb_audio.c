@@ -45,7 +45,6 @@
 
 #include "asrc_utils.h"
 #include "rate_server.h"
-#include "i2s_usb_intertile.h"
 
 // Audio controls
 // Current states
@@ -70,15 +69,15 @@ static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_task_handle;
 
 static uint32_t g_usb_to_i2s_rate_ratio = 0;
-uint32_t samples_to_host_stream_buf_size_bytes = 0;
+static uint32_t samples_to_host_stream_buf_size_bytes = 0;
+static bool g_i2s_sr_change_detected = false;
 
 extern float_s32_t g_usb_data_rate[2];
-static bool g_i2s_sr_change_detected = false;
-static uint32_t g_i2s_nominal_sampling_rate = 0;
 
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
 
+static uint32_t g_i2s_nominal_sampling_rate = 0;
 void update_i2s_nominal_sampling_rate(uint32_t i2s_rate)
 {
     g_i2s_nominal_sampling_rate = i2s_rate;
@@ -88,6 +87,7 @@ uint32_t get_i2s_nominal_sampling_rate()
 {
     return g_i2s_nominal_sampling_rate;
 }
+
 
 //--------------------------------------------------------------------+
 // Device callbacks
@@ -131,42 +131,14 @@ typedef int32_t samp_t;
 #error CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX must be either 2 or 4
 #endif
 
-static int32_t calc_avg_buffer_level(int32_t buf_level)
-{
-    //#define WINDOW_SIZE (20)
-    const size_t window_size = 20;
-    static uint32_t counter = 0;
-    static int32_t buckets[window_size] = {0};
-    static bool buckets_full = false;
-    if(buckets_full == false)
-    {
-        buckets[counter] = buf_level;
-        if(counter == window_size-1)
-        {
-            buckets_full = true;
-        }
-    }
-    else
-    {
-        uint32_t oldest = counter % window_size;
-        buckets[oldest] = buf_level;
-    }
-    int32_t acc = 0;
-    for(int i=0; i<window_size; i++)
-    {
-        acc = acc + buckets[i];
-    }
-    int32_t avg = acc / (int32_t)window_size;
-    counter = counter + 1;
-    return avg;
-}
 
 void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved samples [samps][ch] format
                     size_t frame_count,
                     size_t num_chans)
 {
+    #define RATE_MONITOR_TRIGGER_INTERVAL (16)
     static int32_t prev_i2s_sampling_rate = 0;
-    static uint32_t num_host_buf_writes = 0;
+    static uint32_t num_samples_to_host_buf_writes = 0;
     static uint32_t num_dummy_writes = 0;
 
     samp_t usb_audio_in_frame[I2S_TO_USB_ASRC_BLOCK_LENGTH * 2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
@@ -186,14 +158,26 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
 
-    if (mic_interface_open)
+    usb_to_i2s_rate_info_t usb_rate_info;
+    usb_rate_info.mic_itf_open = mic_interface_open;
+    usb_rate_info.spkr_itf_open = spkr_interface_open;
+    usb_rate_info.usb_data_rate[TUSB_DIR_IN] = g_usb_data_rate[TUSB_DIR_IN];
+    usb_rate_info.usb_data_rate[TUSB_DIR_OUT] = g_usb_data_rate[TUSB_DIR_OUT];
+    usb_rate_info.samples_to_host_buf_fill_level = 0;
+
+    bool intertile_send = false;
+    if (usb_rate_info.mic_itf_open)
     {
         uint32_t current_i2s_rate = get_i2s_nominal_sampling_rate();
 
         if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
             rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, current_i2s_rate);
+            // Set this flag and wait for it to be cleared from tud_audio_tx_done_pre_load_cb(), which it will, after resetting the samples_to_host_stream_buf. We wait
+            // for g_i2s_sr_change_detected to be False before starting to write in the samples_to_host_stream_buf.
             g_i2s_sr_change_detected = true;
+            num_samples_to_host_buf_writes = 0;
+            num_dummy_writes = 0;
         }
         prev_i2s_sampling_rate = current_i2s_rate;
 
@@ -203,46 +187,12 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             {
                 xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
 
-                //printintln(usb_buffer_level_from_half/8);
-
-
-                //printchar('W');
-                //printintln(xStreamBufferBytesAvailable(samples_to_host_stream_buf)/8);
-                num_host_buf_writes += 1;
-                if(num_host_buf_writes % 16 == 0)
+                num_samples_to_host_buf_writes += 1;
+                if(num_samples_to_host_buf_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
                 {
-                    // Hopefully all this is quick
-                    usb_to_i2s_rate_info_t usb_rate_info;
-                    i2s_to_usb_rate_info_t i2s_rate_info;
-                    size_t bytes_received;
-
-                    // Trigger rate monitoring
                     int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
                     usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
-                    usb_rate_info.mic_itf_open = mic_interface_open;
-                    usb_rate_info.spkr_itf_open = spkr_interface_open;
-                    usb_rate_info.usb_data_rate[TUSB_DIR_IN] = g_usb_data_rate[TUSB_DIR_IN];
-                    usb_rate_info.usb_data_rate[TUSB_DIR_OUT] = g_usb_data_rate[TUSB_DIR_OUT];
-                    rtos_intertile_tx(
-                    intertile_ctx,
-                        appconfUSB_RATE_NOTIFY_PORT,
-                        &usb_rate_info,
-                        sizeof(usb_rate_info));
-
-
-                    bytes_received = rtos_intertile_rx_len(
-                        intertile_ctx,
-                        appconfUSB_RATE_NOTIFY_PORT,
-                        portMAX_DELAY);
-                    xassert(bytes_received == sizeof(i2s_rate_info));
-
-                    rtos_intertile_rx_data(
-                        intertile_ctx,
-                        &i2s_rate_info,
-                        bytes_received);
-
-                    // Update ratio only when both rates are valid
-                    g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
+                    intertile_send = true; // Trigger rate monitoring on the other tile
                 }
             }
             else
@@ -251,76 +201,40 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             }
         }
     }
-    else
+    else // If mic_interface is not open we send this information anyway since the rate calculation for the spkr interface (i2s in usb out) might need to be done
     {
         num_dummy_writes += 1;
-        if(num_dummy_writes % 16 == 0)
+        if(num_dummy_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
         {
-            // Send mic and spkr interface open anyway.
-            usb_to_i2s_rate_info_t usb_rate_info;
-            i2s_to_usb_rate_info_t i2s_rate_info;
-            int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-            usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
-            usb_rate_info.mic_itf_open = mic_interface_open;
-            usb_rate_info.spkr_itf_open = spkr_interface_open;
-            usb_rate_info.usb_data_rate[TUSB_DIR_IN] = g_usb_data_rate[TUSB_DIR_IN];
-            usb_rate_info.usb_data_rate[TUSB_DIR_OUT] = g_usb_data_rate[TUSB_DIR_OUT];
-            rtos_intertile_tx(
-            intertile_ctx,
-                appconfUSB_RATE_NOTIFY_PORT,
-                &usb_rate_info,
-                sizeof(usb_rate_info));
-
-            size_t bytes_received = rtos_intertile_rx_len(
-                intertile_ctx,
-                appconfUSB_RATE_NOTIFY_PORT,
-                portMAX_DELAY);
-            xassert(bytes_received == sizeof(i2s_rate_info));
-
-            rtos_intertile_rx_data(
-                intertile_ctx,
-                &i2s_rate_info,
-                bytes_received);
-
-            if (i2s_rate_info.usb_to_i2s_rate_ratio != 0)
-            {
-                g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
-            }
-            else
-            {
-                g_usb_to_i2s_rate_ratio = 0;
-            }
+            intertile_send = true; // Trigger rate monitoring on the other tile
         }
     }
-}
-
-unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
-                        int32_t **frame_buffers)
-{
-    static int32_t frame_samples_interleaved[USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 + USB_TO_I2S_ASRC_BLOCK_LENGTH][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX]; // TODO calculate size properly
-
-    size_t bytes_received;
-
-    bytes_received = rtos_intertile_rx_len(
-        intertile_ctx,
-        appconfUSB_AUDIO_PORT,
-        USB_AUDIO_RECV_DELAY);
-
-    if (bytes_received > 0)
+    if(intertile_send == true)
     {
-        xassert(bytes_received <= sizeof(frame_samples_interleaved));
+        i2s_to_usb_rate_info_t i2s_rate_info;
+        size_t bytes_received;
+
+        rtos_intertile_tx(
+        intertile_ctx,
+            appconfUSB_RATE_NOTIFY_PORT,
+            &usb_rate_info,
+            sizeof(usb_rate_info));
+
+
+        bytes_received = rtos_intertile_rx_len(
+            intertile_ctx,
+            appconfUSB_RATE_NOTIFY_PORT,
+            portMAX_DELAY);
+        xassert(bytes_received == sizeof(i2s_rate_info));
 
         rtos_intertile_rx_data(
             intertile_ctx,
-            frame_samples_interleaved,
+            &i2s_rate_info,
             bytes_received);
 
-        *frame_buffers = &frame_samples_interleaved[0][0];
-        return bytes_received >> 3; // Return number of 32bit samples per channel. 4bytes per samples and 2 channels
-    }
-    else
-    {
-        return 0;
+        // Update ratio only when both rates are valid
+        g_usb_to_i2s_rate_ratio = i2s_rate_info.usb_to_i2s_rate_ratio;
+
     }
 }
 
@@ -376,7 +290,9 @@ void usb_audio_out_task(void *arg)
     fs_code_t in_fs_code;
     fs_code_t out_fs_code;
     unsigned nominal_fs_ratio;
+#if PROFILE_ASRC
     uint32_t max_time = 0;
+#endif
 
     int32_t frame_samples[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 + USB_TO_I2S_ASRC_BLOCK_LENGTH];             // TODO calculate size properly
     int32_t frame_samples_interleaved[USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 + USB_TO_I2S_ASRC_BLOCK_LENGTH][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX]; // TODO calculate size properly
@@ -393,7 +309,6 @@ void usb_audio_out_task(void *arg)
          * pipeline frame.
          */
         (void)ulTaskNotifyTake(pdFALSE, portMAX_DELAY);
-        // while(xStreamBufferBytesAvailable(samples_from_host_stream_buf) < sizeof(usb_audio_out_frame));
         bytes_received = xStreamBufferReceive(samples_from_host_stream_buf, usb_audio_out_frame, sizeof(usb_audio_out_frame), 0);
         uint32_t current_i2s_rate = get_i2s_nominal_sampling_rate();
 
@@ -436,19 +351,16 @@ void usb_audio_out_task(void *arg)
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = current_rate_ratio;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
+#if PROFILE_ASRC
+        uint32_t start = get_reference_time();
+#endif
+
         (void)rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
-        // Only channel 0 for now
-        uint32_t start = get_reference_time();
+
         unsigned n_samps_out = asrc_process((int *)&usb_audio_out_frame_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
-        uint32_t end = get_reference_time();
-        if(max_time < (end - start))
-        {
-            max_time = end - start;
-            //printchar('c');
-            //printuintln(max_time);
-        }
+
 
         unsigned n_samps_out_ch1;
         rtos_osal_queue_receive(&asrc_init_ctx.asrc_ret_queue, &n_samps_out_ch1, RTOS_OSAL_WAIT_FOREVER);
@@ -466,6 +378,15 @@ void usb_audio_out_task(void *arg)
                 frame_samples_interleaved[i][ch] = frame_samples[ch][i];
             }
         }
+#if PROFILE_ASRC
+        uint32_t end = get_reference_time();
+        if(max_time < (end - start))
+        {
+            max_time = end - start;
+            printchar('u');
+            printuintln(max_time);
+        }
+#endif
 
         /*
          * This shouldn't normally be zero, but it could be possible that
@@ -876,10 +797,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     size_t tx_size_frames;
     static bool first_frame_after_mic_interface_open = false;
 
-    //printcharln('R');
-    //ts = get_reference_time();
-    //printintln(ts - prev_ts);
-    //prev_ts = ts;
     /*
      * This buffer needs to be large enough to hold any size of transaction,
      * but if it's any bigger than twice nominal then we have bigger issues
@@ -1070,6 +987,56 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
 
     return true;
 }
+
+
+// I2S recv -> ASRC -> |to other tile| -> i2s_to_usb_intertile -> usb_audio_send
+// This task receives I2S nominal sampling rate and the post ASRC data from the I2S tile into the USB tile
+static void i2s_to_usb_intertile(void *args)
+{
+    // When sending from I2S to USB side, we're always downsampling, except for the 44.1 -> 48 case, so the post ASRC buffer length will always be
+    // less than I2S_TO_USB_ASRC_BLOCK_LENGTH except for the 44.1 -> 48 case, so we let this decide the buffer size.
+    (void) args;
+    #define BUFFER_SIZE (((I2S_TO_USB_ASRC_BLOCK_LENGTH * 48000)/44100) + 10) // +1 should be enough but just in case
+    int32_t i2s_to_usb_samps_interleaved[BUFFER_SIZE][NUM_I2S_CHANS];
+    uint32_t i2s_nominal_sampling_rate;
+
+    for(;;)
+    {
+        size_t bytes_received;
+        // Get I2S nominal sampling rate from I2S tile to USB tile
+        bytes_received = rtos_intertile_rx_len(
+                intertile_i2s_audio_ctx,
+                appconfAUDIOPIPELINE_PORT,
+                portMAX_DELAY);
+        xassert(bytes_received <= sizeof(i2s_nominal_sampling_rate));
+
+        rtos_intertile_rx_data(
+                    intertile_i2s_audio_ctx,
+                    &i2s_nominal_sampling_rate,
+                    bytes_received);
+
+        update_i2s_nominal_sampling_rate(i2s_nominal_sampling_rate);
+
+        // Get the ASRC output data
+        bytes_received = rtos_intertile_rx_len(
+                intertile_i2s_audio_ctx,
+                appconfAUDIOPIPELINE_PORT,
+                portMAX_DELAY);
+
+        if (bytes_received > 0) {
+            xassert(bytes_received <= sizeof(i2s_to_usb_samps_interleaved));
+
+            rtos_intertile_rx_data(
+                    intertile_i2s_audio_ctx,
+                    i2s_to_usb_samps_interleaved,
+                    bytes_received);
+
+            usb_audio_send(&i2s_to_usb_samps_interleaved[0][0], (bytes_received >> 3), 2);
+        }
+
+    }
+}
+
 
 void usb_audio_init(rtos_intertile_t *intertile_ctx,
                     unsigned priority)

@@ -29,12 +29,13 @@
 #include "gpio_test/gpio_test.h"
 #include "i2s_audio.h"
 #include "rate_server.h"
+#include "asrc_utils.h"
+#include "tusb_config.h"
 
 int32_t g_avg_i2s_send_buffer_level = 0;
 int32_t g_prev_avg_i2s_send_buffer_level = 0;
 
 extern bool g_spkr_itf_close_to_open;
-extern void update_i2s_nominal_sampling_rate(uint32_t i2s_rate);
 
 static void calc_avg_i2s_buffer_level(int current_level, bool reset)
 {
@@ -62,11 +63,44 @@ static void calc_avg_i2s_buffer_level(int current_level, bool reset)
     }
 }
 
+static unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
+                        int32_t **frame_buffers)
+{
+    static int32_t frame_samples_interleaved[(USB_TO_I2S_ASRC_BLOCK_LENGTH * 4) + 10][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX]; //+1 should be okay but +10 just in case
+
+    size_t bytes_received;
+
+    bytes_received = rtos_intertile_rx_len(
+        intertile_ctx,
+        appconfUSB_AUDIO_PORT,
+        portMAX_DELAY);
+
+    if (bytes_received > 0)
+    {
+        xassert(bytes_received <= sizeof(frame_samples_interleaved));
+
+        rtos_intertile_rx_data(
+            intertile_ctx,
+            frame_samples_interleaved,
+            bytes_received);
+
+        *frame_buffers = &frame_samples_interleaved[0][0];
+        return bytes_received >> 3; // Return number of 32bit samples per channel. 4bytes per samples and 2 channels
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+
+// USB audio recv -> ASRC -> |to other tile| -> usb_to_i2s_intertile -> I2S send
 void usb_to_i2s_intertile(void *args) {
     (void) args;
     int32_t *usb_to_i2s_samps;
     for(;;)
     {
+        // Receive USB recv + ASRC data frame from the other tile
         unsigned num_samps = usb_audio_recv(intertile_usb_audio_ctx,
                                             &usb_to_i2s_samps
                                         );
@@ -125,47 +159,5 @@ void usb_to_i2s_intertile(void *args) {
                 i2s_ctx->okay_to_send = true;
             }
         }
-    }
-}
-
-void i2s_to_usb_intertile(void *args)
-{
-    (void) args;
-    int32_t i2s_to_usb_samps_interleaved[240*2][2]; // TODO fix all the hardcodings
-    uint32_t i2s_nominal_sampling_rate;
-
-    for(;;)
-    {
-        size_t bytes_received;
-
-        bytes_received = rtos_intertile_rx_len(
-                intertile_i2s_audio_ctx,
-                appconfAUDIOPIPELINE_PORT,
-                portMAX_DELAY);
-        xassert(bytes_received <= sizeof(i2s_nominal_sampling_rate));
-
-        rtos_intertile_rx_data(
-                    intertile_i2s_audio_ctx,
-                    &i2s_nominal_sampling_rate,
-                    bytes_received);
-
-        update_i2s_nominal_sampling_rate(i2s_nominal_sampling_rate);
-
-        bytes_received = rtos_intertile_rx_len(
-                intertile_i2s_audio_ctx,
-                appconfAUDIOPIPELINE_PORT,
-                portMAX_DELAY);
-
-        if (bytes_received > 0) {
-            xassert(bytes_received <= sizeof(i2s_to_usb_samps_interleaved));
-
-            rtos_intertile_rx_data(
-                    intertile_i2s_audio_ctx,
-                    i2s_to_usb_samps_interleaved,
-                    bytes_received);
-
-            usb_audio_send(&i2s_to_usb_samps_interleaved[0][0], (bytes_received >> 3), 2);
-        }
-
     }
 }

@@ -42,7 +42,6 @@ static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
 
 }
 
-#define NUM_I2S_CHANS (2)
 static void i2s_audio_recv_task(void *args)
 {
     (void)args;
