@@ -51,7 +51,6 @@ static void usb_adaptive_clk_manager(void *args) {
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
         g_usb_data_rate[pkt_data.ep_dir] = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
-        uint32_t end = get_reference_time();
         prev_time = pkt_data.cur_time;
     }
 }

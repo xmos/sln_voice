@@ -301,6 +301,7 @@ void rate_server(void *args)
             }
 
             // This is still WIP so leaving this commented out code here
+
             //printint(total_error);
             //printchar(',');
             //printintln(g_avg_i2s_send_buffer_level);
@@ -338,4 +339,87 @@ void rate_server(void *args)
             &i2s_rate_info,
             sizeof(i2s_rate_info));
     }
+}
+
+#if __xcore__
+uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format )
+{
+    //h and l hold a 64-bit value
+    uint32_t h; uint32_t l;
+    uint32_t quotient=0, remainder=0;
+
+    // Create long dividend by shift dividend up q_format positions
+    h = dividend >> (32-q_format);
+    l = dividend << (q_format);
+
+    // Unsigned Long division
+    asm("ldivu %0,%1,%2,%3,%4":"=r"(quotient):"r"(remainder),"r"(h),"r"(l),"r"(divisor));
+
+    return quotient;
+}
+#else //__xcore__
+// If we're compiling this for x86 we're probably testing it - let the compiler work out the ASM for this
+
+uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format )
+{
+    uint64_t h = (uint64_t)dividend << q_format;
+    uint64_t quotient = h / divisor;
+
+    return (uint32_t)quotient;
+}
+#endif //__xcore__
+
+float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
+{
+    float_s32_t res;// = float_s32_div(dividend, divisor);
+
+    int dividend_hr;
+    int divisor_hr;
+
+    asm( "clz %0, %1" : "=r"(dividend_hr) : "r"(dividend.mant) );
+    asm( "clz %0, %1" : "=r"(divisor_hr) : "r"(divisor.mant) );
+
+    int dividend_exp = dividend.exp - dividend_hr;
+    int divisor_exp = divisor.exp - divisor_hr;
+
+    uint64_t h_dividend = (uint64_t)((uint32_t)dividend.mant) << (dividend_hr);
+
+    uint32_t h_divisor = ((uint32_t)divisor.mant) << (divisor_hr);
+
+    uint32_t lhs = (h_dividend > h_divisor) ? 31 : 32;
+
+    uint64_t quotient = (h_dividend << lhs) / h_divisor;
+
+    res.exp = dividend_exp - divisor_exp - lhs;
+
+    res.mant = (uint32_t)(quotient) ;
+    return res;
+}
+
+uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format)
+{
+    int op_q = -output_q_format;
+    float_s32_t res = float_div(dividend, divisor);
+    uint32_t quotient;
+    if(res.exp < op_q)
+    {
+        int rsh = op_q - res.exp;
+        quotient = ((uint32_t)res.mant >> rsh) + (((uint32_t)res.mant >> (rsh-1)) & 0x1);
+    }
+    else
+    {
+        int lsh = res.exp - op_q;
+        quotient = (uint32_t)res.mant << lsh;
+    }
+    return quotient;
+}
+
+uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
+{
+    uint32_t acc = 0;
+    for (uint32_t i = 0; i < array_length; i++)
+    {
+        acc += array_to_sum[i];
+    }
+    return acc;
 }
