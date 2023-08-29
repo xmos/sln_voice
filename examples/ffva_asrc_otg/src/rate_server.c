@@ -81,7 +81,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     }
     else if(i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
-        rtos_printf("determine_avg_I2S_rate_from_driver() SR change detected\n");
+        rtos_printf("determine_avg_I2S_rate_from_driver() I2S SR change detected, new_sr = %lu, prev_sr = %lu\n", i2s_nominal_sampling_rate, prev_nominal_sampling_rate);
         counter = 0;
         timespan_current_bucket = 0;
 

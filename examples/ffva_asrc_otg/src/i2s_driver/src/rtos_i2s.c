@@ -100,9 +100,10 @@ I2S_CALLBACK_ATTR
 static i2s_restart_t i2s_restart_check(rtos_i2s_t *ctx)
 {
     static bool first_frame_after_restart = false;
-    uint32_t i2s_prev_callback_ticks, i2s_callback_ticks = 0;
     static uint32_t frame_counter = 0;
     static uint32_t nominal_rate_calc_timespan = 0;
+    static uint32_t i2s_callback_ticks = 0;
+    uint32_t i2s_prev_callback_ticks;
 
     i2s_prev_callback_ticks = i2s_callback_ticks;
     i2s_callback_ticks = get_reference_time();
@@ -126,6 +127,7 @@ static i2s_restart_t i2s_restart_check(rtos_i2s_t *ctx)
         if(ctx->i2s_nominal_sampling_rate == 0) // only do it once after i2s_init
         {
             nominal_rate_calc_timespan += (i2s_callback_ticks - i2s_prev_callback_ticks);
+
             frame_counter += 1;
             if(frame_counter == 256) // Check over a 256 sample window to quickly get the nominal rate.
             {
@@ -439,8 +441,6 @@ void rtos_i2s_start(
     i2s_ctx->mode = mode;
     i2s_ctx->isr_cmd = 0;
     i2s_ctx->did_restart = false;
-    i2s_ctx->i2s_callback_ticks = 0;
-    i2s_ctx->i2s_prev_callback_ticks = 0;
     i2s_ctx->okay_to_send = false;
 
     memset(&i2s_ctx->recv_buffer, 0, sizeof(i2s_ctx->send_buffer));
