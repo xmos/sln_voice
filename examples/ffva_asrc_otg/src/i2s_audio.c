@@ -27,6 +27,7 @@
 #include "asrc_utils.h"
 #include "i2s_audio.h"
 #include "rate_server.h"
+#include "i2s_usb_intertile.h"
 
 
 static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
@@ -202,25 +203,34 @@ static void i2s_audio_recv_task(void *args)
 }
 
 
-void i2s_audio_recv_init()
+void i2s_audio_init()
 {
-#if ON_TILE(1)
-    // Create pipeline input task
+#if ON_TILE(I2S_TILE_NO)
+    // I2S audio recv + ASRC task
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
-        (char *) "Pipeline_input",
+        (char *) "i2s_audio_recv_asrc",
         (rtos_osal_entry_function_t) i2s_audio_recv_task,
         (void *) NULL,
         (size_t) RTOS_THREAD_STACK_SIZE(i2s_audio_recv_task),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
-    // Create the rate server task
+    // Rate monitor task
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
         (char *) "Rate Server",
         (rtos_osal_entry_function_t) rate_server,
         (void *) NULL,
         (size_t) RTOS_THREAD_STACK_SIZE(rate_server),
+        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+
+    // Task for receiving audio from the USB to the I2S tile
+    (void) rtos_osal_thread_create(
+        (rtos_osal_thread_t *) NULL,
+        (char *) "usb_to_i2s_intertile",
+        (rtos_osal_entry_function_t) usb_to_i2s_intertile,
+        (void *) NULL,
+        (size_t) RTOS_THREAD_STACK_SIZE(usb_to_i2s_intertile),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
 #endif

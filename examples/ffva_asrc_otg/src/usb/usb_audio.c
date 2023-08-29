@@ -45,6 +45,7 @@
 
 #include "asrc_utils.h"
 #include "rate_server.h"
+#include "i2s_usb_intertile.h"
 
 // Audio controls
 // Current states
@@ -1101,4 +1102,13 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
     samples_to_host_stream_buf = xStreamBufferCreate(samples_to_host_stream_buf_size_bytes, 0);
 
     xTaskCreate((TaskFunction_t)usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
+
+
+    // Task for receiving audio from the i2s to usb tile
+    xTaskCreate((TaskFunction_t) i2s_to_usb_intertile,
+            "i2s_to_usb_intertile",
+            RTOS_THREAD_STACK_SIZE(i2s_to_usb_intertile),
+            NULL,
+            appconfAUDIO_PIPELINE_TASK_PRIORITY,
+            NULL);
 }
