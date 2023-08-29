@@ -861,7 +861,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     bytes_available = xStreamBufferBytesAvailable(samples_to_host_stream_buf);
 
-    //if (bytes_available >= 3 * sizeof(samp_t) * I2S_TO_USB_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX)
     if(bytes_available >= samples_to_host_stream_buf_size_bytes/2) // Buffer fill level 0
     {
         /* wait until we have 2 full audio pipeline output frames in the buffer */
@@ -905,9 +904,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         size_t num_rx = xStreamBufferReceive(samples_to_host_stream_buf, &stream_buffer_audio_frames[num_rx_total], ready_data_bytes - num_rx_total, 0);
         num_rx_total += num_rx;
     }
-
-    //printchar('R');
-
 
     tud_audio_write(stream_buffer_audio_frames, tx_size_bytes);
 

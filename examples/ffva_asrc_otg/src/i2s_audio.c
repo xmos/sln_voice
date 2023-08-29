@@ -88,8 +88,8 @@ static void i2s_audio_recv_task(void *args)
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
     // Keep receiving and discarding from I2S till we get a valid sampling rate
-    int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][appconfAUDIO_PIPELINE_CHANNELS];
-    int32_t tmp_deinterleaved[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
+    int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][NUM_I2S_CHANS];
+    int32_t tmp_deinterleaved[NUM_I2S_CHANS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
     uint32_t i2s_sampling_rate = 0;
     uint32_t new_i2s_sampling_rate = 0;
 
@@ -97,10 +97,11 @@ static void i2s_audio_recv_task(void *args)
     fs_code_t in_fs_code;
     fs_code_t out_fs_code;
 
-    int32_t frame_samples[appconfAUDIO_PIPELINE_CHANNELS][I2S_TO_USB_ASRC_BLOCK_LENGTH*2];
-    int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][appconfAUDIO_PIPELINE_CHANNELS];
-
+    int32_t frame_samples[NUM_I2S_CHANS][I2S_TO_USB_ASRC_BLOCK_LENGTH*2];
+    int32_t frame_samples_interleaved[I2S_TO_USB_ASRC_BLOCK_LENGTH*2][NUM_I2S_CHANS];
+#if PROFILE_ASRC
     uint32_t max_time = 0;
+#endif
     uint32_t nominal_fs_ratio = 0;
     for(;;)
     {
@@ -133,7 +134,7 @@ static void i2s_audio_recv_task(void *args)
             current_rate_ratio = g_i2s_to_usb_rate_ratio;
         }
 
-        for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+        for(int ch=0; ch<NUM_I2S_CHANS; ch++)
         {
             for(int sample=0; sample<I2S_TO_USB_ASRC_BLOCK_LENGTH; sample++)
             {
@@ -148,22 +149,13 @@ static void i2s_audio_recv_task(void *args)
         asrc_ctx.i2s_sampling_rate = i2s_sampling_rate;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
+#if PROFILE_ASRC
+        uint32_t start = get_reference_time();
+#endif
         (void) rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
-        // Only channel 0 for now
-        uint32_t start = get_reference_time();
         unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
-
-        uint32_t end = get_reference_time();
-        if(max_time < (end - start))
-        {
-            max_time = end - start;
-            //printchar('c');
-            //printuintln(max_time);
-        }
-
-
 
         // Wait for 2nd channel ASRC to finish
         unsigned n_samps_out_ch1;
@@ -177,26 +169,36 @@ static void i2s_audio_recv_task(void *args)
 
         for(int i=0; i<n_samps_out; i++)
         {
-            for(int ch=0; ch<appconfAUDIO_PIPELINE_CHANNELS; ch++)
+            for(int ch=0; ch<NUM_I2S_CHANS; ch++)
             {
                 frame_samples_interleaved[i][ch] = frame_samples[ch][i];
             }
         }
-        //printchar('c');
-        //printintln(n_samps_out);
+
+#if PROFILE_ASRC
+        uint32_t end = get_reference_time();
+        if(max_time < (end - start))
+        {
+            max_time = end - start;
+            printchar('i');
+            printuintln(max_time);
+        }
+#endif
 
         if (n_samps_out > 0) {
+            // Send nominal I2S sampling rate
             rtos_intertile_tx(
                 intertile_i2s_audio_ctx,
                 appconfAUDIOPIPELINE_PORT,
                 &i2s_sampling_rate,
                 sizeof(uint32_t));
 
+            // Send ASRC output data
             rtos_intertile_tx(
                     intertile_i2s_audio_ctx,
                     appconfAUDIOPIPELINE_PORT,
                     frame_samples_interleaved,
-                    n_samps_out*appconfAUDIO_PIPELINE_CHANNELS*sizeof(int32_t));
+                    n_samps_out*NUM_I2S_CHANS*sizeof(int32_t));
         }
     }
 }
@@ -223,7 +225,7 @@ void i2s_audio_init()
         (size_t) RTOS_THREAD_STACK_SIZE(rate_server),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
-    // Task for receiving audio from the USB to the I2S tile
+    // Task for receiving USB+ASRC audio frame from the USB to the I2S tile
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
         (char *) "usb_to_i2s_intertile",
