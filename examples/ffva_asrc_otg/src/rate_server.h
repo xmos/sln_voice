@@ -3,10 +3,18 @@
 #include "xmath/xmath.h"
 
 void rate_server(void *args);
-float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_t output_exp);
-uint32_t my_ema_calc_custom(uint32_t x, uint32_t y, int input_exp, uint32_t alpha_q31, int32_t output_exp);
+void calc_avg_i2s_send_buffer_level(int current_level, bool reset);
 
-#define SAMPLING_RATE_Q_FORMAT (23)
+// Getters and setters for various global variables
+uint32_t get_i2s_to_usb_rate_ratio();
+void set_i2s_to_usb_rate_ratio(uint32_t ratio);
+bool get_spkr_itf_close_open_event();
+void set_spkr_itf_close_open_event(bool event);
+
+// Rate calculation math functions
+uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
+float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);
+uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
 
 typedef struct
 {
@@ -22,9 +30,5 @@ typedef struct
     /* data */
     uint32_t usb_to_i2s_rate_ratio;
 }i2s_to_usb_rate_info_t;
-
-
-// Extern variables
-extern uint32_t g_i2s_to_usb_rate_ratio;
 
 #endif

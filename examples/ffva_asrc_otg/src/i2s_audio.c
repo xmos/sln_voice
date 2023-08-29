@@ -106,7 +106,7 @@ static void i2s_audio_recv_task(void *args)
     for(;;)
     {
         recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
-        uint32_t start_sr_detect = get_reference_time();
+
         new_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
 
         if(new_i2s_sampling_rate == 0) {
@@ -114,7 +114,8 @@ static void i2s_audio_recv_task(void *args)
         }
         else if(new_i2s_sampling_rate != i2s_sampling_rate)
         {
-            g_i2s_to_usb_rate_ratio = 0;
+            set_i2s_to_usb_rate_ratio(0); // Since this is updated only at rate monitor trigger interval, set it to 0 so
+                                         //we don't end up using the wrong ratio till its updated in the rate monitor
             i2s_sampling_rate = new_i2s_sampling_rate;
             asrc_init_ctx.fs_in = i2s_sampling_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in);  //Sample rate code 0..5
@@ -124,14 +125,14 @@ static void i2s_audio_recv_task(void *args)
             nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[0][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
             nominal_fs_ratio = asrc_init(in_fs_code, out_fs_code, &asrc_ctrl[1][0], ASRC_CHANNELS_PER_INSTANCE, asrc_init_ctx.n_in_samples, ASRC_DITHER_SETTING);
 
-            rtos_printf("i2s_audio_recv_task(): new nominal_fs_ratio %lu. g_i2s_to_usb_rate_ratio %lu\n", nominal_fs_ratio, g_i2s_to_usb_rate_ratio);
             // We're too late to do the asrc_process(), skip this frame
             continue;
         }
         uint32_t current_rate_ratio = nominal_fs_ratio;
-        if(g_i2s_to_usb_rate_ratio != 0)
+        uint32_t rate_ratio = get_i2s_to_usb_rate_ratio();
+        if(rate_ratio != 0)
         {
-            current_rate_ratio = g_i2s_to_usb_rate_ratio;
+            current_rate_ratio = rate_ratio;
         }
 
         for(int ch=0; ch<NUM_I2S_CHANS; ch++)
@@ -206,7 +207,6 @@ static void i2s_audio_recv_task(void *args)
 
 void i2s_audio_init()
 {
-#if ON_TILE(I2S_TILE_NO)
     // I2S audio recv + ASRC task
     (void) rtos_osal_thread_create(
         (rtos_osal_thread_t *) NULL,
@@ -233,6 +233,4 @@ void i2s_audio_init()
         (void *) NULL,
         (size_t) RTOS_THREAD_STACK_SIZE(usb_to_i2s_intertile),
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
-
-#endif
 }

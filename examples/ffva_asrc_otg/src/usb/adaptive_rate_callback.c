@@ -76,15 +76,6 @@ uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t 
 }
 #endif //__xcore__
 
-
-uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format )
-{
-    uint64_t h = dividend << q_format;
-    uint64_t quotient = h / divisor;
-
-    return (uint32_t)quotient;
-}
-
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 {
     /*int32_t a = 0xf0000000;

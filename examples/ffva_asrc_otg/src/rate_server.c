@@ -27,58 +27,42 @@
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
+static uint32_t g_i2s_to_usb_rate_ratio = 0; // i2s_to_usb_rate_ratio. Updated in rate monitor and used in i2s_audio_recv_task
+static int32_t g_avg_i2s_send_buffer_level = 0; // avg i2s send buffer level. Updated in usb_to_i2s_intertile(), used in rate monitor for buffer level based PI control
+static int32_t g_prev_avg_i2s_send_buffer_level = 0; // Previous avg i2s send buffer level. Updated in usb_to_i2s_intertile(), used in rate monitor for buffer level based PI control
+static bool g_spkr_itf_close_to_open = false; // Flag tracking if a USB spkr interface close->open event occured. Set in the rate monitor when it receives the spkr_interface info from
+                                       // USB. Cleared in usb_to_i2s_intertile, after it resets the i2s send buffer
 
-extern uint32_t dsp_math_divide_unsigned_64(uint64_t dividend, uint32_t divisor, uint32_t q_format );
-extern uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length);
-extern uint32_t dsp_math_divide_unsigned(uint32_t dividend, uint32_t divisor, uint32_t q_format );
-float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);
-uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
-
-// Global variables shared with i2s_audio.c
-uint32_t g_i2s_to_usb_rate_ratio = 0;
-
-
-extern int32_t g_avg_i2s_send_buffer_level;
-extern int32_t g_prev_avg_i2s_send_buffer_level;
-
-bool g_spkr_itf_close_to_open = false;
-
-float_s32_t my_ema_calc(float_s32_t x, float_s32_t y, uint32_t alpha_q30, int32_t output_exp)
+bool get_spkr_itf_close_open_event()
 {
-    float_s32_t temp = float_s32_ema(x, y, alpha_q30);
-
-    if(temp.exp < output_exp)
-    {
-        temp.mant = (temp.mant >> (output_exp - temp.exp));
-    }
-    else
-    {
-        temp.mant = (temp.mant << (temp.exp - output_exp));
-    }
-    temp.exp = output_exp;
-    return temp;
+    return g_spkr_itf_close_to_open;
 }
 
-uint32_t my_ema_calc_custom(uint32_t x, uint32_t y, int input_exp, uint32_t alpha_q31, int32_t output_exp)
+void set_spkr_itf_close_open_event(bool event)
 {
-    uint32_t one_minus_alpha = 0x7fffffff - alpha_q31;
-    uint64_t m1 = (uint64_t)x * alpha_q31;
-    uint64_t m2 = (uint64_t)y * one_minus_alpha;
-    uint64_t m3 = m1 + m2;
-    uint32_t m_exp = input_exp + (- 31);
-    int rsh = output_exp - m_exp;
-
-    uint32_t temp = (uint32_t)(m3 >> rsh);
-    return temp;
+    g_spkr_itf_close_to_open = event;
 }
 
-#define TOTAL_STORED_AVG_I2S_RATE (16)
+
+uint32_t get_i2s_to_usb_rate_ratio()
+{
+    return g_i2s_to_usb_rate_ratio;
+}
+
+void set_i2s_to_usb_rate_ratio(uint32_t ratio)
+{
+    g_i2s_to_usb_rate_ratio = ratio;
+
+}
+
+
 static float_s32_t determine_avg_I2S_rate_from_driver(
     uint32_t timespan,
     uint32_t num_samples,
     bool update
     )
 {
+    #define TOTAL_STORED_AVG_I2S_RATE (16)
     static uint32_t data_lengths[TOTAL_STORED_AVG_I2S_RATE];
     static uint32_t time_buckets[TOTAL_STORED_AVG_I2S_RATE];
     static uint32_t current_data_bucket_size;
@@ -93,7 +77,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     if(i2s_nominal_sampling_rate == 0)
     {
         float_s32_t t = {.mant=0, .exp=0};
-        return t; // i2s_audio thread ensures we don't do asrc when i2s_nominal_sampling_rate is 0
+        return t;
     }
     else if(i2s_nominal_sampling_rate != prev_nominal_sampling_rate)
     {
@@ -116,7 +100,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
         float_s32_t a = {.mant=i2s_nominal_sampling_rate, .exp=0};
         float_s32_t b = {.mant=REF_CLOCK_TICKS_PER_SECOND, .exp=0};
 
-        float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+        float_s32_t rate = float_div(a, b);
         previous_result = rate;
 
         return previous_result;
@@ -126,7 +110,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
         float_s32_t a = {.mant=prev_nominal_sampling_rate, .exp=0};
         float_s32_t b = {.mant=REF_CLOCK_TICKS_PER_SECOND, .exp=0};
 
-        float_s32_t rate = float_div(a, b); // Samples per ms in SAMPLING_RATE_Q_FORMAT format
+        float_s32_t rate = float_div(a, b);
         previous_result = rate;
 
         return previous_result;
@@ -146,15 +130,7 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
 
     float_s32_t data_per_sample = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
 
-    /*float_s32_t data_per_sample1 = float_div((float_s32_t){num_samples, 0}, (float_s32_t){timespan, 0});
-
-    printuint(data_per_sample.mant);
-    printchar(',');
-    printint(data_per_sample.exp);
-    printchar(',');
-    printuint(data_per_sample1.mant);
-    printchar(',');
-    printintln(data_per_sample1.exp);*/
+    //float_s32_t data_per_sample1 = float_div((float_s32_t){num_samples, 0}, (float_s32_t){timespan, 0});
 
     float_s32_t result = data_per_sample;
 
@@ -195,94 +171,31 @@ static float_s32_t determine_avg_I2S_rate_from_driver(
     return result;
 }
 
-#if 0
-#define OLD_VAL_WEIGHTING (64)
-#define NUM_ERROR_BUCKETS   (2048)
-
-#define SAMP_RATE_RATIO_FILTER_COEFF (0.95)
-
-static int32_t get_average_usb_to_host_buf_fill_level(int32_t current_fill_level, bool reset)
+void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
 {
-    static int32_t error_buckets[NUM_ERROR_BUCKETS] = {0};
-    static bool error_buckets_full = false;
-    static uint32_t rate_server_count = 0;
+    static int64_t error_accum = 0;
+    static int32_t count = 0;
 
-    if(reset)
+    if(reset == true)
     {
-        rate_server_count = 0;
-        error_buckets_full = false;
-        memset(error_buckets, 0, sizeof(error_buckets));
-        return 0;
+        error_accum = 0;
+        count = 0;
+        g_avg_i2s_send_buffer_level = 0;
+        g_prev_avg_i2s_send_buffer_level = 0;
+        rtos_printf("Reset avg I2S send buffer level\n");
     }
 
-    if(error_buckets_full == false)
-    {
-        error_buckets[rate_server_count] = current_fill_level;
-        if(rate_server_count == NUM_ERROR_BUCKETS - 1)
-        {
-            error_buckets_full = true;
-        }
-        rate_server_count += 1;
-        return 0;
-    }
-    else
-    {
-        uint32_t oldest = rate_server_count % NUM_ERROR_BUCKETS;
-        error_buckets[oldest] = current_fill_level;
-    }
-    int32_t total_error = 0;
-    for(int i=0; i< NUM_ERROR_BUCKETS; i++)
-    {
-        total_error = total_error + error_buckets[i];
-    }
-    int32_t avg_fill_level = total_error / NUM_ERROR_BUCKETS;
+    error_accum += current_level;
+    count += 1;
 
-    rate_server_count += 1;
-    return avg_fill_level;
+    if(count == 0x10000)
+    {
+        g_prev_avg_i2s_send_buffer_level = g_avg_i2s_send_buffer_level;
+        g_avg_i2s_send_buffer_level = error_accum >> 16;
+        count = 0;
+        error_accum = 0;
+    }
 }
-
-#define NUM_RATE_AVG_BUCKETS   (512) // Avg over a 500ms period with snapshots every 20ms
-static int32_t get_average_rate_ratio(uint32_t current_ratio, bool reset)
-{
-    static uint32_t buckets[NUM_RATE_AVG_BUCKETS] = {0};
-    static bool buckets_full = false;
-    static uint32_t rate_server_count = 0;
-
-    if(reset)
-    {
-        rate_server_count = 0;
-        buckets_full = false;
-        memset(buckets, 0, sizeof(buckets));
-        return 0;
-    }
-
-    if(buckets_full == false)
-    {
-        buckets[rate_server_count] = current_ratio;
-        if(rate_server_count == NUM_RATE_AVG_BUCKETS - 1)
-        {
-            buckets_full = true;
-        }
-        rate_server_count += 1;
-        return 0;
-    }
-    else
-    {
-        uint32_t oldest = rate_server_count % NUM_RATE_AVG_BUCKETS;
-        buckets[oldest] = current_ratio;
-    }
-    uint64_t total = 0;
-    for(int i=0; i< NUM_RATE_AVG_BUCKETS; i++)
-    {
-        total = total + (uint64_t)buckets[i];
-    }
-    uint32_t avg = total / NUM_RATE_AVG_BUCKETS;
-
-    rate_server_count += 1;
-
-    return avg;
-}
-#endif
 
 typedef int32_t sw_pll_15q16_t; // Type for 15.16 signed fixed point
 #define SW_PLL_NUM_FRAC_BITS 16
@@ -304,7 +217,7 @@ void rate_server(void *args)
 
     for(;;)
     {
-        // Get USB rate and buffer information from the other tile
+        // Get usb_rate_info from the other tile
         size_t bytes_received;
         float_s32_t usb_rate[2];
         bytes_received = rtos_intertile_rx_len(
@@ -323,7 +236,7 @@ void rate_server(void *args)
 
         if((prev_spkr_itf_open == false) && (usb_rate_info.spkr_itf_open == true))
         {
-            g_spkr_itf_close_to_open = true;
+            set_spkr_itf_close_open_event(true);
         }
         prev_spkr_itf_open = usb_rate_info.spkr_itf_open;
 
@@ -342,18 +255,6 @@ void rate_server(void *args)
 
             int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
 
-
-
-            /*printchar(',');
-            printuint(i2s_rate.mant);
-            printchar(',');
-            printint(i2s_rate.exp);
-            printchar(',');
-            printuint(usb_rate[TUSB_DIR_IN].mant);
-            printchar(',');
-            printint(usb_rate[TUSB_DIR_IN].exp);*/
-            //printchar(',');
-
             printintln(fs_ratio);
 
             int guard_level = 100;
@@ -368,21 +269,16 @@ void rate_server(void *args)
                 fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
             }
 
-            //fs_ratio = (unsigned) (((buffer_level_term + usb_buffer_fill_level_from_half) * (unsigned long long)fs_ratio) / buffer_level_term);
-
-
-            g_i2s_to_usb_rate_ratio = fs_ratio;
+            set_i2s_to_usb_rate_ratio(fs_ratio);
 
             if(reset_buf_level)
             {
                 reset_buf_level = false;
             }
-            //printchar(',');
-            //printhexln(g_i2s_to_usb_rate_ratio);
         }
         else
         {
-            g_i2s_to_usb_rate_ratio = 0;
+            set_i2s_to_usb_rate_ratio(0);
             reset_buf_level = true;
         }
 
@@ -404,7 +300,7 @@ void rate_server(void *args)
                 total_error = -200;
             }
 
-
+            // This is still WIP so leaving this commented out code here
             //printint(total_error);
             //printchar(',');
             //printintln(g_avg_i2s_send_buffer_level);
@@ -412,10 +308,6 @@ void rate_server(void *args)
 
 
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
-
-            /*fs_ratio = (unsigned) (((unsigned long long)(fs_ratio_usb_to_i2s_old) * OLD_VAL_WEIGHTING + (unsigned long long)(fs_ratio) ) /
-                            (1 + OLD_VAL_WEIGHTING));*/
-
 
             /*int guard_level = 100;
             if(g_avg_i2s_send_buffer_level > guard_level)
@@ -428,11 +320,8 @@ void rate_server(void *args)
                 int error = g_avg_i2s_send_buffer_level - (-guard_level);
                 fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
             }*/
-            //printchar(',');
-            //printhexln(usb_to_i2s_rate_ratio);
-            //printf("usb_to_i2s_rate_ratio = %f\n", (float)usb_to_i2s_rate_ratio/(1<<28));
+
             usb_to_i2s_rate_ratio = fs_ratio + total_error;
-            //printintln(usb_to_i2s_rate_ratio);
 
         }
         else
@@ -440,6 +329,7 @@ void rate_server(void *args)
             usb_to_i2s_rate_ratio = 0;
         }
 
+        // Notify USB tile of the usb_to_i2s rate ratio
         i2s_rate_info.usb_to_i2s_rate_ratio = usb_to_i2s_rate_ratio;
 
         rtos_intertile_tx(
@@ -447,8 +337,5 @@ void rate_server(void *args)
             appconfUSB_RATE_NOTIFY_PORT,
             &i2s_rate_info,
             sizeof(i2s_rate_info));
-
-        // Get the I2S rate
-
     }
 }
