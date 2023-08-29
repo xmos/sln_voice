@@ -84,8 +84,8 @@ static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
     return 0xffffffff;
 }
 
-static size_t window_written = 0;
-static uint32_t prev_ts = 0;
+
+static bool first_frame_after_restart = false;
 I2S_CALLBACK_ATTR
 static void i2s_init(rtos_i2s_t *ctx, i2s_config_t *i2s_config)
 {
@@ -93,13 +93,13 @@ static void i2s_init(rtos_i2s_t *ctx, i2s_config_t *i2s_config)
     i2s_config->mclk_bclk_ratio = ctx->mclk_bclk_ratio;
     ctx->did_restart = true;
     ctx->i2s_nominal_sampling_rate = 0;
+    ctx->i2s_rate_monitor_window_timespan = 0;
 
 }
 
 I2S_CALLBACK_ATTR
 static i2s_restart_t i2s_restart_check(rtos_i2s_t *ctx)
 {
-    static bool first_frame_after_restart = false;
     static uint32_t frame_counter = 0;
     static uint32_t nominal_rate_calc_timespan = 0;
     static uint32_t i2s_callback_ticks = 0;
@@ -117,10 +117,7 @@ static i2s_restart_t i2s_restart_check(rtos_i2s_t *ctx)
     }
     else if(first_frame_after_restart == true)
     {
-        first_frame_after_restart = false;
-        ctx->write_256samples_time = 0;
-        window_written = 0;
-        prev_ts = get_reference_time();
+        // This is set to false in i2s_receive after it has reset averaging_window_sample_count and initialised averaging_window_start_timestamp
     }
     else // Start counting from the 2nd frame after restart once ctx->i2s_prev_callback_ticks also has a valid value
     {
@@ -145,17 +142,28 @@ static i2s_restart_t i2s_restart_check(rtos_i2s_t *ctx)
 I2S_CALLBACK_ATTR
 static void i2s_receive(rtos_i2s_t *ctx, size_t num_in, const int32_t *i2s_sample_buf)
 {
+    static size_t averaging_window_sample_count = 0;
+    static uint32_t averaging_window_start_timestamp = 0;
     size_t words_available = ctx->recv_buffer.total_written - ctx->recv_buffer.total_read;
     size_t words_free = ctx->recv_buffer.buf_size - words_available;
     size_t buffer_words_written = 0;
 
-    window_written += 1;
-    if(window_written == 3840)
+    if(first_frame_after_restart == true)
     {
-        uint32_t current_ts = get_reference_time();
-        ctx->write_256samples_time = current_ts - prev_ts;
-        window_written = 0;
-        prev_ts = current_ts;
+        first_frame_after_restart = false;
+        averaging_window_sample_count = 0;
+        averaging_window_start_timestamp = get_reference_time();
+    }
+    else
+    {
+        averaging_window_sample_count += 1;
+        if(averaging_window_sample_count == ctx->i2s_rate_monitor_window_length)
+        {
+            uint32_t averaging_window_end_timestamp = get_reference_time();
+            ctx->i2s_rate_monitor_window_timespan = averaging_window_end_timestamp - averaging_window_start_timestamp;
+            averaging_window_sample_count = 0;
+            averaging_window_start_timestamp = averaging_window_end_timestamp;
+        }
     }
 
     if (ctx->receive_filter_cb == NULL) {
@@ -442,6 +450,7 @@ void rtos_i2s_start(
     i2s_ctx->isr_cmd = 0;
     i2s_ctx->did_restart = false;
     i2s_ctx->okay_to_send = false;
+    i2s_ctx->i2s_rate_monitor_window_length = 3840; // 20ms at 192KHz
 
     memset(&i2s_ctx->recv_buffer, 0, sizeof(i2s_ctx->send_buffer));
     if (i2s_ctx->num_in > 0) {

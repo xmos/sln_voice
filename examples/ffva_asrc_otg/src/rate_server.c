@@ -241,7 +241,7 @@ void rate_server(void *args)
         prev_spkr_itf_open = usb_rate_info.spkr_itf_open;
 
         // Compute I2S rate
-        float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->write_256samples_time, 3840, true);
+        float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->i2s_rate_monitor_window_timespan, i2s_ctx->i2s_rate_monitor_window_length, true);
         float_s32_t i2s_rate = avg_rate;
 
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level / 8;
@@ -250,12 +250,11 @@ void rate_server(void *args)
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            printint(usb_buffer_fill_level_from_half);
-            printchar(',');
-
             int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
 
-            printintln(fs_ratio);
+            /*printint(usb_buffer_fill_level_from_half);
+            printchar(',');
+            printintln(fs_ratio);*/
 
             int guard_level = 100;
             if(usb_buffer_fill_level_from_half > guard_level)
@@ -302,9 +301,9 @@ void rate_server(void *args)
 
             // This is still WIP so leaving this commented out code here
 
-            //printint(total_error);
-            //printchar(',');
-            //printintln(g_avg_i2s_send_buffer_level);
+            printint(total_error);
+            printchar(',');
+            printintln(g_avg_i2s_send_buffer_level);
 
 
 

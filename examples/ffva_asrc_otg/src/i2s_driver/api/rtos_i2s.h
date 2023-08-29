@@ -130,12 +130,14 @@ struct rtos_i2s_struct{
     int send_blocked;
     int recv_blocked;
 
-    // Extra stuff added for tracking sampling rate changes and calculating an accurate sampling rate
+    // Extra stuff added for tracking sampling rate changes and calculating an accurate average sampling rate
     bool did_restart;
     uint32_t i2s_nominal_sampling_rate;
+    uint32_t i2s_rate_monitor_window_length;  // Number of samples over which to average for calculating the average I2S rate
+    uint32_t i2s_rate_monitor_window_timespan; // Timespan (in reference timer ticks) over which i2s_rate_monitor_window_length samples are received
 
-    uint32_t write_256samples_time;
-
+    // Flag that the application uses to indicate to the I2S driver if it is okay to read from I2S send buffer
+    // to do a send over I2S. This is used to ensure that the I2S send buffer is filled to a stable level before we start sending
     bool okay_to_send;
 
     struct {
