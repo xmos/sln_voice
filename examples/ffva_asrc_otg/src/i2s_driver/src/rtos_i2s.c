@@ -77,7 +77,7 @@ static inline uint32_t detect_i2s_sampling_rate(uint32_t average_callback_ticks)
     }
     else if(average_callback_ticks == 0)
     {
-        return 0;
+        xassert(0);
     }
     printf("ERROR: avg_callback_ticks %lu do not match any sampling rate!!\n", average_callback_ticks);
     xassert(0);
@@ -92,47 +92,47 @@ static void i2s_init(rtos_i2s_t *ctx, i2s_config_t *i2s_config)
     i2s_config->mode = ctx->mode;
     i2s_config->mclk_bclk_ratio = ctx->mclk_bclk_ratio;
     ctx->did_restart = true;
-    ctx->first_frame_after_restart = false;
-    ctx->i2s_callback_ticks = 0;
-    ctx->frame_counter = 0;
-    ctx->average_callback_time = 0;
     ctx->i2s_nominal_sampling_rate = 0;
+
 }
 
 I2S_CALLBACK_ATTR
 static i2s_restart_t i2s_restart_check(rtos_i2s_t *ctx)
 {
-    ctx->i2s_prev_callback_ticks = ctx->i2s_callback_ticks;
-    ctx->i2s_callback_ticks = get_reference_time();
+    static bool first_frame_after_restart = false;
+    uint32_t i2s_prev_callback_ticks, i2s_callback_ticks = 0;
+    static uint32_t frame_counter = 0;
+    static uint32_t nominal_rate_calc_timespan = 0;
 
-    // Add any extra code here if needed so it will be counted in the timing check.
+    i2s_prev_callback_ticks = i2s_callback_ticks;
+    i2s_callback_ticks = get_reference_time();
+
     if(ctx->did_restart == true)
     {
         ctx->did_restart = false;
-        ctx->first_frame_after_restart = true;
-        ctx->frame_counter = 0;
+        first_frame_after_restart = true;
+        frame_counter = 0;
+        nominal_rate_calc_timespan = 0;
     }
-    else if(ctx->first_frame_after_restart == true)
+    else if(first_frame_after_restart == true)
     {
-        ctx->first_frame_after_restart = false;
-        ctx->callback_time = 0;
+        first_frame_after_restart = false;
         ctx->write_256samples_time = 0;
         window_written = 0;
         prev_ts = get_reference_time();
     }
-    else // From the 2nd frame after restart, start counting
+    else // Start counting from the 2nd frame after restart once ctx->i2s_prev_callback_ticks also has a valid value
     {
-        if(ctx->average_callback_time == 0) // only do it once after i2s_init
+        if(ctx->i2s_nominal_sampling_rate == 0) // only do it once after i2s_init
         {
-            ctx->callback_time += (ctx->i2s_callback_ticks - ctx->i2s_prev_callback_ticks);
-            ctx->frame_counter += 1;
-            if(ctx->frame_counter == 256)
+            nominal_rate_calc_timespan += (i2s_callback_ticks - i2s_prev_callback_ticks);
+            frame_counter += 1;
+            if(frame_counter == 256) // Check over a 256 sample window to quickly get the nominal rate.
             {
-                ctx->average_callback_time = ctx->callback_time >> 8;
-                ctx->i2s_nominal_sampling_rate  = detect_i2s_sampling_rate(ctx->average_callback_time);
-                ctx->callback_time = 0;
-                ctx->frame_counter = 0;
-
+                nominal_rate_calc_timespan = nominal_rate_calc_timespan >> 8;
+                ctx->i2s_nominal_sampling_rate  = detect_i2s_sampling_rate(nominal_rate_calc_timespan);
+                nominal_rate_calc_timespan = 0;
+                frame_counter = 0;
             }
         }
     }

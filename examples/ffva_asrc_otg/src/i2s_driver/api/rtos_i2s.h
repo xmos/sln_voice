@@ -132,14 +132,10 @@ struct rtos_i2s_struct{
 
     // Extra stuff added for tracking sampling rate changes and calculating an accurate sampling rate
     bool did_restart;
-    bool first_frame_after_restart;
-    uint32_t i2s_callback_ticks;
-    uint32_t i2s_prev_callback_ticks;
-    uint32_t callback_time;
-    uint32_t average_callback_time;
-    uint32_t frame_counter;
-    uint32_t write_256samples_time;
     uint32_t i2s_nominal_sampling_rate;
+
+    uint32_t write_256samples_time;
+
     bool okay_to_send;
 
     struct {
