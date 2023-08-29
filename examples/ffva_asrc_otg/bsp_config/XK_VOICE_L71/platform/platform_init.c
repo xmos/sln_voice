@@ -14,10 +14,6 @@
 
 static void mclk_init(chanend_t other_tile_c)
 {
-    printf("In mclk_init(). appconfEXTERNAL_MCLK = %d", appconfEXTERNAL_MCLK);
-#if !appconfEXTERNAL_MCLK && ON_TILE(1)
-    app_pll_init();
-#endif
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
     adaptive_rate_adjust_init();
 #endif
@@ -89,17 +85,6 @@ static void gpio_init(void)
 
 static void i2c_init(void)
 {
-    static rtos_driver_rpc_t i2c_rpc_config;
-
-#if appconfI2C_CTRL_ENABLED
-#if ON_TILE(I2C_CTRL_TILE_NO)
-    rtos_i2c_slave_init(i2c_slave_ctx,
-                        (1 << appconfI2C_IO_CORE),
-                        PORT_I2C_SCL,
-                        PORT_I2C_SDA,
-                        appconf_CONTROL_I2C_DEVICE_ADDR);
-#endif
-#else
 #if ON_TILE(I2C_TILE_NO)
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     rtos_i2c_master_init(
@@ -108,41 +93,12 @@ static void i2c_init(void)
             PORT_I2C_SDA, 0, 0,
             0,
             100);
-
-    rtos_i2c_master_rpc_host_init(
-            i2c_master_ctx,
-            &i2c_rpc_config,
-            client_intertile_ctx,
-            1);
-#else
-    rtos_i2c_master_rpc_client_init(
-            i2c_master_ctx,
-            &i2c_rpc_config,
-            intertile_ctx);
-#endif
-#endif
-}
-
-static void spi_init(void)
-{
-#if appconfSPI_OUTPUT_ENABLED && ON_TILE(SPI_OUTPUT_TILE_NO)
-    rtos_spi_slave_init(spi_slave_ctx,
-                        (1 << appconfSPI_IO_CORE),
-                        SPI_CLKBLK,
-                        SPI_MODE_3,
-                        PORT_SPI_SCLK,
-                        PORT_SPI_MOSI,
-                        PORT_SPI_MISO,
-                        PORT_SPI_CS);
 #endif
 }
 
 static void i2s_init(void)
 {
 #if appconfI2S_ENABLED
-#if appconfI2S_MODE == appconfI2S_MODE_MASTER
-    static rtos_driver_rpc_t i2s_rpc_config;
-#endif
 #if ON_TILE(I2S_TILE_NO)
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
@@ -165,11 +121,6 @@ static void i2s_init(void)
             PORT_MCLK,
             I2S_CLKBLK);
 
-    rtos_i2s_rpc_host_init(
-            i2s_ctx,
-            &i2s_rpc_config,
-            client_intertile_ctx,
-            1);
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
     port_t p_i2s_dout[1] = {
             PORT_I2S_ADC_DATA
@@ -187,13 +138,6 @@ static void i2s_init(void)
             PORT_I2S_BCLK,
             PORT_I2S_LRCLK,
             I2S_CLKBLK);
-#endif
-#else
-#if appconfI2S_MODE == appconfI2S_MODE_MASTER
-    rtos_i2s_rpc_client_init(
-            i2s_ctx,
-            &i2s_rpc_config,
-            intertile_ctx);
 #endif
 #endif
 #endif
@@ -216,7 +160,6 @@ void platform_init(chanend_t other_tile_c)
     gpio_init();
     flash_init();
     i2c_init();
-    spi_init();
     i2s_init();
     usb_init();
 }

@@ -9,7 +9,6 @@ target_sources(${TARGET_NAME}
         ${CMAKE_CURRENT_LIST_DIR}/platform/driver_instances.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
-        ${CMAKE_CURRENT_LIST_DIR}/platform/mic_array.cpp
 )
 target_include_directories(${TARGET_NAME}
     INTERFACE
@@ -20,10 +19,9 @@ target_link_libraries(${TARGET_NAME}
         core::general
         rtos::freertos
         rtos::drivers::general
-        rtos::drivers::audio
+        rtos::drivers::i2s
         rtos::drivers::usb
         rtos::drivers::dfu_image
-        sln_voice::app::ffva_asrc_otg::dac::dac3101
 )
 target_compile_options(${TARGET_NAME}
     INTERFACE
@@ -51,6 +49,7 @@ target_compile_definitions(${TARGET_NAME}
         MIC_ARRAY_CONFIG_PORT_PDM_CLK=PORT_PDM_CLK
         MIC_ARRAY_CONFIG_PORT_PDM_DATA=PORT_PDM_DATA
         MIC_ARRAY_SAMPLING_FREQ=48000
+        appconfAUDIO_PIPELINE_CHANNELS=2
 )
 
 ## Create an alias

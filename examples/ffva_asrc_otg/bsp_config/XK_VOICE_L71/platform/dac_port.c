@@ -10,7 +10,6 @@
 /* App headers */
 #include "platform_conf.h"
 #include "platform/driver_instances.h"
-#include "dac3101.h"
 #include "pcal6408a.h"
 
 /* I2C io expander address on XCF3610_Q60A board */
@@ -25,19 +24,6 @@
 #define SPI_OE_PIN      5
 #define I2S_OE_PIN      6
 #define MUTE_PIN        7
-
-int dac3101_reg_write(uint8_t reg, uint8_t val)
-{
-    i2c_regop_res_t ret;
-
-    ret = rtos_i2c_master_reg_write(i2c_master_ctx, DAC3101_I2C_DEVICE_ADDR, reg, val);
-
-    if (ret == I2C_REGOP_SUCCESS) {
-        return 0;
-    } else {
-        return -1;
-    }
-}
 
 void dac3101_codec_reset(void)
 {
@@ -74,24 +60,4 @@ void dac3101_codec_reset(void)
         rtos_printf("Failed to set io expander interrupt mask!\n");
     }
     vTaskDelay(pdMS_TO_TICKS(100));
-
-    /* Reset the dac */
-    bitmask = (1<<XVF_RST_N_PIN) |
-              (1<<INT_N_PIN)     |
-              (1<<DAC_RST_N_PIN) |
-              (1<<BOOT_SEL_PIN)  |
-              (1<<MCLK_OE_PIN)   |
-              (1<<SPI_OE_PIN)    |
-              (1<<I2S_OE_PIN)    |
-              (1<<MUTE_PIN);
-    ret = rtos_i2c_master_reg_write(i2c_master_ctx, IOEXP_I2C_ADDR, PCAL6408A_OUTPUT_PORT, bitmask);
-    if (ret != I2C_REGOP_SUCCESS) {
-        rtos_printf("Failed to set io expander output!\n");
-    }
-    vTaskDelay(pdMS_TO_TICKS(100));
-}
-
-void dac3101_wait(uint32_t wait_ms)
-{
-    vTaskDelay(pdMS_TO_TICKS(wait_ms));
 }

@@ -82,51 +82,9 @@
 #define appconfI2C_INTERRUPT_CORE               0 /* Must be kept off I/O cores. */
 #endif /* appconfI2C_INTERRUPT_CORE */
 
-#ifndef appconfSPI_INTERRUPT_CORE
-#define appconfSPI_INTERRUPT_CORE               2 /* Must be kept off I/O cores. */
-#endif /* appconfSPI_INTERRUPT_CORE */
-
 /*****************************************/
 /*  Other required defines               */
 /*****************************************/
-#ifndef appconfPDM_CLOCK_FREQUENCY
-#define appconfPDM_CLOCK_FREQUENCY          MIC_ARRAY_CONFIG_MCLK_FREQ
-#endif /* appconfPDM_CLOCK_FREQUENCY */
-
-#ifndef appconfAUDIO_CLOCK_FREQUENCY
-#define appconfAUDIO_CLOCK_FREQUENCY        MIC_ARRAY_CONFIG_PDM_FREQ
-#endif /* appconfAUDIO_CLOCK_FREQUENCY */
-
-#ifndef appconfPIPELINE_AUDIO_SAMPLE_RATE
-#define appconfPIPELINE_AUDIO_SAMPLE_RATE   16000
-#endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
-
-#ifndef appconfI2C_CTRL_ENABLED
-/*
- * When this is enabled on the XVF3610_Q60A board, the board
- * cannot function as an I2C master and will not configure the
- * DAC. In this case the DAC should be configured externally.
- * MCLK will also default to be external if this is set on
- * the XVF3610_Q60A board.
- */
-#define appconfI2C_CTRL_ENABLED    0
-#endif /* appconfI2C_CTRL_ENABLED */
-
-#ifndef appconfEXTERNAL_MCLK
-#if appconfI2C_CTRL_ENABLED
-#define appconfEXTERNAL_MCLK       1
-#else
-#define appconfEXTERNAL_MCLK       0
-#endif /* appconfI2C_CTRL_ENABLED */
-#endif /* appconfEXTERNAL_MCLK */
-
-#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
-
-#ifndef appconfSPI_OUTPUT_ENABLED
-#define appconfSPI_OUTPUT_ENABLED  0
-#endif /* appconfSPI_OUTPUT_ENABLED */
 
 #ifndef appconfI2S_MODE_MASTER
 #define appconfI2S_MODE_MASTER     0
@@ -195,14 +153,14 @@
 #ifndef BOARD_QSPI_SPEC
 /* Set up a default SPI spec if the app has not provided
  * one explicitly.
- * Note: The version checks only work in XTC Tools >15.2.0 
- *       By default FL_QUADDEVICE_W25Q64JW is used 
+ * Note: The version checks only work in XTC Tools >15.2.0
+ *       By default FL_QUADDEVICE_W25Q64JW is used
  */
 #ifdef __XMOS_XTC_VERSION_MAJOR__
 #if (__XMOS_XTC_VERSION_MAJOR__ == 15)      \
     && (__XMOS_XTC_VERSION_MINOR__ >= 2)    \
     && (__XMOS_XTC_VERSION_PATCH__ >= 0)
-/* In XTC >15.2.0 some SFDP support enables a generic 
+/* In XTC >15.2.0 some SFDP support enables a generic
  * default spec
  */
 #define BOARD_QSPI_SPEC     FL_QUADDEVICE_DEFAULT

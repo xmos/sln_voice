@@ -19,15 +19,6 @@
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
 #define FS_TILE_NO              FLASH_TILE_NO
-#define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
-
-/* Audio Pipeline Configuration */
-#define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
-#define appconfPDM_CLOCK_FREQUENCY              MIC_ARRAY_CONFIG_PDM_FREQ
-#define appconfAUDIO_PIPELINE_SAMPLE_RATE       16000
-#define appconfAUDIO_PIPELINE_CHANNELS          MIC_ARRAY_CONFIG_MIC_COUNT
-/* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
-#define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
 /**
  * A positive delay will delay mics
@@ -83,11 +74,6 @@
 #define appconfSPI_OUTPUT_ENABLED  0
 #endif
 
-
-#ifndef appconfEXTERNAL_MCLK
-#define appconfEXTERNAL_MCLK       0
-#endif
-
 /*
  * This option sends all 6 16 KHz channels (two channels of processed audio,
  * stereo reference audio, and stereo microphone audio) out over a single
@@ -136,10 +122,8 @@
 /* I/O and interrupt cores for Tile 0 */
 /* Note, USB and SPI are mutually exclusive */
 #define appconfXUD_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */
-#define appconfSPI_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */
 #define appconfUSB_INTERRUPT_CORE               2 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 #define appconfUSB_SOF_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off cores with other ISRs. */
-#define appconfSPI_INTERRUPT_CORE               2 /* Must be kept off I/O cores. */
 
 /* I/O and interrupt cores for Tile 1 */
 #define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off core 0 with the RTOS tick ISR */

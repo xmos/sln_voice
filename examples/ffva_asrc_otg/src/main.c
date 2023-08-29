@@ -26,7 +26,6 @@
 #include "platform/driver_instances.h"
 #include "usb_support.h"
 #include "usb_audio.h"
-#include "ww_model_runner/ww_model_runner.h"
 #include "fs_support.h"
 
 #include "gpio_test/gpio_test.h"
