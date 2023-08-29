@@ -19,7 +19,6 @@ target_link_libraries(${TARGET_NAME}
         core::general
         rtos::freertos
         rtos::drivers::general
-        rtos::drivers::i2s
         rtos::drivers::usb
         rtos::drivers::dfu_image
 )
