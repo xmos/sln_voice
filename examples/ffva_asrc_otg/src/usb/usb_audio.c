@@ -66,7 +66,7 @@ static bool host_streaming_out = false;
 StreamBufferHandle_t samples_to_host_stream_buf;
 static StreamBufferHandle_t samples_from_host_stream_buf;
 static StreamBufferHandle_t rx_buffer;
-static TaskHandle_t usb_audio_out_task_handle;
+static TaskHandle_t usb_audio_out_asrc_handle;
 
 static uint32_t g_usb_to_i2s_rate_ratio = 0;
 static uint32_t samples_to_host_stream_buf_size_bytes = 0;
@@ -245,7 +245,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
  * Runs on the USB tile.
  * @param arg Handle to the intertile ctx over which ASRC output is sent to the I2S tile
  */
-void usb_audio_out_task(void *arg)
+void usb_audio_out_asrc(void *arg)
 {
 
 #if CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 2
@@ -777,7 +777,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
 
         if (xStreamBufferBytesAvailable(samples_from_host_stream_buf) == buffer_notify_level)
         {
-            xTaskNotifyGive(usb_audio_out_task_handle);
+            xTaskNotifyGive(usb_audio_out_asrc_handle);
         }
     }
     else
@@ -1056,7 +1056,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
     rx_buffer = xStreamBufferCreate(2 * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ, 0);
 
     /*
-     * Note: Given the way that the USB callback notifies usb_audio_out_task,
+     * Note: Given the way that the USB callback notifies usb_audio_out_asrc,
      * the size of this buffer MUST NOT be greater than 2 VFE frames.
      */
     samples_from_host_stream_buf = xStreamBufferCreate(2 * sizeof(samp_t) * USB_TO_I2S_ASRC_BLOCK_LENGTH * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX,
@@ -1071,7 +1071,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
 
     samples_to_host_stream_buf = xStreamBufferCreate(samples_to_host_stream_buf_size_bytes, 0);
 
-    xTaskCreate((TaskFunction_t)usb_audio_out_task, "usb_audio_out_task", portTASK_STACK_DEPTH(usb_audio_out_task), intertile_ctx, priority, &usb_audio_out_task_handle);
+    xTaskCreate((TaskFunction_t)usb_audio_out_asrc, "usb_audio_out_asrc", portTASK_STACK_DEPTH(usb_audio_out_asrc), intertile_ctx, priority, &usb_audio_out_asrc_handle);
 
 
     // Task for receiving audio from the i2s to usb tile
