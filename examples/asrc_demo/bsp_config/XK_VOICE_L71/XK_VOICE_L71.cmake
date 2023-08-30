@@ -1,6 +1,6 @@
 
 ## Create custom board targets for application
-set(TARGET_NAME sln_voice_app_ffva_asrc_otg_board_support_xk_voice_l71)
+set(TARGET_NAME sln_voice_app_asrc_demo_board_support_xk_voice_l71)
 add_library(${TARGET_NAME} INTERFACE)
 target_sources(${TARGET_NAME}
     INTERFACE
@@ -52,4 +52,4 @@ target_compile_definitions(${TARGET_NAME}
 )
 
 ## Create an alias
-add_library(sln_voice::app::ffva_asrc_otg::xk_voice_l71 ALIAS ${TARGET_NAME})
+add_library(sln_voice::app::asrc_demo::xk_voice_l71 ALIAS ${TARGET_NAME})

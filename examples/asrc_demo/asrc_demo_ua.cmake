@@ -1,5 +1,5 @@
 
-set(FFVA_INT_COMPILE_DEFINITIONS
+set(ASRC_DEMO_COMPILE_DEFINITIONS
     ${APP_COMPILE_DEFINITIONS}
     appconfI2S_ENABLED=1
     appconfUSB_ENABLED=1
@@ -12,38 +12,38 @@ set(FFVA_INT_COMPILE_DEFINITIONS
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_example_ffva_asrc_otg)
+set(TARGET_NAME tile0_example_asrc_demo)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
 target_compile_definitions(${TARGET_NAME}
     PUBLIC
-        ${FFVA_INT_COMPILE_DEFINITIONS}
+        ${ASRC_DEMO_COMPILE_DEFINITIONS}
         THIS_XCORE_TILE=0
 )
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
 target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
-        sln_voice::app::ffva_asrc_otg::xk_voice_l71
+        sln_voice::app::asrc_demo::xk_voice_l71
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_example_ffva_asrc_otg)
+set(TARGET_NAME tile1_example_asrc_demo)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES})
 target_compile_definitions(${TARGET_NAME}
     PUBLIC
-        ${FFVA_INT_COMPILE_DEFINITIONS}
+        ${ASRC_DEMO_COMPILE_DEFINITIONS}
         THIS_XCORE_TILE=1
 )
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
 target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
-        sln_voice::app::ffva_asrc_otg::xk_voice_l71
+        sln_voice::app::asrc_demo::xk_voice_l71
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
@@ -51,18 +51,18 @@ unset(TARGET_NAME)
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(example_ffva_asrc_otg tile0_example_ffva_asrc_otg tile1_example_ffva_asrc_otg 1)
+merge_binaries(example_asrc_demo tile0_example_asrc_demo tile1_example_asrc_demo 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(example_ffva_asrc_otg)
-create_debug_target(example_ffva_asrc_otg)
+create_run_target(example_asrc_demo)
+create_debug_target(example_asrc_demo)
 
 #**********************
 # Create data partition support targets
 #**********************
-set(TARGET_NAME example_ffva_asrc_otg)
+set(TARGET_NAME example_asrc_demo)
 set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
 set(FATFS_FILE ${TARGET_NAME}_fat.fs)
 set(FATFS_CONTENTS_DIR ${TARGET_NAME}_fatmktmp)

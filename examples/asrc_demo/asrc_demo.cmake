@@ -45,39 +45,7 @@ set(APP_COMMON_LINK_LIBRARIES
 )
 
 #**********************
-# Pipeline Options
-# By default only these targets are created:
-#  example_ffva_int_fixed_delay
-#  example_ffva_ua_adec_altarch
-#**********************
-option(ENABLE_ALL_FFVA_PIPELINES  "Create all FFVA pipeline configurations"  OFF)
-
-if(ENABLE_ALL_FFVA_PIPELINES)
-    set(FFVA_PIPELINES_INT
-        fixed_delay
-        adec
-        adec_altarch
-        empty
-    )
-
-    set(FFVA_PIPELINES_UA
-        fixed_delay
-        adec
-        adec_altarch
-        empty
-    )
-else()
-    set(FFVA_PIPELINES_INT
-        fixed_delay
-    )
-
-    set(FFVA_PIPELINES_UA
-        adec_altarch
-    )
-endif()
-
-#**********************
 # XMOS Example Design Targets
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/src/i2s_driver/i2s_driver.cmake)
-include(${CMAKE_CURRENT_LIST_DIR}/ffva_asrc_otg_ua.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/asrc_demo_ua.cmake)

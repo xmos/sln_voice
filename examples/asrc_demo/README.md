@@ -1,4 +1,4 @@
-# Far-field Voice Assistant
+# ASRC demo application
 
 This is the ASRC demo example design firmware.  See the full documentation for more information on configuring, modifying, building, and running the firmware.
 
