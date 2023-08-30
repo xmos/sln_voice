@@ -4,7 +4,7 @@ if((${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A) OR (${CMAKE_SYSTEM_NAME} STREQUAL 
     target_sources(custom_framework_rtos_drivers_i2s
         INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/src/rtos_i2s.c
-        ${CMAKE_CURRENT_LIST_DIR}/src/rtos_i2s_rpc.c
+        ${CMAKE_CURRENT_LIST_DIR}/../../../../modules/rtos/modules/drivers/i2s/src/rtos_i2s_rpc.c
     )
     target_include_directories(custom_framework_rtos_drivers_i2s
         INTERFACE
