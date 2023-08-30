@@ -28,12 +28,7 @@
 #include "usb_audio.h"
 #include "fs_support.h"
 
-#include "gpio_test/gpio_test.h"
 #include "i2s_audio.h"
-
-
-volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
-volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
 void vApplicationMallocFailedHook(void)
 {
@@ -55,15 +50,6 @@ void startup_task(void *arg)
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
     platform_start();
-
-#if ON_TILE(USB_TILE_NO) && appconfUSB_ENABLED
-
-#endif
-
-
-#if ON_TILE(I2S_TILE_NO)
-    gpio_test(gpio_ctx_t0);
-#endif
 
 #if ON_TILE(I2S_TILE_NO)
     i2s_audio_init();
