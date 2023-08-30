@@ -26,7 +26,7 @@
 #include "tusb.h"
 
 #define LOG_I2S_TO_USB_SIDE (0)
-#define LOG_USB_TO_I2S_SIDE (1)
+#define LOG_USB_TO_I2S_SIDE (0)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 

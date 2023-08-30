@@ -450,6 +450,7 @@ void rtos_i2s_start(
     i2s_ctx->isr_cmd = 0;
     i2s_ctx->did_restart = false;
     i2s_ctx->okay_to_send = false;
+    i2s_ctx->i2s_nominal_sampling_rate = 0;
     i2s_ctx->i2s_rate_monitor_window_length = 3840; // 20ms at 192KHz
 
     memset(&i2s_ctx->recv_buffer, 0, sizeof(i2s_ctx->send_buffer));

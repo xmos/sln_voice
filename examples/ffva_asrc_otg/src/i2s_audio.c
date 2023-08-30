@@ -272,7 +272,7 @@ static void usb_to_i2s_intertile(void *args) {
             }
 
             // Similarly, If there's a change in I2S sampling rate, empty the buffer, then stop sending over I2S till buffer is half full and start sending again
-            if(prev_i2s_sampling_rate != i2s_ctx->i2s_nominal_sampling_rate)
+            if((i2s_ctx->i2s_nominal_sampling_rate != 0) && (prev_i2s_sampling_rate != i2s_ctx->i2s_nominal_sampling_rate))
             {
                 if(i2s_send_buffer_unread > 0)
                 {
