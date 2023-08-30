@@ -63,53 +63,7 @@ create_debug_target(example_asrc_demo)
 # Create data partition support targets
 #**********************
 set(TARGET_NAME example_asrc_demo)
-set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
-set(FATFS_FILE ${TARGET_NAME}_fat.fs)
-set(FATFS_CONTENTS_DIR ${TARGET_NAME}_fatmktmp)
-
-add_custom_target(
-    ${FATFS_FILE} ALL
-    COMMAND ${CMAKE_COMMAND} -E rm -rf ${FATFS_CONTENTS_DIR}/fs/
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${FATFS_CONTENTS_DIR}/fs/
-    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/demo.txt ${FATFS_CONTENTS_DIR}/fs/
-    COMMAND fatfs_mkimage --input=${FATFS_CONTENTS_DIR} --output=${FATFS_FILE}
-    COMMENT
-        "Create filesystem"
-    VERBATIM
-)
-
-set_target_properties(${FATFS_FILE} PROPERTIES
-    ADDITIONAL_CLEAN_FILES ${FATFS_CONTENTS_DIR}
-)
-
-# The filesystem is the only component in the data partition, copy it to
-# the assocated data partition file which is required for CI.
-add_custom_command(
-    OUTPUT ${DATA_PARTITION_FILE}
-    COMMAND ${CMAKE_COMMAND} -E copy ${FATFS_FILE} ${DATA_PARTITION_FILE}
-    DEPENDS
-        ${FATFS_FILE}
-    COMMENT
-        "Create data partition"
-    VERBATIM
-)
-
-list(APPEND DATA_PARTITION_FILE_LIST
-    ${FATFS_FILE}
-    ${DATA_PARTITION_FILE}
-)
-
-create_data_partition_directory(
-    #[[ Target ]]                   ${TARGET_NAME}
-    #[[ Copy Files ]]               "${DATA_PARTITION_FILE_LIST}"
-    #[[ Dependencies ]]             "${DATA_PARTITION_FILE_LIST}"
-)
 
 create_flash_app_target(
     #[[ Target ]]                  ${TARGET_NAME}
-    #[[ Boot Partition Size ]]     0x100000
-    #[[ Data Partition Contents ]] ${DATA_PARTITION_FILE}
-    #[[ Dependencies ]]            ${DATA_PARTITION_FILE}
 )
-
-unset(DATA_PARTITION_FILE_LIST)
