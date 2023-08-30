@@ -22,7 +22,6 @@
 #include <xcore/triggerable.h>
 #include <rtos_interrupt.h>
 
-#include "platform/app_pll_ctrl.h"
 #include "stream_buffer.h"
 #include "rate_server.h"
 

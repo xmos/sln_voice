@@ -5,7 +5,6 @@ add_library(${TARGET_NAME} INTERFACE)
 target_sources(${TARGET_NAME}
     INTERFACE
         ${CMAKE_CURRENT_LIST_DIR}/platform/dac_port.c
-        ${CMAKE_CURRENT_LIST_DIR}/platform/app_pll_ctrl.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/driver_instances.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_init.c
         ${CMAKE_CURRENT_LIST_DIR}/platform/platform_start.c
