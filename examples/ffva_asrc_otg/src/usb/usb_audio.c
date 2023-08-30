@@ -238,6 +238,13 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
 }
 
+//
+/**
+ * @brief Task that performs ASRC on the USB OUT data and send the ASRC output frame to the I2S tile
+ *
+ * Runs on the USB tile.
+ * @param arg Handle to the intertile ctx over which ASRC output is sent to the I2S tile
+ */
 void usb_audio_out_task(void *arg)
 {
 

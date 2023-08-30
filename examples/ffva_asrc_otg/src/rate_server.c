@@ -25,6 +25,9 @@
 #include "rate_server.h"
 #include "tusb.h"
 
+#define LOG_I2S_TO_USB_SIDE (0)
+#define LOG_USB_TO_I2S_SIDE (1)
+
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
 static uint32_t g_i2s_to_usb_rate_ratio = 0; // i2s_to_usb_rate_ratio. Updated in rate monitor and used in i2s_audio_recv_task
@@ -213,7 +216,7 @@ void rate_server(void *args)
     i2s_to_usb_rate_info_t i2s_rate_info;
 
     const sw_pll_15q16_t Ki = SW_PLL_15Q16(3);
-    const sw_pll_15q16_t Kd = SW_PLL_15Q16(3);
+    const sw_pll_15q16_t Kd = SW_PLL_15Q16(1);
 
     for(;;)
     {
@@ -252,9 +255,11 @@ void rate_server(void *args)
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
             int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
 
-            /*printint(usb_buffer_fill_level_from_half);
+#if LOG_I2S_TO_USB_SIDE
+            printint(usb_buffer_fill_level_from_half);
             printchar(',');
-            printintln(fs_ratio);*/
+            printintln(fs_ratio);
+#endif
 
             int guard_level = 100;
             if(usb_buffer_fill_level_from_half > guard_level)
@@ -300,11 +305,11 @@ void rate_server(void *args)
             }
 
             // This is still WIP so leaving this commented out code here
-
+#if LOG_USB_TO_I2S_SIDE
             printint(total_error);
             printchar(',');
             printintln(g_avg_i2s_send_buffer_level);
-
+#endif
 
 
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
