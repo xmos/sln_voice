@@ -294,14 +294,14 @@ static void usb_to_i2s_intertile(void *args) {
             int32_t i2s_buffer_level_from_half = rtos_i2s_get_send_buffer_level_wrt_half(i2s_ctx);
             calc_avg_i2s_send_buffer_level(i2s_buffer_level_from_half / 2, !okay_to_send); // Per channel
 
-            //printintln((i2s_buffer_level_from_half / 2));
-
             // If we're not sending and buffer has become half full start sending again so we start at a very stable point
             if((okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
             {
-                rtos_printf("Start sending over I2S. I2S send buffer fill level = %d\n", i2s_buffer_level_from_half);
                 rtos_i2s_set_okay_to_send(i2s_ctx, true);
+                rtos_printf("Start sending over I2S. I2S send buffer fill level = %d\n", i2s_buffer_level_from_half);
             }
+
+            //printintln((i2s_buffer_level_from_half / 2));
         }
     }
 }
