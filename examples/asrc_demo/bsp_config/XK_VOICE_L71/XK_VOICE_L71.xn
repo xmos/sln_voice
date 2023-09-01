@@ -55,10 +55,6 @@
             <Port Location="XS1_PORT_1B"  Name="PORT_I2S_LRCLK"/>
             <Port Location="XS1_PORT_1A"  Name="I2S_MIC_DATA"/>
             <Port Location="XS1_PORT_1K"  Name="I2S_DATA_IN"/>
-
-            <!-- Used for looping back clocks -->
-            <Port Location="XS1_PORT_1N"  Name="PORT_NOT_IN_PACKAGE_1"/>
-            <Port Location="XS1_PORT_1M"  Name="PORT_NOT_IN_PACKAGE_2"/>
           </Tile>
         </Node>
       </Nodes>
@@ -78,12 +74,10 @@
     </Link>
   </Links>
   <ExternalDevices>
-    <Device NodeId="0" Tile="0" Class="SQIFlash" Name="bootFlash" Type="S25FL116K" PageSize="256" SectorSize="4096" NumPages="32768">
-      <Attribute Name="PORT_SQI_CS" Value="PORT_SQI_CS_0"/>
-      <Attribute Name="PORT_SQI_SCLK" Value="PORT_SQI_SCLK_0"/>
-      <Attribute Name="PORT_SQI_SIO" Value="PORT_SQI_SIO_0"/>
-      <Attribute Name="QE_REGISTER" Value="flash_qe_location_status_reg_0"/>
-      <!-- <Attribute Name="QE_BIT" Value="flash_qe_bit_6"/> -->
+    <Device NodeId="0" Tile="0" Class="SQIFlash" Name="bootFlash">
+      <Attribute Name="PORT_SQI_CS" Value="PORT_SQI_CS"/>
+      <Attribute Name="PORT_SQI_SCLK"   Value="PORT_SQI_SCLK"/>
+      <Attribute Name="PORT_SQI_SIO"  Value="PORT_SQI_SIO"/>
     </Device>
   </ExternalDevices>
   <JTAGChain>

@@ -1,3 +1,5 @@
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #ifndef RATE_SERVER_H
 #define RATE_SERVER_H
 #include "xmath/xmath.h"

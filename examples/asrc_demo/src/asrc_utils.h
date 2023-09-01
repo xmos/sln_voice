@@ -1,3 +1,5 @@
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #ifndef ASRC_UTILS_H
 #define ASRC_UTILS_H
 
@@ -26,7 +28,7 @@ typedef struct {
     rtos_osal_queue_t asrc_ret_queue;
 }asrc_init_t;
 
-#define USB_TO_I2S_ASRC_BLOCK_LENGTH (96) //(240)
+#define USB_TO_I2S_ASRC_BLOCK_LENGTH (96)
 #define I2S_TO_USB_ASRC_BLOCK_LENGTH (240)
 #define ASRC_N_CHANNELS              (1)
 #define ASRC_CHANNELS_PER_INSTANCE   (1)

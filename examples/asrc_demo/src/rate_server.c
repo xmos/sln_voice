@@ -1,3 +1,5 @@
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #define DEBUG_UNIT RATE_SERVER
 #define DEBUG_PRINT_ENABLE_RATE_SERVER 1
 
@@ -311,7 +313,7 @@ void rate_server(void *args)
             printintln(g_avg_i2s_send_buffer_level);
 #endif
 
-
+            // This is still WIP so leaving this commented out code here
             //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
 
             /*int guard_level = 100;
