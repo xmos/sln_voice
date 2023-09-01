@@ -17,5 +17,5 @@ if((${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A) OR (${CMAKE_SYSTEM_NAME} STREQUAL 
     )
 
     ## Create an alias
-    add_library(rtos::drivers::my_i2s ALIAS custom_framework_rtos_drivers_i2s)
+    add_library(rtos::drivers::custom_i2s_with_rate_calc ALIAS custom_framework_rtos_drivers_i2s)
 endif()

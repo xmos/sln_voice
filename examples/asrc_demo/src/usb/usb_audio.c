@@ -45,6 +45,7 @@
 
 #include "app_conf.h"
 
+#include "usb_audio.h"
 #include "asrc_utils.h"
 #include "rate_server.h"
 
@@ -597,6 +598,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
         switch (ctrlSel)
         {
         case AUDIO_FU_CTRL_MUTE:
+            // TODO Mute control not yet implemented
             // Audio control mute cur parameter block consists of only one byte - we thus can send it right away
             // There does not exist a range parameter block for mute
             TU_LOG2("    Get Mute of channel: %u\r\n", channelNum);
@@ -611,14 +613,13 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
                 return tud_control_xfer(rhport, p_request, &volume[channelNum], sizeof(volume[channelNum]));
             case AUDIO_CS_REQ_RANGE:
                 TU_LOG2("    Get Volume range of channel: %u\r\n", channelNum);
-
-                // Copy values - only for testing - better is version below
+                // TODO Volume control not yet implemented
                 audio_control_range_2_n_t(1) ret;
 
                 ret.wNumSubRanges = 1;
-                ret.subrange[0].bMin = -90; // -90 dB
-                ret.subrange[0].bMax = 90;  // +90 dB
-                ret.subrange[0].bRes = 1;   // 1 dB steps
+                ret.subrange[0].bMin = USB_AUDIO_MIN_VOLUME_DB;
+                ret.subrange[0].bMax = USB_AUDIO_MAX_VOLUME_DB;
+                ret.subrange[0].bRes = USB_AUDIO_VOLUME_STEP_DB;
 
                 return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, (void *)&ret, sizeof(ret));
 

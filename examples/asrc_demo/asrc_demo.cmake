@@ -40,7 +40,7 @@ set(APP_LINK_OPTIONS
 
 set(APP_COMMON_LINK_LIBRARIES
     rtos::freertos_usb
-    rtos::drivers::my_i2s
+    rtos::drivers::custom_i2s_with_rate_calc
     lib_src
 )
 

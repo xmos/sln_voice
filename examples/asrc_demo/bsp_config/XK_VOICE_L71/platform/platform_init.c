@@ -7,7 +7,6 @@
 
 /* App headers */
 #include "platform_conf.h"
-#include "platform/app_pll_ctrl.h"
 #include "platform/driver_instances.h"
 #include "platform/platform_init.h"
 #include "adaptive_rate_adjust.h"
