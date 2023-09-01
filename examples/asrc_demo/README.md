@@ -20,10 +20,9 @@ On Linux and Mac run:
 
 On Windows run:
 
-    cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
-    cd build
+    cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
 
-    nmake example_asrc_demo
+    ninja -C build example_asrc_demo
 
 From the build folder, flash the device with the appropriate command to the desired configuration:
 
