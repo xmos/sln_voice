@@ -19,7 +19,7 @@
 #include "asrc_utils.h"
 
 extern void i2s_rate_conversion_enable(void);
-extern void dac3101_codec_reset(void);
+extern void configure_io_expander(void);
 
 static void gpio_start(void)
 {
@@ -55,7 +55,7 @@ static void enable_level_shifters(void)
 #if appconfI2S_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
-    dac3101_codec_reset();
+    configure_io_expander();
     rtos_intertile_tx(intertile_ctx, 0, &ret, sizeof(ret));
 #else
     rtos_intertile_rx_len(intertile_ctx, 0, RTOS_OSAL_WAIT_FOREVER);

@@ -26,9 +26,9 @@
 #define I2S_OE_PIN      6
 #define MUTE_PIN        7
 
-void dac3101_codec_reset(void)
+void configure_io_expander(void)
 {
-    /* Set DAC_RST_N to 0 and enable level shifters */
+    /* Enable level shifters */
     i2c_regop_res_t ret;
     uint8_t bitmask = (1<<XVF_RST_N_PIN) |
                       (1<<INT_N_PIN)     |
