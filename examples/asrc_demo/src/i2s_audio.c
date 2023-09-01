@@ -108,7 +108,7 @@ static void i2s_audio_recv_task(void *args)
     {
         recv_frame_from_i2s(&input_data[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
 
-        new_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
+        new_i2s_sampling_rate = rtos_i2s_get_nominal_sampling_rate(i2s_ctx);
 
         if(new_i2s_sampling_rate == 0) {
             continue;
@@ -247,13 +247,11 @@ static void usb_to_i2s_intertile(void *args) {
                                             &usb_to_i2s_samps
                                         );
 
-        int i2s_send_buffer_unread;
-        int i2s_buffer_level_from_half;
         static uint32_t prev_i2s_sampling_rate = 0;
 
         if(num_samps)
         {
-            i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
+            int32_t i2s_send_buffer_unread = rtos_i2s_get_send_buffer_unread(i2s_ctx);
             // If we've had a spkr itf close -> open event, we need to ensure the I2S send buffer is at a stable level before we start sending over I2S again.
 
             // First empty what's in the buffer by sending it over I2S, then stop sending over I2S and wait for the buffer to be atleast half full
@@ -262,29 +260,29 @@ static void usb_to_i2s_intertile(void *args) {
             {
                 if(i2s_send_buffer_unread > 0)
                 {
-                    i2s_ctx->okay_to_send = true;
-                    rtos_printf("USB spkr interface opened. i2s_send_buffer_unread = %d. fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                    rtos_i2s_set_okay_to_send(i2s_ctx, true);
+                    rtos_printf("USB spkr interface opened. i2s_send_buffer_unread = %d\n", i2s_send_buffer_unread);
                     // Wait for i2s send buffer to drain fully before refilling it, so there's no chance we start at a fill level greater than 0
                     continue;
                 }
-                rtos_printf("USB spkr interface opened. i2s_send_buffer_unread = %d. fill level = %d\n", i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                rtos_printf("USB spkr interface opened. i2s_send_buffer_unread = %d\n", i2s_send_buffer_unread);
                 set_spkr_itf_close_open_event(false);
-                i2s_ctx->okay_to_send = false; // We wait for buffer to be half full before resuming send on I2S
+                rtos_i2s_set_okay_to_send(i2s_ctx, false); // We wait for buffer to be half full before resuming send on I2S
             }
-
+            uint32_t i2s_nominal_sampling_rate = rtos_i2s_get_nominal_sampling_rate(i2s_ctx);
             // Similarly, If there's a change in I2S sampling rate, empty the buffer, then stop sending over I2S till buffer is half full and start sending again
-            if((i2s_ctx->i2s_nominal_sampling_rate != 0) && (prev_i2s_sampling_rate != i2s_ctx->i2s_nominal_sampling_rate))
+            if((i2s_nominal_sampling_rate != 0) && (prev_i2s_sampling_rate != i2s_nominal_sampling_rate))
             {
                 if(i2s_send_buffer_unread > 0)
                 {
-                    i2s_ctx->okay_to_send = true;
-                    rtos_printf("I2S sampling rate change detected. prev = %u, current = %u. i2s_send_buffer_unread = %d. fill level = %d\n", prev_i2s_sampling_rate, i2s_ctx->i2s_nominal_sampling_rate, i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
+                    rtos_i2s_set_okay_to_send(i2s_ctx, true);
+                    rtos_printf("I2S sampling rate change detected. prev = %u, current = %u. i2s_send_buffer_unread = %d\n", prev_i2s_sampling_rate, i2s_nominal_sampling_rate, i2s_send_buffer_unread);
                     // Wait for i2s send buffer to drain fully before refilling it, so there's no chance we start at a fill level greater than 0
                     continue;
                 }
-                rtos_printf("I2S sampling rate change detected. prev = %u, current = %u. i2s_send_buffer_unread = %d, fill level = %d\n", prev_i2s_sampling_rate, i2s_ctx->i2s_nominal_sampling_rate, i2s_send_buffer_unread, (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2)));
-                prev_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
-                i2s_ctx->okay_to_send = false;
+                rtos_printf("I2S sampling rate change detected. prev = %u, current = %u. i2s_send_buffer_unread = %d\n", prev_i2s_sampling_rate, i2s_nominal_sampling_rate, i2s_send_buffer_unread);
+                prev_i2s_sampling_rate = i2s_nominal_sampling_rate;
+                rtos_i2s_set_okay_to_send(i2s_ctx, false);
             }
 
             rtos_i2s_tx(i2s_ctx,
@@ -292,17 +290,17 @@ static void usb_to_i2s_intertile(void *args) {
                 num_samps,
                 portMAX_DELAY);
 
-            i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
-            i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
-            calc_avg_i2s_send_buffer_level(i2s_buffer_level_from_half / 2, !i2s_ctx->okay_to_send); // Per channel
+            bool okay_to_send = rtos_i2s_get_okay_to_send(i2s_ctx);
+            int32_t i2s_buffer_level_from_half = rtos_i2s_get_send_buffer_level_wrt_half(i2s_ctx);
+            calc_avg_i2s_send_buffer_level(i2s_buffer_level_from_half / 2, !okay_to_send); // Per channel
 
             //printintln((i2s_buffer_level_from_half / 2));
 
             // If we're not sending and buffer has become half full start sending again so we start at a very stable point
-            if((i2s_ctx->okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
+            if((okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
             {
                 rtos_printf("Start sending over I2S. I2S send buffer fill level = %d\n", i2s_buffer_level_from_half);
-                i2s_ctx->okay_to_send = true;
+                rtos_i2s_set_okay_to_send(i2s_ctx, true);
             }
         }
     }

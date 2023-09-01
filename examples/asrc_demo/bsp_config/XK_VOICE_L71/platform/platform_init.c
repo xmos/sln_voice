@@ -86,7 +86,6 @@ static void gpio_init(void)
 static void i2c_init(void)
 {
 #if ON_TILE(I2C_TILE_NO)
-    rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     rtos_i2c_master_init(
             i2c_master_ctx,
             PORT_I2C_SCL, 0, 0,

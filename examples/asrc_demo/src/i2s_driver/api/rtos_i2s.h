@@ -408,4 +408,55 @@ void rtos_i2s_slave_init(
 
 /**@}*/
 
+/**
+ * @brief Get information for calculating the average sampling rate from the driver
+ *
+ * @param i2s_ctx  A pointer to the associated I2C slave driver instance.
+ * @param timespan Reference timer ticks over which the last num_samples number of samples
+ *                 were received over I2S
+ * @param num_samples Samples window over which the receive time is calculated
+ */
+void rtos_i2s_get_current_rate_info(rtos_i2s_t *i2s_ctx, uint32_t *timespan, uint32_t *num_samples);
+
+/**
+ * @brief Get I2S nominal sampling from the driver
+ *
+ * @param i2s_ctx A pointer to the associated I2C slave driver instance.
+ * @return Current nominal sampling rate
+ */
+uint32_t rtos_i2s_get_nominal_sampling_rate(rtos_i2s_t *i2s_ctx);
+
+/**
+ * @brief Get I2S send buffer fill level wrt the halfway point.
+ *
+ * @param i2s_ctx A pointer to the associated I2C slave driver instance.
+ * @return Current send buffer fill level
+ */
+int32_t rtos_i2s_get_send_buffer_level_wrt_half(rtos_i2s_t *i2s_ctx);
+
+/**
+ * @brief Get number of unread samples in the i2s send buffer
+ *
+ * @param i2s_ctx A pointer to the associated I2C slave driver instance.
+ * @return number of unread samples in the I2S send buffer
+ */
+int32_t rtos_i2s_get_send_buffer_unread(rtos_i2s_t *i2s_ctx);
+
+/**
+ * @brief Set the flag telling whether it's okay for the driver
+ *        to read from the send buffer for sending data over I2S.
+ *
+ * @param i2s_ctx A pointer to the associated I2C slave driver instance.
+ * @param flag flag indicating okay_to_send info
+ */
+void rtos_i2s_set_okay_to_send(rtos_i2s_t *i2s_ctx, bool flag);
+
+/**
+ * @brief Get the okay_to_send flag for the I2S send buffer
+ *
+ * @param i2s_ctx A pointer to the associated I2C slave driver instance.
+ * @return okay_to_send flag
+ */
+bool rtos_i2s_get_okay_to_send(rtos_i2s_t *i2s_ctx);
+
 #endif /* RTOS_I2S_H_ */

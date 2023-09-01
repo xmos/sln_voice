@@ -611,3 +611,37 @@ void rtos_i2s_slave_init(
                   (rtos_osal_entry_function_t) i2s_slave_thread,
                   RTOS_THREAD_STACK_SIZE(i2s_slave_thread));
 }
+
+// Functions that the application calls to get or set i2s_ctx member variables
+void rtos_i2s_get_current_rate_info(rtos_i2s_t *i2s_ctx, uint32_t *timespan, uint32_t *num_samples)
+{
+    *num_samples = i2s_ctx->i2s_rate_monitor_window_length;
+    *timespan = i2s_ctx->i2s_rate_monitor_window_timespan;
+}
+
+uint32_t rtos_i2s_get_nominal_sampling_rate(rtos_i2s_t *i2s_ctx)
+{
+    return i2s_ctx->i2s_nominal_sampling_rate;
+}
+
+int32_t rtos_i2s_get_send_buffer_level_wrt_half(rtos_i2s_t *i2s_ctx)
+{
+    uint32_t i2s_send_buffer_unread = i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
+    int32_t i2s_buffer_level_from_half = (signed)((signed)i2s_send_buffer_unread - (i2s_ctx->send_buffer.buf_size / 2));    //Level w.r.t. half full.
+    return i2s_buffer_level_from_half;
+}
+
+int32_t rtos_i2s_get_send_buffer_unread(rtos_i2s_t *i2s_ctx)
+{
+    return i2s_ctx->send_buffer.total_written - i2s_ctx->send_buffer.total_read;
+}
+
+void rtos_i2s_set_okay_to_send(rtos_i2s_t *i2s_ctx, bool flag)
+{
+    i2s_ctx->okay_to_send = flag;
+}
+
+bool rtos_i2s_get_okay_to_send(rtos_i2s_t *i2s_ctx)
+{
+    return i2s_ctx->okay_to_send;
+}
