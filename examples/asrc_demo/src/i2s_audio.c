@@ -89,8 +89,8 @@ static void i2s_audio_recv_task(void *args)
         (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
     // Keep receiving and discarding from I2S till we get a valid sampling rate
-    int32_t tmp[I2S_TO_USB_ASRC_BLOCK_LENGTH][NUM_I2S_CHANS];
-    int32_t tmp_deinterleaved[NUM_I2S_CHANS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
+    int32_t input_data[I2S_TO_USB_ASRC_BLOCK_LENGTH][NUM_I2S_CHANS];
+    int32_t input_data_deinterleaved[NUM_I2S_CHANS][I2S_TO_USB_ASRC_BLOCK_LENGTH];
     uint32_t i2s_sampling_rate = 0;
     uint32_t new_i2s_sampling_rate = 0;
 
@@ -106,7 +106,7 @@ static void i2s_audio_recv_task(void *args)
     uint32_t nominal_fs_ratio = 0;
     for(;;)
     {
-        recv_frame_from_i2s(&tmp[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
+        recv_frame_from_i2s(&input_data[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
 
         new_i2s_sampling_rate = i2s_ctx->i2s_nominal_sampling_rate;
 
@@ -140,12 +140,12 @@ static void i2s_audio_recv_task(void *args)
         {
             for(int sample=0; sample<I2S_TO_USB_ASRC_BLOCK_LENGTH; sample++)
             {
-                tmp_deinterleaved[ch][sample] = tmp[sample][ch];
+                input_data_deinterleaved[ch][sample] = input_data[sample][ch];
             }
         }
 
         // Send to the other channel ASRC task
-        asrc_ctx.input_samples = &tmp_deinterleaved[1][0];
+        asrc_ctx.input_samples = &input_data_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = current_rate_ratio;
         asrc_ctx.i2s_sampling_rate = i2s_sampling_rate;
@@ -157,7 +157,7 @@ static void i2s_audio_recv_task(void *args)
         (void) rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
         // Call asrc on this block of samples. Reuse frame_samples now that its copied into aec_reference_audio_samples
-        unsigned n_samps_out = asrc_process((int *)&tmp_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
+        unsigned n_samps_out = asrc_process((int *)&input_data_deinterleaved[0][0], (int *)&frame_samples[0][0], current_rate_ratio, &asrc_ctrl[0][0]);
 
         // Wait for 2nd channel ASRC to finish
         unsigned n_samps_out_ch1;
@@ -312,28 +312,28 @@ void i2s_audio_init()
 {
     // I2S audio recv + ASRC task
     (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
-        (char *) "i2s_audio_recv_asrc",
-        (rtos_osal_entry_function_t) i2s_audio_recv_task,
-        (void *) NULL,
-        (size_t) RTOS_THREAD_STACK_SIZE(i2s_audio_recv_task),
-        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+        NULL,
+         "i2s_audio_recv_asrc",
+        i2s_audio_recv_task,
+        NULL,
+        RTOS_THREAD_STACK_SIZE(i2s_audio_recv_task),
+        appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
     // Rate monitor task
     (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
-        (char *) "Rate Server",
-        (rtos_osal_entry_function_t) rate_server,
-        (void *) NULL,
-        (size_t) RTOS_THREAD_STACK_SIZE(rate_server),
-        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+        NULL,
+        "Rate Server",
+        rate_server,
+        NULL,
+        RTOS_THREAD_STACK_SIZE(rate_server),
+        appconfAUDIO_PIPELINE_TASK_PRIORITY);
 
     // Task for receiving USB+ASRC audio frame from the USB to the I2S tile
     (void) rtos_osal_thread_create(
-        (rtos_osal_thread_t *) NULL,
-        (char *) "usb_to_i2s_intertile",
-        (rtos_osal_entry_function_t) usb_to_i2s_intertile,
-        (void *) NULL,
-        (size_t) RTOS_THREAD_STACK_SIZE(usb_to_i2s_intertile),
-        (unsigned int) appconfAUDIO_PIPELINE_TASK_PRIORITY);
+        NULL,
+        "usb_to_i2s_intertile",
+        usb_to_i2s_intertile,
+        NULL,
+        RTOS_THREAD_STACK_SIZE(usb_to_i2s_intertile),
+        appconfAUDIO_PIPELINE_TASK_PRIORITY);
 }

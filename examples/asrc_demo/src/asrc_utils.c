@@ -47,7 +47,7 @@ fs_code_t samp_rate_to_code(unsigned samp_rate){
 
 void asrc_one_channel_task(void *args)
 {
-    asrc_init_t *asrc_init_ctx = (asrc_init_t*)args;
+    asrc_init_t *asrc_init_ctx = args;
 
     for(;;)
     {

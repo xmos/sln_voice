@@ -246,8 +246,7 @@ void rate_server(void *args)
         prev_spkr_itf_open = usb_rate_info.spkr_itf_open;
 
         // Compute I2S rate
-        float_s32_t avg_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->i2s_rate_monitor_window_timespan, i2s_ctx->i2s_rate_monitor_window_length, true);
-        float_s32_t i2s_rate = avg_rate;
+        float_s32_t i2s_rate = determine_avg_I2S_rate_from_driver(i2s_ctx->i2s_rate_monitor_window_timespan, i2s_ctx->i2s_rate_monitor_window_length, true);
 
         usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level / 8;
 
