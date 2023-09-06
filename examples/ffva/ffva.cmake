@@ -50,6 +50,7 @@ set(APP_COMMON_LINK_LIBRARIES
     inferencing_tflite_micro
     rtos::freertos_usb
     lib_src
+    io::audio
 )
 
 #**********************
