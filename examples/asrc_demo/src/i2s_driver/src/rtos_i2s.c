@@ -219,7 +219,6 @@ static void i2s_send(rtos_i2s_t *ctx, size_t num_out, int32_t *i2s_sample_buf)
         }
         else { // For debug, send a known value
             memset(i2s_sample_buf, 0, num_out * sizeof(int32_t));
-            buffer_words_read = num_out;
         }
     } else {
         /*
