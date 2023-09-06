@@ -75,9 +75,9 @@
   </Links>
   <ExternalDevices>
     <Device NodeId="0" Tile="0" Class="SQIFlash" Name="bootFlash">
-      <Attribute Name="PORT_SQI_CS" Value="PORT_SQI_CS"/>
-      <Attribute Name="PORT_SQI_SCLK"   Value="PORT_SQI_SCLK"/>
-      <Attribute Name="PORT_SQI_SIO"  Value="PORT_SQI_SIO"/>
+      <Attribute Name="PORT_SQI_CS" Value="PORT_SQI_CS_0"/>
+      <Attribute Name="PORT_SQI_SCLK"   Value="PORT_SQI_SCLK_0"/>
+      <Attribute Name="PORT_SQI_SIO"  Value="PORT_SQI_SIO_0"/>
     </Device>
   </ExternalDevices>
   <JTAGChain>
