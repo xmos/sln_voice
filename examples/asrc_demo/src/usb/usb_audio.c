@@ -451,7 +451,7 @@ void usb_audio_out_asrc(void *arg)
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &usb_audio_out_frame_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
-        asrc_ctx.nominal_fs_ratio = current_rate_ratio;
+        asrc_ctx.fs_ratio = current_rate_ratio;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
 

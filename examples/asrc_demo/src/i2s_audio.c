@@ -147,7 +147,7 @@ static void i2s_audio_recv_task(void *args)
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &input_data_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
-        asrc_ctx.nominal_fs_ratio = current_rate_ratio;
+        asrc_ctx.fs_ratio = current_rate_ratio;
         asrc_ctx.i2s_sampling_rate = i2s_sampling_rate;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
