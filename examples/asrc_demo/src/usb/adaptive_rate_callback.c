@@ -52,7 +52,8 @@ void reset_state()
     }
 }
 
-float_s32_t determine_USB_audio_rate(uint32_t timestamp,
+static uint32_t timestamp_from_sofs = 0;
+float_s32_t determine_USB_audio_rate(uint32_t timestamp_unused,
                                     uint32_t data_length,
                                     uint32_t direction,
                                     bool update
@@ -62,6 +63,7 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
 #endif
 )
 {
+    uint32_t timestamp = timestamp_from_sofs;
     static uint32_t data_lengths[2][TOTAL_STORED];
     static uint32_t time_buckets[2][TOTAL_STORED];
     static uint32_t current_data_bucket_size[2];
@@ -182,9 +184,18 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
     return result;
 }
 
-void sof_toggle()
+void sof_toggle(uint32_t cur_time)
 {
     static uint32_t sof_count;
+    static uint32_t count;
+
+    count += 1;
+    if(count == 8)
+    {
+        //printuintln(cur_time);
+        timestamp_from_sofs = cur_time;
+        count = 0;
+    }
     if (data_seen)
     {
         sof_count = 0;

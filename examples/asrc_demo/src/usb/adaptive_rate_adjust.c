@@ -77,9 +77,10 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
     return true;
 }
 
-bool tud_xcore_sof_cb(uint8_t rhport)
+bool tud_xcore_sof_cb(uint8_t rhport, uint32_t cur_time)
 {
-    sof_toggle();
+
+    sof_toggle(cur_time);
 
     /* False tells TinyUSB to not send the SOF event to the stack */
     return false;
