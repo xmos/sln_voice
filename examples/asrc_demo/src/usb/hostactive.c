@@ -7,6 +7,7 @@
 
 /* App headers */
 #include "platform/driver_instances.h"
+#include "hostactive.h"
 
 #define USER_ACTIVE_LED_PIN (4)
 static rtos_gpio_port_id_t host_active_led_port;
@@ -16,6 +17,7 @@ void UserHostActive_LED_Init()
     // Inititalise host active LED port
     host_active_led_port = rtos_gpio_port(PORT_GPO);
     rtos_gpio_port_enable(gpio_ctx_t0, host_active_led_port);
+    UserHostActive(0); // Turn LED off by default
 }
 
 void UserHostActive(int active)
