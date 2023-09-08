@@ -103,7 +103,7 @@ static void i2s_audio_recv_task(void *args)
 #if PROFILE_ASRC
     uint32_t max_time = 0;
 #endif
-    uint32_t nominal_fs_ratio = 0;
+    uint64_t nominal_fs_ratio = 0;
     for(;;)
     {
         recv_frame_from_i2s(&input_data[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
@@ -129,8 +129,8 @@ static void i2s_audio_recv_task(void *args)
             // We're too late to do the asrc_process(), skip this frame
             continue;
         }
-        uint32_t current_rate_ratio = nominal_fs_ratio;
-        uint32_t rate_ratio = get_i2s_to_usb_rate_ratio();
+        uint64_t current_rate_ratio = nominal_fs_ratio;
+        uint64_t rate_ratio = get_i2s_to_usb_rate_ratio();
         if(rate_ratio != 0)
         {
             current_rate_ratio = rate_ratio;

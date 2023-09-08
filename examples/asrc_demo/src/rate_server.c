@@ -32,7 +32,7 @@
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
-static uint32_t g_i2s_to_usb_rate_ratio = 0; // i2s_to_usb_rate_ratio. Updated in rate monitor and used in i2s_audio_recv_task
+static uint64_t g_i2s_to_usb_rate_ratio = 0; // i2s_to_usb_rate_ratio. Updated in rate monitor and used in i2s_audio_recv_task
 static int32_t g_avg_i2s_send_buffer_level = 0; // avg i2s send buffer level. Updated in usb_to_i2s_intertile(), used in rate monitor for buffer level based PI control
 static int32_t g_prev_avg_i2s_send_buffer_level = 0; // Previous avg i2s send buffer level. Updated in usb_to_i2s_intertile(), used in rate monitor for buffer level based PI control
 static bool g_spkr_itf_close_to_open = false; // Flag tracking if a USB spkr interface close->open event occured. Set in the rate monitor when it receives the spkr_interface info from
@@ -49,12 +49,12 @@ void set_spkr_itf_close_open_event(bool event)
 }
 
 
-uint32_t get_i2s_to_usb_rate_ratio()
+uint64_t get_i2s_to_usb_rate_ratio()
 {
     return g_i2s_to_usb_rate_ratio;
 }
 
-void set_i2s_to_usb_rate_ratio(uint32_t ratio)
+void set_i2s_to_usb_rate_ratio(uint64_t ratio)
 {
     g_i2s_to_usb_rate_ratio = ratio;
 
@@ -206,7 +206,7 @@ typedef int32_t sw_pll_15q16_t; // Type for 15.16 signed fixed point
 
 void rate_server(void *args)
 {
-    uint32_t usb_to_i2s_rate_ratio = 0;
+    uint64_t usb_to_i2s_rate_ratio = 0;
     int32_t usb_buffer_fill_level_from_half;
     static bool reset_buf_level = false;
     static bool prev_spkr_itf_open = false;
@@ -250,15 +250,15 @@ void rate_server(void *args)
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
+            uint64_t fs_ratio_u64 = float_div_u64_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28+32);
 
 #if LOG_I2S_TO_USB_SIDE
             printint(usb_buffer_fill_level_from_half);
             printchar(',');
-            printintln(fs_ratio);
+            printintln((uint32_t)(fs_ratio_u64 >> 32));
 #endif
-
-            int guard_level = 100;
+            // TODO fix guard band calculation
+            /*int guard_level = 100;
             if(usb_buffer_fill_level_from_half > guard_level)
             {
                 int error = usb_buffer_fill_level_from_half - guard_level;
@@ -268,9 +268,9 @@ void rate_server(void *args)
             {
                 int error = usb_buffer_fill_level_from_half - (-guard_level);
                 fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
-            }
+            }*/
 
-            set_i2s_to_usb_rate_ratio(fs_ratio);
+            set_i2s_to_usb_rate_ratio(fs_ratio_u64);
 
             if(reset_buf_level)
             {
@@ -279,16 +279,17 @@ void rate_server(void *args)
         }
         else
         {
-            set_i2s_to_usb_rate_ratio(0);
+            set_i2s_to_usb_rate_ratio((uint64_t)0);
             reset_buf_level = true;
         }
 
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
-            int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate[TUSB_DIR_OUT], i2s_rate, 28);
+            uint64_t fs_ratio64 = float_div_u64_fixed_output_q_format(usb_rate[TUSB_DIR_OUT], i2s_rate, 28+32);
 
-            int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
+            // TODO till figure out tuning
+            /*int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
             int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);
 
             int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
@@ -299,11 +300,11 @@ void rate_server(void *args)
             else if(total_error < -200)
             {
                 total_error = -200;
-            }
+            }*/
 
             // This is still WIP so leaving this commented out code here
 #if LOG_USB_TO_I2S_SIDE
-            printint(total_error);
+            printint(0); //printint(total_error);
             printchar(',');
             printintln(g_avg_i2s_send_buffer_level);
 #endif
@@ -323,12 +324,12 @@ void rate_server(void *args)
                 fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
             }*/
 
-            usb_to_i2s_rate_ratio = fs_ratio + total_error;
+            usb_to_i2s_rate_ratio = fs_ratio64; // + total_error;
 
         }
         else
         {
-            usb_to_i2s_rate_ratio = 0;
+            usb_to_i2s_rate_ratio = (uint64_t)0;
         }
 
         // Notify USB tile of the usb_to_i2s rate ratio
@@ -423,4 +424,55 @@ uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
         acc += array_to_sum[i];
     }
     return acc;
+}
+
+typedef struct
+{
+    uint64_t mant;
+    int32_t exp;
+}float_u64_t;
+
+static float_u64_t float_div_u64(float_s32_t dividend, float_s32_t divisor)
+{
+    float_u64_t res;
+
+    int dividend_hr;
+    int divisor_hr;
+
+    asm( "clz %0, %1" : "=r"(dividend_hr) : "r"(dividend.mant) );
+    asm( "clz %0, %1" : "=r"(divisor_hr) : "r"(divisor.mant) );
+
+    int dividend_exp = dividend.exp - dividend_hr;
+    int divisor_exp = divisor.exp - divisor_hr;
+
+    uint64_t h_dividend = (uint64_t)((uint32_t)dividend.mant) << (dividend_hr);
+
+    uint32_t h_divisor = ((uint32_t)divisor.mant) << (divisor_hr);
+
+    uint32_t lhs = 32;
+
+    uint64_t quotient = (h_dividend << lhs) / h_divisor;
+
+    res.exp = dividend_exp - divisor_exp - lhs;
+
+    res.mant = quotient ;
+    return res;
+}
+
+uint64_t float_div_u64_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format)
+{
+    int op_q = -output_q_format;
+    float_u64_t res = float_div_u64(dividend, divisor);
+    uint64_t quotient;
+    if(res.exp < op_q)
+    {
+        int rsh = op_q - res.exp;
+        quotient = ((uint64_t)res.mant >> rsh) + (((uint64_t)res.mant >> (rsh-1)) & 0x1);
+    }
+    else
+    {
+        int lsh = res.exp - op_q;
+        quotient = (uint64_t)res.mant << lsh;
+    }
+    return quotient;
 }

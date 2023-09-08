@@ -72,7 +72,7 @@ static StreamBufferHandle_t samples_from_host_stream_buf;
 static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_asrc_handle;
 
-static uint32_t g_usb_to_i2s_rate_ratio = 0;
+static uint64_t g_usb_to_i2s_rate_ratio = 0;
 static uint32_t samples_to_host_stream_buf_size_bytes = 0;
 static bool g_i2s_sr_change_detected = false;
 
@@ -385,7 +385,7 @@ void usb_audio_out_asrc(void *arg)
 
     fs_code_t in_fs_code;
     fs_code_t out_fs_code;
-    unsigned nominal_fs_ratio;
+    uint64_t nominal_fs_ratio;
 #if PROFILE_ASRC
     uint32_t max_time = 0;
 #endif
@@ -415,7 +415,7 @@ void usb_audio_out_asrc(void *arg)
         if (asrc_init_ctx.fs_out != current_i2s_rate)
         {
             // Time to initialise asrc
-            g_usb_to_i2s_rate_ratio = 0;
+            g_usb_to_i2s_rate_ratio = (uint64_t)0;
             asrc_init_ctx.fs_out = current_i2s_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in); // Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
@@ -428,8 +428,8 @@ void usb_audio_out_asrc(void *arg)
             continue;
         }
 
-        uint32_t current_rate_ratio = nominal_fs_ratio;
-        if(g_usb_to_i2s_rate_ratio != 0)
+        uint64_t current_rate_ratio = nominal_fs_ratio;
+        if(g_usb_to_i2s_rate_ratio != (uint64_t)0)
         {
             current_rate_ratio = g_usb_to_i2s_rate_ratio;
         }
