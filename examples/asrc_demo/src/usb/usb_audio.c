@@ -53,19 +53,11 @@
 // Audio controls
 // Current states
 
-// Voulme control defines
-static bool mute_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1] = {0};                         // +1 for master channel 0
-static bool mute_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1] = {0};                         // +1 for master channel 0
-static int16_t volume_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1] = {0};                    // +1 for master channel 0. These are dB val in 8.8
-static int16_t volume_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1] = {0};                    // +1 for master channel 0
-static uint32_t vol_mul_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX] = {0};                      // No +1 because master channel is included already. These are the volume scaling vals
-static uint32_t vol_mul_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX] = {0};                      // No +1 because master channel is included already
 
 uint32_t sampFreq;
 uint8_t clkValid;
 
 // Range states
-audio_control_range_2_n_t(1) volumeRng[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; // Volume range state
 audio_control_range_4_n_t(1) sampleFreqRng;                                     // Sample frequency range state
 
 static volatile bool mic_interface_open = false;
@@ -133,6 +125,24 @@ void tud_resume_cb(void)
 //--------------------------------------------------------------------+
 // Volume control
 //--------------------------------------------------------------------+
+// These are used by the dbtomult and fixed point volume scaling calcs
+#define USB_AUDIO_VOL_MUL_FRAC_BITS     29
+#define USB_AUDIO_VOLUME_FRAC_BITS      8
+
+// Volume feature unit range in decibels
+// These are stored in 8.8 values in decibels. Max volume is 0dB which is 1.0 gain because we only attenuate.
+#define USB_AUDIO_MIN_VOLUME_DB     ((int16_t)-60  << USB_AUDIO_VOLUME_FRAC_BITS)
+#define USB_AUDIO_MAX_VOLUME_DB     ((int16_t)0  << USB_AUDIO_VOLUME_FRAC_BITS)
+#define USB_AUDIO_VOLUME_STEP_DB    ((int16_t)1  << USB_AUDIO_VOLUME_FRAC_BITS)
+
+static bool mute_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1] = {0};                         // +1 for master channel 0
+static bool mute_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1] = {0};                         // +1 for master channel 0
+static int16_t volume_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1] = {0};                    // +1 for master channel 0. These are dB val in 8.8
+static int16_t volume_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1] = {0};                    // +1 for master channel 0
+static uint32_t vol_mul_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX] = {0};                      // No +1 because master channel is included already. These are the volume scaling vals
+static uint32_t vol_mul_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX] = {0};                      // No +1 because master channel is included already
+
+
 static void update_vol_mul(const unsigned chan, const unsigned num_audio_chan, const int16_t volumes[], const bool mutes[], uint32_t vol_muls[])
 {
     // Add dB values to master (which means cascade multipliers using log rules)
@@ -176,6 +186,11 @@ static void init_volume_multipliers(void)
     {
         update_vol_mul(chan, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX, volume_h2d, mute_h2d, vol_mul_h2d);
     }
+}
+
+static inline int32_t volume_scale(const uint32_t mul, const int32_t samp){
+    int64_t result = (int64_t)samp * (int64_t)mul;
+    return (int32_t)(result >> USB_AUDIO_VOL_MUL_FRAC_BITS);
 }
 
 //--------------------------------------------------------------------+
@@ -409,6 +424,7 @@ void usb_audio_out_asrc(void *arg)
             for (int i = 0; i < USB_TO_I2S_ASRC_BLOCK_LENGTH; i++)
             {
                 usb_audio_out_frame_deinterleaved[ch][i] = usb_audio_out_frame[i][ch] << src_32_shift;
+                usb_audio_out_frame_deinterleaved[ch][i] = volume_scale(vol_mul_h2d[i % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX], usb_audio_out_frame_deinterleaved[ch][i]);
             }
         }
 
