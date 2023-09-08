@@ -51,8 +51,11 @@
 
 // Audio controls
 // Current states
-bool mute[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1];       // +1 for master channel 0
-uint16_t volume[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; // +1 for master channel 0
+static bool mute_mic[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; 						// +1 for master channel 0
+static int16_t volume_mic[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; 					// +1 for master channel 0
+static bool mute_spk[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1]; 						// +1 for master channel 0
+static int16_t volume_spk[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1]; 					// +1 for master channel 0
+
 uint32_t sampFreq;
 uint8_t clkValid;
 
@@ -490,7 +493,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport,
             // Request uses format layout 1
             TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_1_t));
 
-            mute[channelNum] = ((audio_control_cur_1_t *)pBuff)->bCur;
+            mute_mic[channelNum] = ((audio_control_cur_1_t *)pBuff)->bCur;
 
             TU_LOG2("    Set Mute: %d of channel: %u\r\n", mute[channelNum], channelNum);
 
@@ -500,7 +503,7 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport,
             // Request uses format layout 2
             TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_2_t));
 
-            volume[channelNum] = ((audio_control_cur_2_t *)pBuff)->bCur;
+            volume_mic[channelNum] = ((audio_control_cur_2_t *)pBuff)->bCur;
 
             TU_LOG2("    Set Volume: %d dB of channel: %u\r\n", volume[channelNum], channelNum);
 
@@ -512,6 +515,37 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport,
             return false;
         }
     }
+
+
+    if (entityID == UAC2_ENTITY_SPK_FEATURE_UNIT) {
+        switch (ctrlSel) {
+        case AUDIO_FU_CTRL_MUTE:
+            // Request uses format layout 1
+            TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_1_t));
+
+            mute_spk[channelNum] = ((audio_control_cur_1_t*) pBuff)->bCur;
+
+            TU_LOG2("    Set Mute: %d of channel: %u\n", mute_spk[channelNum], channelNum);
+
+            return true;
+
+        case AUDIO_FU_CTRL_VOLUME:
+            // Request uses format layout 2
+            TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_2_t));
+
+            volume_spk[channelNum] = ((audio_control_cur_2_t*) pBuff)->bCur;
+
+            TU_LOG2("    Set Volume: %d dB of channel: %u\n", volume_spk[channelNum], channelNum);
+
+            return true;
+
+            // Unknown/Unsupported control
+        default:
+            TU_BREAKPOINT();
+            return false;
+        }
+    }
+
     return false; // Yet not implemented
 }
 
@@ -602,7 +636,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
             // Audio control mute cur parameter block consists of only one byte - we thus can send it right away
             // There does not exist a range parameter block for mute
             TU_LOG2("    Get Mute of channel: %u\r\n", channelNum);
-            return tud_control_xfer(rhport, p_request, &mute[channelNum], 1);
+            return tud_control_xfer(rhport, p_request, &mute_mic[channelNum], 1);
 
         case AUDIO_FU_CTRL_VOLUME:
 
@@ -610,7 +644,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
             {
             case AUDIO_CS_REQ_CUR:
                 TU_LOG2("    Get Volume of channel: %u\r\n", channelNum);
-                return tud_control_xfer(rhport, p_request, &volume[channelNum], sizeof(volume[channelNum]));
+                return tud_control_xfer(rhport, p_request, &volume_mic[channelNum], sizeof(volume_mic[channelNum]));
             case AUDIO_CS_REQ_RANGE:
                 TU_LOG2("    Get Volume range of channel: %u\r\n", channelNum);
                 // TODO Volume control not yet implemented
@@ -622,6 +656,45 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
                 ret.subrange[0].bRes = USB_AUDIO_VOLUME_STEP_DB;
 
                 return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, (void *)&ret, sizeof(ret));
+
+                // Unknown/Unsupported control
+            default:
+                TU_BREAKPOINT();
+                return false;
+            }
+
+            // Unknown/Unsupported control
+        default:
+            TU_BREAKPOINT();
+            return false;
+        }
+    }
+
+    if (entityID == UAC2_ENTITY_SPK_FEATURE_UNIT) {
+        switch (ctrlSel) {
+        case AUDIO_FU_CTRL_MUTE:
+            // Audio control mute cur parameter block consists of only one byte - we thus can send it right away
+            // There does not exist a range parameter block for mute
+            TU_LOG2("    Get Mute of channel: %u\r\n", channelNum);
+            return tud_control_xfer(rhport, p_request, &mute_spk[channelNum], 1);
+
+        case AUDIO_FU_CTRL_VOLUME:
+
+            switch (p_request->bRequest) {
+            case AUDIO_CS_REQ_CUR:
+                TU_LOG2("    Get Volume of channel: %u\r\n", channelNum);
+                return tud_control_xfer(rhport, p_request, &volume_spk[channelNum], sizeof(volume_spk[channelNum]));
+            case AUDIO_CS_REQ_RANGE:
+                TU_LOG2("    Get Volume range of channel: %u\r\n", channelNum);
+
+                audio_control_range_2_n_t(1) ret;
+
+                ret.wNumSubRanges = 1;
+                ret.subrange[0].bMin = USB_AUDIO_MIN_VOLUME_DB;
+                ret.subrange[0].bMax = USB_AUDIO_MAX_VOLUME_DB;
+                ret.subrange[0].bRes = USB_AUDIO_VOLUME_STEP_DB;
+
+                return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, (void*) &ret, sizeof(ret));
 
                 // Unknown/Unsupported control
             default:
