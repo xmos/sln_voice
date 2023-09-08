@@ -48,16 +48,16 @@
 #include "usb_audio.h"
 #include "asrc_utils.h"
 #include "rate_server.h"
+#include "dbcalc.h"
 
 // Audio controls
 // Current states
-bool mute[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1];       // +1 for master channel 0
-uint16_t volume[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; // +1 for master channel 0
+
+
 uint32_t sampFreq;
 uint8_t clkValid;
 
 // Range states
-audio_control_range_2_n_t(1) volumeRng[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1]; // Volume range state
 audio_control_range_4_n_t(1) sampleFreqRng;                                     // Sample frequency range state
 
 static volatile bool mic_interface_open = false;
@@ -123,6 +123,77 @@ void tud_resume_cb(void)
 }
 
 //--------------------------------------------------------------------+
+// Volume control
+//--------------------------------------------------------------------+
+// These are used by the dbtomult and fixed point volume scaling calcs
+#define USB_AUDIO_VOL_MUL_FRAC_BITS     29
+#define USB_AUDIO_VOLUME_FRAC_BITS      8
+
+// Volume feature unit range in decibels
+// These are stored in 8.8 values in decibels. Max volume is 0dB which is 1.0 gain because we only attenuate.
+#define USB_AUDIO_MIN_VOLUME_DB     ((int16_t)-60  << USB_AUDIO_VOLUME_FRAC_BITS)
+#define USB_AUDIO_MAX_VOLUME_DB     ((int16_t)0  << USB_AUDIO_VOLUME_FRAC_BITS)
+#define USB_AUDIO_VOLUME_STEP_DB    ((int16_t)1  << USB_AUDIO_VOLUME_FRAC_BITS)
+
+static bool mute_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1] = {0};                         // +1 for master channel 0
+static bool mute_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1] = {0};                         // +1 for master channel 0
+static int16_t volume_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1] = {0};                    // +1 for master channel 0. These are dB val in 8.8
+static int16_t volume_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1] = {0};                    // +1 for master channel 0
+static uint32_t vol_mul_d2h[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX] = {0};                      // No +1 because master channel is included already. These are the volume scaling vals
+static uint32_t vol_mul_h2d[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX] = {0};                      // No +1 because master channel is included already
+
+
+static void update_vol_mul(const unsigned chan, const unsigned num_audio_chan, const int16_t volumes[], const bool mutes[], uint32_t vol_muls[])
+{
+    // Add dB values to master (which means cascade multipliers using log rules)
+    if(chan > 0)
+    {
+        // Update individuals
+        int32_t db_val_frac = volumes[chan];     // Sign extend to 32b
+        db_val_frac += volumes[0];               // cacade master gain
+        uint32_t vol_mul = db_to_mult(db_val_frac, USB_AUDIO_VOLUME_FRAC_BITS, USB_AUDIO_VOL_MUL_FRAC_BITS);
+        if(mutes[chan] || mutes[0]) // mute if individual or master
+        {
+            vol_muls[chan - 1] = 0;
+        }
+        else
+        {
+            vol_muls[chan - 1] = vol_mul;
+        }
+    }
+    else
+    {
+        // Update both with new master settings
+        for(int i = 0; i < num_audio_chan; i++)
+        {
+            int32_t db_val_frac = volumes[0];    // Sign extend master to 32b
+            db_val_frac += volumes[i + 1];       // cacade idividual gains
+            uint32_t vol_mul = db_to_mult(db_val_frac, USB_AUDIO_VOLUME_FRAC_BITS, USB_AUDIO_VOL_MUL_FRAC_BITS);
+            bool mute = mutes[i + 1] || mutes[0];  // mute if individual or master
+            vol_muls[i] = mute ? 0 : vol_mul;
+        }
+    }
+}
+
+// Initialise volume multipliers
+static void init_volume_multipliers(void)
+{
+    for(int chan=0; chan<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX + 1; chan++)
+    {
+        update_vol_mul(chan, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX, volume_d2h, mute_d2h, vol_mul_d2h);
+    }
+    for(int chan=0; chan<CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX + 1; chan++)
+    {
+        update_vol_mul(chan, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX, volume_h2d, mute_h2d, vol_mul_h2d);
+    }
+}
+
+static inline int32_t volume_scale(const uint32_t mul, const int32_t samp){
+    int64_t result = (int64_t)samp * (int64_t)mul;
+    return (int32_t)(result >> USB_AUDIO_VOL_MUL_FRAC_BITS);
+}
+
+//--------------------------------------------------------------------+
 // AUDIO Task
 //--------------------------------------------------------------------+
 
@@ -156,7 +227,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     {
         for (int ch = 0; ch < num_chans; ch++)
         {
-            usb_audio_in_frame[i][ch] = frame_buffer_ptr[i * 2 + ch] >> src_32_shift;
+            usb_audio_in_frame[i][ch] = (volume_scale(vol_mul_h2d[ch % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX], frame_buffer_ptr[i * 2 + ch])) >> src_32_shift;
         }
     }
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
@@ -348,11 +419,17 @@ void usb_audio_out_asrc(void *arg)
             current_rate_ratio = g_usb_to_i2s_rate_ratio;
         }
 
+#if PROFILE_ASRC
+        uint32_t start = get_reference_time();
+#endif
+
         for (int ch = 0; ch < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++)
         {
             for (int i = 0; i < USB_TO_I2S_ASRC_BLOCK_LENGTH; i++)
             {
                 usb_audio_out_frame_deinterleaved[ch][i] = usb_audio_out_frame[i][ch] << src_32_shift;
+                // This is taking 4 MIPS. Can be optimised if needed.
+                usb_audio_out_frame_deinterleaved[ch][i] = volume_scale(vol_mul_h2d[ch % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX], usb_audio_out_frame_deinterleaved[ch][i]);
             }
         }
 
@@ -361,9 +438,7 @@ void usb_audio_out_asrc(void *arg)
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = current_rate_ratio;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
-#if PROFILE_ASRC
-        uint32_t start = get_reference_time();
-#endif
+
 
         (void)rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
@@ -490,7 +565,8 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport,
             // Request uses format layout 1
             TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_1_t));
 
-            mute[channelNum] = ((audio_control_cur_1_t *)pBuff)->bCur;
+            mute_d2h[channelNum] = ((audio_control_cur_1_t *)pBuff)->bCur;
+            update_vol_mul(channelNum, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX, volume_d2h, mute_d2h, vol_mul_d2h);
 
             TU_LOG2("    Set Mute: %d of channel: %u\r\n", mute[channelNum], channelNum);
 
@@ -500,7 +576,8 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport,
             // Request uses format layout 2
             TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_2_t));
 
-            volume[channelNum] = ((audio_control_cur_2_t *)pBuff)->bCur;
+            volume_d2h[channelNum] = ((audio_control_cur_2_t *)pBuff)->bCur;
+            update_vol_mul(channelNum, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX, volume_d2h, mute_d2h, vol_mul_d2h);
 
             TU_LOG2("    Set Volume: %d dB of channel: %u\r\n", volume[channelNum], channelNum);
 
@@ -512,6 +589,39 @@ bool tud_audio_set_req_entity_cb(uint8_t rhport,
             return false;
         }
     }
+
+
+    if (entityID == UAC2_ENTITY_SPK_FEATURE_UNIT) {
+        switch (ctrlSel) {
+        case AUDIO_FU_CTRL_MUTE:
+            // Request uses format layout 1
+            TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_1_t));
+
+            mute_h2d[channelNum] = ((audio_control_cur_1_t*) pBuff)->bCur;
+            update_vol_mul(channelNum, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX, volume_h2d, mute_h2d, vol_mul_h2d);
+
+            TU_LOG2("    Set Mute: %d of channel: %u\n", mute_h2d[channelNum], channelNum);
+
+            return true;
+
+        case AUDIO_FU_CTRL_VOLUME:
+            // Request uses format layout 2
+            TU_VERIFY(p_request->wLength == sizeof(audio_control_cur_2_t));
+
+            volume_h2d[channelNum] = ((audio_control_cur_2_t*) pBuff)->bCur;
+            update_vol_mul(channelNum, CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX, volume_h2d, mute_h2d, vol_mul_h2d);
+
+            TU_LOG2("    Set Volume: %d dB of channel: %u\n", volume_h2d[channelNum], channelNum);
+
+            return true;
+
+            // Unknown/Unsupported control
+        default:
+            TU_BREAKPOINT();
+            return false;
+        }
+    }
+
     return false; // Yet not implemented
 }
 
@@ -602,7 +712,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
             // Audio control mute cur parameter block consists of only one byte - we thus can send it right away
             // There does not exist a range parameter block for mute
             TU_LOG2("    Get Mute of channel: %u\r\n", channelNum);
-            return tud_control_xfer(rhport, p_request, &mute[channelNum], 1);
+            return tud_control_xfer(rhport, p_request, &mute_d2h[channelNum], 1);
 
         case AUDIO_FU_CTRL_VOLUME:
 
@@ -610,7 +720,7 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
             {
             case AUDIO_CS_REQ_CUR:
                 TU_LOG2("    Get Volume of channel: %u\r\n", channelNum);
-                return tud_control_xfer(rhport, p_request, &volume[channelNum], sizeof(volume[channelNum]));
+                return tud_control_xfer(rhport, p_request, &volume_d2h[channelNum], sizeof(volume_d2h[channelNum]));
             case AUDIO_CS_REQ_RANGE:
                 TU_LOG2("    Get Volume range of channel: %u\r\n", channelNum);
                 // TODO Volume control not yet implemented
@@ -622,6 +732,45 @@ bool tud_audio_get_req_entity_cb(uint8_t rhport,
                 ret.subrange[0].bRes = USB_AUDIO_VOLUME_STEP_DB;
 
                 return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, (void *)&ret, sizeof(ret));
+
+                // Unknown/Unsupported control
+            default:
+                TU_BREAKPOINT();
+                return false;
+            }
+
+            // Unknown/Unsupported control
+        default:
+            TU_BREAKPOINT();
+            return false;
+        }
+    }
+
+    if (entityID == UAC2_ENTITY_SPK_FEATURE_UNIT) {
+        switch (ctrlSel) {
+        case AUDIO_FU_CTRL_MUTE:
+            // Audio control mute cur parameter block consists of only one byte - we thus can send it right away
+            // There does not exist a range parameter block for mute
+            TU_LOG2("    Get Mute of channel: %u\r\n", channelNum);
+            return tud_control_xfer(rhport, p_request, &mute_h2d[channelNum], 1);
+
+        case AUDIO_FU_CTRL_VOLUME:
+
+            switch (p_request->bRequest) {
+            case AUDIO_CS_REQ_CUR:
+                TU_LOG2("    Get Volume of channel: %u\r\n", channelNum);
+                return tud_control_xfer(rhport, p_request, &volume_h2d[channelNum], sizeof(volume_h2d[channelNum]));
+            case AUDIO_CS_REQ_RANGE:
+                TU_LOG2("    Get Volume range of channel: %u\r\n", channelNum);
+
+                audio_control_range_2_n_t(1) ret;
+
+                ret.wNumSubRanges = 1;
+                ret.subrange[0].bMin = USB_AUDIO_MIN_VOLUME_DB;
+                ret.subrange[0].bMax = USB_AUDIO_MAX_VOLUME_DB;
+                ret.subrange[0].bRes = USB_AUDIO_VOLUME_STEP_DB;
+
+                return tud_audio_buffer_and_schedule_control_xfer(rhport, p_request, (void*) &ret, sizeof(ret));
 
                 // Unknown/Unsupported control
             default:
@@ -1055,6 +1204,8 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
     sampleFreqRng.subrange[0].bMin = appconfUSB_AUDIO_SAMPLE_RATE;
     sampleFreqRng.subrange[0].bMax = appconfUSB_AUDIO_SAMPLE_RATE;
     sampleFreqRng.subrange[0].bRes = 0;
+
+    init_volume_multipliers();
 
     rx_buffer = xStreamBufferCreate(2 * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ, 0);
 
