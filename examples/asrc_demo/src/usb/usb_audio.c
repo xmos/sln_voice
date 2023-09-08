@@ -419,12 +419,17 @@ void usb_audio_out_asrc(void *arg)
             current_rate_ratio = g_usb_to_i2s_rate_ratio;
         }
 
+#if PROFILE_ASRC
+        uint32_t start = get_reference_time();
+#endif
+
         for (int ch = 0; ch < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; ch++)
         {
             for (int i = 0; i < USB_TO_I2S_ASRC_BLOCK_LENGTH; i++)
             {
                 usb_audio_out_frame_deinterleaved[ch][i] = usb_audio_out_frame[i][ch] << src_32_shift;
-                usb_audio_out_frame_deinterleaved[ch][i] = volume_scale(vol_mul_h2d[i % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX], usb_audio_out_frame_deinterleaved[ch][i]);
+                // This is taking 4 MIPS. Can be optimised if needed.
+                usb_audio_out_frame_deinterleaved[ch][i] = volume_scale(vol_mul_h2d[ch % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX], usb_audio_out_frame_deinterleaved[ch][i]);
             }
         }
 
@@ -433,9 +438,7 @@ void usb_audio_out_asrc(void *arg)
         asrc_ctx.output_samples = &frame_samples[1][0];
         asrc_ctx.nominal_fs_ratio = current_rate_ratio;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
-#if PROFILE_ASRC
-        uint32_t start = get_reference_time();
-#endif
+
 
         (void)rtos_osal_queue_send(&asrc_init_ctx.asrc_queue, &ptr, RTOS_OSAL_WAIT_FOREVER);
 
