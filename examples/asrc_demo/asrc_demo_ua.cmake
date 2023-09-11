@@ -57,6 +57,7 @@ merge_binaries(example_asrc_demo tile0_example_asrc_demo tile1_example_asrc_demo
 #**********************
 create_run_target(example_asrc_demo)
 create_debug_target(example_asrc_demo)
+create_upgrade_img_target(example_asrc_demo ${XTC_VERSION_MAJOR} ${XTC_VERSION_MINOR})
 
 #**********************
 # Create data partition support targets
