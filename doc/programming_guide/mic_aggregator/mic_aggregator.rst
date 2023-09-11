@@ -6,6 +6,7 @@
 Operation
 =========
 
+The design consists of a number of tasks connected via the xcore-ai silicon communication channels.
 The decimators in the microphone array are configured to produce a 48 kHz PCM output. 
 The 16 output channels are loaded into a 16 slot TDM slave peripheral running at 24.576 MHz bit
 clock or a USB Audio Class 2 asynchronous interface and are optionally
@@ -61,12 +62,13 @@ Audio Hub
 The 16 channels of 48 kHz PCM streams are collected by `Hub` and are amplified using a
 saturated gain stage. The initial gain is set to 100, since a gain of 1 sounds very
 quiet due to the mic_array output being scaled to allow acoustic
-overload of the microphones without clipping within the decimators.
+overload of the microphones without clipping within the decimators. This value can be 
+overridden using the ``MIC_GAIN_INIT`` define in `app_conf.h`.
 
 Additionally for the TDM configuration, the `Hub` task also checks for control packets
 from I2C which may be used to dynamically update the individual gains at runtime.
 
-A single hardware thread is used and a triple buffer scheme is used to ensure there is always
+A single hardware thread contains the task and a triple buffer scheme is used to ensure there is always
 a free buffer available to write into regardless of the relative phase between the production
 and consumption of microphone samples.
 
@@ -77,8 +79,8 @@ if needed.
 TDM Host Connection
 -------------------
 
-The TDM build supports a 16-slot TDM slave Tx peripheral from the fwk_io module. In this application
-it runs at 24.576 MHz which supports 16 channels of 32 bit, 48 kHz samples per frame. 
+The TDM build supports a 16-slot TDM slave Tx peripheral from the fwk_io sub-module. In this application
+it runs at 24.576 MHz bit clock which supports 16 channels of 32 bit, 48 kHz samples per frame. 
 
 The TDM component uses a single hardware thread. 
 
@@ -87,7 +89,7 @@ TDM frames from the application to be received and checked without having to con
 TDM Master. It may be deleted / disconnected without affecting the core application.
 
 .. note::
-    The simple TDM 16 Master Rx component is not regression tested and is for evaluation of TDM 16 Slave Tx in this application only
+    The simple TDM 16 Master Rx component is not regression tested and is for evaluation of TDM 16 Slave Tx in this application only.
 
 
 
@@ -104,15 +106,15 @@ As an alternative to TDM, a USB host connection is also supported. The USB conne
 
 The USB host connection functionality is provided by lib_xua which is the core library of XMOS's USB Audio solution.
 
-The USB Audio subsection uses a total of four hardware threads in this configuration.
+The USB Audio subsection uses a total of four hardware threads in this application.
 
 
 Resource Usage
 ==============
 
-The xcore-ai device has a total resource count of 2 x 524288 Bytes of memory and 2 x 8 hardware threads.
+The xcore-ai device has a total resource count of 2 x 524288 Bytes of memory and 2 x 8 hardware threads across two tiles.
 This application uses around half of the processing resources and a tiny fraction of the available memory 
-meaning there is plenty of space inside the chip for additional functionality.
+meaning there is plenty of space inside the chip for additional functionality if needed.
 
 TDM Build
 ---------
@@ -125,7 +127,7 @@ Tile   Memory  Threads
 Total  48808      7 
 ===== ======== =======
 
-* An additional debug TDM Master thread is used which is not needed in a real deployment.
+* An additional debug TDM Master thread is used on Tile[1] by default which is not needed in a practical deployment.
 
 USB Build
 ---------
@@ -179,13 +181,13 @@ SDA IOL             Your I2C host SDA.
 GND                 Your I2C host ground.
 ===============     ================
 
-The I2C slave is tested to 100 kHz SCL.
+The I2C slave is tested at 100 kHz SCL.
 
 I2C Controlled Volume
 =====================
 
 For the TDM build, there are 32 registers which control the gain of each of the 16 output
-channels. The 8b registers contain the upper 8b and lower 8b of the
+channels. The 8 bit registers contain the upper 8 bit and lower 8 bit of the
 microphone gain respectively. The initial gain is set to 100, since 1 is
 quiet due to the mic_array output being scaled to allow acoustic
 overload of the microphones without clipping. Typically a gain of a few
