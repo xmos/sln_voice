@@ -6,11 +6,11 @@
 Operation
 =========
 
-The decimators in the microphone array are configured to 48 kHz PCM output. 
+The decimators in the microphone array are configured to produce a 48 kHz PCM output. 
 The 16 output channels are loaded into a 16 slot TDM slave peripheral running at 24.576 MHz bit
 clock or a USB Audio Class 2 asynchronous interface and are optionally
 amplified. The TDM build also provides a simple I2C slave interface to allow
-gains to be controlled at run-time.
+gains to be controlled at run-time. The USB build supports USB Audio Class 2 compliant volume controls.
 
 For the TDM build, a simple TDM16 master peripheral is included as well as a local
 24.576 MHz clock source so that mic_array and TDM16 slave operation may be tested
@@ -41,15 +41,16 @@ xcore-ai architecture. The thread diagrams are shown in :numref:`agg_tdm` and :n
 PDM Capture
 -----------
 
-Both the TDM and USB aggregator examples share a common front end. This consists of an 8 bit port 
+Both the TDM and USB aggregator examples share a common PDM front end. This consists of an 8 bit port 
 with each data line connected to two PDM microphones each configured to provide data
 on a different clock edge. The 3.072 MHz clock for the PDM microphones is provided by the xcore-ai
-device on a 1 bit port and clocks all PDM microphones. 
+device on a 1 bit port and clocks all PDM microphones. The PDM clock is divided down from the 24.576 MHz
+local MCLK.
 
 The data collected by the 8 bit port is sent to the lib_mic_array block which de-interleaves 
 the PDM data streams and performs decimation of the PDM data down to 48 kHz 32 bit PCM samples.
 Due to the large number of microphones the PDM capture stage uses four hardware threads on tile[0]; one for the microphone
-capture and three for decimation. This is needed to divide the processing workload and meet timing.
+capture and three for decimation. This is needed to divide the processing workload and meet timing comfortably.
 
 Samples are forwarded to the next stage at a rate of 48 kHz resulting in a packet of 16
 PCM samples per exchange.
@@ -143,16 +144,15 @@ Board Configuration
 
 Make the following connections using flying leads:
 
--  MIC CLK <-> J14 ‘00’. This is the microphone clock which is to be
-   sent to the PDM microphones from J14.
--  MIC DATA <-> J14 ‘14’ initially. This is the data line for
-   microphones 0 and 8. See below.
--  I2S LRCLK <-> J10 ‘36’. This is the FSYCNH input for TDM slave. J10
-   ‘36’ is the TDM master FSYNCH output for the application.
--  I2S MCLK <-> I2S BCLK. MCLK is the 24.576MHz clock which directly
-   drives the BCLK input for the TDM slave.
--  I2S DAC <-> J10 ‘38’. I2S DAC is the TDM Slave Tx out which is read
-   by the TDM Master Rx input on J10.
+===============     ================    ==============================================
+Host Connection     Board Connection    Note
+===============     ================    ==============================================
+MIC CLK             J14 ‘00’            This is the microphone clock which is to be sent to the PDM microphones from J14.
+MIC DATA            J14 ‘14’            This is the data line for microphones 0 and 8. See below.
+I2S LRCLK           J10 ‘36’            This is the FSYCNH input for TDM slave. J10 ‘36’ is the TDM master FSYNCH output for the application.
+I2S MCLK            I2S BCLK            MCLK is the 24.576MHz clock which directly drives the BCLK input for the TDM slave.
+I2S DAC             J10 ‘38’            I2S DAC is the TDM Slave Tx out which is read by the TDM Master Rx input on J10.
+===============     ================    ==============================================
 
 To access other microphone inputs use the following:
 
@@ -171,9 +171,13 @@ Mic pair J14 pin
 
 For I2C control, make the following connections:
 
--  SCL IOL <-> Your I2C host SCL.
--  SDA IOL <-> Your I2C host SDA.
--  GND <-> Your I2C host ground.
+===============     ================
+Host Connection     Board Connection
+===============     ================
+SCL IOL             Your I2C host SCL.
+SDA IOL             Your I2C host SDA.
+GND                 Your I2C host ground.
+===============     ================
 
 The I2C slave is tested to 100 kHz SCL.
 
