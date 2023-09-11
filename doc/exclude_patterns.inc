@@ -11,6 +11,7 @@ modules/io/doc/substitutions.rst
 modules/sample_rate_conversion
 modules/voice/doc/substitutions.rst
 modules/xscope_fileio
+modules/xua
 sln_voice_venv
 test
 xmos_cmake_toolchain
