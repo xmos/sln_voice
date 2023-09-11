@@ -6,6 +6,7 @@ XCORE-VOICE change log
 
   * ADDED: Mic aggregator app that bridges between 16 mics and TDM16 slave or USB Audio
   * CHANGED: Updated submodule fwk_io on to version 3.1.0 to add support for TDM16 slave tx and 16ch mic_array
+  * ADDED: FFD example with Cyberon speech recognition engine and model (DSpotter v2.2.18.0)
 
 2.0.0
 -----
