@@ -101,7 +101,7 @@ As an alternative to TDM, a USB host connection is also supported. The USB conne
 - USB High Speed (480 Mbps)
 - USB Audio Class 2.0
 - Asynchronous mode (audio clock is provided by the firmware)
-- 24b Audio slots
+- 24 bit Audio slots
 - 48 kHz Sample Rate
 
 The USB host connection functionality is provided by lib_xua which is the core library of XMOS's USB Audio solution.

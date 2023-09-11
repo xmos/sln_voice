@@ -4,7 +4,7 @@ PDM Microphone Aggregator Example
 
 
 This example provides a bridge between 16 PDM microphones to either
-TDM16 slave or USB Audio and targets the XCORE-AI explorer board. 
+TDM16 slave or USB Audio and targets the xcore-ai explorer board. 
 
 This application is to support cases where many microphone inputs need
 to be sent to a host where signal processing will be performed. Please
