@@ -28,7 +28,7 @@
 #include "tusb.h"
 
 #define LOG_I2S_TO_USB_SIDE (0)
-#define LOG_USB_TO_I2S_SIDE (0)
+#define LOG_USB_TO_I2S_SIDE (1)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
@@ -188,11 +188,11 @@ void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
 
     error_accum += current_level;
     count += 1;
-
-    if(count == 0x10000)
+    uint32_t avg_window_log2 = 10;
+    if(count == (1 << avg_window_log2))
     {
         g_prev_avg_i2s_send_buffer_level = g_avg_i2s_send_buffer_level;
-        g_avg_i2s_send_buffer_level = error_accum >> 16;
+        g_avg_i2s_send_buffer_level = error_accum >> avg_window_log2;
         count = 0;
         error_accum = 0;
     }
