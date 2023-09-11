@@ -64,7 +64,7 @@ target_link_options(asr_Cyberon
 )
 target_link_libraries(asr_Cyberon
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/Cyberon/lib/libDSpotterTrial.a
+        ${CMAKE_CURRENT_LIST_DIR}/Cyberon/lib/libDSpotter.a
 )
 
 target_compile_definitions(asr_Cyberon
