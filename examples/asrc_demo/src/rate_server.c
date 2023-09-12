@@ -199,9 +199,9 @@ void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
     }
 }
 
-typedef int32_t sw_pll_15q16_t; // Type for 15.16 signed fixed point
-#define SW_PLL_NUM_FRAC_BITS 16
-#define SW_PLL_15Q16(val) ((sw_pll_15q16_t)((float)val * (1 << SW_PLL_NUM_FRAC_BITS)))
+typedef int32_t sw_pll_q24_t; // Type for 15.16 signed fixed point
+#define SW_PLL_NUM_FRAC_BITS 24
+#define SW_PLL_Q24(val) ((sw_pll_q24_t)((float)val * (1 << SW_PLL_NUM_FRAC_BITS)))
 
 #define BUFFER_LEVEL_TERM (400000)   //How much to apply the buffer level feedback term (effectively 1/I term)
 
@@ -214,8 +214,8 @@ void rate_server(void *args)
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
 
-    const sw_pll_15q16_t Ki = SW_PLL_15Q16(3);
-    const sw_pll_15q16_t Kd = SW_PLL_15Q16(1);
+    const sw_pll_q24_t Kp = SW_PLL_Q24(26.8);
+    const sw_pll_q24_t Kd = SW_PLL_Q24(1);
 
     for(;;)
     {
@@ -289,42 +289,27 @@ void rate_server(void *args)
             uint64_t fs_ratio64 = float_div_u64_fixed_output_q_format(usb_rate, i2s_rate, 28+32);
 
             // TODO till figure out tuning
-            /*int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
-            int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);
+            int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
+            int64_t error_p = ((int64_t)Kp * (int64_t)g_avg_i2s_send_buffer_level);
 
-            int32_t total_error = (int32_t)((error_d + error_i) >> SW_PLL_NUM_FRAC_BITS);
-            if(total_error > 200)
+            int32_t max_allowed_correction = 1500;
+            int64_t total_error = (int64_t)(((error_d + error_p) << 8));
+            if(total_error > (((int64_t)max_allowed_correction)<<32))
             {
-                total_error = 200;
+                total_error = (((int64_t)max_allowed_correction) << 32);
             }
-            else if(total_error < -200)
+            else if(total_error < -(((int64_t)max_allowed_correction) << 32))
             {
-                total_error = -200;
-            }*/
+                total_error = -(((int64_t)max_allowed_correction) << 32);
+            }
 
             // This is still WIP so leaving this commented out code here
 #if LOG_USB_TO_I2S_SIDE
-            printint(0); //printint(total_error);
+            printint((int32_t)(total_error >> 32)); // Print the upper 32 bits of the correction
             printchar(',');
             printintln(g_avg_i2s_send_buffer_level);
 #endif
-
-            // This is still WIP so leaving this commented out code here
-            //fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + g_avg_i2s_send_buffer_level) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
-
-            /*int guard_level = 100;
-            if(g_avg_i2s_send_buffer_level > guard_level)
-            {
-                int error = g_avg_i2s_send_buffer_level - guard_level;
-                fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
-            }
-            else if(g_avg_i2s_send_buffer_level < -guard_level)
-            {
-                int error = g_avg_i2s_send_buffer_level - (-guard_level);
-                fs_ratio = (unsigned) (((BUFFER_LEVEL_TERM + error) * (unsigned long long)fs_ratio) / BUFFER_LEVEL_TERM);
-            }*/
-
-            usb_to_i2s_rate_ratio = fs_ratio64; // + total_error;
+            usb_to_i2s_rate_ratio = fs_ratio64 + total_error;
 
         }
         else
