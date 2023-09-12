@@ -41,6 +41,7 @@ typedef struct usb_audio_rate_packet_desc {
 
 static QueueHandle_t data_event_queue = NULL;
 float_s32_t g_usb_data_rate[2] = {{0}};
+static uint32_t timestamp_from_sofs = 0;
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
@@ -62,7 +63,7 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
         if(data_event_queue != NULL) {
             BaseType_t xHigherPriorityTaskWoken;
             usb_audio_rate_packet_desc_t args;
-            args.cur_time = cur_time;
+            args.cur_time = timestamp_from_sofs;
             args.ep_num = ep_num;
             args.ep_dir = ep_dir;
             args.xfer_len = xfer_len;
@@ -79,6 +80,14 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
 
 bool tud_xcore_sof_cb(uint8_t rhport, uint32_t cur_time)
 {
+    static uint32_t count;
+
+    count += 1;
+    if(count == 8)
+    {
+        timestamp_from_sofs = cur_time;
+        count = 0;
+    }
 
     sof_toggle(cur_time);
 
