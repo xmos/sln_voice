@@ -231,8 +231,8 @@ void rate_server(void *args)
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
 
-    const sw_pll_q24_t Kp = SW_PLL_Q24(26.8);
-    const sw_pll_q24_t Kd = SW_PLL_Q24(1);
+    const sw_pll_q24_t Kp = SW_PLL_Q24(16.8);
+    const sw_pll_q24_t Kd = SW_PLL_Q24(0);
 
     for(;;)
     {
@@ -316,7 +316,7 @@ void rate_server(void *args)
 
             // TODO till figure out tuning
             int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
-            int64_t error_p = ((int64_t)Kp * (int64_t)g_avg_i2s_send_buffer_level);
+            int64_t error_p = ((int64_t)Kp * (int64_t)(g_avg_i2s_send_buffer_level - i2s_send_buffer_stable_level));
 
             int32_t max_allowed_correction = 1500;
             int64_t total_error = (int64_t)(((error_d + error_p) << 8));
@@ -335,8 +335,7 @@ void rate_server(void *args)
             printchar(',');
             printintln(g_avg_i2s_send_buffer_level);
 #endif
-            usb_to_i2s_rate_ratio = fs_ratio64 + total_error;
-            //usb_to_i2s_rate_ratio = fs_ratio64;
+            usb_to_i2s_rate_ratio = (i2s_send_buffer_level_stable == true) ? fs_ratio64 + total_error : fs_ratio64; // Don't correct unless buffer level is stable
 
         }
         else
