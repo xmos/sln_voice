@@ -103,7 +103,7 @@ bool tud_xcore_sof_cb(uint8_t rhport, uint32_t cur_time)
         count = 0;
     }
 
-    sof_toggle(cur_time);
+    sof_toggle();
 
     /* False tells TinyUSB to not send the SOF event to the stack */
     return false;

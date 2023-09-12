@@ -146,7 +146,7 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
     return result;
 }
 
-void sof_toggle(uint32_t cur_time)
+void sof_toggle()
 {
     static uint32_t sof_count[2];
 
@@ -162,7 +162,6 @@ void sof_toggle(uint32_t cur_time)
             sof_count[dir]++;
             if (sof_count[dir] > 8)
             {
-                //rtos_printf("holding...........................................\n");
                 reset_state(dir);
             }
         }
