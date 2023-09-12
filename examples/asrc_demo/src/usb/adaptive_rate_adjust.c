@@ -62,40 +62,30 @@ static void usb_adaptive_clk_manager(void *args) {
 
 bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size_t xfer_len)
 {
-    if (ep_num == USB_AUDIO_EP)
+    if ((data_event_queue != NULL) && (ep_num == USB_AUDIO_EP))
     {
         // To avoid calculating rate in 2 directions
-
         // If Spkr interface (TUSB_DIR_OUT) is open, calculate rate using OUT dir, else calculate using IN dir
-        if(data_event_queue != NULL) {
-            BaseType_t xHigherPriorityTaskWoken;
-            usb_audio_rate_packet_desc_t args;
-            args.cur_time = timestamp_from_sofs;
-            args.ep_num = ep_num;
-            args.ep_dir = ep_dir;
-            args.xfer_len = xfer_len;
-            if(spkr_interface_open == true)
-            {
-                if(ep_dir == TUSB_DIR_OUT)
-                {
-                    if( errQUEUE_FULL ==
-                        xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
-                        rtos_printf("Audio packet timing event dropped\n");
-                        xassert(0); /* Missed servicing a data packet */
-                    }
-                }
+        BaseType_t xHigherPriorityTaskWoken;
+        usb_audio_rate_packet_desc_t args;
+        args.cur_time = timestamp_from_sofs;
+        args.ep_num = ep_num;
+        args.ep_dir = ep_dir;
+        args.xfer_len = xfer_len;
+        if((spkr_interface_open == true) && (ep_dir == TUSB_DIR_OUT))
+        {
+            if( errQUEUE_FULL ==
+                xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
+                rtos_printf("Audio packet timing event dropped\n");
+                xassert(0); /* Missed servicing a data packet */
             }
-            else if(mic_interface_open)
-            {
-                if(ep_dir == TUSB_DIR_IN)
-                {
-                    if( errQUEUE_FULL ==
-                        xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
-                        rtos_printf("Audio packet timing event dropped\n");
-                        xassert(0); /* Missed servicing a data packet */
-                    }
-                }
-
+        }
+        else if((mic_interface_open == true) && (ep_dir == TUSB_DIR_IN))
+        {
+            if( errQUEUE_FULL ==
+                xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
+                rtos_printf("Audio packet timing event dropped\n");
+                xassert(0); /* Missed servicing a data packet */
             }
         }
     }
