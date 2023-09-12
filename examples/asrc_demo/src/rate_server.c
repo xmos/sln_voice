@@ -38,6 +38,9 @@ static int32_t g_prev_avg_i2s_send_buffer_level = 0; // Previous avg i2s send bu
 static bool g_spkr_itf_close_to_open = false; // Flag tracking if a USB spkr interface close->open event occured. Set in the rate monitor when it receives the spkr_interface info from
                                        // USB. Cleared in usb_to_i2s_intertile, after it resets the i2s send buffer
 
+static bool i2s_send_buffer_level_stable = false; // Flag indicating whether the avg I2S send buffer level is stable. Once we have a stable level, we correct ert the stable level
+                                                  // instead of trying to maintain a fill level of 0.
+
 bool get_spkr_itf_close_open_event()
 {
     return g_spkr_itf_close_to_open;
@@ -176,6 +179,7 @@ void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
 {
     static int64_t error_accum = 0;
     static int32_t count = 0;
+    static uint32_t buffer_level_stable_count = 0;
 
     if(reset == true)
     {
@@ -183,7 +187,10 @@ void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
         count = 0;
         g_avg_i2s_send_buffer_level = 0;
         g_prev_avg_i2s_send_buffer_level = 0;
+        i2s_send_buffer_level_stable = false;
+        buffer_level_stable_count = 0;
         rtos_printf("Reset avg I2S send buffer level\n");
+        return;
     }
 
     error_accum += current_level;
@@ -196,6 +203,14 @@ void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
         g_avg_i2s_send_buffer_level = (g_avg_i2s_send_buffer_level + g_prev_avg_i2s_send_buffer_level) / 2;
         count = 0;
         error_accum = 0;
+        if(i2s_send_buffer_level_stable == false)
+        {
+            buffer_level_stable_count += 1;
+            if(buffer_level_stable_count > 8) // Wait for a bit before declaring buffer stable
+            {
+                i2s_send_buffer_level_stable = true;
+            }
+        }
     }
 }
 
@@ -211,6 +226,8 @@ void rate_server(void *args)
     int32_t usb_buffer_fill_level_from_half;
     static bool reset_buf_level = false;
     static bool prev_spkr_itf_open = false;
+    static bool prev_i2s_send_buffer_level_stable = false;
+    static int32_t i2s_send_buffer_stable_level = 0;
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
 
@@ -286,6 +303,15 @@ void rate_server(void *args)
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
+            if((prev_i2s_send_buffer_level_stable == false) && (i2s_send_buffer_level_stable == true))
+            {
+                // unstable to stable transition. Use the current avg buffer level as the stable level
+                // wrt which we'll try to correct
+                i2s_send_buffer_stable_level = g_avg_i2s_send_buffer_level;
+                rtos_printf("Rate server will use %d as the i2s_send_buffer_level_stable\n", i2s_send_buffer_stable_level);
+            }
+            prev_i2s_send_buffer_level_stable = i2s_send_buffer_level_stable;
+
             uint64_t fs_ratio64 = float_div_u64_fixed_output_q_format(usb_rate, i2s_rate, 28+32);
 
             // TODO till figure out tuning
@@ -310,6 +336,7 @@ void rate_server(void *args)
             printintln(g_avg_i2s_send_buffer_level);
 #endif
             usb_to_i2s_rate_ratio = fs_ratio64 + total_error;
+            //usb_to_i2s_rate_ratio = fs_ratio64;
 
         }
         else
