@@ -1,12 +1,19 @@
 #**********************
 # Gather Sources
 #**********************
-file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+file(GLOB_RECURSE APP_C_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+file(GLOB_RECURSE APP_CPP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.cpp )
+
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
     ${CMAKE_CURRENT_LIST_DIR}/src/ww_model_runner
+    ${CMAKE_CURRENT_LIST_DIR}/src/pdm_out
 )
+
+unset(APP_SOURCES)
+list( APPEND  APP_SOURCES   ${APP_C_SOURCES} 
+                            ${APP_CPP_SOURCES} )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 
@@ -43,6 +50,7 @@ set(APP_COMMON_LINK_LIBRARIES
     inferencing_tflite_micro
     rtos::freertos_usb
     lib_src
+    io::audio
 )
 
 #**********************

@@ -7,5 +7,5 @@
 #include "rtos_gpio.h"
 
 void gpio_test(rtos_gpio_t *gpio_ctx);
-
+void pdmout_sig(void);
 #endif /* GPIO_TEST_H_ */

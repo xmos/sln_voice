@@ -23,6 +23,7 @@
 #include "usb_audio.h"
 #include "audio_pipeline.h"
 #include "ww_model_runner/ww_model_runner.h"
+#include "pdm_out/pcm_to_pdm.h"
 #include "fs_support.h"
 
 #include "gpio_test/gpio_test.h"
@@ -30,19 +31,27 @@
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
+extern chanend_t c_audio_frames;
+extern streaming_channel_t s_audio_data;
+chanend_t c_pcm_out;
+extern chanend_t c_pcm_in;
+extern streaming_channel_t c_ds3;
+
 #if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
-void i2s_slave_intertile(void *args) {
-    (void) args;
+void i2s_slave_intertile(void *args)
+{
+    (void)args;
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
 
-    while(1) {
+    while (1)
+    {
         memset(tmp, 0x00, sizeof(tmp));
 
         size_t bytes_received = 0;
         bytes_received = rtos_intertile_rx_len(
-                intertile_ctx,
-                appconfI2S_OUTPUT_SLAVE_PORT,
-                portMAX_DELAY);
+            intertile_ctx,
+            appconfI2S_OUTPUT_SLAVE_PORT,
+            portMAX_DELAY);
 
         xassert(bytes_received == sizeof(tmp));
 
@@ -146,8 +155,9 @@ int audio_pipeline_output(void *output_app_data,
                         size_t ch_count,
                         size_t frame_count)
 {
-    (void) output_app_data;
-
+    (void)output_app_data;
+//static uint32_t t0 = 0,t1=0, idx=0;
+//t0=get_reference_time();
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
@@ -194,8 +204,14 @@ int audio_pipeline_output(void *output_app_data,
     int32_t *tmpptr = (int32_t *)output_audio_frames;
     for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
         /* ASR output is first */
-        tmp[j][0] = *(tmpptr+j);
-        tmp[j][1] = *(tmpptr+j+appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+        tmp[j][0] = *(tmpptr + j);
+        tmp[j][1] = *(tmpptr + j + appconfAUDIO_PIPELINE_FRAME_ADVANCE);
+
+        // pcm2pdm verification, send out REF and recv pdm data from MIC_DATA pin, REMINDED to mute on
+        // 0: ASR_L/R 2:REF L/R, 4:MIC0/1
+        //int idx = 2;
+        //tmp[j][0] = *(tmpptr + j + idx*240);  // out REF to pdm
+        //tmp[j][1] = *(tmpptr + j + 3*240+appconfAUDIO_PIPELINE_FRAME_ADVANCE);
     }
 
     rtos_intertile_tx(intertile_ctx,
@@ -216,6 +232,19 @@ int audio_pipeline_output(void *output_app_data,
     ww_audio_send(intertile_ctx,
                   frame_count,
                   (int32_t(*)[2])output_audio_frames);
+#endif
+
+
+#if appconfPDM_OUT_ENABLED
+
+    s_chan_out_buf_word(s_audio_data.end_a, (uint32_t *) (tmpptr), (size_t) appconfAUDIO_PIPELINE_FRAME_ADVANCE * 2);
+    //t1=get_reference_time();
+
+    //if ( (t1-t0) > 1600000) {
+    //    rtos_printf("pcm data overtime\n");      
+    //}
+    //t0 =t1;
+
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
@@ -331,12 +360,43 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
+// alexy; porting pcm_to_pdm
+#if ON_TILE(0) && appconfPDM_OUT_ENABLED
+
+    rtos_osal_thread_create(
+            &pdmout_ctx->hil_thread,
+            "pcm_to_pdm_full",
+            (rtos_osal_entry_function_t) pcm_to_pdm_full,
+            pdmout_ctx,
+            RTOS_THREAD_STACK_SIZE(pcm_to_pdm_full),
+            RTOS_OSAL_HIGHEST_PRIORITY);
+
+    /* Ensure the mic array thread is never preempted */
+//    rtos_osal_thread_preemption_disable(&pdmout_ctx->hil_thread);
+    /* And ensure it only runs on one of the specified cores */
+//    rtos_osal_thread_core_exclusion_set(&pdmout_ctx->hil_thread, ~(1 << 5/*io_core_mask*/));
+
+    rtos_osal_thread_create(
+            &pdmout_sig_ctx->hil_thread,
+            "pdmout_sig",
+            (rtos_osal_entry_function_t) pdmout_sig,
+            pdmout_sig_ctx,
+            RTOS_THREAD_STACK_SIZE(pdmout_sig),
+            RTOS_OSAL_HIGHEST_PRIORITY);
+
+    /* Ensure the mic array thread is never preempted */
+//    rtos_osal_thread_preemption_disable(&pdmout_sig_ctx->hil_thread);
+    /* And ensure it only runs on one of the specified cores */
+//    rtos_osal_thread_core_exclusion_set(&pdmout_sig_ctx->hil_thread, ~(1 << 3/*io_core_mask*/));
+
+#endif
 
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
 #endif
 
     audio_pipeline_init(NULL, NULL);
+    // rtos_printf("audio pipeline init task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
 #if ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);

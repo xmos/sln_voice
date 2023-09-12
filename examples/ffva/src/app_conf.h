@@ -28,6 +28,10 @@
 /* If in channel sample format, appconfAUDIO_PIPELINE_FRAME_ADVANCE == MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME*/
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE     MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME
 
+/*PDM_OUT BUFFER SIZE */
+#define PDM_DATA_FRAME appconfAUDIO_PIPELINE_FRAME_ADVANCE *6 /* upsample 6x */
+#define PDM_DATA_SIZE PDM_DATA_FRAME *3 /* 3 frames buffer size */
+
 /**
  * A positive delay will delay mics
  * A negative delay will delay ref
@@ -72,6 +76,10 @@
 
 #ifndef appconfWW_ENABLED
 #define appconfWW_ENABLED          1
+#endif
+
+#ifndef appconfPDM_OUT_ENABLED
+#define appconfPDM_OUT_ENABLED       1
 #endif
 
 #ifndef appconfUSB_AUDIO_SAMPLE_RATE
