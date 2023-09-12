@@ -38,7 +38,7 @@ static int32_t g_prev_avg_i2s_send_buffer_level = 0; // Previous avg i2s send bu
 static bool g_spkr_itf_close_to_open = false; // Flag tracking if a USB spkr interface close->open event occured. Set in the rate monitor when it receives the spkr_interface info from
                                        // USB. Cleared in usb_to_i2s_intertile, after it resets the i2s send buffer
 
-static bool i2s_send_buffer_level_stable = false; // Flag indicating whether the avg I2S send buffer level is stable. Once we have a stable level, we correct ert the stable level
+static bool i2s_send_buffer_level_stable = false; // Flag indicating whether the avg I2S send buffer level is stable. Once we have a stable level, we correct wrt the stable level
                                                   // instead of trying to maintain a fill level of 0.
 
 bool get_spkr_itf_close_open_event()
