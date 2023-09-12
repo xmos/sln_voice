@@ -22,7 +22,7 @@ uint64_t float_div_u64_fixed_output_q_format(float_s32_t dividend, float_s32_t d
 typedef struct
 {
     /* data */
-    float_s32_t usb_data_rate[2];
+    float_s32_t usb_data_rate;
     int32_t samples_to_host_buf_fill_level;
     bool mic_itf_open;
     bool spkr_itf_open;
