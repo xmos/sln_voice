@@ -41,7 +41,6 @@
 
 bool first_time[2] = {true, true};
 volatile static bool data_seen = false;
-volatile static bool hold_average = false;
 uint32_t bucket_expected[2] = {EXPECTED_OUT_SAMPLES_PER_BUCKET, EXPECTED_IN_SAMPLES_PER_BUCKET};
 
 void reset_state()
@@ -84,14 +83,6 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp_unused,
         data_seen = true;
     }
 
-    if (hold_average)
-    {
-        hold_average = false;
-        first_timestamp[direction] = timestamp;
-        current_data_bucket_size[direction] = 0;
-        return previous_result[direction];
-    }
-
     if (first_time[direction])
     {
         first_time[direction] = false;
@@ -103,16 +94,10 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp_unused,
         times_overflowed[direction] = 0;
         buckets_full[direction] = false;
 
-        for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
+        for (int i = 0; i < TOTAL_STORED; i++)
         {
             data_lengths[direction][i] = 0;
             time_buckets[direction][i] = 0;
-        }
-        // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
-        for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
-        {
-            data_lengths[direction][i] = bucket_expected[direction];
-            time_buckets[direction][i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
 
         return nominal_samples_per_transaction;
@@ -204,10 +189,10 @@ void sof_toggle(uint32_t cur_time)
     else
     {
         sof_count++;
-        if (sof_count > 8 && !hold_average)
+        if (sof_count > 8)
         {
             //rtos_printf("holding...........................................\n");
-            hold_average = true;
+            reset_state();
         }
     }
 }

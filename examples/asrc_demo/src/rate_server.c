@@ -193,6 +193,7 @@ void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
     {
         g_prev_avg_i2s_send_buffer_level = g_avg_i2s_send_buffer_level;
         g_avg_i2s_send_buffer_level = error_accum >> avg_window_log2;
+        g_avg_i2s_send_buffer_level = (g_avg_i2s_send_buffer_level + g_prev_avg_i2s_send_buffer_level) / 2;
         count = 0;
         error_accum = 0;
     }
