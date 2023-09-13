@@ -242,7 +242,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     {
         for (int ch = 0; ch < num_chans; ch++)
         {
-            usb_audio_in_frame[i][ch] = (volume_scale(vol_mul_h2d[ch % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX], frame_buffer_ptr[i * 2 + ch])) >> src_32_shift;
+            usb_audio_in_frame[i][ch] = (volume_scale(vol_mul_d2h[ch % CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX], frame_buffer_ptr[i * 2 + ch])) >> src_32_shift;
         }
     }
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
