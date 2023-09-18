@@ -266,7 +266,7 @@ void rate_server(void *args)
             printchar(',');
             printintln(g_i2s_send_buf_state.avg_buffer_level);
 #endif
-            usb_to_i2s_rate_ratio = fs_ratio64 + total_error; // Don't correct unless buffer level is stable
+            usb_to_i2s_rate_ratio = fs_ratio64 + total_error;
 
         }
         else
