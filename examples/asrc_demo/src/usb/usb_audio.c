@@ -76,7 +76,7 @@ static TaskHandle_t usb_audio_out_asrc_handle;
 static uint64_t g_usb_to_i2s_rate_ratio = 0;
 static uint32_t samples_to_host_stream_buf_size_bytes = 0;
 static bool g_i2s_sr_change_detected = false;
-static bool ready = false;
+static bool samples_to_host_buf_ready_to_read = false;
 
 extern float_s32_t g_usb_data_rate;
 
@@ -365,8 +365,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
                 int32_t usb_buffer_level_from_half = (int32_t)((int32_t)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2)) / (int32_t)8;    //Level w.r.t. half full in samples
 
-                calc_avg_buffer_level(&long_term_buf_state, usb_buffer_level_from_half, !ready);
-                calc_avg_buffer_level(&short_term_buf_state, usb_buffer_level_from_half, !ready);
+                calc_avg_buffer_level(&long_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read);
+                calc_avg_buffer_level(&short_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read);
 
                 num_samples_to_host_buf_writes += 1;
                 if(num_samples_to_host_buf_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
@@ -1097,7 +1097,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
     else if (!mic_interface_open)
     {
-        ready = false;
+        samples_to_host_buf_ready_to_read = false;
         first_frame_after_mic_interface_open = true;
     }
 
@@ -1105,7 +1105,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     {
         // Change in I2S sampling rate. Reset the buffer and start from fill level = 0 again
         xStreamBufferReset(samples_to_host_stream_buf);
-        ready = false;
+        samples_to_host_buf_ready_to_read = false;
         g_i2s_sr_change_detected = false;
         rtos_printf("Resetting samples_to_host_stream_buf due to I2S SR change\n");
     }
@@ -1119,7 +1119,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     if (xStreamBufferIsFull(samples_to_host_stream_buf))
     {
         xStreamBufferReset(samples_to_host_stream_buf);
-        ready = false;
+        samples_to_host_buf_ready_to_read = false;
         rtos_printf("Oops buffer is full\n");
         return true;
     }
@@ -1128,15 +1128,14 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     if(bytes_available >= samples_to_host_stream_buf_size_bytes/2) // Buffer fill level 0
     {
-        /* wait until we have 2 full audio pipeline output frames in the buffer */
-        if(ready == false)
+        if(samples_to_host_buf_ready_to_read == false)
         {
             rtos_printf("READY. Fill level = %d\n", xStreamBufferBytesAvailable(samples_to_host_stream_buf) - samples_to_host_stream_buf_size_bytes/2);
         }
-        ready = true;
+        samples_to_host_buf_ready_to_read = true;
     }
 
-    if (ready == false)
+    if (samples_to_host_buf_ready_to_read == false)
     {
         //rtos_printf("TX BUFFER NOT READY, tx_size_bytes = %d\n", tx_size_bytes);
         // we need to send something despite not being fully ready

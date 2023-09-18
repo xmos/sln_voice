@@ -5,7 +5,6 @@
 #include "xmath/xmath.h"
 
 void rate_server(void *args);
-void calc_avg_i2s_send_buffer_level(int current_level, bool reset);
 
 // Getters and setters for various global variables
 uint64_t get_i2s_to_usb_rate_ratio();
