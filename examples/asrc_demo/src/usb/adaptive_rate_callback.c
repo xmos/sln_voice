@@ -13,44 +13,22 @@
 #if __xcore__
 #include "tusb_config.h"
 #include "app_conf.h"
-#define EXPECTED_OUT_BYTES_PER_TRANSACTION (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * \
-                                       CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX * \
-                                       appconfUSB_AUDIO_SAMPLE_RATE / 1000)
-#define EXPECTED_IN_BYTES_PER_TRANSACTION  (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX * \
-                                       CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX * \
-                                       appconfUSB_AUDIO_SAMPLE_RATE / 1000)
+#endif
 
-#define EXPECTED_OUT_SAMPLES_PER_TRANSACTION (appconfUSB_AUDIO_SAMPLE_RATE / 1000)
-#define EXPECTED_IN_SAMPLES_PER_TRANSACTION  (appconfUSB_AUDIO_SAMPLE_RATE / 1000)
-
-#else //__xcore__
-// If we're compiling this for x86 we're probably testing it - just assume some values
-#define EXPECTED_OUT_BYTES_PER_TRANSACTION  128 //16kbps * 16-bit * 4ch
-#define EXPECTED_IN_BYTES_PER_TRANSACTION   192 //16kbps * 16-bit * 6ch
-
-#define EXPECTED_OUT_SAMPLES_PER_TRANSACTION  (EXPECTED_OUT_BYTES_PER_TRANSACTION/(2*4)) //16kbps * 4ch
-#define EXPECTED_IN_SAMPLES_PER_TRANSACTION   (EXPECTED_IN_BYTES_PER_TRANSACTION/(2*6)) //16kbps * 6ch
-#endif //__xcore__
 
 #define TOTAL_STORED (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 #define REF_CLOCK_TICKS_PER_STORED_AVG (REF_CLOCK_TICKS_PER_SECOND / STORED_PER_SECOND)
 
-#define EXPECTED_OUT_SAMPLES_PER_BUCKET ((EXPECTED_OUT_SAMPLES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
-#define EXPECTED_IN_SAMPLES_PER_BUCKET ((EXPECTED_IN_SAMPLES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 
 bool first_time[2] = {true, true};
-volatile static bool data_seen = false;
-volatile static bool hold_average = false;
-uint32_t bucket_expected[2] = {EXPECTED_OUT_SAMPLES_PER_BUCKET, EXPECTED_IN_SAMPLES_PER_BUCKET};
+volatile static bool data_seen[2] = {false, false};
 
-void reset_state()
+void reset_state(uint32_t direction)
 {
-    for (int direction = 0; direction < 2; direction++)
-    {
-        first_time[direction] = true;
-    }
+    first_time[direction] = true;
 }
+
 
 float_s32_t determine_USB_audio_rate(uint32_t timestamp,
                                     uint32_t data_length,
@@ -77,17 +55,9 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
 
     data_length = data_length / (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX); // Number of samples per channels per transaction
 
-    if (data_seen == false)
+    if (data_seen[direction] == false)
     {
-        data_seen = true;
-    }
-
-    if (hold_average)
-    {
-        hold_average = false;
-        first_timestamp[direction] = timestamp;
-        current_data_bucket_size[direction] = 0;
-        return previous_result[direction];
+        data_seen[direction] = true;
     }
 
     if (first_time[direction])
@@ -101,16 +71,10 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
         times_overflowed[direction] = 0;
         buckets_full[direction] = false;
 
-        for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
+        for (int i = 0; i < TOTAL_STORED; i++)
         {
             data_lengths[direction][i] = 0;
             time_buckets[direction][i] = 0;
-        }
-        // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
-        for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
-        {
-            data_lengths[direction][i] = bucket_expected[direction];
-            time_buckets[direction][i] = REF_CLOCK_TICKS_PER_STORED_AVG;
         }
 
         return nominal_samples_per_transaction;
@@ -184,19 +148,22 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
 
 void sof_toggle()
 {
-    static uint32_t sof_count;
-    if (data_seen)
+    static uint32_t sof_count[2];
+
+    for(uint32_t dir=0; dir<2; dir++)
     {
-        sof_count = 0;
-        data_seen = false;
-    }
-    else
-    {
-        sof_count++;
-        if (sof_count > 8 && !hold_average)
+        if (data_seen[dir])
         {
-            //rtos_printf("holding...........................................\n");
-            hold_average = true;
+            sof_count[dir] = 0;
+            data_seen[dir] = false;
+        }
+        else
+        {
+            sof_count[dir]++;
+            if (sof_count[dir] > 8)
+            {
+                reset_state(dir);
+            }
         }
     }
 }

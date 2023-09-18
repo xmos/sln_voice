@@ -25,12 +25,16 @@
 
 #include "stream_buffer.h"
 #include "rate_server.h"
+#include "tusb.h"
 
 #ifndef USB_ADAPTIVE_TASK_PRIORITY
 #define USB_ADAPTIVE_TASK_PRIORITY (configMAX_PRIORITIES-1)
 #endif /* USB_ADAPTIVE_TASK_PRIORITY */
 
 #define DATA_EVENT_QUEUE_SIZE 2
+
+extern volatile bool mic_interface_open;
+extern volatile bool spkr_interface_open;
 
 typedef struct usb_audio_rate_packet_desc {
     uint32_t cur_time;
@@ -40,7 +44,8 @@ typedef struct usb_audio_rate_packet_desc {
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
-float_s32_t g_usb_data_rate[2] = {{0}};
+float_s32_t g_usb_data_rate = {.mant=0, .exp=0};
+static uint32_t timestamp_from_sofs = 0;
 
 static void usb_adaptive_clk_manager(void *args) {
     (void) args;
@@ -50,35 +55,57 @@ static void usb_adaptive_clk_manager(void *args) {
 
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
-        g_usb_data_rate[pkt_data.ep_dir] = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+        g_usb_data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
         prev_time = pkt_data.cur_time;
     }
 }
 
 bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size_t xfer_len)
 {
-    if (ep_num == USB_AUDIO_EP)
+    if ((data_event_queue != NULL) && (ep_num == USB_AUDIO_EP))
     {
-        if(data_event_queue != NULL) {
-            BaseType_t xHigherPriorityTaskWoken;
-            usb_audio_rate_packet_desc_t args;
-            args.cur_time = cur_time;
-            args.ep_num = ep_num;
-            args.ep_dir = ep_dir;
-            args.xfer_len = xfer_len;
-
+        // To avoid calculating rate in 2 directions
+        // If Spkr interface (TUSB_DIR_OUT) is open, calculate rate using OUT dir, else calculate using IN dir
+        BaseType_t xHigherPriorityTaskWoken;
+        usb_audio_rate_packet_desc_t args;
+        args.cur_time = timestamp_from_sofs;
+        args.ep_num = ep_num;
+        args.ep_dir = ep_dir;
+        args.xfer_len = xfer_len;
+        if((spkr_interface_open == true) && (ep_dir == TUSB_DIR_OUT))
+        {
             if( errQUEUE_FULL ==
                 xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
-               rtos_printf("Audio packet timing event dropped\n");
-               xassert(0); /* Missed servicing a data packet */
+                rtos_printf("Audio packet timing event dropped\n");
+                xassert(0); /* Missed servicing a data packet */
+            }
+        }
+        else if((mic_interface_open == true) && (ep_dir == TUSB_DIR_IN))
+        {
+            if( errQUEUE_FULL ==
+                xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
+                rtos_printf("Audio packet timing event dropped\n");
+                xassert(0); /* Missed servicing a data packet */
             }
         }
     }
     return true;
 }
 
-bool tud_xcore_sof_cb(uint8_t rhport)
+bool tud_xcore_sof_cb(uint8_t rhport, uint32_t cur_time)
 {
+    static uint32_t count;
+
+    count += 1;
+    if(count == 8)
+    {
+        // Log every 8th timestamp to get the timestamp every millisecond. We always assume USB HS operation with bInterval set to 4
+        // implying that SOF are received every 125us but data is transferred every 1ms. The number 8 us hardcoded since this is the only
+        // supported configuration and bInterval is not configurable for this application.
+        timestamp_from_sofs = cur_time;
+        count = 0;
+    }
+
     sof_toggle();
 
     /* False tells TinyUSB to not send the SOF event to the stack */
