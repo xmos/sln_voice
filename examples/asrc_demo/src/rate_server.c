@@ -28,19 +28,16 @@
 #include "avg_buffer_level.h"
 #include "tusb.h"
 
-#define LOG_I2S_TO_USB_SIDE (1)
-#define LOG_USB_TO_I2S_SIDE (0)
+#define LOG_I2S_TO_USB_SIDE (0)
+#define LOG_USB_TO_I2S_SIDE (1)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
 static uint64_t g_i2s_to_usb_rate_ratio = 0; // i2s_to_usb_rate_ratio. Updated in rate monitor and used in i2s_audio_recv_task
-static int32_t g_avg_i2s_send_buffer_level = 0; // avg i2s send buffer level. Updated in usb_to_i2s_intertile(), used in rate monitor for buffer level based PI control
-static int32_t g_prev_avg_i2s_send_buffer_level = 0; // Previous avg i2s send buffer level. Updated in usb_to_i2s_intertile(), used in rate monitor for buffer level based PI control
 static bool g_spkr_itf_close_to_open = false; // Flag tracking if a USB spkr interface close->open event occured. Set in the rate monitor when it receives the spkr_interface info from
                                        // USB. Cleared in usb_to_i2s_intertile, after it resets the i2s send buffer
 
-static bool i2s_send_buffer_level_stable = false; // Flag indicating whether the avg I2S send buffer level is stable. Once we have a stable level, we correct wrt the stable level
-                                                  // instead of trying to maintain a fill level of 0.
+extern buffer_calc_state_t g_i2s_send_buf_state;
 
 bool get_spkr_itf_close_open_event()
 {
@@ -176,51 +173,10 @@ static float_s32_t determine_avg_I2S_rate_from_driver()
     return result;
 }
 
-void calc_avg_i2s_send_buffer_level(int current_level, bool reset)
-{
-    static int64_t error_accum = 0;
-    static int32_t count = 0;
-    static uint32_t buffer_level_stable_count = 0;
-
-    if(reset == true)
-    {
-        error_accum = 0;
-        count = 0;
-        g_avg_i2s_send_buffer_level = 0;
-        g_prev_avg_i2s_send_buffer_level = 0;
-        i2s_send_buffer_level_stable = false;
-        buffer_level_stable_count = 0;
-        rtos_printf("Reset avg I2S send buffer level\n");
-        return;
-    }
-
-    error_accum += current_level;
-    count += 1;
-    uint32_t avg_window_log2 = 10;
-    if(count == (1 << avg_window_log2))
-    {
-        g_prev_avg_i2s_send_buffer_level = g_avg_i2s_send_buffer_level;
-        g_avg_i2s_send_buffer_level = error_accum >> avg_window_log2;
-        g_avg_i2s_send_buffer_level = (g_avg_i2s_send_buffer_level + g_prev_avg_i2s_send_buffer_level) / 2;
-        count = 0;
-        error_accum = 0;
-        if(i2s_send_buffer_level_stable == false)
-        {
-            buffer_level_stable_count += 1;
-            if(buffer_level_stable_count > 8) // Wait for a bit before declaring buffer stable
-            {
-                i2s_send_buffer_level_stable = true;
-            }
-        }
-    }
-}
 
 void rate_server(void *args)
 {
     static bool prev_spkr_itf_open = false;
-    static bool prev_i2s_send_buffer_level_stable = false;
-    static int32_t i2s_send_buffer_stable_level = 0;
-
     uint64_t usb_to_i2s_rate_ratio = 0;
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
@@ -259,9 +215,9 @@ void rate_server(void *args)
             fs_ratio_u64 = fs_ratio_u64 + usb_rate_info.buffer_based_correction;
 
 #if LOG_I2S_TO_USB_SIDE
-            printintln(usb_rate_info.samples_to_host_buf_fill_level);
-            //printchar(',');
-            //printintln((uint32_t)(fs_ratio_u64 >> 32));
+            printint(usb_rate_info.samples_to_host_buf_fill_level);
+            printchar(',');
+            printintln((uint32_t)(fs_ratio_u64 >> 32));
 #endif
 
             set_i2s_to_usb_rate_ratio(fs_ratio_u64);
@@ -275,40 +231,31 @@ void rate_server(void *args)
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
             const sw_pll_q24_t Kp = SW_PLL_Q24(16.8);
-            const sw_pll_q24_t Kd = SW_PLL_Q24(0);
-            if((prev_i2s_send_buffer_level_stable == false) && (i2s_send_buffer_level_stable == true))
-            {
-                // unstable to stable transition. Use the current avg buffer level as the stable level
-                // wrt which we'll try to correct
-                i2s_send_buffer_stable_level = g_avg_i2s_send_buffer_level;
-                rtos_printf("Rate server will use %d as the i2s_send_buffer_level_stable\n", i2s_send_buffer_stable_level);
-            }
-            prev_i2s_send_buffer_level_stable = i2s_send_buffer_level_stable;
+            int64_t max_allowed_correction = (int64_t)1500 << 32;
+            int64_t total_error = 0;
 
             uint64_t fs_ratio64 = float_div_u64_fixed_output_q_format(usb_rate, i2s_rate, 28+32);
 
-            // TODO till figure out tuning
-            int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
-            int64_t error_p = ((int64_t)Kp * (int64_t)(g_avg_i2s_send_buffer_level - i2s_send_buffer_stable_level));
-
-            int32_t max_allowed_correction = 1500;
-            int64_t total_error = (int64_t)(((error_d + error_p) << 8));
-            if(total_error > (((int64_t)max_allowed_correction)<<32))
+            if(g_i2s_send_buf_state.flag_stable_avg)
             {
-                total_error = (((int64_t)max_allowed_correction) << 32);
-            }
-            else if(total_error < -(((int64_t)max_allowed_correction) << 32))
-            {
-                total_error = -(((int64_t)max_allowed_correction) << 32);
+                int64_t error_p = ((int64_t)Kp * (int64_t)(g_i2s_send_buf_state.avg_buffer_level - g_i2s_send_buf_state.stable_avg_level));
+                total_error = (int64_t)(error_p << 8);
+                if(total_error > max_allowed_correction)
+                {
+                    total_error = max_allowed_correction;
+                }
+                else if(total_error < -(max_allowed_correction))
+                {
+                    total_error = -(max_allowed_correction);
+                }
             }
 
-            // This is still WIP so leaving this commented out code here
 #if LOG_USB_TO_I2S_SIDE
             printint((int32_t)(total_error >> 32)); // Print the upper 32 bits of the correction
             printchar(',');
-            printintln(g_avg_i2s_send_buffer_level);
+            printintln(g_i2s_send_buf_state.avg_buffer_level);
 #endif
-            usb_to_i2s_rate_ratio = (i2s_send_buffer_level_stable == true) ? fs_ratio64 + total_error : fs_ratio64; // Don't correct unless buffer level is stable
+            usb_to_i2s_rate_ratio = fs_ratio64 + total_error; // Don't correct unless buffer level is stable
 
         }
         else

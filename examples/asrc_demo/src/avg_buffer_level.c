@@ -1,5 +1,5 @@
 #define DEBUG_UNIT RATE_SERVER
-#define DEBUG_PRINT_ENABLE_RATE_SERVER 1
+#define DEBUG_PRINT_ENABLE_RATE_SERVER 0
 
 #include <stdint.h>
 #include <stdbool.h>

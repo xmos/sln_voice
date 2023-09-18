@@ -29,6 +29,9 @@
 #include "i2s_audio.h"
 #include "rate_server.h"
 #include "tusb_config.h"
+#include "avg_buffer_level.h"
+
+buffer_calc_state_t g_i2s_send_buf_state;
 
 
 static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
@@ -240,6 +243,9 @@ static unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
 static void usb_to_i2s_intertile(void *args) {
     (void) args;
     int32_t *usb_to_i2s_samps;
+
+    init_calc_buffer_level_state(&g_i2s_send_buf_state, 10, 8);
+
     for(;;)
     {
         // Receive USB recv + ASRC data frame from the other tile
@@ -292,7 +298,7 @@ static void usb_to_i2s_intertile(void *args) {
 
             bool okay_to_send = rtos_i2s_get_okay_to_send(i2s_ctx);
             int32_t i2s_buffer_level_from_half = rtos_i2s_get_send_buffer_level_wrt_half(i2s_ctx) / 2; // Per channel
-            calc_avg_i2s_send_buffer_level(i2s_buffer_level_from_half, !okay_to_send);
+            calc_avg_buffer_level(&g_i2s_send_buf_state, i2s_buffer_level_from_half, !okay_to_send);
 
             // If we're not sending and buffer has become half full start sending again so we start at a very stable point
             if((okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
