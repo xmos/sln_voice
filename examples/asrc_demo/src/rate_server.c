@@ -28,7 +28,7 @@
 #include "tusb.h"
 
 #define LOG_I2S_TO_USB_SIDE (0)
-#define LOG_USB_TO_I2S_SIDE (1)
+#define LOG_USB_TO_I2S_SIDE (0)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
@@ -261,7 +261,7 @@ void rate_server(void *args)
         // Compute I2S rate
         float_s32_t i2s_rate = determine_avg_I2S_rate_from_driver();
 
-        usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level / 8;
+        usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
 
         // Calculate g_i2s_to_usb_rate_ratio only when the host is recording data from the device
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))

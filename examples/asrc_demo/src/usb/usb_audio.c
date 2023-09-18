@@ -50,6 +50,7 @@
 #include "rate_server.h"
 #include "dbcalc.h"
 #include "hostactive.h"
+#include "avg_buffer_level.h"
 
 // Audio controls
 // Current states
@@ -221,9 +222,31 @@ typedef int32_t samp_t;
 #endif
 
 
+static inline int32_t get_avg_window_size(uint32_t i2s_rate)
+{
+    if((i2s_rate == 192000) || (i2s_rate == 176400))
+    {
+        return 16;
+    }
+    else if((i2s_rate == 96000) || (i2s_rate == 88200))
+    {
+        return 15;
+    }
+    else if((i2s_rate == 48000) || (i2s_rate == 44100))
+    {
+        return 14;
+    }
+    else
+    {
+        xassert(0);
+    }
+    return 0;
+}
+
 void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved samples [samps][ch] format
                     size_t frame_count,
-                    size_t num_chans)
+                    size_t num_chans,
+                    buffer_calc_state_t *long_term_buf_state)
 {
     #define RATE_MONITOR_TRIGGER_INTERVAL (16)
     static int32_t prev_i2s_sampling_rate = 0;
@@ -260,6 +283,9 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
         if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
+            int32_t window_len_log2 = get_avg_window_size(current_i2s_rate);
+            init_calc_buffer_level_state(long_term_buf_state, window_len_log2, 0);
+
             rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, current_i2s_rate);
             // Set this flag and wait for it to be cleared from tud_audio_tx_done_pre_load_cb(), which it will, after resetting the samples_to_host_stream_buf. We wait
             // for g_i2s_sr_change_detected to be False before starting to write in the samples_to_host_stream_buf.
@@ -275,11 +301,16 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             {
                 xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
 
+                int32_t usb_buffer_level_from_half = (int32_t)((int32_t)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2)) / (int32_t)8;    //Level w.r.t. half full in samples
+                //printintln((int32_t)xStreamBufferBytesAvailable(samples_to_host_stream_buf));
+                //printintln(samples_to_host_stream_buf_size_bytes / 2);
+                //printintln(usb_buffer_level_from_half);
+                calc_avg_buffer_level(long_term_buf_state, usb_buffer_level_from_half, false);
+
                 num_samples_to_host_buf_writes += 1;
                 if(num_samples_to_host_buf_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
                 {
-                    int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
-                    usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
+                    usb_rate_info.samples_to_host_buf_fill_level = long_term_buf_state->avg_buffer_level;
                     intertile_send = true; // Trigger rate monitoring on the other tile
                 }
             }
@@ -1046,7 +1077,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     if (!ready)
     {
-        rtos_printf("TX BUFFER NOT READY, tx_size_bytes = %d\n", tx_size_bytes);
+        //rtos_printf("TX BUFFER NOT READY, tx_size_bytes = %d\n", tx_size_bytes);
         // we need to send something despite not being fully ready
         //  so, send all zeros
         memset(usb_audio_frames, 0, tx_size_bytes);
@@ -1168,6 +1199,8 @@ static void i2s_to_usb_intertile(void *args)
     #define BUFFER_SIZE (((I2S_TO_USB_ASRC_BLOCK_LENGTH * 48000)/44100) + 10) // +1 should be enough but just in case
     int32_t i2s_to_usb_samps_interleaved[BUFFER_SIZE][NUM_I2S_CHANS];
     uint32_t i2s_nominal_sampling_rate;
+    buffer_calc_state_t long_term_buf_state;
+
 
     for(;;)
     {
@@ -1200,7 +1233,7 @@ static void i2s_to_usb_intertile(void *args)
                     i2s_to_usb_samps_interleaved,
                     bytes_received);
 
-            usb_audio_send(&i2s_to_usb_samps_interleaved[0][0], (bytes_received >> 3), 2);
+            usb_audio_send(&i2s_to_usb_samps_interleaved[0][0], (bytes_received >> 3), 2, &long_term_buf_state);
         }
 
     }
