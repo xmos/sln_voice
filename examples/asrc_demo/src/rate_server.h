@@ -4,6 +4,8 @@
 #define RATE_SERVER_H
 #include "xmath/xmath.h"
 
+#define CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME (0)
+
 void rate_server(void *args);
 
 // Getters and setters for various global variables
@@ -28,8 +30,12 @@ typedef struct
     int64_t buffer_based_correction;
     float_s32_t usb_data_rate;
     int32_t samples_to_host_buf_fill_level;
+#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
+    uint32_t samples_to_host_buf_write_time; // For debug
+#endif
     bool mic_itf_open;
     bool spkr_itf_open;
+
 }usb_to_i2s_rate_info_t;
 
 typedef struct

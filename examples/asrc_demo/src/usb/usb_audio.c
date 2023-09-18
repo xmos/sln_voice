@@ -312,6 +312,9 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     static uint32_t num_dummy_writes = 0;
     static buffer_calc_state_t long_term_buf_state;
     static buffer_calc_state_t short_term_buf_state;
+#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
+    static uint32_t prev_ts = 0;
+#endif
 
     samp_t usb_audio_in_frame[I2S_TO_USB_ASRC_BLOCK_LENGTH * 2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 #if CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 2
@@ -365,12 +368,18 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
                 int32_t usb_buffer_level_from_half = (int32_t)((int32_t)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2)) / (int32_t)8;    //Level w.r.t. half full in samples
 
-                calc_avg_buffer_level(&long_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read);
+                calc_avg_buffer_level(&long_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read); // Keep resetting the buffer state till samples_to_host_buf_ready_to_read is true, i.e we start reading out of the samples_to_host buffer
                 calc_avg_buffer_level(&short_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read);
 
                 num_samples_to_host_buf_writes += 1;
                 if(num_samples_to_host_buf_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
                 {
+#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
+                    uint32_t ts = get_reference_time();
+                    usb_rate_info.samples_to_host_buf_write_time = (ts - prev_ts);
+                    prev_ts = ts;
+
+#endif
                     usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
                     usb_rate_info.buffer_based_correction = calc_usb_buffer_based_correction(current_i2s_rate, &long_term_buf_state, &short_term_buf_state);
                     intertile_send = true; // Trigger rate monitoring on the other tile

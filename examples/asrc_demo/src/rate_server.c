@@ -29,7 +29,7 @@
 #include "tusb.h"
 
 #define LOG_I2S_TO_USB_SIDE (0)
-#define LOG_USB_TO_I2S_SIDE (1)
+#define LOG_USB_TO_I2S_SIDE (0)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
 
@@ -228,7 +228,11 @@ void rate_server(void *args)
 #if LOG_I2S_TO_USB_SIDE
             printint(usb_rate_info.samples_to_host_buf_fill_level);
             printchar(',');
+#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
+            printuintln(usb_rate_info.samples_to_host_buf_write_time);
+#else
             printintln((uint32_t)(fs_ratio_u64 >> 32));
+#endif
 #endif
 
             set_i2s_to_usb_rate_ratio(fs_ratio_u64);
