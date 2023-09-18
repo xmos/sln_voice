@@ -223,7 +223,7 @@ typedef int32_t samp_t;
 #endif
 
 
-static inline int32_t get_avg_window_size(uint32_t i2s_rate)
+static inline int32_t get_avg_window_size_log2(uint32_t i2s_rate)
 {
     if((i2s_rate == 192000) || (i2s_rate == 176400))
     {
@@ -242,6 +242,64 @@ static inline int32_t get_avg_window_size(uint32_t i2s_rate)
         xassert(0);
     }
     return 0;
+}
+
+
+static inline sw_pll_q24_t get_Kp_for_usb_buffer_control(int32_t nominal_i2s_rate)
+{
+    sw_pll_q24_t Kp = 0;
+    if(((int)nominal_i2s_rate == (int)44100) || ((int)nominal_i2s_rate == (int)48000))
+    {
+        Kp = SW_PLL_Q24(4.563402752); // 0.000000017 * (2**28)
+    }
+    else if(((int)nominal_i2s_rate == (int)88200) || ((int)nominal_i2s_rate == (int)96000))
+    {
+        Kp = SW_PLL_Q24(9.39524096); // 0.000000035 * (2**28)
+    }
+    else if(((int)nominal_i2s_rate == (int)176400) || ((int)nominal_i2s_rate == (int)192000))
+    {
+        Kp = SW_PLL_Q24(18.79048192); // 0.00000007* (2**28)
+    }
+    return Kp;
+}
+
+static inline uint64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate, buffer_calc_state_t *long_term_buf_state, buffer_calc_state_t *short_term_buf_state)
+{
+    sw_pll_q24_t Kp = get_Kp_for_usb_buffer_control(nominal_i2s_rate);
+    int64_t max_allowed_correction = (int64_t)1500 << 32;
+    int64_t total_error = 0;
+
+    // Correct based on short term average only when creeping outside the guard band
+    if(short_term_buf_state->flag_prev_avg_valid == true)
+    {
+        if(short_term_buf_state->avg_buffer_level > 100)
+        {
+            total_error = max_allowed_correction;
+            return total_error;
+        }
+        else if(short_term_buf_state->avg_buffer_level < -100)
+        {
+            total_error = -(max_allowed_correction);
+            return total_error;
+        }
+    }
+    if(long_term_buf_state->flag_prev_avg_valid == true)
+    {
+        int64_t error_p = ((int64_t)Kp * (int64_t)(long_term_buf_state->avg_buffer_level - long_term_buf_state->stable_avg_level));
+
+        total_error = (int64_t)(error_p << 8);
+        if(total_error > max_allowed_correction)
+        {
+            total_error = max_allowed_correction;
+        }
+        else if(total_error < -(max_allowed_correction))
+        {
+            total_error = -(max_allowed_correction);
+        }
+    }
+
+    return total_error;
+
 }
 
 void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved samples [samps][ch] format
@@ -276,8 +334,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     usb_rate_info.mic_itf_open = mic_interface_open;
     usb_rate_info.spkr_itf_open = spkr_interface_open;
     usb_rate_info.usb_data_rate = g_usb_data_rate;
-    usb_rate_info.long_term_samples_to_host_buf_fill_level = 0;
-    usb_rate_info.short_term_samples_to_host_buf_fill_level = 0;
+    usb_rate_info.samples_to_host_buf_fill_level = 0;
+    usb_rate_info.buffer_based_correction = (int64_t)0;
 
     bool intertile_send = false;
     if (usb_rate_info.mic_itf_open)
@@ -286,7 +344,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
         if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
-            int32_t window_len_log2 = get_avg_window_size(current_i2s_rate);
+            int32_t window_len_log2 = get_avg_window_size_log2(current_i2s_rate);
             init_calc_buffer_level_state(&long_term_buf_state, window_len_log2, 0);
             init_calc_buffer_level_state(&short_term_buf_state, 9, 0);
 
@@ -313,8 +371,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
                 num_samples_to_host_buf_writes += 1;
                 if(num_samples_to_host_buf_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
                 {
-                    usb_rate_info.long_term_samples_to_host_buf_fill_level = long_term_buf_state.avg_buffer_level;
-                    usb_rate_info.short_term_samples_to_host_buf_fill_level = short_term_buf_state.avg_buffer_level;
+                    usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
+                    usb_rate_info.buffer_based_correction = calc_usb_buffer_based_correction(current_i2s_rate, &long_term_buf_state, &short_term_buf_state);
                     intertile_send = true; // Trigger rate monitoring on the other tile
                 }
             }
