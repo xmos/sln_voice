@@ -25,8 +25,7 @@
  */
 void usb_audio_send(int32_t *frame_buffer_ptr,
                     size_t frame_count,
-                    size_t num_chans,
-                    buffer_calc_state_t *long_term_buf_state);
+                    size_t num_chans);
 
 void usb_audio_init(rtos_intertile_t *intertile_ctx, unsigned priority);
 

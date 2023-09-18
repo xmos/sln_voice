@@ -27,7 +27,7 @@
 #include "rate_server.h"
 #include "tusb.h"
 
-#define LOG_I2S_TO_USB_SIDE (0)
+#define LOG_I2S_TO_USB_SIDE (1)
 #define LOG_USB_TO_I2S_SIDE (0)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
@@ -222,12 +222,13 @@ typedef int32_t sw_pll_q24_t; // Type for 15.16 signed fixed point
 
 void rate_server(void *args)
 {
-    uint64_t usb_to_i2s_rate_ratio = 0;
-    int32_t usb_buffer_fill_level_from_half;
-    static bool reset_buf_level = false;
     static bool prev_spkr_itf_open = false;
     static bool prev_i2s_send_buffer_level_stable = false;
     static int32_t i2s_send_buffer_stable_level = 0;
+
+    uint64_t usb_to_i2s_rate_ratio = 0;
+    int32_t lt_usb_buffer_fill_level_from_half;
+    int32_t st_usb_buffer_fill_level_from_half;
     usb_to_i2s_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
 
@@ -261,7 +262,8 @@ void rate_server(void *args)
         // Compute I2S rate
         float_s32_t i2s_rate = determine_avg_I2S_rate_from_driver();
 
-        usb_buffer_fill_level_from_half = usb_rate_info.samples_to_host_buf_fill_level;
+        lt_usb_buffer_fill_level_from_half = usb_rate_info.long_term_samples_to_host_buf_fill_level;
+        st_usb_buffer_fill_level_from_half = usb_rate_info.short_term_samples_to_host_buf_fill_level;
 
         // Calculate g_i2s_to_usb_rate_ratio only when the host is recording data from the device
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
@@ -270,34 +272,29 @@ void rate_server(void *args)
             uint64_t fs_ratio_u64 = float_div_u64_fixed_output_q_format(i2s_rate, usb_rate, 28+32);
 
 #if LOG_I2S_TO_USB_SIDE
-            printint(usb_buffer_fill_level_from_half);
+            printint(lt_usb_buffer_fill_level_from_half);
             printchar(',');
-            printintln((uint32_t)(fs_ratio_u64 >> 32));
+            printintln(st_usb_buffer_fill_level_from_half);
+            //printintln((uint32_t)(fs_ratio_u64 >> 32));
 #endif
             // TODO fix guard band calculation
             /*int guard_level = 100;
-            if(usb_buffer_fill_level_from_half > guard_level)
+            if(lt_usb_buffer_fill_level_from_half > guard_level)
             {
-                int error = usb_buffer_fill_level_from_half - guard_level;
+                int error = lt_usb_buffer_fill_level_from_half - guard_level;
                 fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
             }
-            else if(usb_buffer_fill_level_from_half < -guard_level)
+            else if(lt_usb_buffer_fill_level_from_half < -guard_level)
             {
-                int error = usb_buffer_fill_level_from_half - (-guard_level);
+                int error = lt_usb_buffer_fill_level_from_half - (-guard_level);
                 fs_ratio = (unsigned) (((buffer_level_term + error) * (unsigned long long)fs_ratio) / buffer_level_term);
             }*/
 
             set_i2s_to_usb_rate_ratio(fs_ratio_u64);
-
-            if(reset_buf_level)
-            {
-                reset_buf_level = false;
-            }
         }
         else
         {
             set_i2s_to_usb_rate_ratio((uint64_t)0);
-            reset_buf_level = true;
         }
 
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device

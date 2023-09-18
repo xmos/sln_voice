@@ -23,7 +23,8 @@ typedef struct
 {
     /* data */
     float_s32_t usb_data_rate;
-    int32_t samples_to_host_buf_fill_level;
+    int32_t long_term_samples_to_host_buf_fill_level;
+    int32_t short_term_samples_to_host_buf_fill_level;
     bool mic_itf_open;
     bool spkr_itf_open;
 }usb_to_i2s_rate_info_t;

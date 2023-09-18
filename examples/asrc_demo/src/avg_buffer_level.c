@@ -21,7 +21,8 @@ void calc_avg_buffer_level(buffer_calc_state_t *state, int current_level, bool r
     if(reset == true)
     {
         init_calc_buffer_level_state(state, state->window_len_log2, state->buffer_level_stable_threshold); // Reinitialise state
-        printf("Reset avg I2S send buffer level\n");
+        rtos_printf("Reset avg buffer level\n");
+        return;
     }
 
     state->error_accum += current_level;
@@ -39,7 +40,7 @@ void calc_avg_buffer_level(buffer_calc_state_t *state, int current_level, bool r
         if(state->flag_prev_avg_valid)
         {
             state->avg_buffer_level = (state->avg_buffer_level + state->prev_avg_buffer_level)/2;
-            printintln(state->avg_buffer_level);
+
             if(state->flag_stable_avg == false)
             {
                 state->buffer_level_stable_count += 1;
@@ -47,7 +48,7 @@ void calc_avg_buffer_level(buffer_calc_state_t *state, int current_level, bool r
                 if(state->buffer_level_stable_count > state->buffer_level_stable_threshold)
                 {
                     state->stable_avg_level = state->avg_buffer_level;
-                    rtos_printf("stable average calculated as %d\n", state->stable_avg_level);
+                    rtos_printf("Stable average level calculated as %d\n", state->stable_avg_level);
                     state->flag_stable_avg = true;
                 }
             }
