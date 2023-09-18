@@ -272,12 +272,12 @@ static inline uint64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate
     // Correct based on short term average only when creeping outside the guard band
     if(short_term_buf_state->flag_prev_avg_valid == true)
     {
-        if(short_term_buf_state->avg_buffer_level > 100)
+        if(short_term_buf_state->avg_buffer_level > 200)
         {
             total_error = max_allowed_correction;
             return total_error;
         }
-        else if(short_term_buf_state->avg_buffer_level < -100)
+        else if(short_term_buf_state->avg_buffer_level < -200)
         {
             total_error = -(max_allowed_correction);
             return total_error;
