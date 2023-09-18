@@ -19,6 +19,10 @@ float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);
 uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
 uint64_t float_div_u64_fixed_output_q_format(float_s32_t dividend, float_s32_t divisor, int32_t output_q_format);
 
+// Wrapper functions for calculating i2s send buffer average level
+void init_calc_i2s_buffer_level_state(void);
+void calc_avg_i2s_send_buffer_level(int32_t current_buffer_level, bool reset);
+
 typedef struct
 {
     /* data */

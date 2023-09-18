@@ -37,7 +37,7 @@ static uint64_t g_i2s_to_usb_rate_ratio = 0; // i2s_to_usb_rate_ratio. Updated i
 static bool g_spkr_itf_close_to_open = false; // Flag tracking if a USB spkr interface close->open event occured. Set in the rate monitor when it receives the spkr_interface info from
                                        // USB. Cleared in usb_to_i2s_intertile, after it resets the i2s send buffer
 
-extern buffer_calc_state_t g_i2s_send_buf_state;
+static buffer_calc_state_t g_i2s_send_buf_state;
 
 bool get_spkr_itf_close_open_event()
 {
@@ -59,6 +59,17 @@ void set_i2s_to_usb_rate_ratio(uint64_t ratio)
 {
     g_i2s_to_usb_rate_ratio = ratio;
 
+}
+
+// Wrapper functions to avoid having g_i2s_send_buf_state visible in i2s_audio.c
+void init_calc_i2s_buffer_level_state(void)
+{
+    init_calc_buffer_level_state(&g_i2s_send_buf_state, 10, 8);
+}
+
+void calc_avg_i2s_send_buffer_level(int32_t current_buffer_level, bool reset)
+{
+    calc_avg_buffer_level(&g_i2s_send_buf_state, current_buffer_level, reset);
 }
 
 static float_s32_t determine_avg_I2S_rate_from_driver()
