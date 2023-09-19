@@ -41,6 +41,7 @@ typedef struct usb_audio_rate_packet_desc {
     uint32_t ep_num;
     uint32_t ep_dir;
     size_t xfer_len;
+    bool calc_rate;
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
@@ -55,7 +56,11 @@ static void usb_adaptive_clk_manager(void *args) {
 
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
-        g_usb_data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+        float_s32_t rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, pkt_data.calc_rate);
+        if(pkt_data.calc_rate == true)
+        {
+            g_usb_data_rate = rate;
+        }
         prev_time = pkt_data.cur_time;
     }
 }
@@ -72,8 +77,18 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
         args.ep_num = ep_num;
         args.ep_dir = ep_dir;
         args.xfer_len = xfer_len;
-        if((spkr_interface_open == true) && (ep_dir == TUSB_DIR_OUT))
+        if(spkr_interface_open == true)
         {
+            if(ep_dir == TUSB_DIR_OUT)
+            {
+                args.calc_rate = true;
+            }
+            else
+            {
+                // If mic_interface is also open, log the timestamps and data but don't calculate the rate,
+                // so that if spkr_interface closes we can switch seamlessly to calculating rate using the mic interface.
+                args.calc_rate = false;
+            }
             if( errQUEUE_FULL ==
                 xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
                 rtos_printf("Audio packet timing event dropped\n");
@@ -82,6 +97,8 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
         }
         else if((mic_interface_open == true) && (ep_dir == TUSB_DIR_IN))
         {
+            args.calc_rate = true;
+
             if( errQUEUE_FULL ==
                 xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
                 rtos_printf("Audio packet timing event dropped\n");
