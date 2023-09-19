@@ -12,9 +12,8 @@ typedef struct {
     uint32_t total_ticks;
 }usb_rate_calc_info_t;
 
-float_s32_t determine_USB_audio_rate(uint32_t timestamp,
+usb_rate_calc_info_t determine_USB_audio_rate(uint32_t timestamp,
                                     uint32_t data_length,
-                                    uint32_t direction,
-                                    bool calc_rate);
+                                    uint32_t direction);
 void reset_state();
 void sof_toggle();

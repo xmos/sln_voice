@@ -14,7 +14,7 @@
 #include "tusb_config.h"
 #include "app_conf.h"
 #endif
-
+#include "adaptive_rate_callback.h"
 
 #define TOTAL_STORED (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
@@ -30,10 +30,9 @@ void reset_state(uint32_t direction)
 }
 
 
-float_s32_t determine_USB_audio_rate(uint32_t timestamp,
+usb_rate_calc_info_t determine_USB_audio_rate(uint32_t timestamp,
                                     uint32_t data_length,
-                                    uint32_t direction,
-                                    bool calc_rate
+                                    uint32_t direction
 #ifdef DEBUG_ADAPTIVE
                                                 ,
                                     uint32_t * debug
@@ -72,9 +71,7 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
             time_buckets[direction][i] = 0;
         }
 
-        float_s32_t nominal_samples_per_transaction = float_div((float_s32_t){appconfUSB_AUDIO_SAMPLE_RATE, 0}, (float_s32_t){REF_CLOCK_TICKS_PER_SECOND, 0});
-
-        return nominal_samples_per_transaction;
+        return (usb_rate_calc_info_t){appconfUSB_AUDIO_SAMPLE_RATE, REF_CLOCK_TICKS_PER_SECOND};
     }
 
     current_data_bucket_size[direction] += data_length;
@@ -88,13 +85,12 @@ float_s32_t determine_USB_audio_rate(uint32_t timestamp,
 
     uint32_t timespan = timestamp - first_timestamp[direction];
 
-    float_s32_t result = {0, 0};
-    if(calc_rate == true)
-    {
-        uint32_t total_data_intermed = current_data_bucket_size[direction] + sum_array(data_lengths[direction], TOTAL_STORED);
-        uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
-        result = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
-    }
+
+    usb_rate_calc_info_t result = {0, 0};
+    uint32_t total_data_intermed = current_data_bucket_size[direction] + sum_array(data_lengths[direction], TOTAL_STORED);
+    uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
+    result.total_data_samples = total_data_intermed;
+    result.total_ticks = total_timespan;
 
 
     if (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG)
