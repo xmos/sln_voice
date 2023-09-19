@@ -327,8 +327,10 @@ float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
     asm( "clz %0, %1" : "=r"(dividend_hr) : "r"(dividend.mant) );
     asm( "clz %0, %1" : "=r"(divisor_hr) : "r"(divisor.mant) );
 
+
     int dividend_exp = dividend.exp - dividend_hr;
     int divisor_exp = divisor.exp - divisor_hr;
+
 
     uint64_t h_dividend = (uint64_t)((uint32_t)dividend.mant) << (dividend_hr);
 
@@ -336,7 +338,17 @@ float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 
     uint32_t lhs = (h_dividend > h_divisor) ? 31 : 32;
 
-    uint64_t quotient = (h_dividend << lhs) / h_divisor;
+    uint64_t normalised_dividend = h_dividend << lhs;
+
+#if __xcore__
+    uint32_t quotient = 0;
+    uint32_t remainder = 0;
+    uint32_t h = (uint32_t)(normalised_dividend>>32);
+    uint32_t l = (uint32_t)(normalised_dividend);
+    asm("ldivu %0,%1,%2,%3,%4":"=r"(quotient):"r"(remainder),"r"(h),"r"(l),"r"(h_divisor));
+#else
+    uint64_t quotient = (uint64_t)(normalised_dividend) / h_divisor;
+#endif
 
     res.exp = dividend_exp - divisor_exp - lhs;
 
