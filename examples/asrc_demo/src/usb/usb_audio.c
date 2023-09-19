@@ -63,8 +63,8 @@ uint8_t clkValid;
 // Range states
 audio_control_range_4_n_t(1) sampleFreqRng;                                     // Sample frequency range state
 
-static volatile bool mic_interface_open = false; // Used in adaptive_rate_adjust to decide the direction for which to calculate the avg USB rate
-static volatile bool spkr_interface_open = false; // Used in adaptive_rate_adjust to decide the direction for which to calculate the avg USB rate
+static volatile bool mic_interface_open = false;
+static volatile bool spkr_interface_open = false;
 
 static uint32_t prev_n_bytes_received = 0;
 static bool host_streaming_out = false;
