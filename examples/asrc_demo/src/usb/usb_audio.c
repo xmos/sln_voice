@@ -49,7 +49,6 @@
 #include "asrc_utils.h"
 #include "rate_server.h"
 #include "dbcalc.h"
-#include "hostactive.h"
 
 // Audio controls
 // Current states
