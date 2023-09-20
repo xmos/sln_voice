@@ -4,7 +4,7 @@ getApproval()
 
 pipeline {
     agent {
-        label 'xcore.ai'
+        label 'xcore.ai&&docker'
     }
     options {
         disableConcurrentBuilds()
@@ -39,6 +39,16 @@ pipeline {
             steps {
                 checkout scm
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
+            }
+        }
+        stage('Build docs') {
+            steps {
+                sh "docker pull ghcr.io/xmos/doc_builder:pr-67"
+                sh """docker run --u "\$(id -u):\$(id -g)" \
+                        --rm \
+                        -v ${WORKSPACE}:/build \
+                        ghcr.io/xmos/doc_builder:pr-67"""
+                archiveArtifacts artifacts: "doc/_build/**", allowEmptyArchive: true
             }
         }
         stage('Build tests') {
