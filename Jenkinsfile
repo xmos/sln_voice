@@ -44,7 +44,7 @@ pipeline {
         stage('Build docs') {
             steps {
                 sh "docker pull ghcr.io/xmos/doc_builder:pr-67"
-                sh """docker run --u "\$(id -u):\$(id -g)" \
+                sh """docker run -u "\$(id -u):\$(id -g)" \
                         --rm \
                         -v ${WORKSPACE}:/build \
                         ghcr.io/xmos/doc_builder:pr-67"""
