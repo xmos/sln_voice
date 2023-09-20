@@ -49,11 +49,9 @@
 #include "asrc_utils.h"
 #include "rate_server.h"
 #include "dbcalc.h"
-#include "hostactive.h"
 
 // Audio controls
 // Current states
-
 
 uint32_t sampFreq;
 uint8_t clkValid;
@@ -92,17 +90,50 @@ uint32_t get_i2s_nominal_sampling_rate()
     return g_i2s_nominal_sampling_rate;
 }
 
+// GPO related code for setting host active GPO pin
+#define USER_ACTIVE_GPO_PIN (4)
+static port_t host_active_gpo_port = PORT_GPO;
+
+static inline void SetUserHostActive()
+{
+    uint32_t port_val = port_peek(host_active_gpo_port);
+    int bit = USER_ACTIVE_GPO_PIN;
+
+    port_val |= ((unsigned)1 << bit);
+
+    port_out(host_active_gpo_port, port_val);
+    return;
+}
+
+static inline void ClearUserHostActive()
+{
+    uint32_t port_val = port_peek(host_active_gpo_port);
+    int bit = USER_ACTIVE_GPO_PIN;
+
+    port_val &= ~((unsigned)1 << bit);
+
+    port_out(host_active_gpo_port, port_val);
+    return;
+}
+
+static inline void UserHostActive_GPO_Init()
+{
+    // Inititalise host active GPO port
+    port_enable(host_active_gpo_port);
+    ClearUserHostActive(); // Turn host active GPO pin off by default
+}
+
 
 void XUD_UserSuspend(void) __attribute__ ((weak));
 void XUD_UserSuspend(void)
 {
-    UserHostActive(0);
+    ClearUserHostActive();
 }
 
 void XUD_UserResume(void) __attribute__ ((weak));
 void XUD_UserResume(void)
 {
-    UserHostActive(1);
+    SetUserHostActive();
 }
 
 //--------------------------------------------------------------------+
@@ -112,14 +143,14 @@ void XUD_UserResume(void)
 // Invoked when device is mounted
 void tud_mount_cb(void)
 {
-    UserHostActive(1);
+    SetUserHostActive();
     rtos_printf("USB mounted\n");
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-    UserHostActive(0);
+    ClearUserHostActive();
     rtos_printf("USB unmounted\n");
 }
 
@@ -1222,7 +1253,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
 
     init_volume_multipliers();
 
-    UserHostActive_LED_Init(); // Initialise host active LED GPO port
+    UserHostActive_GPO_Init(); // Initialise host active GPO port
 
     rx_buffer = xStreamBufferCreate(2 * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ, 0);
 
