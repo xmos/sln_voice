@@ -4,13 +4,12 @@
 Software Description
 ####################
 
-.. include:: <isonum.txt>
 
 .. toctree::
    :maxdepth: 1
 
    software_desc/overview
-   software_desc/asr
+   ../asr/asr
    software_desc/bsp_config
    software_desc/ext
    software_desc/filesystem_support

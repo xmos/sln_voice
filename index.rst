@@ -1,6 +1,3 @@
-.. include:: <isonum.txt>
-.. include:: doc/substitutions.rst
-
 .. _sln_voice_index:
 
 ############################
