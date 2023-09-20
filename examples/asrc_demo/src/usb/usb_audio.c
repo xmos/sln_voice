@@ -102,7 +102,7 @@ static inline void SetUserHostActive()
 
     port_val |= ((unsigned)1 << bit);
 
-    rtos_gpio_port_out(gpio_ctx_t0, host_active_led_port, port_val);
+    port_out(host_active_led_port, port_val);
     return;
 }
 
@@ -113,7 +113,7 @@ static inline void ClearUserHostActive()
 
     port_val &= ~((unsigned)1 << bit);
 
-    rtos_gpio_port_out(gpio_ctx_t0, host_active_led_port, port_val);
+    port_out(host_active_led_port, port_val);
     return;
 }
 
