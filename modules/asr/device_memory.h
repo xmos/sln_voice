@@ -41,12 +41,11 @@ typedef struct devmem_manager_struct
  * @{
  */
 
-#define IS_SRAM(a)                     ((uintptr_t)a < XS1_SWMEM_BASE)
+#define IS_SRAM(a)      ((uintptr_t)a < XS1_SWMEM_BASE)
 
-#define IS_SWMEM(a)                    \
-   (((uintptr_t)a >= XS1_SWMEM_BASE) && (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
+#define IS_SWMEM(a)     (((uintptr_t)a >= XS1_SWMEM_BASE) && (((uintptr_t)a <= (XS1_SWMEM_BASE - 1 + XS1_SWMEM_SIZE))))
 
-#define IS_FLASH(a)                    IS_SWMEM(a)
+#define IS_FLASH(a)     IS_SWMEM(a)
 
 /**
  * Memory allocation function that allows the application 
