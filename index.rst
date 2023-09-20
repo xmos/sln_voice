@@ -22,6 +22,15 @@ Licensing
 
 This Software is subject to the terms of the `XMOS Public Licence: Version 1 <https://github.com/xmos/sln_voice/blob/develop/LICENSE.rst>`_. Copyrights and licenses for third party components can be found in :ref:`sln_voice_copyright`.
 
+Copyright & Disclaimer
+======================
+
+|XMOS copyright|
+
+|XMOS disclaimer|
+
+|XMOS trademarks|
+
 .. only:: html
 
    ******************
