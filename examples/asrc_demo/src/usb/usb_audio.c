@@ -49,6 +49,7 @@
 #include "asrc_utils.h"
 #include "rate_server.h"
 #include "dbcalc.h"
+#include "adaptive_rate_callback.h"
 
 // Audio controls
 // Current states
@@ -74,7 +75,7 @@ static uint32_t g_usb_to_i2s_rate_ratio = 0;
 static uint32_t samples_to_host_stream_buf_size_bytes = 0;
 static bool g_i2s_sr_change_detected = false;
 
-extern float_s32_t g_usb_data_rate[2];
+extern usb_rate_calc_info_t g_usb_rate_calc_info[2];
 
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
@@ -281,8 +282,6 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     usb_to_i2s_rate_info_t usb_rate_info;
     usb_rate_info.mic_itf_open = mic_interface_open;
     usb_rate_info.spkr_itf_open = spkr_interface_open;
-    usb_rate_info.usb_data_rate[TUSB_DIR_IN] = g_usb_data_rate[TUSB_DIR_IN];
-    usb_rate_info.usb_data_rate[TUSB_DIR_OUT] = g_usb_data_rate[TUSB_DIR_OUT];
     usb_rate_info.samples_to_host_buf_fill_level = 0;
 
     bool intertile_send = false;
@@ -331,6 +330,16 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
     if(intertile_send == true)
     {
+        usb_rate_info.usb_data_rate = (float_s32_t){0,0};
+        if(usb_rate_info.spkr_itf_open) // Calculate rate from the TUSB_DIR_OUT if spkr_itf is open otherwise calculate from the TUSB_DIR_IN direction
+        {
+            usb_rate_info.usb_data_rate = float_div((float_s32_t){g_usb_rate_calc_info[TUSB_DIR_OUT].total_data_samples, 0}, (float_s32_t){g_usb_rate_calc_info[TUSB_DIR_OUT].total_ticks, 0});
+        }
+        else if(usb_rate_info.mic_itf_open)
+        {
+            usb_rate_info.usb_data_rate = float_div((float_s32_t){g_usb_rate_calc_info[TUSB_DIR_IN].total_data_samples, 0}, (float_s32_t){g_usb_rate_calc_info[TUSB_DIR_IN].total_ticks, 0});
+        }
+
         i2s_to_usb_rate_info_t i2s_rate_info;
         size_t bytes_received;
 

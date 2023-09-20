@@ -220,7 +220,7 @@ void rate_server(void *args)
     {
         // Get usb_rate_info from the other tile
         size_t bytes_received;
-        float_s32_t usb_rate[2];
+        float_s32_t usb_rate;
         bytes_received = rtos_intertile_rx_len(
                     intertile_ctx,
                     appconfUSB_RATE_NOTIFY_PORT,
@@ -232,8 +232,7 @@ void rate_server(void *args)
                         &usb_rate_info,
                         bytes_received);
 
-        usb_rate[TUSB_DIR_OUT] = usb_rate_info.usb_data_rate[TUSB_DIR_OUT];
-        usb_rate[TUSB_DIR_IN] = usb_rate_info.usb_data_rate[TUSB_DIR_IN];
+        usb_rate = usb_rate_info.usb_data_rate;
 
         if((prev_spkr_itf_open == false) && (usb_rate_info.spkr_itf_open == true))
         {
@@ -250,7 +249,7 @@ void rate_server(void *args)
         if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             int32_t buffer_level_term = BUFFER_LEVEL_TERM;
-            int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate[TUSB_DIR_IN], 28);
+            int32_t fs_ratio = float_div_fixed_output_q_format(i2s_rate, usb_rate, 28);
 
 #if LOG_I2S_TO_USB_SIDE
             printint(usb_buffer_fill_level_from_half);
@@ -286,7 +285,7 @@ void rate_server(void *args)
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
         if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
-            int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate[TUSB_DIR_OUT], i2s_rate, 28);
+            int32_t fs_ratio = float_div_fixed_output_q_format(usb_rate, i2s_rate, 28);
 
             int64_t error_d = ((int64_t)Kd * (int64_t)(g_avg_i2s_send_buffer_level - g_prev_avg_i2s_send_buffer_level));
             int64_t error_i = ((int64_t)Ki * (int64_t)g_avg_i2s_send_buffer_level);
