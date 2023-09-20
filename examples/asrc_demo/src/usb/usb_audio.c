@@ -91,36 +91,36 @@ uint32_t get_i2s_nominal_sampling_rate()
 }
 
 // GPO related code for setting host active GPO pin
-#define USER_ACTIVE_LED_PIN (4)
-static port_t host_active_led_port = PORT_GPO;
+#define USER_ACTIVE_GPO_PIN (4)
+static port_t host_active_gpo_port = PORT_GPO;
 
 static inline void SetUserHostActive()
 {
-    uint32_t port_val = port_peek(host_active_led_port);
-    int bit = USER_ACTIVE_LED_PIN;
+    uint32_t port_val = port_peek(host_active_gpo_port);
+    int bit = USER_ACTIVE_GPO_PIN;
 
     port_val |= ((unsigned)1 << bit);
 
-    port_out(host_active_led_port, port_val);
+    port_out(host_active_gpo_port, port_val);
     return;
 }
 
 static inline void ClearUserHostActive()
 {
-    uint32_t port_val = port_peek(host_active_led_port);
-    int bit = USER_ACTIVE_LED_PIN;
+    uint32_t port_val = port_peek(host_active_gpo_port);
+    int bit = USER_ACTIVE_GPO_PIN;
 
     port_val &= ~((unsigned)1 << bit);
 
-    port_out(host_active_led_port, port_val);
+    port_out(host_active_gpo_port, port_val);
     return;
 }
 
-static inline void UserHostActive_LED_Init()
+static inline void UserHostActive_GPO_Init()
 {
-    // Inititalise host active LED port
-    port_enable(host_active_led_port);
-    ClearUserHostActive(); // Turn LED off by default
+    // Inititalise host active GPO port
+    port_enable(host_active_gpo_port);
+    ClearUserHostActive(); // Turn host active GPO pin off by default
 }
 
 
@@ -1253,7 +1253,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
 
     init_volume_multipliers();
 
-    UserHostActive_LED_Init(); // Initialise host active LED GPO port
+    UserHostActive_GPO_Init(); // Initialise host active GPO port
 
     rx_buffer = xStreamBufferCreate(2 * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ, 0);
 
