@@ -1,0 +1,18 @@
+---
+project: sln_voice
+title: XCORE-VOICE SOLUTION
+version: 2.1.0
+
+documentation:
+  exclude_patterns_path: doc/exclude_patterns.inc
+  substitutions_path: doc/substitutions.inc
+  doxygen_projects:
+    sln_voice:
+      doxyfile_path: doc/Doxyfile.inc
+  pdfs:
+    doc/quick_start_guide/index:
+      pdf_title: "{{title}} - Quick Start Guide"
+      pdf_filename: "{{project}}_quick_start_guide_v{{version}}"
+    doc/programming_guide/index:
+      pdf_title: "{{title}} - Programming Guide"
+      pdf_filename: "{{project}}_programming_guide_v{{version}}"
