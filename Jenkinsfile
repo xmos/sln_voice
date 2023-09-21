@@ -1,4 +1,4 @@
-@Library('xmos_jenkins_shared_library@v0.20.0') _
+@Library('xmos_jenkins_shared_library@v0.27.0') _
 
 getApproval()
 
@@ -8,11 +8,7 @@ pipeline {
         disableConcurrentBuilds()
         skipDefaultCheckout()
         timestamps()
-        // on develop discard builds after a certain number else keep forever
-        buildDiscarder(logRotator(
-            numToKeepStr:         env.BRANCH_NAME ==~ /develop/ ? '25' : '',
-            artifactNumToKeepStr: env.BRANCH_NAME ==~ /develop/ ? '25' : ''
-        ))
+        buildDiscarder(xmosDiscardBuildSettings(onlyArtifacts=false))
     }    
     parameters {
         string(
@@ -248,6 +244,8 @@ pipeline {
                     stages {
                         stage ('Build docs with docker') {
                             steps {
+                                checkout scm
+                                sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
                                 sh "docker pull ghcr.io/xmos/doc_builder:$XMOSDOC_VERSION"
                                 sh """docker run -u "\$(id -u):\$(id -g)" \
                                         --rm \
