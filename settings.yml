@@ -6,6 +6,7 @@ version: 2.1.0
 documentation:
   exclude_patterns_path: doc/exclude_patterns.inc
   substitutions_path: doc/substitutions.inc
+  linkcheck_ignore_regex: [".*digikey.*"]  # digikey don't allow auto link checking
   doxygen_projects:
     sln_voice:
       doxyfile_path: doc/Doxyfile.inc
