@@ -56,8 +56,8 @@ uint8_t clkValid;
 audio_control_range_2_n_t(1) volumeRng[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX+1]; 			// Volume range state
 audio_control_range_4_n_t(1) sampleFreqRng; 						// Sample frequency range state
 
-static volatile bool mic_interface_open = false;
-static volatile bool spkr_interface_open = false;
+volatile bool mic_interface_open = false;
+volatile bool spkr_interface_open = false;
 
 static uint32_t prev_n_bytes_received = 0;
 static bool host_streaming_out = false;

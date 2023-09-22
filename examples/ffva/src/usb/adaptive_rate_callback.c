@@ -31,7 +31,6 @@
 #define EXPECTED_OUT_BYTES_PER_BUCKET ((EXPECTED_OUT_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 #define EXPECTED_IN_BYTES_PER_BUCKET ((EXPECTED_IN_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 
-
 bool first_time[2] = {true, true};
 volatile static bool data_seen[2] = {false, false};
 
@@ -78,16 +77,8 @@ float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 
     uint64_t normalised_dividend = (h_dividend << lhs);
 
-#if 0//__xcore__
-    uint32_t quotient = 0;
-    uint32_t remainder = 0;
-    uint32_t h = (uint32_t)(normalised_dividend>>32);
-    uint32_t l = (uint32_t)(normalised_dividend);
-
-    asm("ldivu %0,%1,%2,%3,%4":"=r"(quotient):"r"(remainder),"r"(h),"r"(l),"r"(h_divisor));
-#else
     uint64_t quotient = (uint64_t)(normalised_dividend) / h_divisor;
-#endif
+
 
     res.exp = dividend_exp - divisor_exp - lhs;
 
@@ -131,8 +122,6 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
     static uint32_t times_overflowed[2];
     static uint32_t previous_result[2] = {NOMINAL_RATE, NOMINAL_RATE};
     static float_s32_t expected_data_per_tick = {0, 0};
-
-    //data_length = data_length / (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX); // Number of samples per channels per transaction
 
     if (data_seen[direction] == false)
     {

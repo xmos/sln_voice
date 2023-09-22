@@ -23,6 +23,7 @@
 #include <rtos_interrupt.h>
 
 #include "platform/app_pll_ctrl.h"
+#include "tusb.h"
 
 #ifndef USB_ADAPTIVE_TASK_PRIORITY
 #define USB_ADAPTIVE_TASK_PRIORITY (configMAX_PRIORITIES-1)
@@ -37,6 +38,9 @@ typedef struct usb_audio_rate_packet_desc {
     size_t xfer_len;
     bool calc_rate;
 } usb_audio_rate_packet_desc_t;
+
+extern volatile bool mic_interface_open;
+extern volatile bool spkr_interface_open;
 
 static QueueHandle_t data_event_queue = NULL;
 static uint32_t timestamp_from_sofs = 0;
@@ -53,76 +57,98 @@ static void usb_adaptive_clk_manager(void *args) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
 
         data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, pkt_data.calc_rate);
-        s = (uint64_t)data_rate;
-        /* The below manipulations calculate the required f value to scale the nominal app PLL (24.576MHz) by the data rate.
-         * The relevant equations are from the XU316 datasheet, and are:
-         *
-         *                     F + 1 + (f+1 / p+1)      1          1
-         * Fpll2 = Fpll2_in *  ------------------- * ------- * --------
-         *                             2              R + 1     OD + 1
-         *
-         * For given values:
-         *  Fpll2_in = 24 (MHz, from oscillator)
-         *  F = 408
-         *  R = 3
-         *  OD = 4
-         *  p = 249
-         * and expressing Fpll2 as X*s, where X is the nominal frequency and S is the scale applied, we can
-         * rearrange and simplify to give:
-         *
-         *      [ f + p + 2     ]
-         *  6 * [ --------- + F ]
-         *      [   f + 1       ]
-         *  ----------------------
-         *  5 * (D + 1) * (R + 1)    = X*s, substituting in values to give
-         *
-         *
-         *      [ f + 251         ]
-         *  6 * [ --------- + 408 ]
-         *      [   250           ]
-         *  ----------------------
-         *              100         = 24.576 * s, solving for f and simplifying to give
-         *
-         *
-         * f = (102400 * s) - 102251, rounded and converted back to an integer from Q31.
-         */
-
-        s *= 102400;
-        s -= ((uint64_t)102251 << 31);
-        s >>= 30;
-        s = (s % 2) ? (s >> 1) + 1 : s >> 1;
-
-        if (s != prev_s)
+        if(pkt_data.calc_rate == true)
         {
-            app_pll_set_numerator((int)s);
-            //rtos_printf("New App PLL numerator: %d, data rate: %u\n", (int)s, data_rate);
-        }
+            s = (uint64_t)data_rate;
+            /* The below manipulations calculate the required f value to scale the nominal app PLL (24.576MHz) by the data rate.
+            * The relevant equations are from the XU316 datasheet, and are:
+            *
+            *                     F + 1 + (f+1 / p+1)      1          1
+            * Fpll2 = Fpll2_in *  ------------------- * ------- * --------
+            *                             2              R + 1     OD + 1
+            *
+            * For given values:
+            *  Fpll2_in = 24 (MHz, from oscillator)
+            *  F = 408
+            *  R = 3
+            *  OD = 4
+            *  p = 249
+            * and expressing Fpll2 as X*s, where X is the nominal frequency and S is the scale applied, we can
+            * rearrange and simplify to give:
+            *
+            *      [ f + p + 2     ]
+            *  6 * [ --------- + F ]
+            *      [   f + 1       ]
+            *  ----------------------
+            *  5 * (D + 1) * (R + 1)    = X*s, substituting in values to give
+            *
+            *
+            *      [ f + 251         ]
+            *  6 * [ --------- + 408 ]
+            *      [   250           ]
+            *  ----------------------
+            *              100         = 24.576 * s, solving for f and simplifying to give
+            *
+            *
+            * f = (102400 * s) - 102251, rounded and converted back to an integer from Q31.
+            */
 
-        prev_s = s;
+            s *= 102400;
+            s -= ((uint64_t)102251 << 31);
+            s >>= 30;
+            s = (s % 2) ? (s >> 1) + 1 : s >> 1;
+
+            if (s != prev_s)
+            {
+                app_pll_set_numerator((int)s);
+                //rtos_printf("New App PLL numerator: %d, data rate: %u\n", (int)s, data_rate);
+            }
+
+            prev_s = s;
+        }
     }
 }
 
 bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size_t xfer_len)
 {
     if (ep_num == USB_AUDIO_EP &&
-        ep_dir == USB_DIR_OUT)
+        data_event_queue != NULL)
     {
-        if(data_event_queue != NULL) {
-            BaseType_t xHigherPriorityTaskWoken;
-            usb_audio_rate_packet_desc_t args;
-            args.cur_time = timestamp_from_sofs;
-            args.ep_num = ep_num;
-            args.ep_dir = ep_dir;
-            args.xfer_len = xfer_len;
-            args.calc_rate = true;
-
+        // If Spkr interface (TUSB_DIR_OUT) is open, calculate rate using OUT dir, else calculate using IN dir
+        BaseType_t xHigherPriorityTaskWoken;
+        usb_audio_rate_packet_desc_t args;
+        args.cur_time = timestamp_from_sofs;
+        args.ep_num = ep_num;
+        args.ep_dir = ep_dir;
+        args.xfer_len = xfer_len;
+        if(spkr_interface_open == true)
+        {
+            if(ep_dir == TUSB_DIR_OUT)
+            {
+                args.calc_rate = true;
+            }
+            else
+            {
+                args.calc_rate = false; // Update buckets but don't compute the rate so we can switch seamlessly if spkr_itf closes
+            }
             if( errQUEUE_FULL ==
                 xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
-               rtos_printf("Audio packet timing event dropped\n");
-               xassert(0); /* Missed servicing a data packet */
+                rtos_printf("Audio packet timing event dropped\n");
+                xassert(0); /* Missed servicing a data packet */
             }
         }
+        else if((mic_interface_open == true) && (ep_dir == TUSB_DIR_IN))
+        {
+            args.calc_rate = true;
+            if( errQUEUE_FULL ==
+                xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {
+                rtos_printf("Audio packet timing event dropped\n");
+                xassert(0); /* Missed servicing a data packet */
+            }
+        }
+
     }
+
     return true;
 }
 
