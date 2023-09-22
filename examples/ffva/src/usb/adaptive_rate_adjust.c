@@ -28,13 +28,14 @@
 #define USB_ADAPTIVE_TASK_PRIORITY (configMAX_PRIORITIES-1)
 #endif /* USB_ADAPTIVE_TASK_PRIORITY */
 
-#define DATA_EVENT_QUEUE_SIZE 1
+#define DATA_EVENT_QUEUE_SIZE 2 // For OUT and IN directions
 
 typedef struct usb_audio_rate_packet_desc {
     uint32_t cur_time;
     uint32_t ep_num;
     uint32_t ep_dir;
     size_t xfer_len;
+    bool calc_rate;
 } usb_audio_rate_packet_desc_t;
 
 static QueueHandle_t data_event_queue = NULL;
@@ -51,7 +52,7 @@ static void usb_adaptive_clk_manager(void *args) {
     while(1) {
         xQueueReceive(data_event_queue, (void *)&pkt_data, portMAX_DELAY);
 
-        data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, true);
+        data_rate = determine_USB_audio_rate(pkt_data.cur_time, pkt_data.xfer_len, pkt_data.ep_dir, pkt_data.calc_rate);
         s = (uint64_t)data_rate;
         /* The below manipulations calculate the required f value to scale the nominal app PLL (24.576MHz) by the data rate.
          * The relevant equations are from the XU316 datasheet, and are:
@@ -113,6 +114,7 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
             args.ep_num = ep_num;
             args.ep_dir = ep_dir;
             args.xfer_len = xfer_len;
+            args.calc_rate = true;
 
             if( errQUEUE_FULL ==
                 xQueueSendFromISR(data_event_queue, (void *)&args, &xHigherPriorityTaskWoken)) {

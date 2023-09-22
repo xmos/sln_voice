@@ -31,10 +31,14 @@
 #define EXPECTED_OUT_BYTES_PER_BUCKET ((EXPECTED_OUT_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 #define EXPECTED_IN_BYTES_PER_BUCKET ((EXPECTED_IN_BYTES_PER_TRANSACTION * 1000) / STORED_PER_SECOND)
 
+
 bool first_time[2] = {true, true};
-volatile static bool data_seen = false;
-uint32_t expected[2] = {EXPECTED_OUT_BYTES_PER_TRANSACTION, EXPECTED_IN_BYTES_PER_TRANSACTION};
-uint32_t bucket_expected[2] = {EXPECTED_OUT_BYTES_PER_BUCKET, EXPECTED_IN_BYTES_PER_BUCKET};
+volatile static bool data_seen[2] = {false, false};
+
+void reset_state(uint32_t direction)
+{
+    first_time[direction] = true;
+}
 
 
 uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
@@ -47,13 +51,6 @@ uint32_t sum_array(uint32_t * array_to_sum, uint32_t array_length)
     return acc;
 }
 
-void reset_state()
-{
-    for (int direction = 0; direction < 2; direction++)
-    {
-        first_time[direction] = true;
-    }
-}
 
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 {
@@ -119,7 +116,7 @@ uint32_t float_div_fixed_output_q_format(float_s32_t dividend, float_s32_t divis
 uint32_t determine_USB_audio_rate(uint32_t timestamp,
                                     uint32_t data_length,
                                     uint32_t direction,
-                                    bool update
+                                    bool calc_rate
 #ifdef DEBUG_ADAPTIVE
                                                 ,
                                     uint32_t * debug
@@ -137,9 +134,9 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
     //data_length = data_length / (CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX); // Number of samples per channels per transaction
 
-    if (data_seen == false)
+    if (data_seen[direction] == false)
     {
-        data_seen = true;
+        data_seen[direction] = true;
     }
 
     if (first_time[direction])
@@ -153,25 +150,18 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
         times_overflowed[direction] = 0;
         buckets_full[direction] = false;
 
-        for (int i = 0; i < TOTAL_STORED - STORED_PER_SECOND; i++)
+        for (int i = 0; i < TOTAL_STORED; i++)
         {
             data_lengths[direction][i] = 0;
             time_buckets[direction][i] = 0;
-        }
-        // Seed the final second of initialised data with a "perfect" second - should make the start a bit more stable
-        for (int i = TOTAL_STORED - STORED_PER_SECOND; i < TOTAL_STORED; i++)
-        {
-            data_lengths[direction][i] = 0; //bucket_expected[direction];
-            time_buckets[direction][i] = 0; //REF_CLOCK_TICKS_PER_STORED_AVG;
         }
         expected_data_per_tick = float_div((float_s32_t){appconfUSB_AUDIO_SAMPLE_RATE * CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_RX * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX, 0}, (float_s32_t){REF_CLOCK_TICKS_PER_SECOND, 0});
         return NOMINAL_RATE;
     }
 
-    if (update)
-    {
-        current_data_bucket_size[direction] += data_length;
-    }
+
+    current_data_bucket_size[direction] += data_length;
+
 
     // total_timespan is always correct regardless of whether the reference clock has overflowed.
     // The point at which it becomes incorrect is the point at which it would overflow - the
@@ -183,12 +173,14 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
     uint32_t total_timespan = timespan + sum_array(time_buckets[direction], TOTAL_STORED);
 
-    float_s32_t data_per_tick = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
+    uint32_t result = NOMINAL_RATE;
+    if(calc_rate == true)
+    {
+        float_s32_t data_per_tick = float_div((float_s32_t){total_data_intermed, 0}, (float_s32_t){total_timespan, 0});
+        result = float_div_fixed_output_q_format(data_per_tick, expected_data_per_tick, 31);
+    }
 
-    uint32_t result = float_div_fixed_output_q_format(data_per_tick, expected_data_per_tick, 31);
-
-
-    if (update && (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG))
+    if (timespan >= REF_CLOCK_TICKS_PER_STORED_AVG)
     {
         if (buckets_full[direction])
         {
@@ -236,19 +228,22 @@ uint32_t determine_USB_audio_rate(uint32_t timestamp,
 
 void sof_toggle()
 {
-    static uint32_t sof_count;
-    if (data_seen)
+    static uint32_t sof_count[2];
+
+    for(uint32_t dir=0; dir<2; dir++)
     {
-        sof_count = 0;
-        data_seen = false;
-    }
-    else
-    {
-        sof_count++;
-        if (sof_count > 8)
+        if (data_seen[dir])
         {
-            //rtos_printf("holding...........................................\n");
-            reset_state();
+            sof_count[dir] = 0;
+            data_seen[dir] = false;
+        }
+        else
+        {
+            sof_count[dir]++;
+            if (sof_count[dir] > 8)
+            {
+                reset_state(dir);
+            }
         }
     }
 }
