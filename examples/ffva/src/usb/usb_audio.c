@@ -141,7 +141,6 @@ void usb_audio_send(rtos_intertile_t *intertile_ctx,
     }
 
     if (mic_interface_open) {
-        printintln(xStreamBufferSpacesAvailable(samples_to_host_stream_buf)/8);
         if (xStreamBufferSpacesAvailable(samples_to_host_stream_buf) >= sizeof(usb_audio_in_frame)) {
             xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, sizeof(usb_audio_in_frame), 0);
         } else {
