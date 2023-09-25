@@ -39,8 +39,8 @@ typedef struct usb_audio_rate_packet_desc {
     bool calc_rate;
 } usb_audio_rate_packet_desc_t;
 
-extern volatile bool mic_interface_open;
-extern volatile bool spkr_interface_open;
+extern volatile bool mic_interface_open; // Externed from usb_audio.c where the interface open is tracked in the tud_audio callback functions
+extern volatile bool spkr_interface_open; // Externed from usb_audio.c where the interface open is tracked in the tud_audio callback functions
 
 static QueueHandle_t data_event_queue = NULL;
 static uint32_t timestamp_from_sofs = 0;
