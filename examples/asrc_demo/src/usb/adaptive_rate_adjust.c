@@ -80,7 +80,7 @@ bool tud_xcore_data_cb(uint32_t cur_time, uint32_t ep_num, uint32_t ep_dir, size
 
 bool tud_xcore_sof_cb(uint8_t rhport, uint32_t cur_time)
 {
-    static uint32_t count;
+    static uint32_t count = 0;
 
     count += 1;
     if(count == 8)
