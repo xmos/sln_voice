@@ -636,7 +636,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
      * This assumes (as with XUA_lite) that the host sends the same number of samples for each channel.
      * This also assumes that TX and RX rates are the same, which is an assumption made elsewhere.
      * This finally assumes that at nominal rate,
-     *     AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER == prev_n_bytes_received / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX
+     *     AUDIO_FRAMES_PER_USB_FRAME == prev_n_bytes_received / (CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX * sizeof(samp_t))
      */
     if (host_streaming_out && (0 != prev_n_bytes_received))
     {
