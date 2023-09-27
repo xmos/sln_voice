@@ -28,7 +28,7 @@
 #include "avg_buffer_level.h"
 #include "tusb.h"
 
-#define LOG_I2S_TO_USB_SIDE (1)
+#define LOG_I2S_TO_USB_SIDE (0)
 #define LOG_USB_TO_I2S_SIDE (0)
 
 #define REF_CLOCK_TICKS_PER_SECOND 100000000
@@ -285,13 +285,12 @@ void rate_server(void *args)
                 {
                     total_error = -(max_allowed_correction);
                 }
-            }
-
 #if LOG_USB_TO_I2S_SIDE
-            printint((int32_t)(total_error >> 32)); // Print the upper 32 bits of the correction
+            printint(g_i2s_send_buf_state.avg_buffer_level);
             printchar(',');
-            printintln(g_i2s_send_buf_state.avg_buffer_level);
+            printintln((int32_t)(total_error >> 32)); // Print the upper 32 bits of the correction
 #endif
+            }
             usb_to_i2s_rate_ratio = fs_ratio64 + total_error;
 
         }

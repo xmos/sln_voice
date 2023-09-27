@@ -331,9 +331,6 @@ static inline int64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate,
         {
             total_error = -(max_allowed_correction);
         }
-        //printint(long_term_buf_state->avg_buffer_level);
-        //printchar(',');
-        //printintln(short_term_buf_state->avg_buffer_level);
     }
 
     return total_error;
