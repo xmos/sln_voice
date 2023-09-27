@@ -257,17 +257,18 @@ typedef int32_t samp_t;
 
 static inline int32_t get_avg_window_size_log2(uint32_t i2s_rate)
 {
+    // The window size is calculated using the simulation framework to ensure that it is large enough that we get stable windowed averages
     if((i2s_rate == 192000) || (i2s_rate == 176400))
     {
-        return 16;
+        return 12;
     }
     else if((i2s_rate == 96000) || (i2s_rate == 88200))
     {
-        return 15;
+        return 11;
     }
     else if((i2s_rate == 48000) || (i2s_rate == 44100))
     {
-        return 14;
+        return 11;
     }
     else
     {
@@ -279,6 +280,8 @@ static inline int32_t get_avg_window_size_log2(uint32_t i2s_rate)
 
 static inline sw_pll_q24_t get_Kp_for_usb_buffer_control(int32_t nominal_i2s_rate)
 {
+    // The Kp constants are generated using the simulation framework, largely through trial and error, to get values using which
+    // the calculated correction factor stablises the buffer level.
     sw_pll_q24_t Kp = 0;
     if(((int)nominal_i2s_rate == (int)44100) || ((int)nominal_i2s_rate == (int)48000))
     {
@@ -295,7 +298,7 @@ static inline sw_pll_q24_t get_Kp_for_usb_buffer_control(int32_t nominal_i2s_rat
     return Kp;
 }
 
-static inline uint64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate, buffer_calc_state_t *long_term_buf_state, buffer_calc_state_t *short_term_buf_state)
+static inline int64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate, buffer_calc_state_t *long_term_buf_state, buffer_calc_state_t *short_term_buf_state)
 {
     sw_pll_q24_t Kp = get_Kp_for_usb_buffer_control(nominal_i2s_rate);
     int64_t max_allowed_correction = (int64_t)1500 << 32;
@@ -328,6 +331,9 @@ static inline uint64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate
         {
             total_error = -(max_allowed_correction);
         }
+        //printint(long_term_buf_state->avg_buffer_level);
+        //printchar(',');
+        //printintln(short_term_buf_state->avg_buffer_level);
     }
 
     return total_error;
@@ -379,8 +385,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
         if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
             int32_t window_len_log2 = get_avg_window_size_log2(current_i2s_rate);
-            init_calc_buffer_level_state(&long_term_buf_state, window_len_log2, 0);
-            init_calc_buffer_level_state(&short_term_buf_state, 9, 0);
+            init_calc_buffer_level_state(&long_term_buf_state, window_len_log2, 4);
+            init_calc_buffer_level_state(&short_term_buf_state, 9, 4);
 
             rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, current_i2s_rate);
             // Set this flag and wait for it to be cleared from tud_audio_tx_done_pre_load_cb(), which it will, after resetting the samples_to_host_stream_buf. We wait

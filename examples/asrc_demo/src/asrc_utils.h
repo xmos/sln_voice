@@ -29,7 +29,7 @@ typedef struct {
 }asrc_init_t;
 
 #define USB_TO_I2S_ASRC_BLOCK_LENGTH (96)
-#define I2S_TO_USB_ASRC_BLOCK_LENGTH (240)
+#define I2S_TO_USB_ASRC_BLOCK_LENGTH (244)
 #define ASRC_N_CHANNELS              (1)
 #define ASRC_CHANNELS_PER_INSTANCE   (1)
 #define ASRC_DITHER_SETTING          OFF

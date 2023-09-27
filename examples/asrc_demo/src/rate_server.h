@@ -46,6 +46,6 @@ typedef struct
 
 typedef int32_t sw_pll_q24_t; // Type for 15.16 signed fixed point
 #define SW_PLL_NUM_FRAC_BITS 24
-#define SW_PLL_Q24(val) ((sw_pll_q24_t)((float)val * (1 << SW_PLL_NUM_FRAC_BITS)))
+#define SW_PLL_Q24(val) ((sw_pll_q24_t)((double)val * (1 << SW_PLL_NUM_FRAC_BITS)))
 
 #endif
