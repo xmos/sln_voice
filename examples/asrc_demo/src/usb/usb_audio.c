@@ -285,15 +285,15 @@ static inline sw_pll_q24_t get_Kp_for_usb_buffer_control(int32_t nominal_i2s_rat
     sw_pll_q24_t Kp = 0;
     if(((int)nominal_i2s_rate == (int)44100) || ((int)nominal_i2s_rate == (int)48000))
     {
-        Kp = SW_PLL_Q24(4.563402752); // 0.000000017 * (2**28)
+        Kp = KP_USB_BUF_CONTROL_FS48;
     }
     else if(((int)nominal_i2s_rate == (int)88200) || ((int)nominal_i2s_rate == (int)96000))
     {
-        Kp = SW_PLL_Q24(9.39524096); // 0.000000035 * (2**28)
+        Kp = KP_USB_BUF_CONTROL_FS96;
     }
     else if(((int)nominal_i2s_rate == (int)176400) || ((int)nominal_i2s_rate == (int)192000))
     {
-        Kp = SW_PLL_Q24(18.79048192); // 0.00000007* (2**28)
+        Kp = KP_USB_BUF_CONTROL_FS192;
     }
     return Kp;
 }
@@ -381,6 +381,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
         if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
+            // The window size and buffer_level_stable_threahold are calculated using the simulation
+            // framework to ensure that they are large enough that we get stable windowed averages
             int32_t window_len_log2 = get_avg_window_size_log2(current_i2s_rate);
             init_calc_buffer_level_state(&long_term_buf_state, window_len_log2, 4);
             init_calc_buffer_level_state(&short_term_buf_state, 9, 4);
@@ -412,6 +414,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
                     uint32_t ts = get_reference_time();
                     usb_rate_info.samples_to_host_buf_write_time = (ts - prev_ts);
                     prev_ts = ts;
+                    printuintln(usb_rate_info.samples_to_host_buf_write_time);
 
 #endif
                     usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;

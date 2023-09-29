@@ -64,7 +64,8 @@ void set_i2s_to_usb_rate_ratio(uint64_t ratio)
 // Wrapper functions to avoid having g_i2s_send_buf_state visible in i2s_audio.c
 void init_calc_i2s_buffer_level_state(void)
 {
-    // The window size is calculated using the simulation framework to ensure that it is large enough that we get stable windowed averages
+   // The window size and buffer_level_stable_threahold are calculated using the simulation
+   // framework to ensure that they are large enough that we get stable windowed averages
     int32_t window_size_log2 = 10;
     init_calc_buffer_level_state(&g_i2s_send_buf_state, window_size_log2, 8);
 }
@@ -188,20 +189,20 @@ static float_s32_t determine_avg_I2S_rate_from_driver()
 
 static inline sw_pll_q24_t get_Kp_for_i2s_buffer_control(int32_t nominal_i2s_rate)
 {
-    // The Kp constants are generated using the simulation framework, largely through trial and error, to get values using which
+    // The Kp constants are generated using the simulation framework empirically, to get values using which
     // the calculated correction factor stablises the buffer level.
     sw_pll_q24_t Kp = 0;
     if(((int)nominal_i2s_rate == (int)44100) || ((int)nominal_i2s_rate == (int)48000))
     {
-        Kp = SW_PLL_Q24(11.542724608); // 0.000000043 * (2**28)
+        Kp = KP_I2S_BUF_CONTROL_FS48;
     }
     else if(((int)nominal_i2s_rate == (int)88200) || ((int)nominal_i2s_rate == (int)96000))
     {
-        Kp = SW_PLL_Q24(5.905580032); // 0.000000022 * (2**28)
+        Kp = KP_I2S_BUF_CONTROL_FS96;
     }
     else if(((int)nominal_i2s_rate == (int)176400) || ((int)nominal_i2s_rate == (int)192000))
     {
-        Kp = SW_PLL_Q24(3.2749125632); // 0.0000000122 * (2**28)
+        Kp = KP_I2S_BUF_CONTROL_FS192;
     }
     return Kp;
 }
@@ -249,12 +250,9 @@ void rate_server(void *args)
 #if LOG_I2S_TO_USB_SIDE
             printint(usb_rate_info.samples_to_host_buf_fill_level);
             printchar(',');
-#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
-            printuintln(usb_rate_info.samples_to_host_buf_write_time);
-#else
             //printintln((uint32_t)(fs_ratio_u64 >> 32));
             printintln((int32_t)(usb_rate_info.buffer_based_correction >> 32));
-#endif
+
 #endif
 
             set_i2s_to_usb_rate_ratio(fs_ratio_u64);

@@ -5,8 +5,6 @@
 #ifndef USB_AUDIO_H_
 #define USB_AUDIO_H_
 
-#include "avg_buffer_level.h"
-
 // These are used by the dbtomult and fixed point volume scaling calcs
 #define USB_AUDIO_VOL_MUL_FRAC_BITS     29
 #define USB_AUDIO_VOLUME_FRAC_BITS      8

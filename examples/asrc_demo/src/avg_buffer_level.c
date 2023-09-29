@@ -31,15 +31,11 @@ void calc_avg_buffer_level(buffer_calc_state_t *state, int current_level, bool r
 
     if(state->count == (1<<state->window_len_log2))
     {
-        if(state->flag_first_done == true)
-        {
-            state->flag_prev_avg_valid = true;
-        }
-        state->prev_avg_buffer_level = state->avg_buffer_level;
+        int32_t prev_avg_buffer_level = state->avg_buffer_level;
         state->avg_buffer_level = state->error_accum >> state->window_len_log2;
-        if(state->flag_prev_avg_valid)
+        if(state->flag_first_done == true) // So we know that prev_avg_buffer_level is valid
         {
-            state->avg_buffer_level = (state->avg_buffer_level + state->prev_avg_buffer_level)/2;
+            state->avg_buffer_level = (state->avg_buffer_level + prev_avg_buffer_level)/2;
 
             if(state->flag_stable_avg == false)
             {
