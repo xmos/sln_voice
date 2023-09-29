@@ -30,7 +30,6 @@
 #include "rate_server.h"
 #include "tusb_config.h"
 
-
 static void recv_frame_from_i2s(int32_t *i2s_rx_data, size_t frame_count)
 {
     size_t rx_count =
@@ -103,7 +102,7 @@ static void i2s_audio_recv_task(void *args)
 #if PROFILE_ASRC
     uint32_t max_time = 0;
 #endif
-    uint32_t nominal_fs_ratio = 0;
+    uint64_t nominal_fs_ratio = 0;
     for(;;)
     {
         recv_frame_from_i2s(&input_data[0][0], I2S_TO_USB_ASRC_BLOCK_LENGTH); // Receive blocks of I2S_TO_USB_ASRC_BLOCK_LENGTH at I2S sampling rate
@@ -129,8 +128,8 @@ static void i2s_audio_recv_task(void *args)
             // We're too late to do the asrc_process(), skip this frame
             continue;
         }
-        uint32_t current_rate_ratio = nominal_fs_ratio;
-        uint32_t rate_ratio = get_i2s_to_usb_rate_ratio();
+        uint64_t current_rate_ratio = nominal_fs_ratio;
+        uint64_t rate_ratio = get_i2s_to_usb_rate_ratio();
         if(rate_ratio != 0)
         {
             current_rate_ratio = rate_ratio;
@@ -147,7 +146,7 @@ static void i2s_audio_recv_task(void *args)
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &input_data_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
-        asrc_ctx.nominal_fs_ratio = current_rate_ratio;
+        asrc_ctx.fs_ratio = current_rate_ratio;
         asrc_ctx.i2s_sampling_rate = i2s_sampling_rate;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
@@ -240,6 +239,9 @@ static unsigned usb_audio_recv(rtos_intertile_t *intertile_ctx,
 static void usb_to_i2s_intertile(void *args) {
     (void) args;
     int32_t *usb_to_i2s_samps;
+
+    init_calc_i2s_buffer_level_state();
+
     for(;;)
     {
         // Receive USB recv + ASRC data frame from the other tile
@@ -291,8 +293,9 @@ static void usb_to_i2s_intertile(void *args) {
                 portMAX_DELAY);
 
             bool okay_to_send = rtos_i2s_get_okay_to_send(i2s_ctx);
-            int32_t i2s_buffer_level_from_half = rtos_i2s_get_send_buffer_level_wrt_half(i2s_ctx);
-            calc_avg_i2s_send_buffer_level(i2s_buffer_level_from_half / 2, !okay_to_send); // Per channel
+            int32_t i2s_buffer_level_from_half = rtos_i2s_get_send_buffer_level_wrt_half(i2s_ctx) / 2; // Per channel
+
+            calc_avg_i2s_send_buffer_level(i2s_buffer_level_from_half, !okay_to_send);
 
             // If we're not sending and buffer has become half full start sending again so we start at a very stable point
             if((okay_to_send == false) && (i2s_buffer_level_from_half >= 0))
@@ -301,7 +304,7 @@ static void usb_to_i2s_intertile(void *args) {
                 rtos_printf("Start sending over I2S. I2S send buffer fill level = %d\n", i2s_buffer_level_from_half);
             }
 
-            //printintln((i2s_buffer_level_from_half / 2));
+            //printintln(i2s_buffer_level_from_half);
         }
     }
 }
