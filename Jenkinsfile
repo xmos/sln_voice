@@ -246,11 +246,11 @@ pipeline {
                             steps {
                                 checkout scm
                                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
-                                sh "docker pull ghcr.io/xmos/doc_builder:$XMOSDOC_VERSION"
+                                sh "docker pull ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION"
                                 sh """docker run -u "\$(id -u):\$(id -g)" \
                                         --rm \
                                         -v ${WORKSPACE}:/build \
-                                        ghcr.io/xmos/doc_builder:$XMOSDOC_VERSION -v"""
+                                        ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION -v"""
                                 archiveArtifacts artifacts: 'doc/_build/**', allowEmptyArchive: true
                             }
                         }
