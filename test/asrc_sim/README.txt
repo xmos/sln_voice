@@ -15,17 +15,25 @@ BUILDING
 ========
 
 To build, do the following:
-mkdir build
-cd build
-cmake -S..
+cmake -S . -B ./build
+
+For building both applications
+cmake --build build
+
+For building i2s_in_usb_out application,
+cmake --build build --target i2s_in_usb_out
+
+For building usb_in_i2s_out application,
+cmake --build build --target usb_in_i2s_out
+
 
 RUNNING
 =======
 
-To run the applications, from the build directory, run:
+To run the applications, from this directory, run:
 
-./i2s_in_usb_out <i2s_rate> <optional timestamps file>
-./usb_in_i2s_out <i2s_rate> <optional timestamps file>
+./build/i2s_in_usb_out <i2s_rate> <optional timestamps file>
+./build/usb_in_i2s_out <i2s_rate> <optional timestamps file>
 
 The <i2s_rate> argument is compulsory and can be one of the supported i2s rates, which are 192000, 176400, 96000, 88200, 48000 and 44100
 Additionally, the user can provide an optional argument which is a file containing timestamps at which SOFs are received, to emulate the real system behaviour.
@@ -49,9 +57,9 @@ These numbers indicate the average buffer fill levels that are calculated every 
 The numbers are printed as <long term average buffer fill level>,<short term average buffer fill level> on every line.
 Once the simulation completes they can be plotted using the plot_csv script. For example,
 
-From the build directory
-./i2s_in_usb_out 96000 ../log_sofs_1hr 2>&1 > log
-python ../plot_csv.py log test.png 2
+From the current directory
+./build/i2s_in_usb_out 96000 log_sofs_1hr 2>&1 > log
+python plot_csv.py log test.png 2
 
 test.png contains plots for both columns of numbers present in the stdout log when i2s_in_usb_out is run.
 
@@ -62,9 +70,9 @@ Similar to the i2s_in_usb_out, when the usb_in_i2s_out application is run, it al
 the screen. Each line of the stdout is of the form <current buffer fill level>,<average buffer fill level>
 The same script plot_csv.py can be used to plot this as well. For example,
 
-From the build directory,
-./usb_in_i2s_out 96000 ../log_sofs_1hr 2>&1 > log
-python ../plot_csv.py log test.png 2
+From the current directory,
+./build/usb_in_i2s_out 96000 log_sofs_1hr 2>&1 > log
+python plot_csv.py log test.png 2
 
 ASRC INPUT and OUTPUT
 =====================
@@ -74,13 +82,13 @@ dumped into the binary file asrc_input.bin. The ASRC output is also dumped to an
 
 The ASRC input and the output can be plotted in the frequency domain and their SNR calculated using the calc_snr.py script.
 
-From the build directory,
-python ../calc_snr.py asrc_input.bin <ASRC input rate>
-python ../calc_snr.py asrc_output.bin <ASRC output rate>
+From the current directory,
+python calc_snr.py asrc_input.bin <ASRC input rate>
+python calc_snr.py asrc_output.bin <ASRC output rate>
 
 For example, if running the usb_in_i2s_out application with I2S rate set to 192000
 ./usb_in_i2s_out 192000 ../log_sofs_1hr
 
 The ASRC input rate would be the USB rate of 48000 and the ASRC output rate would be the I2S rate of 192000, so we could then run
-python ../calc_snr.py asrc_input.bin 48000
-python ../calc_snr.py asrc_output.bin 192000
+python calc_snr.py asrc_input.bin 48000
+python calc_snr.py asrc_output.bin 192000
