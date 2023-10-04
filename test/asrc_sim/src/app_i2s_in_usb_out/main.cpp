@@ -11,7 +11,7 @@
 
 #define DEFAULT_NOMINAL_USB_RATE (48000) // Do not change!! Only 48000KHz USB supported
 #define DEFAULT_USB_DRIFT_PPM    (10)
-#define DEFAULT_SIM_TIME_MINS    (30)    // Simulation time in mins
+#define DEFAULT_SIM_TIME_MINS    (20)    // Simulation time in mins
 #define ASRC_BLOCK_SIZE          (244)   // Number of samples that make the ASRC input block
 
 // Usage. From the build directory, run: ./i2s_in_usb_out <i2s_rate> ../log_sofs_1hr 2>&1 | tee log

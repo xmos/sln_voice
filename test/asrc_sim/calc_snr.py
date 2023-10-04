@@ -1,25 +1,17 @@
-import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io.wavfile
+import argparse
+import os
 
-def rawFFT(data, sampling_rate):
+def rawFFT(data, sampling_rate, plot_fname, show_plot):
     data_len = len(data)
     print(f"data_len = {data_len}")
 
-    ignoreSamples = 128
+    fftLength = 128
 
-    f = open("test.dat", "w")
-    for d in data[-ignoreSamples:]:
-        f.write(f"{str(d)},\n")
-    f.close()
-    #print(data[-ignoreSamples:])
-
-
-
-    #Data = np.fft.rfft(data[-ignoreSamples:])
-    skip = int(15*60*sampling_rate)
-    Data = np.fft.rfft(data[skip + ignoreSamples:skip + 2*ignoreSamples])
+    skip = int(15*60*sampling_rate) # Skip 15mins from the beginning
+    Data = np.fft.rfft(data[skip + fftLength:skip + 2*fftLength])
     Data1 = np.abs(Data)
     m = np.argmax(Data1)
     tmpNoise=np.copy(Data1)
@@ -33,47 +25,48 @@ def rawFFT(data, sampling_rate):
     max_index = np.argmax(Data_abs)
 
 
-
     x = np.linspace(0,sampling_rate/2, len(Data_abs))
     bin_resolution = (sampling_rate/2)/(len(Data_abs))
 
+    ignoreSamples = 128
     #(S, f) = plt.psd(data[ignoreSamples:-ignoreSamples], NFFT=8192)
-
     #print(f)
 
-    print(f"bin_resolution = {bin_resolution}")
+    print(f"bin_resolution = {bin_resolution} Hz")
     print(f"Max found on bin {max_index}, max amplitude {Data_abs[max_index]}")
-    print(f"Frequency at the max bin = {bin_resolution * max_index}")
+    print(f"Frequency at the max bin = {bin_resolution * max_index} Hz")
 
     plt.plot(Data_abs)
-    plt.show()
-    # fft assuming signal is already an integer fraction of the true output rate
-    #min = np.argmin(np.abs(data[ignoreSamples:-(fftPoints)])) + ignoreSamples #investigating if picking a data set that looks like it is nearly zero crossing at the ends is better
-    #samples = data[min:min+self.fftPoints]
-    #l=self.fftPoints
-    #fftData = self.mpAbs(np.fft.fft(samples))
-    #fftDataDB = 20 * np.log10((fftData/np.max(fftData)) + self.fudge)
-    #realRate = self.sampleRates[self.opRate] * float(self.fDev)
-    #x = np.linspace(0,realRate/2, num=int(l/2) ) / 1000
-    #return [x, fftDataDB[0:int(l/2)], fftData[0:int(l/2)]/np.max(fftData[0:int(l/2)])]
-    return [0]
+    plt.ylabel("Magnitude(dB)")
+    plt.xlabel("bins")
+    plt.savefig(plot_fname)
+    if show_plot:
+        plt.show()
 
-def doFFT(data, sampling_rate, window=False):
-    # convinient way to select between fft styles.  Note that the periodic one will need a lot more samples, so
-    # use window=True for debuging.
-    return rawFFT(data, sampling_rate)
+    return snr
 
+
+def get_args():
+    parser = argparse.ArgumentParser("Script to plot FFT spectrum and calculate SNR")
+    parser.add_argument("input_file", type=str, help="asrc input or output bin file, dumped when running usb_in_i2s_out or i2s_in_usb_out ASRC sim application")
+    parser.add_argument("sampling_rate", type=int, help="sampling rate for the input file specified in the first argument")
+    parser.add_argument("--filename", "-f", type=str, help="filename to save the FFT magnitude spectrum plot in", default="plot_spectrum.png")
+    parser.add_argument("--show", "-s", action="store_true", help="Show the plot")
+    return parser.parse_args()
+
+# Usage python calc_snr.py <asrc_output.bin> <sampling rate>
 if __name__ == "__main__":
-    if(len(sys.argv) != 3):
-        assert False, "Wrong number of arguments given!!"
-    dt = np.fromfile(sys.argv[1], dtype=np.int32)
+    args = get_args()
 
-    scipy.io.wavfile.write("test.wav", int(sys.argv[2]), dt.T)
+    # Check if sampling rate is valid
+    if args.sampling_rate not in [192000, 96000, 48000, 176400, 88200, 44100]:
+        assert False, f"ERROR: Invalid sampling rate {args.sampling_rate} specified"
 
-    print(dt.shape)
-    data = np.array(dt/(np.iinfo(np.int32).max), dtype=np.double)
-    x = np.linspace(0, len(data[-1000:]), len(data[-1000:]))
-    #plt.scatter(x, data[0:1000])
-    #plt.plot(data)
-    #plt.show()
-    doFFT(data, int(sys.argv[2]))
+    #Check if file exists
+    if os.path.isfile(args.input_file):
+        dt = np.fromfile(args.input_file, dtype=np.int32)
+        scipy.io.wavfile.write("test.wav", args.sampling_rate, dt.T)
+        data = np.array(dt/(np.iinfo(np.int32).max), dtype=np.double)
+        snr = rawFFT(data, args.sampling_rate, args.filename, args.show)
+    else:
+        assert False, f"Invalid input file {args.input_file}"
