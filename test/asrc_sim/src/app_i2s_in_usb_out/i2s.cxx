@@ -30,6 +30,10 @@ void I2S::process()
         {
             auto sample_space = nc::linspace(prev_ts, tstamp, m_config->asrc_block_size, false);
 
+            // Warp Fs by nominal_output_rate/actual_output_rate so we can have the FFT peak of the output in one bin and not spread all over the spectrum.
+            // Note that when m_config->usb_timestamps[0].size() != 0, we use the average USB rate calculated from SOFs by averaging over the entire duration
+            // for which the SOFs were logged. This is an approximation at best so its very difficult to get a good FFT peak in the freq domain for the ASRC output
+            // which affects the SNR calculation.
             double fs;
             if(m_config->usb_timestamps[0].size() == 0)
             {
@@ -37,7 +41,7 @@ void I2S::process()
             }
             else
             {
-                fs = (double)m_config->nominal_i2s_rate * (m_config->nominal_usb_rate / 48000.48159545217);
+                fs = (double)m_config->nominal_i2s_rate * (m_config->nominal_usb_rate / m_config->average_usb_rate_from_sofs);
             }
             sample_space = nc::linspace(sample_counter*(1/fs), (sample_counter + m_config->asrc_block_size)*(1/fs), m_config->asrc_block_size, false);
             sample_counter = sample_counter + m_config->asrc_block_size;

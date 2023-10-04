@@ -7,8 +7,9 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <numeric>
 
-#define PARSE_SOF_TIMESTAMPS (1)
+
 
 void parse_sof_timestamps(const char *fname, config_t *app_config)
 {
@@ -17,31 +18,35 @@ void parse_sof_timestamps(const char *fname, config_t *app_config)
     std::string line;
 
     std::string token;
+    std::vector<uint32_t> only_timestamps;
     while (std::getline(infile, line))
     {
-#if PARSE_SOF_TIMESTAMPS
+
         app_config->usb_timestamps[0].push_back(std::stoul(line.c_str()));
         app_config->usb_timestamps[0].push_back(int(384));  // Data transferred is always 384 bytes (48, 32bit, 2ch samples per 1ms).
-#else
-        std::istringstream ss(line);
-        int count = 0;
-        int dir;
-        while(std::getline(ss, token, ','))
-        {
-            if(count == 0)
-            {
-                dir = std::stoul(token); // Set direction based on first token
-            }
-            else
-            {
-                app_config->usb_timestamps[dir].push_back(std::stoul(token));
-            }
-            count += 1;
-        }
-#endif
+
+        only_timestamps.push_back(std::stoul(line.c_str()));
     }
     printf("usb_timestamps[0].size() = %lu\n", app_config->usb_timestamps[0].size());
-    printf("usb_timestamps[1].size() = %lu\n", app_config->usb_timestamps[1].size());
+    if (only_timestamps.size())
+    {
+        uint64_t accum = 0;
+        uint32_t counter = 0;
+        for (int i=0; i<only_timestamps.size()-1; i++)
+        {
+           uint32_t span =  (uint32_t)only_timestamps[i+1] - (uint32_t)only_timestamps[i];
+           counter += 1;
+           accum = accum + span;
+        }
+        double avg = (double)accum / counter;
+        double avg_usb_rate = (48 / avg) * 100000000;   // USB rate is samples per second. (samples_per_tick * ticks_per_second)
+        app_config->average_usb_rate_from_sofs = avg_usb_rate;
+    }
+    else
+    {
+        app_config->average_usb_rate_from_sofs = 48000;
+    }
+
 }
 
 int verify_i2s_rate(int i2s_rate)

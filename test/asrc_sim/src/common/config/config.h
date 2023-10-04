@@ -6,6 +6,7 @@ typedef struct
     double nominal_i2s_rate;
     double nominal_usb_rate;
     double actual_usb_rate;
+    double average_usb_rate_from_sofs;
     double usb_drift_ppm;
     double asrc_input_sine_freq;
     int asrc_block_size;

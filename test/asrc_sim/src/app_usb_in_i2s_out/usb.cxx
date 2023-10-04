@@ -42,7 +42,8 @@ void USB::process()
         for (auto ts = m_config->usb_timestamps[0].begin(); ts != m_config->usb_timestamps[0].end(); ts=ts+2)
         {
             //auto sample_space = nc::linspace(sample_counter*(1/m_config->nominal_usb_rate), (sample_counter+48)*(1/m_config->nominal_usb_rate), 48, false);
-            auto sample_space = nc::linspace(sample_counter*(1/48000.483029236886), (sample_counter+48)*(1/48000.483029236886), 48, false);
+            // Generate sine tone using the USB rate calculated from SOFs as Fs
+            auto sample_space = nc::linspace(sample_counter*(1/m_config->average_usb_rate_from_sofs), (sample_counter+48)*(1/m_config->average_usb_rate_from_sofs), 48, false);
             sample_counter = sample_counter + 48;
 
             auto samples = 0.5*nc::sin(2*nc::constants::pi * m_config->asrc_input_sine_freq * sample_space);
