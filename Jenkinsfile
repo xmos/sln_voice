@@ -51,9 +51,9 @@ pipeline {
                 withTools(params.TOOLS_VERSION) {
 
                         dir("test/asrc_sim") {
-                            cmake -S . -B build
-                            cmake --build build --target usb_in_i2s_out
-                            cmake --build build --target i2s_in_usb_out
+                            sh 'cmake -S . -B build'
+                            sh 'cmake --build build --target usb_in_i2s_out'
+                            sh 'cmake --build build --target i2s_in_usb_out'
                             sh 'run.sh'
                         }
 
