@@ -27,6 +27,8 @@ pipeline {
             description: 'Tests that only run during nightly builds.')
     }
     environment {
+        REPO = 'sln_voice'
+        VIEW = getViewName(REPO)
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
@@ -38,6 +40,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+                sh 'pwd'
+                sh 'ls -l'
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }
