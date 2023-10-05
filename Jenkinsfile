@@ -45,6 +45,19 @@ pipeline {
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }
+        stage('ASRC Sim') {
+            steps {
+                sh 'pwd'
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        dir("test/asrc_sim") {
+                            sh 'run.sh'
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Build tests') {
             steps {
                 script {
@@ -64,18 +77,7 @@ pipeline {
             }
         }
 
-        stage('ASRC Sim') {
-            steps {
-                sh 'pwd'
-                withTools(params.TOOLS_VERSION) {
-                    withVenv {
-                        dir("test/asrc_sim") {
-                            sh 'run.sh'
-                        }
-                    }
-                }
-            }
-        }
+
         stage('Create virtual environment') {
             when {
                 expression { params.NIGHTLY_TEST_ONLY == true }
