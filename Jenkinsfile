@@ -49,14 +49,12 @@ pipeline {
             steps {
                 sh 'pwd'
                 withTools(params.TOOLS_VERSION) {
-
-                        dir("test/asrc_sim") {
-                            sh 'cmake -S . -B build'
-                            sh 'cmake --build build --target usb_in_i2s_out'
-                            sh 'cmake --build build --target i2s_in_usb_out'
+                    dir("test/asrc_sim") {
+                        createVenv('requirements.txt')
+                        withVenv {
                             sh './run.sh'
                         }
-
+                    }
                 }
             }
         }
