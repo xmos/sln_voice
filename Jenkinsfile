@@ -15,7 +15,7 @@ pipeline {
             numToKeepStr:         env.BRANCH_NAME ==~ /develop/ ? '25' : '',
             artifactNumToKeepStr: env.BRANCH_NAME ==~ /develop/ ? '25' : ''
         ))
-    }    
+    }
     parameters {
         string(
             name: 'TOOLS_VERSION',
@@ -25,7 +25,7 @@ pipeline {
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
             defaultValue: false,
             description: 'Tests that only run during nightly builds.')
-    }    
+    }
     environment {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
@@ -33,7 +33,7 @@ pipeline {
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
         PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
         ASR_TEST_VECTORS = "asr_test_vectors"
-    }    
+    }
     stages {
         stage('Checkout') {
             steps {
@@ -57,6 +57,20 @@ pipeline {
                 // List built files for log
                 sh "ls -la dist_host/"
                 sh "ls -la dist/"
+            }
+        }
+
+        stage('ASRC Sim') {
+            steps {
+                dir("${REPO}") {
+                    withTools(params.TOOLS_VERSION) {
+                        withVenv {
+                            dir("test/asrc_sim") {
+                                sh 'run.sh'
+                            }
+                        }
+                    }
+                }
             }
         }
         stage('Create virtual environment') {
@@ -228,7 +242,7 @@ pipeline {
     post {
         cleanup {
             // cleanWs removes all output and artifacts of the Jenkins pipeline
-            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent. 
+            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent.
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
             cleanWs()
         }
