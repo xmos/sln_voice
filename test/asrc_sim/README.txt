@@ -59,7 +59,7 @@ Once the simulation completes they can be plotted using the plot_csv script. For
 
 From the current directory
 ./build/i2s_in_usb_out 96000 log_sofs_1hr 2>&1 > log
-python plot_csv.py log test.png 2
+python python/plot_csv.py log 2 -p test.png -s
 
 test.png contains plots for both columns of numbers present in the stdout log when i2s_in_usb_out is run.
 
@@ -72,7 +72,7 @@ The same script plot_csv.py can be used to plot this as well. For example,
 
 From the current directory,
 ./build/usb_in_i2s_out 96000 log_sofs_1hr 2>&1 > log
-python plot_csv.py log test.png 2
+python python/plot_csv.py log 2 -p test.png -s
 
 ASRC INPUT and OUTPUT
 =====================
