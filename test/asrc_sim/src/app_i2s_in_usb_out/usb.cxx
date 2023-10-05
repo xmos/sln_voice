@@ -38,8 +38,6 @@ void USB::process()
     if(m_config->usb_timestamps[0].size() != 0)
     {
         uint64_t sample_counter = 0;
-        double f_in = 5512.5; // for 88.2 output
-        //double f_in = 11025.0; // For 176.4 output
         FILE *fp;
         fp = fopen("asrc_input.bin", "wb");
 
@@ -59,11 +57,11 @@ void USB::process()
             {
                 uint32_t ts_diff = *ts - prev_ts;
                 //printf("current ts = %u, prev ts = %u, ts diff = %u\n", *ts, prev_ts, ts_diff);
-                wait_time = ((double)(ts_diff) / 100e6) * m_config->nominal_i2s_rate;
+                wait_time = ((double)(ts_diff) / nominal_timer_tick_rate) * m_config->nominal_i2s_rate;
             }
             else
             {
-                wait_time = ((double)(100000) / 100e6) * m_config->nominal_i2s_rate;
+                wait_time = ((double)(100000) / nominal_timer_tick_rate) * m_config->nominal_i2s_rate;  // 1 ms nominally
             }
             //printf("Waiting for %f us, ts %lu, prev_ts %lu\n", wait_time, *ts, prev_ts);
             prev_ts = *ts;

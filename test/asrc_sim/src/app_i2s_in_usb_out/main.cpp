@@ -69,7 +69,7 @@ int sc_main(int argc, char* argv[])
     sc_start(0, SC_SEC);
 
 
-    // Simulate for N seconds
+    // Simulate for N seconds.
     sc_start(DEFAULT_SIM_TIME_MINS*60*app_config->nominal_i2s_rate, SC_US);
 
     delete app_config->asrc_input_samples;

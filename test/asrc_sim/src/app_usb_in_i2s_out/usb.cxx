@@ -83,11 +83,11 @@ void USB::process()
             {
                 uint32_t ts_diff = *ts - prev_ts;
                 //printf("current ts = %u, prev ts = %u, ts diff = %u\n", *ts, prev_ts, ts_diff);
-                wait_time = ((double)(ts_diff) / 100e6) * m_config->nominal_i2s_rate;
+                wait_time = ((double)(ts_diff) / nominal_timer_tick_rate) * m_config->nominal_i2s_rate;
             }
             else
             {
-                wait_time = ((double)(100000) / 100e6) * m_config->nominal_i2s_rate;
+                wait_time = ((double)(100000) / nominal_timer_tick_rate) * m_config->nominal_i2s_rate;
             }
             //printf("Waiting for %f us, call_count = %d, ts %lu, prev_ts %lu\n", wait_time, call_count, *ts, prev_ts);
             prev_ts = *ts;
