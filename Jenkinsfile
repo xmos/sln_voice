@@ -54,7 +54,7 @@ pipeline {
                             sh 'cmake -S . -B build'
                             sh 'cmake --build build --target usb_in_i2s_out'
                             sh 'cmake --build build --target i2s_in_usb_out'
-                            sh 'run.sh'
+                            sh './run.sh'
                         }
 
                 }
