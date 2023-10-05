@@ -47,8 +47,10 @@ pipeline {
             steps {
                 withTools(params.TOOLS_VERSION) {
                     dir("test/asrc_sim") {
-                        createVenv('requirements.txt')
+                        sh "pyenv install -s $PYTHON_VERSION"
+                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
                         withVenv {
+                            sh "pip install -r ./requirements.txt"
                             sh './run.sh'
                         }
                     }
