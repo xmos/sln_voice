@@ -12,7 +12,7 @@ usbrate=48000
 # Without SOF timestamps file
 i2srate=88200
 build/usb_in_i2s_out $i2srate 2>&1 > log
-output=$(python calc_snr.py asrc_output.bin $i2srate -f $dir_name/plot_usb_in_i2s_out_$i2srate.png 2>&1)
+output=$(python python/calc_snr.py asrc_output.bin $i2srate -p $dir_name/plot_usb_in_i2s_out_$i2srate.png 2>&1)
 snr=$(echo $output | sed -E 's/.*SNR = ([0-9]+).*/\1/g' | bc -l)
 if [ $((snr)) -ge 120 ]; then
     echo "SNR $snr PASS"
@@ -23,7 +23,7 @@ fi
 
 i2srate=192000
 build/i2s_in_usb_out $i2srate 2>&1 > log
-output=$(python calc_snr.py asrc_output.bin $usbrate -f $dir_name/plot_i2s_in_usb_out_$usbrate.png 2>&1)
+output=$(python python/calc_snr.py asrc_output.bin $usbrate -p $dir_name/plot_i2s_in_usb_out_$usbrate.png 2>&1)
 snr=$(echo $output | sed -E 's/.*SNR = ([0-9]+).*/\1/g' | bc -l)
 if [ $((snr)) -ge 120 ]; then
     echo "SNR $snr PASS"
@@ -35,7 +35,7 @@ fi
 # With SOF timestamps file
 i2srate=176400
 build/usb_in_i2s_out $i2srate log_sofs_1hr 2>&1 > log
-output=$(python calc_snr.py asrc_output.bin $i2srate -f $dir_name/plot_sof_usb_in_i2s_out_$i2srate.png 2>&1)
+output=$(python python/calc_snr.py asrc_output.bin $i2srate -p $dir_name/plot_sof_usb_in_i2s_out_$i2srate.png 2>&1)
 snr=$(echo $output | sed -E 's/.*SNR = ([0-9]+).*/\1/g' | bc -l)
 if [ $((snr)) -ge 100 ]; then
     echo "SNR $snr PASS"
@@ -46,7 +46,7 @@ fi
 
 i2srate=96000
 build/i2s_in_usb_out $i2srate log_sofs_1hr 2>&1 >  log
-output=$(python calc_snr.py asrc_output.bin $usbrate -f $dir_name/plot_sof_i2s_in_usb_out_$usbrate.png 2>&1)
+output=$(python python/calc_snr.py asrc_output.bin $usbrate -p $dir_name/plot_sof_i2s_in_usb_out_$usbrate.png 2>&1)
 snr=$(echo $output | sed -E 's/.*SNR = ([0-9]+).*/\1/g' | bc -l)
 if [ $((snr)) -ge 100 ]; then
     echo "SNR $snr PASS"

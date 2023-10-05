@@ -80,15 +80,15 @@ ASRC INPUT and OUTPUT
 When the simulation runs, a sine tone is generated at run time (using the numCpp library) and used as the input to the ASRC. This sine tone is also
 dumped into the binary file asrc_input.bin. The ASRC output is also dumped to another binary file, asrc_output.bin.
 
-The ASRC input and the output can be plotted in the frequency domain and their SNR calculated using the calc_snr.py script.
+The ASRC input and the output can be plotted in the frequency domain and their SNR calculated using the python/calc_snr.py script.
 
 From the current directory,
-python calc_snr.py asrc_input.bin <ASRC input rate>
-python calc_snr.py asrc_output.bin <ASRC output rate>
+python python/calc_snr.py asrc_input.bin <ASRC input rate>
+python python/calc_snr.py asrc_output.bin <ASRC output rate>
 
 For example, if running the usb_in_i2s_out application with I2S rate set to 192000
 ./usb_in_i2s_out 192000 ../log_sofs_1hr
 
 The ASRC input rate would be the USB rate of 48000 and the ASRC output rate would be the I2S rate of 192000, so we could then run
-python calc_snr.py asrc_input.bin 48000
-python calc_snr.py asrc_output.bin 192000
+python python/calc_snr.py asrc_input.bin 48000
+python python/calc_snr.py asrc_output.bin 192000

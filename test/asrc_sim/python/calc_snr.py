@@ -50,7 +50,7 @@ def get_args():
     parser = argparse.ArgumentParser("Script to plot FFT spectrum and calculate SNR")
     parser.add_argument("input_file", type=str, help="asrc input or output bin file, dumped when running usb_in_i2s_out or i2s_in_usb_out ASRC sim application")
     parser.add_argument("sampling_rate", type=int, help="sampling rate for the input file specified in the first argument")
-    parser.add_argument("--filename", "-f", type=str, help="filename to save the FFT magnitude spectrum plot in", default="plot_spectrum.png")
+    parser.add_argument("--plotfile", "-p", type=str, help="filename to save the FFT magnitude spectrum plot in", default="plot_spectrum.png")
     parser.add_argument("--show", "-s", action="store_true", help="Show the plot")
     return parser.parse_args()
 
@@ -67,6 +67,6 @@ if __name__ == "__main__":
         dt = np.fromfile(args.input_file, dtype=np.int32)
         scipy.io.wavfile.write("test.wav", args.sampling_rate, dt.T)
         data = np.array(dt/(np.iinfo(np.int32).max), dtype=np.double)
-        snr = rawFFT(data, args.sampling_rate, args.filename, args.show)
+        snr = rawFFT(data, args.sampling_rate, args.plotfile, args.show)
     else:
         assert False, f"Invalid input file {args.input_file}"
