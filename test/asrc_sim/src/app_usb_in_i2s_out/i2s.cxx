@@ -1,3 +1,5 @@
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #include "i2s.h"
 
 I2S::I2S(sc_module_name name, Buffer* buffer, config_t *config)

@@ -1,3 +1,5 @@
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #ifndef USB_RATE_CALC_H
 #define USB_RATE_CALC_H
 
