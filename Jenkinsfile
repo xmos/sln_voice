@@ -49,11 +49,14 @@ pipeline {
             steps {
                 sh 'pwd'
                 withTools(params.TOOLS_VERSION) {
-                    withVenv {
+
                         dir("test/asrc_sim") {
+                            cmake -S . -B build
+                            cmake --build build --target usb_in_i2s_out
+                            cmake --build build --target i2s_in_usb_out
                             sh 'run.sh'
                         }
-                    }
+
                 }
             }
         }
