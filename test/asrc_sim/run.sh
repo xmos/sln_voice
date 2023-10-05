@@ -1,7 +1,7 @@
 #!/bin/bash
 cmake -S . -B ./build
-cmake --build build --target usb_in_i2s_out
-cmake --build build --target i2s_in_usb_out
+cmake --build build --target usb_in_i2s_out -j8
+cmake --build build --target i2s_in_usb_out -j8
 
 
 dir_name=_plots

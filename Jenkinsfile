@@ -40,14 +40,11 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh 'pwd'
-                sh 'ls -l'
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }
-        stage('ASRC Sim') {
+        stage('ASRC Simulator') {
             steps {
-                sh 'pwd'
                 withTools(params.TOOLS_VERSION) {
                     dir("test/asrc_sim") {
                         createVenv('requirements.txt')
@@ -58,7 +55,6 @@ pipeline {
                 }
             }
         }
-
         stage('Build tests') {
             steps {
                 script {
