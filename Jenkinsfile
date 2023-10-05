@@ -66,12 +66,11 @@ pipeline {
 
         stage('ASRC Sim') {
             steps {
-                dir("${REPO}") {
-                    withTools(params.TOOLS_VERSION) {
-                        withVenv {
-                            dir("test/asrc_sim") {
-                                sh 'run.sh'
-                            }
+                sh 'pwd'
+                withTools(params.TOOLS_VERSION) {
+                    withVenv {
+                        dir("test/asrc_sim") {
+                            sh 'run.sh'
                         }
                     }
                 }
