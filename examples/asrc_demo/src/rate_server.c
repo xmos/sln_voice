@@ -242,7 +242,7 @@ void rate_server(void *args)
         float_s32_t i2s_rate = determine_avg_I2S_rate_from_driver();
 
         // Calculate g_i2s_to_usb_rate_ratio only when the host is recording data from the device
-        if((i2s_rate.mant != 0) && (usb_rate_info.mic_itf_open))
+        if((i2s_rate.mant != 0) && (usb_rate.mant != 0) && (usb_rate_info.mic_itf_open))
         {
             uint64_t fs_ratio_u64 = float_div_u64_fixed_output_q_format(i2s_rate, usb_rate, 28+32);
             fs_ratio_u64 = fs_ratio_u64 + usb_rate_info.buffer_based_correction;
@@ -263,7 +263,7 @@ void rate_server(void *args)
         }
 
         // Calculate usb_to_i2s_rate_ratio only when the host is playing data to the device
-        if((i2s_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
+        if((i2s_rate.mant != 0) && (usb_rate.mant != 0) && (usb_rate_info.spkr_itf_open))
         {
             const sw_pll_q24_t Kp = get_Kp_for_i2s_buffer_control(rtos_i2s_get_nominal_sampling_rate(i2s_ctx));
             int64_t max_allowed_correction = (int64_t)1500 << 32;
