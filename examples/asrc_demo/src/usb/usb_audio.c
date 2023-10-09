@@ -63,6 +63,7 @@ audio_control_range_4_n_t(1) sampleFreqRng;                                     
 
 static volatile bool mic_interface_open = false;
 static volatile bool spkr_interface_open = false;
+static volatile bool first_frame_after_mic_interface_open = false;
 
 static uint32_t prev_n_bytes_received = 0;
 static bool host_streaming_out = false;
@@ -439,11 +440,11 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     if(intertile_send == true)
     {
         usb_rate_info.usb_data_rate = (float_s32_t){0,0};
-        if(usb_rate_info.spkr_itf_open) // Calculate rate from the TUSB_DIR_OUT if spkr_itf is open otherwise calculate from the TUSB_DIR_IN direction
+        if((usb_rate_info.spkr_itf_open) && (g_usb_rate_calc_info[TUSB_DIR_OUT].total_ticks != 0)) // Calculate rate from the TUSB_DIR_OUT if spkr_itf is open otherwise calculate from the TUSB_DIR_IN direction
         {
             usb_rate_info.usb_data_rate = float_div((float_s32_t){g_usb_rate_calc_info[TUSB_DIR_OUT].total_data_samples, 0}, (float_s32_t){g_usb_rate_calc_info[TUSB_DIR_OUT].total_ticks, 0});
         }
-        else if(usb_rate_info.mic_itf_open)
+        else if(usb_rate_info.mic_itf_open && g_usb_rate_calc_info[TUSB_DIR_IN].total_ticks != 0)
         {
             usb_rate_info.usb_data_rate = float_div((float_s32_t){g_usb_rate_calc_info[TUSB_DIR_IN].total_data_samples, 0}, (float_s32_t){g_usb_rate_calc_info[TUSB_DIR_IN].total_ticks, 0});
         }
@@ -1116,7 +1117,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     size_t bytes_available;
     size_t tx_size_bytes;
     size_t tx_size_frames;
-    static bool first_frame_after_mic_interface_open = false;
 
     /*
      * This buffer needs to be large enough to hold any size of transaction,
@@ -1268,8 +1268,8 @@ bool tud_audio_set_itf_cb(uint8_t rhport,
         /* In case the interface is reset without
          * closing it first */
         mic_interface_open = false;
+        first_frame_after_mic_interface_open = false;
         xStreamBufferReset(samples_to_host_stream_buf);
-        rtos_printf("audio_set_itf: samples_to_host_stream_buf buffer spaces %d\n", xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
     }
 #endif
 
@@ -1295,7 +1295,7 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
     if (itf == ITF_NUM_AUDIO_STREAMING_MIC)
     {
         mic_interface_open = false;
-        rtos_printf("audio_set_itf_close: samples_to_host_stream_buf buffer spaces %d\n", xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
+        first_frame_after_mic_interface_open = false;
     }
 #endif
 
