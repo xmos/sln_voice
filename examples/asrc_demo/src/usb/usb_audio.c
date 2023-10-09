@@ -1118,13 +1118,6 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     size_t bytes_available;
     size_t tx_size_bytes;
     size_t tx_size_frames;
-    /*static uint32_t prev_ts = 0;
-
-    uint32_t ts = get_reference_time();
-
-    printchar('R');
-    printuintln(ts - prev_ts);
-    prev_ts = ts;*/
 
     /*
      * This buffer needs to be large enough to hold any size of transaction,
