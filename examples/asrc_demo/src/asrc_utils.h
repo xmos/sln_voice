@@ -14,7 +14,7 @@ typedef struct
     /* data */
     int32_t *input_samples;
     int32_t *output_samples;
-    unsigned nominal_fs_ratio;
+    uint64_t fs_ratio;
     unsigned i2s_sampling_rate;
 }asrc_process_frame_ctx_t;
 
@@ -29,7 +29,7 @@ typedef struct {
 }asrc_init_t;
 
 #define USB_TO_I2S_ASRC_BLOCK_LENGTH (96)
-#define I2S_TO_USB_ASRC_BLOCK_LENGTH (240)
+#define I2S_TO_USB_ASRC_BLOCK_LENGTH (244)  // Found out from simulation. Relatively jitter free average buffer levels seen with 244 samples block than 240 samples block size
 #define ASRC_N_CHANNELS              (1)
 #define ASRC_CHANNELS_PER_INSTANCE   (1)
 #define ASRC_DITHER_SETTING          OFF

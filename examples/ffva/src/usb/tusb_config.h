@@ -100,7 +100,7 @@ extern const uint16_t tud_audio_desc_lengths[CFG_TUD_AUDIO];
 #endif
 
 #if (appconfMIC_SRC_DEFAULT == appconfMIC_SRC_USB)
-// In appconfMIC_SRC_USB, we wait forever for input mic and AEC reference channels 
+// In appconfMIC_SRC_USB, we wait forever for input mic and AEC reference channels
 // will not overflow output
 #define USB_AUDIO_RECV_DELAY                                portMAX_DELAY
 #else
