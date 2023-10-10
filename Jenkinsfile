@@ -15,7 +15,7 @@ pipeline {
             numToKeepStr:         env.BRANCH_NAME ==~ /develop/ ? '25' : '',
             artifactNumToKeepStr: env.BRANCH_NAME ==~ /develop/ ? '25' : ''
         ))
-    }    
+    }
     parameters {
         string(
             name: 'TOOLS_VERSION',
@@ -25,20 +25,36 @@ pipeline {
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
             defaultValue: false,
             description: 'Tests that only run during nightly builds.')
-    }    
+    }
     environment {
+        REPO = 'sln_voice'
+        VIEW = getViewName(REPO)
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
         PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
         ASR_TEST_VECTORS = "asr_test_vectors"
-    }    
+    }
     stages {
         stage('Checkout') {
             steps {
                 checkout scm
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
+            }
+        }
+        stage('ASRC Simulator') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    dir("test/asrc_sim") {
+                        sh "pyenv install -s $PYTHON_VERSION"
+                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                        withVenv {
+                            sh "pip install -r ./requirements.txt"
+                            sh './run.sh'
+                        }
+                    }
+                }
             }
         }
         stage('Build tests') {
@@ -59,6 +75,8 @@ pipeline {
                 sh "ls -la dist/"
             }
         }
+
+
         stage('Create virtual environment') {
             when {
                 expression { params.NIGHTLY_TEST_ONLY == true }
@@ -228,7 +246,7 @@ pipeline {
     post {
         cleanup {
             // cleanWs removes all output and artifacts of the Jenkins pipeline
-            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent. 
+            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent.
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
             cleanWs()
         }
