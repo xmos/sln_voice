@@ -81,7 +81,7 @@ float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
     int dividend_exp = dividend.exp - dividend_hr;
     int divisor_exp = divisor.exp - divisor_hr;
 
-    uint64_t h_dividend = (uint64_t)((uint32_t)dividend.mant) << (dividend_hr);
+    uint64_t h_dividend = (uint64_t)dividend.mant << (dividend_hr);
 
     uint32_t h_divisor = ((uint32_t)divisor.mant) << (divisor_hr);
 
@@ -114,7 +114,7 @@ float_u64_t float_div_u64(float_s32_t dividend, float_s32_t divisor)
     int dividend_exp = dividend.exp - dividend_hr;
     int divisor_exp = divisor.exp - divisor_hr;
 
-    uint64_t h_dividend = (uint64_t)((uint32_t)dividend.mant) << (dividend_hr);
+    uint64_t h_dividend = (uint64_t)dividend.mant << (dividend_hr);
 
     uint32_t h_divisor = ((uint32_t)divisor.mant) << (divisor_hr);
 

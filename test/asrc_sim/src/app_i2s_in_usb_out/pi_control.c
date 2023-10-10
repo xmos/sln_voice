@@ -7,7 +7,7 @@
 #include "pi_control.h"
 
 
-typedef int32_t sw_pll_q24_t; // Type for 15.16 signed fixed point
+typedef int32_t sw_pll_q24_t; // Type for 8.24 signed fixed point
 #define SW_PLL_NUM_FRAC_BITS 24
 #define SW_PLL_Q24(val) ((sw_pll_q24_t)((float)val * (1 << SW_PLL_NUM_FRAC_BITS)))
 

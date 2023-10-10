@@ -1,4 +1,10 @@
 #!/bin/bash
+# Script that builds and runs the usb_in_i2s_out and i2s_in_usb_out applications for a few i2s rates, with and without
+# SOF timestamps file.
+# From the test/asrc_sim directory, do
+# pip install -r ./requirements.txt
+# ./run.sh
+
 cmake -S . -B ./build
 cmake --build build --target usb_in_i2s_out -j8
 cmake --build build --target i2s_in_usb_out -j8

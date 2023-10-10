@@ -15,7 +15,7 @@ def plot_3_cols(fname, plotname, showplot):
     with open(fname) as fl:
         #reader = csv.reader(fl, delimiter=',')
         for row in fl.readlines():
-            if m := re.match(r'([-0-9]+),([-0-9]+),([-0-9]+)', row):
+            if m := re.match(r'(-?[0-9]+),(-?[0-9]+),(-?[0-9]+)', row):
                 data0.append(int(m.group(1)))
                 data1.append(int(m.group(2)))
                 data2.append(int(m.group(3)))
@@ -42,7 +42,7 @@ def plot_2_cols(fname, plotname, showplot):
     with open(fname) as fl:
         #reader = csv.reader(fl, delimiter=',')
         for row in fl.readlines():
-            if m := re.match(r'([-0-9]+),([-0-9]+)', row):
+            if m := re.match(r'(-?[0-9]+),(-?[0-9]+)', row):
                 data0.append(int(m.group(1)))
                 data1.append(int(m.group(2)))
 
@@ -72,7 +72,7 @@ def plot_1_cols(fname, plotname, showplot):
     with open(fname) as fl:
         #reader = csv.reader(fl, delimiter=',')
         for row in fl.readlines():
-            if m := re.match(r'([-0-9]+)', row):
+            if m := re.match(r'(-?[0-9]+)', row):
                 data0.append(int(m.group(1)))
 
     d = np.array(data0)
@@ -94,9 +94,9 @@ def plot_1_cols(fname, plotname, showplot):
 # Usage: python ../plot_csv.py <log> <plotname> <1 or 2>
 
 def get_args():
-    parser = argparse.ArgumentParser("Script to plot the stdout when running the usb_in_i2s_out or i2s_in_sb_out application")
-    parser.add_argument("input_file", type=str, help="stdout when running the usb_in_i2s_out or i2s_in_sb_out application dumped into a log file")
-    parser.add_argument("num_cols", type=int, help="No. of comma separated entries per line in the stdout of the usb_in_i2s_out or i2s_in_sb_out application run")
+    parser = argparse.ArgumentParser("Script to plot the stdout when running the usb_in_i2s_out or i2s_in_usb_out application")
+    parser.add_argument("input_file", type=str, help="stdout when running the usb_in_i2s_out or i2s_in_usb_out application dumped into a log file")
+    parser.add_argument("num_cols", type=int, help="No. of comma separated entries per line in the stdout of the usb_in_i2s_out or i2s_in_usb_out application run")
     parser.add_argument("--plotfile", "-p", type=str, help="filename to save the output column plot in", default="plot_csv_cols.png")
     parser.add_argument("--show", "-s", action="store_true", help="Show the plot")
     return parser.parse_args()

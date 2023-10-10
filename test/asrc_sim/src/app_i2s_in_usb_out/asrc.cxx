@@ -51,6 +51,8 @@ static inline int32_t get_avg_window_size_log2(uint32_t i2s_rate)
     }
     else if((i2s_rate == 48000) || (i2s_rate == 44100))
     {
+        // Ideally, the windows size should be 2**10 for 48000,44100 so we can average over the same time window worth of samples, but I can't
+        // stable monotonically increasing or descreasing averages when averaged over 1024 samples, so continuing with a window size of 2**11 itself.
         return 11;
     }
     else
