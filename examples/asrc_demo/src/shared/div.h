@@ -5,6 +5,7 @@
 #if __xcore__
 #include "xmath/xmath.h"
 #else
+typedef int exponent_t;
 typedef struct {
     int32_t mant;       ///< 32-bit mantissa
     exponent_t exp;     ///< exponent
