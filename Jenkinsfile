@@ -63,6 +63,15 @@ pipeline {
             }
         }
 
+        stage('ASRC Unit tests') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    sh "xsim dist/test_asrc_div.xe"
+                    sh "./dist_x86/test_asrc_div"
+                }
+            }
+        }
+
         stage('ASRC Simulator') {
             steps {
                 withTools(params.TOOLS_VERSION) {
@@ -74,10 +83,8 @@ pipeline {
                             sh './run.sh'
                         }
                     }
-                    sh "mkdir -p build"
-                    dir("build") {
-                        sh "cmake -S.. -DCMAKE_TOOLCHAIN_FILE=../xmos_cmake_toolchain/xs3a.cmake -DXCORE_VOICE_TESTS=ON"
-                    }
+                    sh "xsim dist/test_asrc_div.xe"
+                    sh "./dist_x86/test_asrc_div"
                 }
             }
         }
