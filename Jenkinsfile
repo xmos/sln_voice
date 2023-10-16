@@ -49,18 +49,6 @@ pipeline {
             }
         }
 
-        stage('ASRC Unit tests') {
-            steps {
-                withTools(params.TOOLS_VERSION) {
-                    sh "mkdir -p build_x86"
-                    sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
-                    sh "cmake --build build_x86 --target test_asrc_div -j8"
-                    //sh "xsim dist/test_asrc_div.xe"
-                    sh "./build_x86/test_asrc_div"
-                }
-            }
-        }
-
         stage('Build tests') {
             steps {
                 script {
@@ -77,6 +65,19 @@ pipeline {
                 // List built files for log
                 sh "ls -la dist_host/"
                 sh "ls -la dist/"
+            }
+        }
+
+        stage('ASRC Unit tests') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    // tools/ci/build_tests.sh does not build for x86
+                    sh "mkdir -p build_x86"
+                    sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
+                    sh "cmake --build build_x86 --target test_asrc_div -j8"
+                    sh "./build_x86/test_asrc_div"
+                    sh "xsim dist/test_asrc_div.xe"
+                }
             }
         }
 
