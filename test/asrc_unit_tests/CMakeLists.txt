@@ -12,15 +12,6 @@ CPMAddPackage(
     GIT_TAG        v2.1.2
   )
 
-## Some of the test applications require the Unity test framework
-CPMAddPackage(
-    NAME unity
-    GIT_REPOSITORY https://github.com/ThrowTheSwitch/Unity.git
-    GIT_TAG        v2.5.2
-    GIT_SHALLOW    TRUE
-    DOWNLOAD_ONLY  TRUE
-  )
-
 set(ASRC_EXAMPLE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../examples/asrc_demo)
 
 add_executable(test_asrc_div
