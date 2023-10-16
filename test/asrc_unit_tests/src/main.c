@@ -45,13 +45,13 @@ void test_float_div(unsigned seed, bool verbose)
 
         if(verbose)
         {
-            printf("float_div: itt %d: res = %.15f. ref = %.15f, rel_error = %.15f, thresh = %.15f \n", itt, dut, ref, rel_error, thresh);
+            printf("float_div: itt %d: dut = %.15f. ref = %.15f, rel_error = %.15f, thresh = %.15f \n", itt, dut, ref, rel_error, thresh);
         }
 
         if(rel_error > thresh)
         {
-            printf("FAIL, test_float_div(): itt %d\n", itt);
-            assert(0);
+            printf("FAIL, test_float_div(): itt %d: dut = %.15f. ref = %.15f, rel_error = %.15f, thresh = %.15f\n", itt, dut, ref, rel_error, thresh);
+            xassert(0);
         }
     }
 }
@@ -78,22 +78,22 @@ void test_div_fixed_output_q_format(unsigned seed, bool verbose)
 
         // float_div_u64_fixed_output_q_format()
         int32_t output_q_format = -float_s32_ref.exp; // To ensure that the division output fits in the given output format
-        uint64_t res_2 = float_div_u64_fixed_output_q_format(dividend, divisor, output_q_format);
-        double dut_2 = ldexp(res_2, -output_q_format);
+        uint64_t res = float_div_u64_fixed_output_q_format(dividend, divisor, output_q_format);
+        double dut = ldexp(res, -output_q_format);
 
-        double abs_diff = fabs(ref - dut_2);
+        double abs_diff = fabs(ref - dut);
         double rel_error = fabs(abs_diff/(ref + ldexp(1, -40)));
         double thresh = ldexp(1, -31);
 
         if(verbose)
         {
-            printf("float_div_u64_fixed_output_q_format: itt %d: res = %.15f. ref = %.15f, rel_error = %.15f, thresh = %.15f \n", itt, dut_2, ref, rel_error, thresh);
+            printf("float_div_u64_fixed_output_q_format: itt %d: res = %.15f. ref = %.15f, rel_error = %.15f, thresh = %.15f \n", itt, dut, ref, rel_error, thresh);
         }
 
         if(rel_error > thresh)
         {
-            printf("FAIL test_div_fixed_output_q_format(): itt %d\n", itt);
-            assert(0);
+            printf("FAIL, test_div_fixed_output_q_format(): itt %d: dut = %.15f. ref = %.15f, rel_error = %.15f, thresh = %.15f\n", itt, dut, ref, rel_error, thresh);
+            xassert(0);
         }
     }
 }

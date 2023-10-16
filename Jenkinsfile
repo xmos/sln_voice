@@ -44,6 +44,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                runningOn(env.NODE_NAME)
                 checkout scm
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
@@ -75,7 +76,9 @@ pipeline {
                     sh "mkdir -p build_x86"
                     sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
                     sh "cmake --build build_x86 --target test_asrc_div -j8"
+                    // x86 build
                     sh "./build_x86/test_asrc_div"
+                    // xcore build
                     sh "xsim dist/test_asrc_div.xe"
                 }
             }
@@ -92,8 +95,6 @@ pipeline {
                             sh './run.sh'
                         }
                     }
-                    sh "xsim dist/test_asrc_div.xe"
-                    sh "./dist_x86/test_asrc_div"
                 }
             }
         }
