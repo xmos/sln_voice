@@ -2,6 +2,8 @@
 
 set(ASRC_EXAMPLE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../examples/asrc_demo)
 
+set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE INTERNAL "")
+
 add_executable(test_asrc_div
     ${CMAKE_CURRENT_LIST_DIR}/src/main.c
     ${CMAKE_CURRENT_LIST_DIR}/src/pseudo_rand.c
@@ -26,15 +28,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
             "-target=XCORE-AI-EXPLORER"
             "-report")
 else()
-    # xcore_math is not built as part of sln_voice x86 build so get it separately
-    include ( ${CMAKE_CURRENT_LIST_DIR}/CPM.cmake)
-
-    CPMAddPackage(
-        NAME lib_xcore_math
-        GIT_REPOSITORY https://github.com/xmos/lib_xcore_math
-        GIT_TAG        v2.1.2
-    )
-
     target_link_libraries(test_asrc_div
         PRIVATE m)
     target_compile_definitions(test_asrc_div PRIVATE X86_BUILD=1)
