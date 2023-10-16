@@ -1,20 +1,17 @@
-@Library('xmos_jenkins_shared_library@v0.20.0') _
+@Library('xmos_jenkins_shared_library@v0.28.0') _
 
 getApproval()
 
 pipeline {
     agent {
-        label 'xcore.ai'
+        label 'xcore.ai && vrd'
     }
     options {
         disableConcurrentBuilds()
         skipDefaultCheckout()
         timestamps()
         // on develop discard builds after a certain number else keep forever
-        buildDiscarder(logRotator(
-            numToKeepStr:         env.BRANCH_NAME ==~ /develop/ ? '25' : '',
-            artifactNumToKeepStr: env.BRANCH_NAME ==~ /develop/ ? '25' : ''
-        ))
+        buildDiscarder(xmosDiscardBuildSettings())
     }
     parameters {
         string(
@@ -245,10 +242,10 @@ pipeline {
     }
     post {
         cleanup {
-            // cleanWs removes all output and artifacts of the Jenkins pipeline
+            // xcoreCleanSandbox removes all output and artifacts of the Jenkins pipeline
             //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent.
             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
-            cleanWs()
+            xcoreCleanSandbox()
         }
     }
 }
