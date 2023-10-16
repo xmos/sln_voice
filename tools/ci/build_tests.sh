@@ -18,14 +18,6 @@ if [ -d "${DIST_HOST_DIR}" ]; then
     find ${DIST_HOST_DIR} -type f -exec chmod a+x {} +
 fi
 
-# build the one test that also runs on x86
-DIST_DIR_X86=${XCORE_VOICE_ROOT}/dist_x86
-mkdir -p ${DIST_DIR_X86}
-path="${XCORE_VOICE_ROOT}"
-(cd ${path}; mkdir -p build_x86)
-(cd ${path}/build_x86 ; log_errors cmake ../ -G "$CI_CMAKE_GENERATOR" -DXCORE_VOICE_TESTS=1 ; make test_asrc_div)
-(cd ${path}/build_x86; cp test_asrc_div ${DIST_DIR_X86}/test_asrc_div)
-
 # setup configurations
 # row format is: "name app_target run_data_partition_target flag BOARD toolchain"
 tests=(

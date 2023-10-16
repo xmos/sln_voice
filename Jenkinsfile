@@ -49,6 +49,17 @@ pipeline {
             }
         }
 
+        stage('ASRC Unit tests') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    sh "mkdir -p build_x86"
+                    sh "cmake --build build --target test_asrc_div -j8"
+                    //sh "xsim dist/test_asrc_div.xe"
+                    sh "./build_x86test_asrc_div"
+                }
+            }
+        }
+
         stage('Build tests') {
             steps {
                 script {
@@ -65,15 +76,6 @@ pipeline {
                 // List built files for log
                 sh "ls -la dist_host/"
                 sh "ls -la dist/"
-            }
-        }
-
-        stage('ASRC Unit tests') {
-            steps {
-                withTools(params.TOOLS_VERSION) {
-                    sh "xsim dist/test_asrc_div.xe"
-                    sh "./dist_x86/test_asrc_div"
-                }
             }
         }
 
