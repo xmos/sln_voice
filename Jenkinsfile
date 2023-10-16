@@ -182,9 +182,9 @@ pipeline {
                 expression { params.NIGHTLY_TEST_ONLY == true }
             }
             steps {
-                sh "cp -r /projects_us/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
+                sh "cp -r /projects/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
                 sh "ls -la $PIPELINE_TEST_VECTORS"
-                sh "cp -r /projects_us/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
+                sh "cp -r /projects/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
                 sh "ls -la $ASR_TEST_VECTORS"
             }
         }
