@@ -84,12 +84,12 @@ pipeline {
             }
         }
 
+
         stage('ASRC Simulator') {
             steps {
                 withTools(params.TOOLS_VERSION) {
                     dir("test/asrc_sim") {
-                        sh "pyenv install -s $PYTHON_VERSION"
-                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                        createVenv('requirements.txt')
                         withVenv {
                             sh "pip install -r ./requirements.txt"
                             sh './run.sh'
@@ -106,8 +106,7 @@ pipeline {
             }
             steps {
                 // Create venv
-                sh "pyenv install -s $PYTHON_VERSION"
-                sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                createVenv('test/requirements.txt')
                 // Install dependencies
                 withVenv() {
                     sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
