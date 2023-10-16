@@ -2,14 +2,15 @@
 #define DIV_H
 
 #include <stdint.h>
-#if __xcore__
-#include "xmath/xmath.h"
+
+#if XCORE_MATH_NOT_INCLUDED // Simulator does not include lib_xcore_math
+    typedef int exponent_t;
+    typedef struct {
+        int32_t mant;       ///< 32-bit mantissa
+        exponent_t exp;     ///< exponent
+    } float_s32_t;
 #else
-typedef int exponent_t;
-typedef struct {
-    int32_t mant;       ///< 32-bit mantissa
-    exponent_t exp;     ///< exponent
-} float_s32_t;
+    #include "xmath/xmath.h"
 #endif
 
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor);

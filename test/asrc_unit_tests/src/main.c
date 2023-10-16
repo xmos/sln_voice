@@ -3,10 +3,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
-#include <platform.h>
-#include <xs1.h>
-#include <xcore/assert.h>
 
+#if !X86_BUILD
+    #include <platform.h>
+    #include <xs1.h>
+    #include <xcore/assert.h>
+#else
+    #include <assert.h>
+    #define xassert assert
+#endif
+#include <xmath/xmath.h>
 #include "pseudo_rand.h"
 #include "div.h"
 

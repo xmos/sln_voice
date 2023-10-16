@@ -58,6 +58,8 @@ target_link_libraries(usb_in_i2s_out
 
 target_link_libraries(usb_in_i2s_out SystemC::systemc asrc_c_emulator_lib )
 
+target_compile_definitions(usb_in_i2s_out PRIVATE XCORE_MATH_NOT_INCLUDED=1)
+
 
 ## i2s_in_usb_out
 add_executable(i2s_in_usb_out
@@ -87,3 +89,5 @@ target_link_libraries(i2s_in_usb_out
 )
 
 target_link_libraries(i2s_in_usb_out SystemC::systemc asrc_c_emulator_lib )
+
+target_compile_definitions(i2s_in_usb_out PRIVATE XCORE_MATH_NOT_INCLUDED=1)
