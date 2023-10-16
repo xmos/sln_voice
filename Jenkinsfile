@@ -1,5 +1,10 @@
 @Library('xmos_jenkins_shared_library@v0.20.0') _
 
+def runningOn(machine) {
+  println "Stage running on:"
+  println machine
+}
+
 getApproval()
 
 pipeline {

@@ -27,7 +27,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
             "-report")
 else()
     # xcore_math is not built as sln_voice x86 build so get it separately
-    include ( ${CMAKE_CURRENT_LIST_DIR}/cpm.cmake)
+    include ( ${CMAKE_CURRENT_LIST_DIR}/CPM.cmake)
 
     CPMAddPackage(
         NAME lib_xcore_math
