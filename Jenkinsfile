@@ -53,7 +53,7 @@ pipeline {
             steps {
                 withTools(params.TOOLS_VERSION) {
                     sh "mkdir -p build_x86"
-                    cmake -B build_x86 -DXCORE_VOICE_TESTS=ON
+                    sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
                     sh "cmake --build build_x86 --target test_asrc_div -j8"
                     //sh "xsim dist/test_asrc_div.xe"
                     sh "./build_x86/test_asrc_div"
