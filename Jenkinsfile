@@ -43,24 +43,7 @@ pipeline {
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }
-        stage('ASRC Simulator') {
-            steps {
-                withTools(params.TOOLS_VERSION) {
-                    dir("test/asrc_sim") {
-                        sh "pyenv install -s $PYTHON_VERSION"
-                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
-                        withVenv {
-                            sh "pip install -r ./requirements.txt"
-                            sh './run.sh'
-                        }
-                    }
-                    sh "mkdir -p build"
-                    dir("build") {
-                        sh "cmake -S.. -DCMAKE_TOOLCHAIN_FILE=../xmos_cmake_toolchain/xs3a.cmake -DXCORE_VOICE_TESTS=ON"
-                    }
-                }
-            }
-        }
+
         stage('Build tests') {
             steps {
                 script {
@@ -77,6 +60,25 @@ pipeline {
                 // List built files for log
                 sh "ls -la dist_host/"
                 sh "ls -la dist/"
+            }
+        }
+
+        stage('ASRC Simulator') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    dir("test/asrc_sim") {
+                        sh "pyenv install -s $PYTHON_VERSION"
+                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                        withVenv {
+                            sh "pip install -r ./requirements.txt"
+                            sh './run.sh'
+                        }
+                    }
+                    sh "mkdir -p build"
+                    dir("build") {
+                        sh "cmake -S.. -DCMAKE_TOOLCHAIN_FILE=../xmos_cmake_toolchain/xs3a.cmake -DXCORE_VOICE_TESTS=ON"
+                    }
+                }
             }
         }
 

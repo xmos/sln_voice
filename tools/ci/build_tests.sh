@@ -21,6 +21,7 @@ fi
 # setup configurations
 # row format is: "name app_target run_data_partition_target flag BOARD toolchain"
 tests=(
+    "test_asrc_div   test_asrc_div   NONE   NONE   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
     "test_ffva_dfu   example_ffva_ua_adec_altarch   example_ffva_ua_adec_altarch   NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_pipeline_ffd   test_pipeline_ffd   NONE   TEST_PIPELINE=FFD   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_pipeline_ffva_adec_altarch   test_pipeline_ffva_adec_altarch   NONE   TEST_PIPELINE=FFVA_ALT_ARCH   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
@@ -29,7 +30,6 @@ tests=(
     "test_ffva_verbose_output   example_ffva_ua_adec_altarch   example_ffva_ua_adec_altarch   DEBUG_FFVA_USB_VERBOSE_OUTPUT=1   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_ffd_gpio   test_ffd_gpio   NONE   NONE   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
     "test_ffd_low_power_audio_buffer   test_ffd_low_power_audio_buffer   NONE   NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
-    "asrc_unit_tests   asrc_unit_tests   NONE   NONE   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds
@@ -70,3 +70,11 @@ for ((i = 0; i < ${#tests[@]}; i += 1)); do
         fi
     fi
 done
+
+# build the one test that also runs on x86
+DIST_DIR_X86=${XCORE_VOICE_ROOT}/dist_x86
+mkdir -p ${DIST_DIR_X86}
+path="${XCORE_VOICE_ROOT}"
+(cd ${path}; mkdir -p build_x86)
+(cd ${path}/build_x86 ; log_errors cmake -S.. - -DXCORE_VOICE_TESTS=1 ; make test_asrc_div)
+(cd ${path}/build_x86; cp test_asrc_div ${DIST_DIR_X86}/test_asrc_div)
