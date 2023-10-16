@@ -54,6 +54,10 @@ pipeline {
                             sh './run.sh'
                         }
                     }
+                    sh "mkdir -p build"
+                    dir("build") {
+                        sh "cmake -S.. -DCMAKE_TOOLCHAIN_FILE=../xmos_cmake_toolchain/xs3a.cmake -DXCORE_VOICE_TESTS=ON"
+                    }
                 }
             }
         }
