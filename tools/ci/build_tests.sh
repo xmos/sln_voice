@@ -29,6 +29,7 @@ tests=(
     "test_ffva_verbose_output   example_ffva_ua_adec_altarch   example_ffva_ua_adec_altarch   DEBUG_FFVA_USB_VERBOSE_OUTPUT=1   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
     "test_ffd_gpio   test_ffd_gpio   NONE   NONE   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
     "test_ffd_low_power_audio_buffer   test_ffd_low_power_audio_buffer   NONE   NONE   XK_VOICE_L71   xmos_cmake_toolchain/xs3a.cmake"
+    "asrc_unit_tests   asrc_unit_tests   NONE   NONE   XCORE_AI_EXPLORER   xmos_cmake_toolchain/xs3a.cmake"
 )
 
 # perform builds
