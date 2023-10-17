@@ -2,7 +2,7 @@
 
 set(ASRC_EXAMPLE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../examples/asrc_demo)
 
-set(CMAKE_OSX_ARCHITECTURES "x86_64" CACHE INTERNAL "")
+set(CMAKE_OSX_ARCHITECTURES "" CACHE INTERNAL "")
 
 add_executable(test_asrc_div
     ${CMAKE_CURRENT_LIST_DIR}/src/main.c
