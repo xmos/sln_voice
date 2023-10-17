@@ -1,4 +1,9 @@
-@Library('xmos_jenkins_shared_library@v0.20.0') _
+@Library('xmos_jenkins_shared_library@v0.27.0') _
+
+def runningOn(machine) {
+  println "Stage running on:"
+  println machine
+}
 
 getApproval()
 
@@ -29,7 +34,6 @@ pipeline {
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
-        PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
@@ -39,24 +43,12 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
+                runningOn(env.NODE_NAME)
                 checkout scm
                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
             }
         }
-        stage('ASRC Simulator') {
-            steps {
-                withTools(params.TOOLS_VERSION) {
-                    dir("test/asrc_sim") {
-                        sh "pyenv install -s $PYTHON_VERSION"
-                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
-                        withVenv {
-                            sh "pip install -r ./requirements.txt"
-                            sh './run.sh'
-                        }
-                    }
-                }
-            }
-        }
+
         stage('Build tests') {
             steps {
                 script {
@@ -76,6 +68,36 @@ pipeline {
             }
         }
 
+        stage('ASRC Unit tests') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    // tools/ci/build_tests.sh does not build for x86
+                    sh "mkdir -p build_x86"
+                    sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
+                    sh "cmake --build build_x86 --target test_asrc_div -j8"
+                    // x86 build
+                    sh "./build_x86/test_asrc_div"
+                    // xcore build
+                    sh "xsim dist/test_asrc_div.xe"
+                }
+            }
+        }
+
+
+        stage('ASRC Simulator') {
+            steps {
+                withTools(params.TOOLS_VERSION) {
+                    dir("test/asrc_sim") {
+                        createVenv('requirements.txt')
+                        withVenv {
+                            sh "pip install -r ./requirements.txt"
+                            sh './run.sh'
+                        }
+                    }
+                }
+            }
+        }
+
 
         stage('Create virtual environment') {
             when {
@@ -83,8 +105,7 @@ pipeline {
             }
             steps {
                 // Create venv
-                sh "pyenv install -s $PYTHON_VERSION"
-                sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                createVenv('test/requirements.txt')
                 // Install dependencies
                 withVenv() {
                     sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
