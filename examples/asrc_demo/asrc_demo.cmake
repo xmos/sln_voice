@@ -1,10 +1,11 @@
 #**********************
 # Gather Sources
 #**********************
-file(GLOB APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/src/usb/*.c ${CMAKE_CURRENT_LIST_DIR}/src/gpio_test/*.c)
+file(GLOB APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/src/usb/*.c ${CMAKE_CURRENT_LIST_DIR}/src/gpio_test/*.c ${CMAKE_CURRENT_LIST_DIR}/src/shared/*.c)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
+    ${CMAKE_CURRENT_LIST_DIR}/src/shared
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)

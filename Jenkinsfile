@@ -9,7 +9,7 @@ pipeline {
         skipDefaultCheckout()
         timestamps()
         buildDiscarder(xmosDiscardBuildSettings(onlyArtifacts=false))
-    }    
+    }
 
     parameters {
         string(
@@ -24,7 +24,6 @@ pipeline {
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
-        PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         XMOSDOC_VERSION = 'v4.0'
@@ -49,12 +48,27 @@ pipeline {
                                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
                             }
                         }
+                        stage('ASRC Unit tests') {
+                            steps {
+                                withTools(params.TOOLS_VERSION) {
+                                    // tools/ci/build_tests.sh does not build for x86
+                                    sh "mkdir -p build_x86"
+                                    sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
+                                    sh "cmake --build build_x86 --target test_asrc_div -j8"
+                                    // x86 build
+                                    sh "./build_x86/test_asrc_div"
+                                    // xcore build
+                                    sh "xsim dist/test_asrc_div.xe"
+                                }
+                            }
+                        }
+
+
                         stage('ASRC Simulator') {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
                                     dir("test/asrc_sim") {
-                                        sh "pyenv install -s $PYTHON_VERSION"
-                                        sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                                        createVenv('requirements.txt')
                                         withVenv {
                                             sh "pip install -r ./requirements.txt"
                                             sh './run.sh'
@@ -250,7 +264,7 @@ pipeline {
                     post {
                         cleanup {
                             // xcoreCleanSandbox removes all output and artifacts of the Jenkins pipeline
-                            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent. 
+                            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent.
                             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
                             xcoreCleanSandbox()
                         }
