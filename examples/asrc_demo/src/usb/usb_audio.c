@@ -370,7 +370,7 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
     size_t usb_audio_in_size_bytes = frame_count * num_chans * sizeof(samp_t);
 
-    usb_to_i2s_rate_info_t usb_rate_info;
+    usb_rate_info_t usb_rate_info;
     usb_rate_info.mic_itf_open = mic_interface_open;
     usb_rate_info.spkr_itf_open = spkr_interface_open;
     usb_rate_info.samples_to_host_buf_fill_level = 0;
