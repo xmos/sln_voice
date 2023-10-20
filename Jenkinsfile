@@ -48,6 +48,25 @@ pipeline {
                                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
                             }
                         }
+                        stage('Build tests') {
+                            steps {
+                                script {
+                                    uid = sh(returnStdout: true, script: 'id -u').trim()
+                                    gid = sh(returnStdout: true, script: 'id -g').trim()
+                                }
+                                // pull docker images
+                                sh "docker pull ghcr.io/xmos/xcore_builder:latest"
+                                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
+                                // host apps
+                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
+                                // test firmware and filesystems
+                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
+                                // List built files for log
+                                sh "ls -la dist_host/"
+                                sh "ls -la dist/"
+                            }
+                        }
+
                         stage('ASRC Unit tests') {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -75,24 +94,6 @@ pipeline {
                                         }
                                     }
                                 }
-                            }
-                        }
-                        stage('Build tests') {
-                            steps {
-                                script {
-                                    uid = sh(returnStdout: true, script: 'id -u').trim()
-                                    gid = sh(returnStdout: true, script: 'id -g').trim()
-                                }
-                                // pull docker images
-                                sh "docker pull ghcr.io/xmos/xcore_builder:latest"
-                                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
-                                // host apps
-                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
-                                // test firmware and filesystems
-                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
-                                // List built files for log
-                                sh "ls -la dist_host/"
-                                sh "ls -la dist/"
                             }
                         }
                         stage('Create virtual environment') {
