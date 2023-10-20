@@ -29,7 +29,7 @@ USB Driver components
 =====================
 
 This application presents a stereo, 48KHz, 32bit, high-speed, adaptive UAC2.0 USB interface.
-It has 3 endpoints, endpoint 0 for control and endpoint 1 IN/OUT for bidirectional isochronous USB audio.
+It has 2 endpoints, endpoint 0 for control and endpoint 1 for bidirectional isochronous USB audio.
 The USB application level driver is `TinyUSB <https://docs.tinyusb.org/en/latest/>`_ based.
 
 The **usb_xud_thread**, **usb_isr**, **usb_task** and **usb_adaptive_clk_manager** implement the USB driver.
@@ -143,7 +143,7 @@ Of the above, the USB related information (2, 3, 5 and 6 above) are available on
         float_s32_t usb_data_rate;
         bool mic_itf_open;
         bool spkr_itf_open;
-    }usb_to_i2s_rate_info_t;
+    }usb_rate_info_t;
 
 
 The |I2S| related information (1 and 4 above) is calculated in the rate_server itself with information available for calculating these available through shared memory from other tasks on this tile.
