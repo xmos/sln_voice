@@ -81,3 +81,50 @@ The application uses 3 intertile contexts for cross tile communication.
 
 CPU
 ===
+
+Profiling the CPU usage for this application using an RTOS friendly profiling tool is still TBD.
+However, I have profiled some application tasks as well as gathered some already existing profiling numbers for the drivers and listed them in the table below.
+Each tile has 5 bare-metal cores being used for running RTOS tasks so each core has a fixed bandwidth of 120MHz available.
+
+Tile 0
+------
+
+.. list-table:: Tile 0 tasks MIPS
+   :widths: 50 50
+   :header-rows: 1
+   :align: left
+
+   * - RTOS Task
+     - MIPS
+   * - XUD
+     - 120 (from :ref:`table-CPU-sln-voice`)
+   * - ASRC in the USB -> ASRC -> |I2S| path for the worst case of 48KHz to 192KHz upsampling
+     - 85
+   * - usb_task
+     - 24
+   * - i2s_to_usb_intertile
+     - 14
+
+
+
+Tile 1
+------
+
+.. list-table:: Tile 1 tasks MIPS
+   :widths: 50 50
+   :header-rows: 1
+   :align: left
+
+   * - RTOS Task
+     - MIPS
+   * - |I2S| Slave
+     - 96 (from :ref:`table-CPU-sln-voice`)
+   * - ASRC in the |I2S| -> ASRC -> USB path for the worst case of 192KHz to 48KHz downsampling
+     - 75
+   * - usb_to_i2s_intertile
+     - 0.7
+   * - rate_server
+     - 19
+
+
+

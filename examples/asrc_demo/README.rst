@@ -131,7 +131,6 @@ files, you may just type:
 ::
 
    $ ninja example_asrc_demo.xe -j
-   $ ninja example_mic_aggregator_usb.xe -j
 
 ``cmake`` needs to be rerun to discover any new source files added.
 
@@ -165,4 +164,3 @@ the system for the new rate.
 
 
 |newpage|
-
