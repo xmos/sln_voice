@@ -9,7 +9,8 @@ pipeline {
         skipDefaultCheckout()
         timestamps()
         buildDiscarder(xmosDiscardBuildSettings(onlyArtifacts=false))
-    }    
+    }
+
     parameters {
         string(
             name: 'TOOLS_VERSION',
@@ -19,12 +20,13 @@ pipeline {
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
             defaultValue: false,
             description: 'Tests that only run during nightly builds.')
-    }    
+    }
     environment {
-        PYTHON_VERSION = "3.8.11"
+        REPO = 'sln_voice'
+        VIEW = getViewName(REPO)
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
-        XMOSDOC_VERSION = 'pr-67'
+        XMOSDOC_VERSION = 'v4.0'
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
         PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
         ASR_TEST_VECTORS = "asr_test_vectors"
@@ -44,6 +46,35 @@ pipeline {
                             steps {
                                 checkout scm
                                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
+                            }
+                        }
+                        stage('ASRC Unit tests') {
+                            steps {
+                                withTools(params.TOOLS_VERSION) {
+                                    // tools/ci/build_tests.sh does not build for x86
+                                    sh "mkdir -p build_x86"
+                                    sh "cmake -B build_x86 -DXCORE_VOICE_TESTS=ON"
+                                    sh "cmake --build build_x86 --target test_asrc_div -j8"
+                                    // x86 build
+                                    sh "./build_x86/test_asrc_div"
+                                    // xcore build
+                                    sh "xsim dist/test_asrc_div.xe"
+                                }
+                            }
+                        }
+
+
+                        stage('ASRC Simulator') {
+                            steps {
+                                withTools(params.TOOLS_VERSION) {
+                                    dir("test/asrc_sim") {
+                                        createVenv('requirements.txt')
+                                        withVenv {
+                                            sh "pip install -r ./requirements.txt"
+                                            sh './run.sh'
+                                        }
+                                    }
+                                }
                             }
                         }
                         stage('Build tests') {
@@ -233,7 +264,7 @@ pipeline {
                     post {
                         cleanup {
                             // xcoreCleanSandbox removes all output and artifacts of the Jenkins pipeline
-                            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent. 
+                            //   Comment out this post section to leave the workspace which can be useful for running items on the Jenkins agent.
                             //   However, beware that this pipeline will not run if the workspace is not manually cleaned.
                             xcoreCleanSandbox()
                         }
@@ -246,11 +277,11 @@ pipeline {
                             steps {
                                 checkout scm
                                 sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
-                                sh "docker pull ghcr.io/xmos/doc_builder:$XMOSDOC_VERSION"
+                                sh "docker pull ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION"
                                 sh """docker run -u "\$(id -u):\$(id -g)" \
                                         --rm \
                                         -v ${WORKSPACE}:/build \
-                                        ghcr.io/xmos/doc_builder:$XMOSDOC_VERSION -v"""
+                                        ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION -v"""
                                 archiveArtifacts artifacts: 'doc/_build/**', allowEmptyArchive: true
                             }
                         }

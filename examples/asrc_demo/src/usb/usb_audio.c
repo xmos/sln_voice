@@ -49,11 +49,12 @@
 #include "asrc_utils.h"
 #include "rate_server.h"
 #include "dbcalc.h"
-#include "hostactive.h"
+#include "avg_buffer_level.h"
+#include "adaptive_rate_callback.h"
+#include "div.h"
 
 // Audio controls
 // Current states
-
 
 uint32_t sampFreq;
 uint8_t clkValid;
@@ -63,20 +64,22 @@ audio_control_range_4_n_t(1) sampleFreqRng;                                     
 
 static volatile bool mic_interface_open = false;
 static volatile bool spkr_interface_open = false;
+static volatile bool first_frame_after_mic_interface_open = false;
 
 static uint32_t prev_n_bytes_received = 0;
 static bool host_streaming_out = false;
 
-StreamBufferHandle_t samples_to_host_stream_buf;
+static StreamBufferHandle_t samples_to_host_stream_buf;
 static StreamBufferHandle_t samples_from_host_stream_buf;
 static StreamBufferHandle_t rx_buffer;
 static TaskHandle_t usb_audio_out_asrc_handle;
 
-static uint32_t g_usb_to_i2s_rate_ratio = 0;
+static uint64_t g_usb_to_i2s_rate_ratio = 0;
 static uint32_t samples_to_host_stream_buf_size_bytes = 0;
 static bool g_i2s_sr_change_detected = false;
+static bool samples_to_host_buf_ready_to_read = false;
 
-extern float_s32_t g_usb_data_rate[2];
+extern usb_rate_calc_info_t g_usb_rate_calc_info[2];
 
 
 #define USB_FRAMES_PER_ASRC_INPUT_FRAME (USB_TO_I2S_ASRC_BLOCK_LENGTH / (appconfUSB_AUDIO_SAMPLE_RATE / 1000))
@@ -92,17 +95,50 @@ uint32_t get_i2s_nominal_sampling_rate()
     return g_i2s_nominal_sampling_rate;
 }
 
+// GPO related code for setting host active GPO pin
+#define USER_ACTIVE_GPO_PIN (4)
+static port_t host_active_gpo_port = PORT_GPO;
+
+static inline void SetUserHostActive()
+{
+    uint32_t port_val = port_peek(host_active_gpo_port);
+    int bit = USER_ACTIVE_GPO_PIN;
+
+    port_val |= ((unsigned)1 << bit);
+
+    port_out(host_active_gpo_port, port_val);
+    return;
+}
+
+static inline void ClearUserHostActive()
+{
+    uint32_t port_val = port_peek(host_active_gpo_port);
+    int bit = USER_ACTIVE_GPO_PIN;
+
+    port_val &= ~((unsigned)1 << bit);
+
+    port_out(host_active_gpo_port, port_val);
+    return;
+}
+
+static inline void UserHostActive_GPO_Init()
+{
+    // Inititalise host active GPO port
+    port_enable(host_active_gpo_port);
+    ClearUserHostActive(); // Turn host active GPO pin off by default
+}
+
 
 void XUD_UserSuspend(void) __attribute__ ((weak));
 void XUD_UserSuspend(void)
 {
-    UserHostActive(0);
+    ClearUserHostActive();
 }
 
 void XUD_UserResume(void) __attribute__ ((weak));
 void XUD_UserResume(void)
 {
-    UserHostActive(1);
+    SetUserHostActive();
 }
 
 //--------------------------------------------------------------------+
@@ -112,14 +148,14 @@ void XUD_UserResume(void)
 // Invoked when device is mounted
 void tud_mount_cb(void)
 {
-    UserHostActive(1);
+    SetUserHostActive();
     rtos_printf("USB mounted\n");
 }
 
 // Invoked when device is unmounted
 void tud_umount_cb(void)
 {
-    UserHostActive(0);
+    ClearUserHostActive();
     rtos_printf("USB unmounted\n");
 }
 
@@ -221,6 +257,88 @@ typedef int32_t samp_t;
 #endif
 
 
+static inline int32_t get_avg_window_size_log2(uint32_t i2s_rate)
+{
+    // The window size is calculated using the simulation framework to ensure that it is large enough that we get stable windowed averages
+    if((i2s_rate == 192000) || (i2s_rate == 176400))
+    {
+        return 12;
+    }
+    else if((i2s_rate == 96000) || (i2s_rate == 88200))
+    {
+        return 11;
+    }
+    else if((i2s_rate == 48000) || (i2s_rate == 44100))
+    {
+        return 11;
+    }
+    else
+    {
+        xassert(0);
+    }
+    return 0;
+}
+
+
+static inline sw_pll_q24_t get_Kp_for_usb_buffer_control(int32_t nominal_i2s_rate)
+{
+    // The Kp constants are generated using the simulation framework, largely through trial and error, to get values using which
+    // the calculated correction factor stablises the buffer level.
+    sw_pll_q24_t Kp = 0;
+    if(((int)nominal_i2s_rate == (int)44100) || ((int)nominal_i2s_rate == (int)48000))
+    {
+        Kp = KP_USB_BUF_CONTROL_FS48;
+    }
+    else if(((int)nominal_i2s_rate == (int)88200) || ((int)nominal_i2s_rate == (int)96000))
+    {
+        Kp = KP_USB_BUF_CONTROL_FS96;
+    }
+    else if(((int)nominal_i2s_rate == (int)176400) || ((int)nominal_i2s_rate == (int)192000))
+    {
+        Kp = KP_USB_BUF_CONTROL_FS192;
+    }
+    return Kp;
+}
+
+static inline int64_t calc_usb_buffer_based_correction(int32_t nominal_i2s_rate, buffer_calc_state_t *long_term_buf_state, buffer_calc_state_t *short_term_buf_state)
+{
+    sw_pll_q24_t Kp = get_Kp_for_usb_buffer_control(nominal_i2s_rate);
+    int64_t max_allowed_correction = (int64_t)1500 << 32;
+    int64_t total_error = 0;
+
+    // Correct based on short term average only when creeping outside the guard band
+    if(short_term_buf_state->flag_stable_avg == true)
+    {
+        if(short_term_buf_state->avg_buffer_level > 200)
+        {
+            total_error = max_allowed_correction;
+            return total_error;
+        }
+        else if(short_term_buf_state->avg_buffer_level < -200)
+        {
+            total_error = -(max_allowed_correction);
+            return total_error;
+        }
+    }
+    if(long_term_buf_state->flag_stable_avg == true)
+    {
+        int64_t error_p = ((int64_t)Kp * (int64_t)(long_term_buf_state->avg_buffer_level - long_term_buf_state->stable_avg_level));
+
+        total_error = (int64_t)(error_p << 8);
+        if(total_error > max_allowed_correction)
+        {
+            total_error = max_allowed_correction;
+        }
+        else if(total_error < -(max_allowed_correction))
+        {
+            total_error = -(max_allowed_correction);
+        }
+    }
+
+    return total_error;
+
+}
+
 void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved samples [samps][ch] format
                     size_t frame_count,
                     size_t num_chans)
@@ -229,6 +347,11 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     static int32_t prev_i2s_sampling_rate = 0;
     static uint32_t num_samples_to_host_buf_writes = 0;
     static uint32_t num_dummy_writes = 0;
+    static buffer_calc_state_t long_term_buf_state;
+    static buffer_calc_state_t short_term_buf_state;
+#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
+    static uint32_t prev_ts = 0;
+#endif
 
     samp_t usb_audio_in_frame[I2S_TO_USB_ASRC_BLOCK_LENGTH * 2][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 #if CFG_TUD_AUDIO_FUNC_1_N_BYTES_PER_SAMPLE_TX == 2
@@ -250,9 +373,8 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     usb_to_i2s_rate_info_t usb_rate_info;
     usb_rate_info.mic_itf_open = mic_interface_open;
     usb_rate_info.spkr_itf_open = spkr_interface_open;
-    usb_rate_info.usb_data_rate[TUSB_DIR_IN] = g_usb_data_rate[TUSB_DIR_IN];
-    usb_rate_info.usb_data_rate[TUSB_DIR_OUT] = g_usb_data_rate[TUSB_DIR_OUT];
     usb_rate_info.samples_to_host_buf_fill_level = 0;
+    usb_rate_info.buffer_based_correction = (int64_t)0;
 
     bool intertile_send = false;
     if (usb_rate_info.mic_itf_open)
@@ -261,6 +383,12 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
 
         if((prev_i2s_sampling_rate != current_i2s_rate) && (current_i2s_rate != 0))
         {
+            // The window size and buffer_level_stable_threahold are calculated using the simulation
+            // framework to ensure that they are large enough that we get stable windowed averages
+            int32_t window_len_log2 = get_avg_window_size_log2(current_i2s_rate);
+            init_calc_buffer_level_state(&long_term_buf_state, window_len_log2, 4);
+            init_calc_buffer_level_state(&short_term_buf_state, 9, 4);
+
             rtos_printf("I2S SR change detected in usb_audio_send(). prev SR %d, new SR %d\n", prev_i2s_sampling_rate, current_i2s_rate);
             // Set this flag and wait for it to be cleared from tud_audio_tx_done_pre_load_cb(), which it will, after resetting the samples_to_host_stream_buf. We wait
             // for g_i2s_sr_change_detected to be False before starting to write in the samples_to_host_stream_buf.
@@ -276,11 +404,23 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
             {
                 xStreamBufferSend(samples_to_host_stream_buf, usb_audio_in_frame, usb_audio_in_size_bytes, 0);
 
+                int32_t usb_buffer_level_from_half = (int32_t)((int32_t)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2)) / (int32_t)8;    //Level w.r.t. half full in samples
+
+                calc_avg_buffer_level(&long_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read); // Keep resetting the buffer state till samples_to_host_buf_ready_to_read is true, i.e we start reading out of the samples_to_host buffer
+                calc_avg_buffer_level(&short_term_buf_state, usb_buffer_level_from_half, !samples_to_host_buf_ready_to_read);
+
                 num_samples_to_host_buf_writes += 1;
                 if(num_samples_to_host_buf_writes % RATE_MONITOR_TRIGGER_INTERVAL == 0)
                 {
-                    int usb_buffer_level_from_half = (signed)xStreamBufferBytesAvailable(samples_to_host_stream_buf) - (samples_to_host_stream_buf_size_bytes / 2);    //Level w.r.t. half full
+#if CHECK_SAMPLES_TO_HOST_BUF_WRITE_TIME
+                    uint32_t ts = get_reference_time();
+                    usb_rate_info.samples_to_host_buf_write_time = (ts - prev_ts);
+                    prev_ts = ts;
+                    printuintln(usb_rate_info.samples_to_host_buf_write_time);
+
+#endif
                     usb_rate_info.samples_to_host_buf_fill_level = usb_buffer_level_from_half;
+                    usb_rate_info.buffer_based_correction = calc_usb_buffer_based_correction(current_i2s_rate, &long_term_buf_state, &short_term_buf_state);
                     intertile_send = true; // Trigger rate monitoring on the other tile
                 }
             }
@@ -300,6 +440,16 @@ void usb_audio_send(int32_t *frame_buffer_ptr, // buffer containing interleaved 
     }
     if(intertile_send == true)
     {
+        usb_rate_info.usb_data_rate = (float_s32_t){0,0};
+        if((usb_rate_info.spkr_itf_open) && (g_usb_rate_calc_info[TUSB_DIR_OUT].total_ticks != 0)) // Calculate rate from the TUSB_DIR_OUT if spkr_itf is open otherwise calculate from the TUSB_DIR_IN direction
+        {
+            usb_rate_info.usb_data_rate = float_div((float_s32_t){g_usb_rate_calc_info[TUSB_DIR_OUT].total_data_samples, 0}, (float_s32_t){g_usb_rate_calc_info[TUSB_DIR_OUT].total_ticks, 0});
+        }
+        else if(usb_rate_info.mic_itf_open && g_usb_rate_calc_info[TUSB_DIR_IN].total_ticks != 0)
+        {
+            usb_rate_info.usb_data_rate = float_div((float_s32_t){g_usb_rate_calc_info[TUSB_DIR_IN].total_data_samples, 0}, (float_s32_t){g_usb_rate_calc_info[TUSB_DIR_IN].total_ticks, 0});
+        }
+
         i2s_to_usb_rate_info_t i2s_rate_info;
         size_t bytes_received;
 
@@ -385,7 +535,7 @@ void usb_audio_out_asrc(void *arg)
 
     fs_code_t in_fs_code;
     fs_code_t out_fs_code;
-    unsigned nominal_fs_ratio;
+    uint64_t nominal_fs_ratio;
 #if PROFILE_ASRC
     uint32_t max_time = 0;
 #endif
@@ -415,7 +565,7 @@ void usb_audio_out_asrc(void *arg)
         if (asrc_init_ctx.fs_out != current_i2s_rate)
         {
             // Time to initialise asrc
-            g_usb_to_i2s_rate_ratio = 0;
+            g_usb_to_i2s_rate_ratio = (uint64_t)0;
             asrc_init_ctx.fs_out = current_i2s_rate;
             in_fs_code = samp_rate_to_code(asrc_init_ctx.fs_in); // Sample rate code 0..5
             out_fs_code = samp_rate_to_code(asrc_init_ctx.fs_out);
@@ -428,8 +578,8 @@ void usb_audio_out_asrc(void *arg)
             continue;
         }
 
-        uint32_t current_rate_ratio = nominal_fs_ratio;
-        if(g_usb_to_i2s_rate_ratio != 0)
+        uint64_t current_rate_ratio = nominal_fs_ratio;
+        if(g_usb_to_i2s_rate_ratio != (uint64_t)0)
         {
             current_rate_ratio = g_usb_to_i2s_rate_ratio;
         }
@@ -451,7 +601,7 @@ void usb_audio_out_asrc(void *arg)
         // Send to the other channel ASRC task
         asrc_ctx.input_samples = &usb_audio_out_frame_deinterleaved[1][0];
         asrc_ctx.output_samples = &frame_samples[1][0];
-        asrc_ctx.nominal_fs_ratio = current_rate_ratio;
+        asrc_ctx.fs_ratio = current_rate_ratio;
         asrc_process_frame_ctx_t *ptr = &asrc_ctx;
 
 
@@ -965,11 +1115,9 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     (void)ep_in;
     (void)cur_alt_setting;
 
-    static int ready = 0;
     size_t bytes_available;
     size_t tx_size_bytes;
     size_t tx_size_frames;
-    static bool first_frame_after_mic_interface_open = false;
 
     /*
      * This buffer needs to be large enough to hold any size of transaction,
@@ -1006,7 +1154,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
     else if (!mic_interface_open)
     {
-        ready = 0;
+        samples_to_host_buf_ready_to_read = false;
         first_frame_after_mic_interface_open = true;
     }
 
@@ -1014,7 +1162,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     {
         // Change in I2S sampling rate. Reset the buffer and start from fill level = 0 again
         xStreamBufferReset(samples_to_host_stream_buf);
-        ready = 0;
+        samples_to_host_buf_ready_to_read = false;
         g_i2s_sr_change_detected = false;
         rtos_printf("Resetting samples_to_host_stream_buf due to I2S SR change\n");
     }
@@ -1028,7 +1176,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     if (xStreamBufferIsFull(samples_to_host_stream_buf))
     {
         xStreamBufferReset(samples_to_host_stream_buf);
-        ready = 0;
+        samples_to_host_buf_ready_to_read = false;
         rtos_printf("Oops buffer is full\n");
         return true;
     }
@@ -1037,17 +1185,16 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
 
     if(bytes_available >= samples_to_host_stream_buf_size_bytes/2) // Buffer fill level 0
     {
-        /* wait until we have 2 full audio pipeline output frames in the buffer */
-        if(!ready)
+        if(samples_to_host_buf_ready_to_read == false)
         {
             rtos_printf("READY. Fill level = %d\n", xStreamBufferBytesAvailable(samples_to_host_stream_buf) - samples_to_host_stream_buf_size_bytes/2);
         }
-        ready = 1;
+        samples_to_host_buf_ready_to_read = true;
     }
 
-    if (!ready)
+    if (samples_to_host_buf_ready_to_read == false)
     {
-        rtos_printf("TX BUFFER NOT READY, tx_size_bytes = %d\n", tx_size_bytes);
+        //rtos_printf("TX BUFFER NOT READY, tx_size_bytes = %d\n", tx_size_bytes);
         // we need to send something despite not being fully ready
         //  so, send all zeros
         memset(usb_audio_frames, 0, tx_size_bytes);
@@ -1122,8 +1269,8 @@ bool tud_audio_set_itf_cb(uint8_t rhport,
         /* In case the interface is reset without
          * closing it first */
         mic_interface_open = false;
+        first_frame_after_mic_interface_open = false;
         xStreamBufferReset(samples_to_host_stream_buf);
-        rtos_printf("audio_set_itf: samples_to_host_stream_buf buffer spaces %d\n", xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
     }
 #endif
 
@@ -1149,7 +1296,7 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
     if (itf == ITF_NUM_AUDIO_STREAMING_MIC)
     {
         mic_interface_open = false;
-        rtos_printf("audio_set_itf_close: samples_to_host_stream_buf buffer spaces %d\n", xStreamBufferSpacesAvailable(samples_to_host_stream_buf));
+        first_frame_after_mic_interface_open = false;
     }
 #endif
 
@@ -1169,6 +1316,7 @@ static void i2s_to_usb_intertile(void *args)
     #define BUFFER_SIZE (((I2S_TO_USB_ASRC_BLOCK_LENGTH * 48000)/44100) + 10) // +1 should be enough but just in case
     int32_t i2s_to_usb_samps_interleaved[BUFFER_SIZE][NUM_I2S_CHANS];
     uint32_t i2s_nominal_sampling_rate;
+
 
     for(;;)
     {
@@ -1222,7 +1370,7 @@ void usb_audio_init(rtos_intertile_t *intertile_ctx,
 
     init_volume_multipliers();
 
-    UserHostActive_LED_Init(); // Initialise host active LED GPO port
+    UserHostActive_GPO_Init(); // Initialise host active GPO port
 
     rx_buffer = xStreamBufferCreate(2 * CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ, 0);
 
