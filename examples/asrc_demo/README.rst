@@ -6,14 +6,14 @@ This is the XCORE-VOICE Asynchronous Sampling Rate Converter (ASRC) example desi
 
 The example system implements a stereo I2S slave and a stereo adaptive UAC2.0 interface and exchanges data between the two interfaces.
 Since the two interfaces are operating in different clock domains, there is an ASRC block between them that converts from the input to the output sampling rate.
-There are two ASRC blocks, one in the I2S → ASRC → USB path and the other in the USB → ASRC → I2S path. 
+There are two ASRC blocks, one in the I2S → ASRC → USB path and the other in the USB → ASRC → I2S path.
 
-The application also monitors and computes the instantaneous ratio between the ASRC input and output sampling rate. The rate_ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
+The application also monitors and computes the instantaneous ratio between the ASRC input and output sampling rate. The rate ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
 
 
-The I2S slave interface is a stereo 32bit interface supporting sampling rates between 44.1KHz - 192KHz.
+The I2S slave interface is a stereo 32 bit interface supporting sampling rates between 44.1 kHz - 192 kHz.
 
-The USB interface is a stereo, 32bit, 48KHz, High-Speed, USB Audio Class 2, Adaptive interface.
+The USB interface is a stereo, 32 bit, 48 kHz, High-Speed, USB Audio Class 2, Adaptive interface.
 
 The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_  library is used for the ASRC processing. The ASRC processing is block based and works on a block size of 244 samples per channel in the I2S → ASRC → USB path and 96 samples per channel in the USB → ASRC → I2S path.
 
@@ -155,4 +155,3 @@ rate and streamed out from the device over the I2S slave interface.
 
 This example supports dynamic changes of the I2S interface sampling frequency at runtime. It detects the I2S sampling rate change and reconfigures
 the system for the new rate.
-

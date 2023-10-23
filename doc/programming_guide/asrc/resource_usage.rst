@@ -23,7 +23,7 @@ Tile 1 memory usage in bytes:
 Chanends
 ========
 
-This application uses 19 chanends on the USB tile (tile 0) and 11 chanends on the I2S tile (tile 1)
+This application uses 19 chanends on the USB tile (tile 0) and 11 chanends on the |I2S| tile (tile 1)
 
 The chanend use breakup is as follows:
 
@@ -83,8 +83,8 @@ CPU
 ===
 
 Profiling the CPU usage for this application using an RTOS friendly profiling tool is still TBD.
-However, I have profiled some application tasks as well as gathered some already existing profiling numbers for the drivers and listed them in the table below.
-Each tile has 5 bare-metal cores being used for running RTOS tasks so each core has a fixed bandwidth of 120MHz available.
+However, we have profiled some application tasks as well as gathered some already existing profiling numbers for the drivers and listed them in the table below.
+Each tile has 5 bare-metal cores being used for running RTOS tasks so each core has a fixed bandwidth of 120 MHz available.
 
 Tile 0
 ------
@@ -98,7 +98,7 @@ Tile 0
      - MIPS
    * - XUD
      - 120 (from :ref:`table-CPU-sln-voice`)
-   * - ASRC in the USB -> ASRC -> |I2S| path for the worst case of 48KHz to 192KHz upsampling
+   * - ASRC in the USB -> ASRC -> |I2S| path for the worst case of 48 kHz to 192 kHz upsampling
      - 85
    * - usb_task
      - 24
@@ -119,12 +119,9 @@ Tile 1
      - MIPS
    * - |I2S| Slave
      - 96 (from :ref:`table-CPU-sln-voice`)
-   * - ASRC in the |I2S| -> ASRC -> USB path for the worst case of 192KHz to 48KHz downsampling
+   * - ASRC in the |I2S| -> ASRC -> USB path for the worst case of 192 kHz to 48 kHz downsampling
      - 75
    * - usb_to_i2s_intertile
      - 0.7
    * - rate_server
      - 19
-
-
-

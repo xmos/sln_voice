@@ -8,7 +8,7 @@ The example system implements a stereo |I2S| slave and a stereo adaptive UAC2.0 
 Since the two interfaces are operating in different clock domains, there is an ASRC block between them that converts from the input to the output sampling rate.
 There are two ASRC blocks, one each in the |I2S| → ASRC → USB and USB → ASRC → |I2S| path, as illustrated in the top level system diagram below.
 The diagram also shows the rate calculation path, which monitors and computes the instantaneous ratio between the ASRC input and output sampling rate.
-The rate_ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
+The rate ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
 
 .. figure:: diagrams/asrc_top_level.png
    :align: center
@@ -16,9 +16,9 @@ The rate_ratio is used by the ASRC task to dynamically adapt filter coefficients
    :alt: ASRC example top level system diagram
 
 
-The |I2S| slave interface is a stereo 32bit interface supporting sampling rates between 44.1KHz - 192KHz.
+The |I2S| slave interface is a stereo 32 bit interface supporting sampling rates between 44.1 kHz - 192 kHz.
 
-The USB interface is a stereo, 32bit, 48KHz, High-Speed, USB Audio Class 2, Adaptive interface.
+The USB interface is a stereo, 32 bit, 48 kHz, High-Speed, USB Audio Class 2, Adaptive interface.
 
 The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_ is used for the ASRC processing.
 The ASRC processing is block based and works on a block size of 244 samples per channel in the |I2S| → ASRC → USB path and 96 samples per channel in the USB → ASRC → |I2S| path.
@@ -47,8 +47,9 @@ The table below lists the pins on the XK-VOICE-L71 RPI header and the signals on
      - |I2S| Data IN on the |I2S| master board
    * - 40
      - |I2S| Data OUT on the |I2S| master board
-  * - One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)
+   * - One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)
      - GND on the |I2S| master board
+
 
 
 Obtaining the app files
