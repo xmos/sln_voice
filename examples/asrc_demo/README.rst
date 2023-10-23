@@ -26,6 +26,15 @@ To demonstrate the audio exchange between the I2S and USB interface, the XK-VOIC
 To do this, connect the BCLK, MCLK, DOUT, DIN pins of the RASPBERRY PI HOST INTERFACE header (J4) on the XK-VOICE-L71 to the I2S master.
 The table below lists the pins on the XK-VOICE-L71 RPI header and the signals on the I2S master that they need to be connected to.
 
++------------------------+------------+----------+----------+
+| Header row, column 1   | Header 2   | Header 3 | Header 4 |
+| (header rows optional) |            |          |          |
++========================+============+==========+==========+
+| body row 1, column 1   | column 2   | column 3 | column 4 |
++------------------------+------------+----------+----------+
+| body row 2             | ...        | ...      |          |
++------------------------+------------+----------+----------+
+
 XK-VOICE-L71 PI header pin                              Connect to
 12                                                      BLCK output on the I2S master board
 35                                                      LRCK output on the I2S master board
