@@ -109,7 +109,7 @@ The diagram below shows the application tasks involved in the **|I2S| → ASRC �
    :scale: 80 %
    :alt: ASRC |I2S| → ASRC → USB data path
 
-The diagram below shows the application tasks involved in the **USB → ASRC → |I2S|** path processing and their interaction with each other.
+The diagram below shows the application tasks involved in the USB → ASRC → |I2S| path processing and their interaction with each other.
 
 .. figure:: diagrams/asrc_usb_to_i2s_data_path.png
    :align: center
@@ -121,7 +121,7 @@ The diagram below shows the application tasks involved in the **USB → ASRC →
 
 **rate_server**
 ---------------
-The ASRC ``process_frame`` API requires the caller to calculate and send the instantaneous ratio between the ASRC input and output rate. The rate_server is responsible for calculating these rate ratios for both **USB → ASRC → |I2S|** and **|I2S| → ASRC → USB** directions.
+The ASRC ``process_frame`` API requires the caller to calculate and send the instantaneous ratio between the ASRC input and output rate. The rate_server is responsible for calculating these rate ratios for both USB → ASRC → |I2S| and |I2S| → ASRC → USB directions.
 
 Additionally, the application also monitors the average buffer fill levels of the buffers holding ASRC output to prevent any overflows or underflows of the respective buffer. A gradual drift in the buffer fill level indicates that the rate-ratio is being under or over calculated by the rate_server.
 This could happen either due to jitter in the actual rates or precision limitations when calculating the rates.
@@ -160,8 +160,8 @@ either calculating it or getting it through shared memory from other USB tasks o
 
 The |I2S| related information (1 and 4 above) is calculated in the **rate_server** itself with information available for calculating these available through shared memory from other tasks on this tile.
 
-After calculating the rates, the **rate_server** sends the rate ratio for the **USB → ASRC → |I2S|** side to the **usb_to_i2s_intertile** task over the inter-tile context and it is made available to the
-**usb_audio_out_asrc** task through shared memory. The **|I2S| → ASRC → USB** side rate ratio is also made available to the **i2s_audio_recv_asrc** task that is on the same tile as the rate server through shared memory.
+After calculating the rates, the **rate_server** sends the rate ratio for the USB → ASRC → |I2S| side to the **usb_to_i2s_intertile** task over the inter-tile context and it is made available to the
+**usb_audio_out_asrc** task through shared memory. The |I2S| → ASRC → USB side rate ratio is also made available to the **i2s_audio_recv_asrc** task that is on the same tile as the rate server through shared memory.
 
 The diagram below shows the code flow during the rate ratio calculation process, focussing on the **usb_to_intertile** task that triggers the **rate_server** and the **rate_server** task where the rate ratios are calculated.
 
@@ -185,13 +185,13 @@ Everything described above therefore also applies to the device startup behaviou
 Handling USB speaker interface close -> open event
 ==================================================
 
-When the USB host stops streaming to the device and then starts again, this event is detected and the ASRC output buffer in the **USB → ASRC → |I2S|** path (|I2S| **send_buffer**) is reset.
+When the USB host stops streaming to the device and then starts again, this event is detected and the ASRC output buffer in the USB → ASRC → |I2S| path (|I2S| ``send_buffer``) is reset.
 Zeroes are then sent over |I2S| until the buffer fills to a stable level, at which point we resume streaming out of this buffer to send samples over |I2S|.
 The average buffer calculation state for the |I2S| send_buffer is also reset and a new stable average is calculated against which the average buffer levels are corrected.
 
 Handling USB mic interface close -> open event
 ==============================================
 
-If the USB host stops streaming from the device and then starts again, this event is detected and the ASRC output buffer in the **|I2S| → ASRC → USB** is reset (USB **samples_to_host_streaming_buf**).
+If the USB host stops streaming from the device and then starts again, this event is detected and the ASRC output buffer in the |I2S| → ASRC → USB is reset (USB ``samples_to_host_streaming_buf``).
 Zeroes are streamed to the host until the buffer fills to a stable level, at which point we resume streaming out of this buffer to send samples over USB.
 The average buffer calculation state for the USB samples_to_host_streaming_buf is also reset and a new stable average is calculated against which the average buffer levels are corrected.
