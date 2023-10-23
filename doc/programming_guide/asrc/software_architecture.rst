@@ -7,7 +7,7 @@ The ASRC demo application is a two tile application developed to run on the L71 
 
 It’s a FreeRTOS based application where all the application blocks are implemented as FreeRTOS tasks.
 
-Each tile has 5 bare metal cores dedicated to running RTOS tasks and since there’s nothing that runs outside of the RTOS, there’s 120MHz available per core.
+Each tile has 5 bare metal cores dedicated to running RTOS tasks and since there’s nothing that runs outside of the RTOS, there’s 120 MHz available per core.
 
 
 Task diagram
