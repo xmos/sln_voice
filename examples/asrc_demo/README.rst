@@ -10,44 +10,28 @@ There are two ASRC blocks, one in the I2S → ASRC → USB path and the other in
 
 The application also monitors and computes the instantaneous ratio between the ASRC input and output sampling rate. The rate_ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
 
-.. figure:: diagrams/asrc_top_level.png
-   :align: center
-   :scale: 80 %
-   :alt: ASRC example top level system diagram
 
-
-The |I2S| slave interface is a stereo 32bit interface supporting sampling rates between 44.1KHz - 192KHz.
+The I2S slave interface is a stereo 32bit interface supporting sampling rates between 44.1KHz - 192KHz.
 
 The USB interface is a stereo, 32bit, 48KHz, High-Speed, USB Audio Class 2, Adaptive interface.
 
-The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_  library is used for the ASRC processing. The ASRC processing is block based and works on a block size of 244 samples per channel in the |I2S| → ASRC → USB path and 96 samples per channel in the USB → ASRC → |I2S| path.
+The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_  library is used for the ASRC processing. The ASRC processing is block based and works on a block size of 244 samples per channel in the I2S → ASRC → USB path and 96 samples per channel in the USB → ASRC → I2S path.
 
 Supported Hardware
 ==================
 This example application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
 In addition to the XK-VOICE-L71 board, it requires an XTAG4 to program and debug the device.
 
-To demonstrate the audio exchange between the |I2S| and USB interface, the XK-VOICE-L71 device needs to be connected to an |I2S| master device.
-To do this, connect the BCLK, MCLK, DOUT, DIN pins of the RASPBERRY PI HOST INTERFACE header (J4) on the XK-VOICE-L71 to the |I2S| master.
-The table below lists the pins on the XK-VOICE-L71 RPI header and the signals on the |I2S| master that they need to be connected to.
+To demonstrate the audio exchange between the I2S and USB interface, the XK-VOICE-L71 device needs to be connected to an I2S master device.
+To do this, connect the BCLK, MCLK, DOUT, DIN pins of the RASPBERRY PI HOST INTERFACE header (J4) on the XK-VOICE-L71 to the I2S master.
+The table below lists the pins on the XK-VOICE-L71 RPI header and the signals on the I2S master that they need to be connected to.
 
-.. list-table:: XK-VOICE-L71 RPI host interface header (J4) connections
-   :widths: 30 50
-   :header-rows: 1
-   :align: left
-
-   * - XK-VOICE-L71 PI header pin
-     - Connect to
-   * - 12
-     - BLCK output on the |I2S| master board
-   * - 35
-     - LRCK output on the |I2S| master board
-   * - 38
-     - |I2S| Data IN on the |I2S| master board
-   * - 40
-     - |I2S| Data OUT on the |I2S| master board
-  * - One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)
-     - GND on the |I2S| master board
+XK-VOICE-L71 PI header pin                              Connect to
+12                                                      BLCK output on the I2S master board
+35                                                      LRCK output on the I2S master board
+38                                                      I2S Data IN on the I2S master board
+40                                                      I2S Data OUT on the I2S master board
+One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)    GND on the I2S master board
 
 
 Obtaining the app files
@@ -155,13 +139,11 @@ Optionally, you may use xrun ``--xscope`` to provide debug output.
 Operation
 =========
 
-When the example runs, the audio received by the device on the |I2S| slave interface at the |I2S| interface sampling rate is
+When the example runs, the audio received by the device on the I2S slave interface at the I2S interface sampling rate is
 sample rate converted using the ASRC to the USB sampling rate and streamed out from the device over the USB interface. Similarly,
-the audio streamed out by the USB host into the USB interface of the device is sample rate converted to the |I2S| interface sampling
-rate and streamed out from the device over the |I2S| slave interface.
+the audio streamed out by the USB host into the USB interface of the device is sample rate converted to the I2S interface sampling
+rate and streamed out from the device over the I2S slave interface.
 
-This example supports dynamic changes of the |I2S| interface sampling frequency at runtime. It detects the |I2S| sampling rate change and reconfigures
+This example supports dynamic changes of the I2S interface sampling frequency at runtime. It detects the I2S sampling rate change and reconfigures
 the system for the new rate.
 
-
-|newpage|
