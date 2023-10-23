@@ -26,21 +26,21 @@ To demonstrate the audio exchange between the I2S and USB interface, the XK-VOIC
 To do this, connect the BCLK, MCLK, DOUT, DIN pins of the RASPBERRY PI HOST INTERFACE header (J4) on the XK-VOICE-L71 to the I2S master.
 The table below lists the pins on the XK-VOICE-L71 RPI header and the signals on the I2S master that they need to be connected to.
 
-+------------------------+------------+----------+----------+
-| Header row, column 1   | Header 2   | Header 3 | Header 4 |
-| (header rows optional) |            |          |          |
-+========================+============+==========+==========+
-| body row 1, column 1   | column 2   | column 3 | column 4 |
-+------------------------+------------+----------+----------+
-| body row 2             | ...        | ...      |          |
-+------------------------+------------+----------+----------+
++------------------------+---------------------------------------+
+| XK-VOICE-L71 PI        | Connect to                            |
+| header pin             |                                       |
++========================+=======================================+
+| 12                     | BLCK output on the I2S master board   |
++------------------------+---------------------------------------+
+| 35                     | LRCK output on the I2S master board   |
++------------------------+---------------------------------------+
+| 38                     | I2S Data IN on the I2S master board   |
++------------------------+---------------------------------------+
+| 40                     | I2S Data OUT on the I2S master board  |
++------------------------+---------------------------------------+
 
-XK-VOICE-L71 PI header pin                              Connect to
-12                                                      BLCK output on the I2S master board
-35                                                      LRCK output on the I2S master board
-38                                                      I2S Data IN on the I2S master board
-40                                                      I2S Data OUT on the I2S master board
-One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)    GND on the I2S master board
+In addition to the pins listed above, make sure to connect one of the GND pins, (6, 14, 20, 30, 34, 9, 25 or 39) on the XK-VOICE-L71 PI
+header to the GND on the I2S master board.
 
 
 Obtaining the app files
