@@ -25,10 +25,12 @@ Chanends
 
 This application uses 19 chanends on the USB tile (tile 0) and 11 chanends on the |I2S| tile (tile 1)
 
-The chanend use breakup is as follows:
+The chanend use for both tiles is described in the :ref:`table-tile0-chanend-label` and :ref:`table-tile1-chanend-label` tables.
 
 Tile 0
 ------
+
+.. _table-tile0-chanend-label:
 
 .. list-table:: Tile 0 chanend usage
    :widths: 30 50
@@ -49,6 +51,8 @@ Tile 0
 
 Tile 1
 ------
+
+.. _table-tile1-chanend-label:
 
 .. list-table:: Tile 1 chanend usage
    :widths: 30 50

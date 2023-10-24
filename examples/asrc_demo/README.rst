@@ -57,8 +57,8 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. You should be
-able to see something like this:
+First install and source the XTC version: 15.2.1 tools. The output should be
+something like this:
 
 ::
 
@@ -71,7 +71,7 @@ able to see something like this:
 Linux or Mac
 ------------
 
-To build for the first time you will need to run ``cmake`` to create the
+To build for the first time, run ``cmake`` to create the
 make files:
 
 ::
@@ -81,8 +81,7 @@ make files:
    $ cmake --toolchain ../xmos_cmake_toolchain/xs3a.cmake  ..
    $ make example_asrc_demo -j
 
-Following initial ``cmake`` build, as long as you don’t add new source
-files, you may just type:
+Following initial ``cmake`` build, for subsequent builds, as long as new source files are not added, just type:
 
 ::
 
@@ -103,13 +102,13 @@ To install Ninja, follow these steps:
 -  Download ``ninja.exe`` from
    https://github.com/ninja-build/ninja/releases. This firmware has been
    tested with Ninja version v1.11.1.
--  Ensure Ninja is on the command line path. You can add to the path
+-  Ensure Ninja is on the command line path. It can be added to the path
    permanently by following these steps
-   https://www.computerhope.com/issues/ch000549.htm. Alternatively you
-   may set the path in the current command line session using something
+   https://www.computerhope.com/issues/ch000549.htm. Alternatively,
+   set the path in the current command line session using something
    like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
-To build for the first time you will need to run ``cmake`` to create the
+To build for the first time, run ``cmake`` to create the
 make files:
 
 ::
@@ -119,8 +118,7 @@ make files:
    $ cmake -G "Ninja" --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake ..
    $ ninja example_asrc_demo.xe -j
 
-Following initial ``cmake`` build, as long as you don’t add new source
-files, you may just type:
+Following initial ``cmake`` build, for subsequent builds, as long as new source files are not added, just type:
 
 ::
 
@@ -131,7 +129,7 @@ files, you may just type:
 Running the app
 ===============
 
-To run the app, you can use either xrun or xflash. Connect the explorer board to the host and type:
+To run the app, either xrun or xflash can be used. Connect the XK-VOICE-L71 board to the host and type:
 
 ::
 
@@ -143,7 +141,8 @@ or
 
    $ xflash example_asrc_demo.xe
 
-Optionally, you may use xrun ``--xscope`` to provide debug output.
+Optionally, xrun ``--xscope`` can be used to provide debug output.
+
 
 Operation
 =========
