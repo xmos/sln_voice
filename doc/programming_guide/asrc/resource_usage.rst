@@ -87,11 +87,13 @@ CPU
 ===
 
 Profiling the CPU usage for this application using an RTOS friendly profiling tool is still TBD.
-However, we have profiled some application tasks as well as gathered some already existing profiling numbers for the drivers and listed them in the table below.
+However, profiling some application tasks has taken place. These numbers along with some already existing profiling numbers for the drivers are listed in the :ref:`table-mips-tile0-label` and :ref:`table-mips-tile1-label` tables.
 Each tile has 5 bare-metal cores being used for running RTOS tasks so each core has a fixed bandwidth of 120 MHz available.
 
 Tile 0
 ------
+
+.. _table-mips-tile0-label:
 
 .. list-table:: Tile 0 tasks MIPS
    :widths: 50 50
@@ -110,9 +112,10 @@ Tile 0
      - 14
 
 
-
 Tile 1
 ------
+
+.. _table-mips-tile1-label:
 
 .. list-table:: Tile 1 tasks MIPS
    :widths: 50 50

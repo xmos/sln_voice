@@ -95,7 +95,7 @@ Windows
 It is highly recommended to use ``Ninja`` as the make system under
 ``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
 works around an issue where certain path names may cause an issue with
-the XMOS compiler under windows.
+the XMOS compiler under Windows.
 
 To install Ninja, follow these steps:
 

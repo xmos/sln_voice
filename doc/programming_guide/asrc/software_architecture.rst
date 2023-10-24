@@ -3,7 +3,7 @@
 Software Architecture
 *********************
 
-The ASRC demo application is a two tile application developed to run on the L71 board running at a core frequency of 600 MHz.
+The ASRC demo application is a two tile application developed to run on the XK-VOICE-L71 board running at a core frequency of 600 MHz.
 
 It is a FreeRTOS based application where all the application blocks are implemented as FreeRTOS tasks.
 
@@ -27,7 +27,7 @@ The :ref:`fig-ASRC-task-diagram-label` shows the RTOS tasks and other components
 
 
 The tasks can roughly be categorised as belonging to the USB driver, |I2S| driver or the application code categories.
-The actual ASRC processing happens in four tasks across the two tiles; the **usb_audio_out_asrc task**, **i2s_audio_recv_asrc** task, and 2 instances of **asrc_one_channel_task**, one on each tile.
+The actual ASRC processing happens in four tasks across the two tiles; the **usb_audio_out_asrc task**, **i2s_audio_recv_asrc** task, and two instances of **asrc_one_channel_task**, one on each tile.
 This is described in more detail in the :ref:`application-components-label` section below.
 
 Most of the tasks are involved in the ASRC processing data path, while a few are involved in monitoring the input and output data rates
@@ -38,7 +38,7 @@ USB Driver components
 =====================
 
 This application presents a stereo, 48 kHz, 32 bit, high-speed, Adaptive UAC2.0 USB interface.
-It has 2 endpoints, Endpoint 0 for control and Endpoint 1 for bidirectional isochronous USB audio.
+It has two endpoints, Endpoint 0 for control and Endpoint 1 for bidirectional isochronous USB audio.
 The USB application level driver is `TinyUSB <https://docs.tinyusb.org/en/latest/>`_ based.
 
 The **usb_xud_thread**, **usb_isr**, **usb_task** and **usb_adaptive_clk_manager** implement the USB driver.
@@ -53,9 +53,9 @@ It interfaces with the USB app level thread (**usb_task**) via shared memory and
 
 **usb_task** implements the app level USB driver functionality. The app level USB driver is based on `TinyUSB <https://docs.tinyusb.org/en/latest/>`_ which hooks into the application by means of callback functions.
 The **usb_isr** task is triggered by the interrupt and parses the data transferred from XUD and places it on a queue that the **usb_task** blocks on for further processing.
-For example, on completion of an EP1 OUT transfer, the transfer completion gets notified on the **usb_xud_thread → usb_isr → usb_task** path
-and the **usb_task** calls the ``tud_audio_rx_done_post_read_cb()`` to have the application process the data received from the host.
-On completion of an EP1 IN transfer the transfer completion again follows the **usb_xud_thread → usb_isr → usb_task** path and **usb_task** calls the ``tud_audio_tx_done_pre_load_cb()``
+For example, on completion of an EP1 OUT transfer, the transfer completion gets notified on the **usb_xud_thread → usb_isr → usb_task** path,
+and the **usb_task** calls the ``tud_audio_rx_done_post_read_cb()`` function to have the application process the data received from the host.
+On completion of an EP1 IN transfer, the transfer completion again follows the **usb_xud_thread → usb_isr → usb_task** path, and **usb_task** calls the ``tud_audio_tx_done_pre_load_cb()``
 callback function to have the application load the EP1 IN data for the next transfer.
 
 **samples_to_host_stream_buf** and **samples_from_host_stream_buf** are circular buffers shared between the application and the USB driver and allow for decoupling one from the other.
@@ -97,11 +97,11 @@ Application components
 
 **usb_audio_out_asrc**, **i2s_audio_recv_asrc**, **asrc_one_channel_task**, **usb_to_i2s_intertile**, **i2s_to_usb_intertile** and the **rate_server** tasks make up the non-driver components of the application.
 
-**usb_audio_out_asrc** performs ASRC on data received from the USB host to the device. It waits to get notified by the TinyUSB callback function ``tud_audio_rx_done_post_read_cb()`` when there are one or more ASRC input blocks (96 USB samples) of data in the samples_from_host_stream_buf.
-It does ASRC processing of the first channel while coordinating with the asrc_one_channel_task for processing the second channel in parallel and sends the processed output to the other tile on the inter-tile context.
+**usb_audio_out_asrc** performs ASRC on data received from the USB host to the device. It waits to get notified by the TinyUSB callback function ``tud_audio_rx_done_post_read_cb()`` when there are one or more ASRC input blocks (96 USB samples) of data in the ``samples_from_host_stream_buf``.
+It does ASRC processing of the first channel while coordinating with the **asrc_one_channel_task** for processing the second channel in parallel and sends the processed output to the other tile on the inter-tile context.
 
-**i2s_audio_recv_asrc** performs ASRC on data received from the |I2S| Slave to the device. It blocks on the ``rtos_i2s_rx()`` function to receive one ASRC input block (244 |I2S| samples) of data from |I2S| and performs ASRC on one channel
-while coordinating with the asrc_one_channel_task for processing the second channel in parallel. It then sends the processed output to the other tile on the inter-tile context.
+**i2s_audio_recv_asrc** performs ASRC on data received over the |I2S| interface by the device. It blocks on the ``rtos_i2s_rx()`` function to receive one ASRC input block (244 |I2S| samples) of data from |I2S| and performs ASRC on one channel
+while coordinating with the **asrc_one_channel_task** for processing the second channel in parallel. It then sends the processed output to the other tile on the inter-tile context.
 
 **asrc_one_channel_task** performs ASRC on a single channel of data. There is one of these on each tile. It waits on an RTOS message queue for an ASRC input block to be available, does ASRC processing on the block and posts the completion notification on another message queue.
 
@@ -111,7 +111,7 @@ It has other rate-monitoring related responsibilities that are described in the 
 **i2s_to_usb_intertile** task receives the ASRC output data generated by **i2s_audio_recv_asrc** over the inter-tile context onto the USB tile and writes it to the USB ``samples_to_host_stream_buf``.
 It has other rate-monitoring related responsibilities that are described in the :ref:`rate-server-label` section.
 
-The :ref:`asrc_i2s_to_usb_data_path-label` diagram shows the application tasks involved in the **|I2S| → ASRC → USB** path processing and their interaction with each other.
+The :ref:`asrc_i2s_to_usb_data_path-label` diagram shows the application tasks involved in the |I2S| → ASRC → USB path processing and their interaction with each other.
 
 .. _asrc_i2s_to_usb_data_path-label:
 
@@ -138,9 +138,9 @@ The :ref:`asrc_usb_to_i2s_data_path-label` diagram shows the application tasks i
 
 **rate_server**
 ---------------
-The ASRC ``process_frame`` API requires the caller to calculate and send the instantaneous ratio between the ASRC input and output rate. The rate_server is responsible for calculating these rate ratios for both USB → ASRC → |I2S| and |I2S| → ASRC → USB directions.
+The ASRC ``process_frame`` API requires the caller to calculate and send the instantaneous ratio between the ASRC input and output rate. The **rate_server** is responsible for calculating these rate ratios for both USB → ASRC → |I2S| and |I2S| → ASRC → USB directions.
 
-Additionally, the application also monitors the average buffer fill levels of the buffers holding ASRC output to prevent any overflows or underflows of the respective buffer. A gradual drift in the buffer fill level indicates that the rate ratio is being under or over calculated by the rate_server.
+Additionally, the application also monitors the average buffer fill levels of the buffers holding ASRC output to prevent any overflows or underflows of the respective buffer. A gradual drift in the buffer fill level indicates that the rate ratio is being under or over calculated by the **rate_server**.
 This could happen either due to jitter in the actual rates or precision limitations when calculating the rates.
 
 The average fill level of the buffer is monitored and a closed-loop error correction factor is calculated to keep the buffer level at an expected stable level.
@@ -189,7 +189,7 @@ The :ref:`fig-rate-server-label` diagram shows the code flow during the rate rat
 .. figure:: diagrams/rate_server_connections.drawio.png
    :align: center
    :scale: 80 %
-   :alt: rate_server code flow
+   :alt: **rate_server** code flow
 
    Rate calculation code flow
 
@@ -219,6 +219,6 @@ Handling USB mic interface close -> open events
 ===============================================
 
 If the USB host stops streaming from the device and then starts again, this event is detected through calls to the ``tud_audio_set_itf_close_EP_cb`` and ``tud_audio_set_itf_cb`` functions.
-The ASRC output buffer in the |I2S| → ASRC → USB is reset (USB ``samples_to_host_streaming_buf``).
+The ASRC output buffer in the |I2S| → ASRC → USB is reset (USB ``samples_to_host_stream_buf``).
 Zeroes are streamed to the host until the buffer fills to a stable level, when we resume streaming out of this buffer to send samples over USB.
-The average buffer calculation state for the USB samples_to_host_streaming_buf is also reset and a new stable average is calculated against which the average buffer levels are corrected.
+The average buffer calculation state for the USB ``samples_to_host_stream_buf`` is also reset and a new stable average is calculated against which the average buffer levels are corrected.
