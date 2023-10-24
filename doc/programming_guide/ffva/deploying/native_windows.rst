@@ -3,7 +3,17 @@
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using ``CMake`` and ``NMake``. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_ffva_deploying_linux_macos_programming_guide`.
+This document explains how to deploy the software using *CMake* and *Ninja*. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_ffva_deploying_linux_macos_programming_guide`.
+
+To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
+install with ``winget`` by running the following commands in *PowerShell*:
+
+.. code-block:: PowerShell
+
+    # Install
+    winget install Ninja-build.ninja
+    # Reload user Path
+    $env:Path=[System.Environment]::GetEnvironmentVariable("Path","User")
 
 Building the Host Applications
 ==============================
@@ -24,9 +34,9 @@ Then build the host application:
 
 .. code-block:: console
 
-  cmake -G "NMake Makefiles" -B build_host
+  cmake -G Ninja -B build_host
   cd build_host
-  nmake install
+  ninja install
 
 The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
@@ -37,18 +47,18 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
 .. code-block:: console
 
-    cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_ffva_int_fixed_delay
+    ninja example_ffva_int_fixed_delay
 
 
 Run the following commands in the root folder to build the USB firmware:
 
 .. code-block:: console
 
-    cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_ffva_ua_adec_altarch
+    ninja example_ffva_ua_adec_altarch
 
 Running the Firmware
 ====================
@@ -59,8 +69,8 @@ Inside of the build folder root, after building the firmware, run one of:
 
 .. code-block:: console
 
-    nmake flash_app_example_ffva_int_fixed_delay
-    nmake flash_app_example_ffva_ua_adec_altarch
+    ninja flash_app_example_ffva_int_fixed_delay
+    ninja flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
 
@@ -70,8 +80,8 @@ From the build folder run:
 
 .. code-block:: console
 
-    nmake run_example_ffva_int_fixed_delay
-    nmake run_example_ffva_ua_adec_altarch
+    ninja run_example_ffva_int_fixed_delay
+    ninja run_example_ffva_ua_adec_altarch
 
 Upgrading the Firmware
 ======================
@@ -82,7 +92,7 @@ To create an upgrade image from the build folder run:
 
 .. code-block:: console
 
-    nmake create_upgrade_img_example_ffva_ua_adec_altarch
+    ninja create_upgrade_img_example_ffva_ua_adec_altarch
 
 Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
 
@@ -146,5 +156,5 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    nmake debug_example_int_adec
-    nmake debug_example_ua_adec
+    ninja debug_example_int_adec
+    ninja debug_example_ua_adec

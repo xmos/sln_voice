@@ -5,7 +5,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `Make`.
+This document explains how to deploy the software using *CMake* and *Make*.
 
 Building the Host Applications
 ==============================

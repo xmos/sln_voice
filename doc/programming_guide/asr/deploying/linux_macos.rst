@@ -5,7 +5,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using ``CMake`` and ``Make``. 
+This document explains how to deploy the software using *CMake* and *Make*.
 
 Building the Host Server
 ========================
@@ -43,7 +43,7 @@ Run the following commands in the root folder to build the firmware:
 Flashing the Model
 ==================
 
-The model file is part of the data partition file.  The data partition file includes a file used to calibrate the flash followed by the model.  
+The model file is part of the data partition file.  The data partition file includes a file used to calibrate the flash followed by the model.
 
 Run the following commands in the build folder to create the data partition:
 
@@ -69,5 +69,5 @@ From the build folder run:
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 
 .. code-block:: console
-    
+
     xscope_host_endpoint 12345
