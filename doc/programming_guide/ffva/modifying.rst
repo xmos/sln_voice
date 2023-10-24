@@ -4,9 +4,10 @@
 Modifying the Software
 **********************
 
+The FFVA example design is highly customizable.  This section describes how to modify the application.
+
 .. toctree::
    :maxdepth: 1
-   :hidden:
 
    design
    audio_pipeline

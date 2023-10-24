@@ -48,7 +48,7 @@ Run the following commands in the root folder to build the USB firmware:
 
     cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_ffva_ua_adec
+    nmake example_ffva_ua_adec_altarch
 
 Running the Firmware
 ====================
@@ -60,7 +60,7 @@ Inside of the build folder root, after building the firmware, run one of:
 .. code-block:: console
 
     nmake flash_app_example_ffva_int_fixed_delay
-    nmake flash_app_example_ffva_ua_adec
+    nmake flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
 
@@ -71,7 +71,7 @@ From the build folder run:
 .. code-block:: console
 
     nmake run_example_ffva_int_fixed_delay
-    nmake run_example_ffva_ua_adec
+    nmake run_example_ffva_ua_adec_altarch
 
 Upgrading the Firmware
 ======================
@@ -82,7 +82,7 @@ To create an upgrade image from the build folder run:
 
 .. code-block:: console
 
-    nmake create_upgrade_img_example_ffva_ua_adec
+    nmake create_upgrade_img_example_ffva_ua_adec_altarch
 
 Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
 
@@ -114,7 +114,7 @@ From the build folder, the upgrade image can be written by running:
 
 .. code-block:: console
 
-    dfu-util -e -d ,20b1:4001 -a 1 -D example_ffva_ua_adec_upgrade.bin
+    dfu-util -e -d ,20b1:4001 -a 1 -D example_ffva_ua_adec_altarch_upgrade.bin
 
 The upgrade image can be read back by running:
 
