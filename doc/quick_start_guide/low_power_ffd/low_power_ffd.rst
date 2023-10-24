@@ -1,5 +1,3 @@
-.. include:: ../../substitutions.rst
-.. include:: <isonum.txt>
 
 .. _sln_voice_low_power_ffd_quick_start:
 

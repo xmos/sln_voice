@@ -1,4 +1,3 @@
-.. include:: ../../../substitutions.rst
 
 .. _sln_voice_ffva_deploying_linux_macos_programming_guide:
 

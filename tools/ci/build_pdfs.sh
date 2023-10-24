@@ -22,7 +22,7 @@ do
 done
 
 XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
-DOC_BUILDER_IMAGE=ghcr.io/xmos/doc_builder:v2.0.0
+DOC_BUILDER_IMAGE=ghcr.io/xmos/xmosdoc
 
 source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 
@@ -61,7 +61,7 @@ for ((i = 0; i < ${#standard_modules[@]}; i += 1)); do
         echo '******************************************************'
 
         # build docs
-        (cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e TITLE=${title} -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/${expat_file} -e DOXYGEN_INPUT=ignore ${DOC_BUILDER_IMAGE})
+        (cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build ${DOC_BUILDER_IMAGE})
     fi
 
     # copy to dist folder
@@ -78,7 +78,7 @@ echo '******************************************************'
 full_path="${XCORE_VOICE_ROOT}/modules/core/modules/xcore_math/lib_xcore_math"
 
 # build docs
-(cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build -e PDF=1 -e TITLE="lib\_xcore\_math" -e REPO:/build -e DOXYGEN_INCLUDE=/build/doc/Doxyfile.inc -e EXCLUDE_PATTERNS=/build/doc/doc_excludes.txt -e DOXYGEN_INPUT=ignore ${DOC_BUILDER_IMAGE} || echo "Container always falsely reports an error. Ignoring error.")
+(cd ${full_path}; docker run --rm -t -u "$(id -u):$(id -g)" -v $(pwd):/build ${DOC_BUILDER_IMAGE} || echo "Container always falsely reports an error. Ignoring error.")
 
 # copy to dist folder
 (cd ${full_path}/doc/_build/pdf; cp programming_guide.pdf ${DIST_DIR}/lib_xcore_math_programming_guide.pdf)
