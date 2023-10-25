@@ -5,7 +5,7 @@
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using *CMake* and *NMake*. If you are not using
+This document explains how to deploy the software using *CMake* and *Ninja*. If you are not using
 native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to
 :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
 
