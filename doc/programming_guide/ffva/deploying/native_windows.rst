@@ -1,19 +1,19 @@
-.. include:: ../../../substitutions.rst
 
 ******************************************
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using ``CMake`` and ``Ninja``. If you are not using native Windows build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_ffva_deploying_linux_macos_programming_guide`.
+This document explains how to deploy the software using *CMake* and *Ninja*. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool, refer to :ref:`sln_voice_ffva_deploying_linux_macos_programming_guide`.
 
-It is highly recommended to use ``Ninja`` as the make system under cmake. Not only is it a lot faster
-than MSVC ``nmake``, it also works around an issue where certain path names may cause an issue with the XMOS compiler under windows.
+To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
+install with ``winget`` by running the following commands in *PowerShell*:
 
-To install Ninja, follow these steps:
+.. code-block:: PowerShell
 
-- Download ``ninja.exe`` from https://github.com/ninja-build/ninja/releases. This firmware has been tested with Ninja version v1.11.1
-- Ensure Ninja is on the command line path. You can add to the path permanently by following these steps https://www.computerhope.com/issues/ch000549.htm. Alternatively you may set the path in the current command line session using something like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
-
+    # Install
+    winget install Ninja-build.ninja
+    # Reload user Path
+    $env:Path=[System.Environment]::GetEnvironmentVariable("Path","User")
 
 Building the Host Applications
 ==============================
@@ -51,7 +51,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
 .. code-block:: console
 
-    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=..\xmos_cmake_toolchain\xs3a.cmake
+    cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_ffva_int_fixed_delay
 
@@ -60,9 +60,9 @@ Run the following commands in the root folder to build the USB firmware:
 
 .. code-block:: console
 
-    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    ninja example_ffva_ua_adec
+    ninja example_ffva_ua_adec_altarch
 
 Running the Firmware
 ====================
@@ -74,7 +74,7 @@ Inside of the build folder root, after building the firmware, run one of:
 .. code-block:: console
 
     ninja flash_app_example_ffva_int_fixed_delay
-    ninja flash_app_example_ffva_ua_adec
+    ninja flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
 
@@ -85,7 +85,7 @@ From the build folder run:
 .. code-block:: console
 
     ninja run_example_ffva_int_fixed_delay
-    ninja run_example_ffva_ua_adec
+    ninja run_example_ffva_ua_adec_altarch
 
 Upgrading the Firmware
 ======================
@@ -96,7 +96,7 @@ To create an upgrade image from the build folder run:
 
 .. code-block:: console
 
-    ninja create_upgrade_img_example_ffva_ua_adec
+    ninja create_upgrade_img_example_ffva_ua_adec_altarch
 
 Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
 
@@ -128,7 +128,7 @@ From the build folder, the upgrade image can be written by running:
 
 .. code-block:: console
 
-    dfu-util -e -d ,20b1:4001 -a 1 -D example_ffva_ua_adec_upgrade.bin
+    dfu-util -e -d ,20b1:4001 -a 1 -D example_ffva_ua_adec_altarch_upgrade.bin
 
 The upgrade image can be read back by running:
 

@@ -54,7 +54,7 @@ void asrc_one_channel_task(void *args)
         asrc_process_frame_ctx_t *asrc_ctx = NULL;
         (void) rtos_osal_queue_receive(&asrc_init_ctx->asrc_queue, &asrc_ctx, RTOS_OSAL_WAIT_FOREVER);
 
-        unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->nominal_fs_ratio, asrc_init_ctx->asrc_ctrl_ptr);
+        unsigned n_samps_out = asrc_process((int *)asrc_ctx->input_samples, (int *)asrc_ctx->output_samples, asrc_ctx->fs_ratio, asrc_init_ctx->asrc_ctrl_ptr);
 
         (void) rtos_osal_queue_send(&asrc_init_ctx->asrc_ret_queue, &n_samps_out, RTOS_OSAL_WAIT_FOREVER);
     }

@@ -1,4 +1,3 @@
-.. include:: ../substitutions.rst
 
 ###################
 Product Description 
@@ -85,7 +84,7 @@ Obtaining the Software
 Development Tools
 *****************
 
-It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`_.  XTC Tools 15.1.4 or newer are required. If you already have the XTC Toolchain installed, you can check the version with the following command:
+It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`__.  XTC Tools 15.1.4 or newer are required. If you already have the XTC Toolchain installed, you can check the version with the following command:
 
 .. code-block:: console
 

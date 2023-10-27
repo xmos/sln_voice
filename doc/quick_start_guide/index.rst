@@ -1,5 +1,3 @@
-.. include:: <isonum.txt>
-.. include:: ../substitutions.rst
 
 .. _sln_voice_quick_start_guide:
 

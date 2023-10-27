@@ -1,4 +1,3 @@
-.. include:: ../../../substitutions.rst
 
 .. _sln_voice_low_power_ffd_deploying_native_windows:
 
@@ -6,18 +5,19 @@
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using ``CMake`` and ``Ninja``. If you are not using
+This document explains how to deploy the software using *CMake* and *Ninja*. If you are not using
 native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to
 :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
 
-It is highly recommended to use ``Ninja`` as the make system under cmake. Not only is it a lot faster
-than MSVC ``nmake``, it also works around an issue where certain path names may cause an issue with the XMOS compiler under Windows.
+To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
+install with ``winget`` by running the following commands in *PowerShell*:
 
-To install Ninja, follow these steps:
+.. code-block:: PowerShell
 
-- Download ``ninja.exe`` from https://github.com/ninja-build/ninja/releases. This firmware has been tested with Ninja version v1.11.1
-- Ensure Ninja is on the command line path. You can add to the path permanently by following these steps https://www.computerhope.com/issues/ch000549.htm. Alternatively you may set the path in the current command line session using something like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
-
+    # Install
+    winget install Ninja-build.ninja
+    # Reload user Path
+    $env:Path=[System.Environment]::GetEnvironmentVariable("Path","User")
 
 Building the Host Applications
 ==============================
@@ -57,7 +57,7 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -G Ninja -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_low_power_ffd
 
