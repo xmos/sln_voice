@@ -51,6 +51,7 @@
 #include "dbcalc.h"
 #include "avg_buffer_level.h"
 #include "adaptive_rate_callback.h"
+#include "div.h"
 
 // Audio controls
 // Current states

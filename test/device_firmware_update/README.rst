@@ -9,7 +9,7 @@ Purpose
 Description
 ===========
 
-This test is a verification of the FFVA device firmware update (DFU) feature.  It verifies that the USB DFU feature works.  
+This test is a verification of the FFVA device firmware update (DFU) feature.  It verifies that the USB DFU feature works.
 
 Method
 ======
@@ -17,7 +17,7 @@ Method
 1. Build and flash the factory firmware.
 2. Create an upgrade image
 3. DFU the upgrade image
-4. Read back the upgrade image and verify the created upgrade image is a bit perfect copy of the upgrade image read. 
+4. Read back the upgrade image and verify the created upgrade image is a bit perfect copy of the upgrade image read.
 
 Inputs
 ======
@@ -50,4 +50,4 @@ The actions performed by dfu-util can be verified by running a pytest for hash e
 
 .. code-block:: console
 
-    pytest test/device_firmware_update/test_dfu.py --readback_image <path-to-output-dir>/readback_upgrade.bin --upgrade_image <path-to-output-dir>/example_ffva_ua_adec_test_upgrade.bin
+    pytest test/device_firmware_update/test_dfu.py --readback_image <path-to-output-dir>/readback_upgrade.bin --upgrade_image <path-to-output-dir>/example_ffva_ua_adec_altarch_test_upgrade.bin

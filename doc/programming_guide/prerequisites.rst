@@ -4,7 +4,7 @@
 Prerequisites
 #############
 
-It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`_.  XTC Tools 15.1.4 or newer are required for building, running, flashing and debugging the example applications.
+It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`__.  XTC Tools 15.1.4 or newer are required for building, running, flashing and debugging the example applications.
 
 `CMake 3.21 <https://cmake.org/download/>`_ or newer and `Git <https://git-scm.com/>`_ are also required for building the example applications.
 

@@ -27,6 +27,8 @@ FetchContent_Populate(lib_src)
 
 include(${CMAKE_BINARY_DIR}/_deps/lib_src/tests/asrc_test/asrc_c_emulator.cmake)
 
+set(ASRC_EXAMPLE_PATH ${CMAKE_CURRENT_LIST_DIR}/../../examples/asrc_demo/src)
+
 ## usb_in_i2s_out
 add_executable(usb_in_i2s_out
     src/app_usb_in_i2s_out/main.cpp
@@ -38,6 +40,7 @@ add_executable(usb_in_i2s_out
     src/common/buffer/avg_buffer_level.c
     src/common/usb_rate_calc/usb_rate_calc.c
     src/common/helpers.cpp
+    ${ASRC_EXAMPLE_PATH}/shared/div.c
 )
 target_include_directories(usb_in_i2s_out
     PRIVATE
@@ -46,6 +49,7 @@ target_include_directories(usb_in_i2s_out
         src/common/usb_rate_calc
         src/common/buffer
         src/common
+        ${ASRC_EXAMPLE_PATH}/shared
 )
 
 target_link_libraries(usb_in_i2s_out
@@ -53,6 +57,8 @@ target_link_libraries(usb_in_i2s_out
 )
 
 target_link_libraries(usb_in_i2s_out SystemC::systemc asrc_c_emulator_lib )
+
+target_compile_definitions(usb_in_i2s_out PRIVATE XCORE_MATH_NOT_INCLUDED=1)
 
 
 ## i2s_in_usb_out
@@ -66,6 +72,7 @@ add_executable(i2s_in_usb_out
     src/common/buffer/avg_buffer_level.c
     src/common/usb_rate_calc/usb_rate_calc.c
     src/common/helpers.cpp
+    ${ASRC_EXAMPLE_PATH}/shared/div.c
 )
 target_include_directories(i2s_in_usb_out
     PRIVATE
@@ -74,6 +81,7 @@ target_include_directories(i2s_in_usb_out
         src/common/usb_rate_calc
         src/common/buffer
         src/common
+        ${ASRC_EXAMPLE_PATH}/shared
 )
 
 target_link_libraries(i2s_in_usb_out
@@ -81,3 +89,5 @@ target_link_libraries(i2s_in_usb_out
 )
 
 target_link_libraries(i2s_in_usb_out SystemC::systemc asrc_c_emulator_lib )
+
+target_compile_definitions(i2s_in_usb_out PRIVATE XCORE_MATH_NOT_INCLUDED=1)
