@@ -25,7 +25,7 @@ pipeline {
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
-        PYTHON_VERSION = "3.10.13"
+        PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         XMOSDOC_VERSION = 'v4.0'
