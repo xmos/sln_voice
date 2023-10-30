@@ -1,7 +1,7 @@
 ---
 project: sln_voice
 title: XCORE-VOICE SOLUTION
-version: 2.1.0
+version: 2.2.0
 
 documentation:
   exclude_patterns_path: doc/exclude_patterns.inc

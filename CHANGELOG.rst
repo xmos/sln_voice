@@ -1,6 +1,11 @@
 XCORE-VOICE change log
 ======================
 
+2.2.0
+-----
+
+  * TODO: Add entries here
+
 2.1.0
 -----
 
