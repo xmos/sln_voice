@@ -3,9 +3,9 @@
 Product Description 
 ###################
 
-The XCORE-VOICE Solution consists of example designs and a C-based SDK for the development of audio front-end applications to support far-field voice use cases on the xcore.ai family of chips (XU316). The XCORE-VOICE design is currently based on FreeRTOS, leveraging the flexibility of the xcore.ai platform and providing designers with a familiar environment to customize and develop products.
+The XCORE-VOICE Solution consists of example designs and a C-based SDK for the development of audio front-end applications to support far-field voice use cases on the xcore.ai family of chips (XU316). The XCORE-VOICE examples are currently based on FreeRTOS or bare-metal, leveraging the flexibility of the xcore.ai platform and providing designers with a familiar environment to customize and develop products.
 
-XCORE-VOICE example designs provide turn-key solutions to enable easier product development for smart home applications such as light switches, thermostats, and home appliances. xcore.ai’s unique architecture providing powerful signal processing and accelerated AI capabilities combined with the XCORE-VOICE framework allows designers to incorporate keyword, event detection, or advanced local dictionary support to create a complete voice interface solution. 
+XCORE-VOICE example designs include turn-key solutions to enable easier product development for smart home applications such as light switches, thermostats, and home appliances. xcore.ai’s unique architecture providing powerful signal processing and accelerated AI capabilities combined with the XCORE-VOICE framework allows designers to incorporate keyword, event detection, or advanced local dictionary support to create a complete voice interface solution. Bridging designs including PDM microphone to host aggregation are also included showcasing the use of xcore.ai as an interfacing and bridging solution for deployment in existing systems. 
 
 The C SDK is composed of the following components:
 
@@ -74,6 +74,8 @@ The XK-VOICE-L71 DevKit and Hardware Manual can be obtained from the |HARDWARE_U
 
 The XK-VOICE-L71 is based on the: `XU316-1024-QF60A <https://www.xmos.ai/file/xu316-1024-qf60b-xcore_ai-datasheet?version=latest>`_
 
+The XCORE-AI-EXPLORER DevKit and Hardware Manual used in the aggregation design can be obtained from the |HARDWARE_URL| product information page. 
+
 Learn more about the `The XMOS XS3 Architecture <https://www.xmos.ai/download/The-XMOS-XS3-Architecture.pdf>`_
 
 ######################
@@ -84,7 +86,7 @@ Obtaining the Software
 Development Tools
 *****************
 
-It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`__.  XTC Tools 15.1.4 or newer are required. If you already have the XTC Toolchain installed, you can check the version with the following command:
+It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`__.  XTC Tools 15.2.1 or newer are required. If you already have the XTC Toolchain installed, you can check the version with the following command:
 
 .. code-block:: console
 
