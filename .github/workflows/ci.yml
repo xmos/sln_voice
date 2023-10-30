@@ -38,7 +38,6 @@ on:
 env:
   TMP_SOURCES_DIR: ${{ github.workspace }}/tmp/src
   RELEASE_SOURCES_DIR: ${{ github.workspace }}/release/src
-  RELEASE_PDF_DOCS_DIR: ${{ github.workspace }}/release/docs/pdf
 
 jobs:
   event_configuration:
@@ -48,7 +47,6 @@ jobs:
       is_release: ${{ steps.run_type.outputs.IS_RELEASE }}
       examples_artifact_name: ${{ steps.artifact_names.outputs.EXAMPLES_ARTIFACT_NAME }}
       src_artifact_name: ${{ steps.artifact_names.outputs.SOURCES_ARTIFACT_NAME }}
-      docs_artifact_name: ${{ steps.artifact_names.outputs.DOCS_ARTIFACT_NAME }}
     steps:
       - name: Determine workflow run type
         id: run_type
@@ -77,11 +75,9 @@ jobs:
             fi
             echo "EXAMPLES_ARTIFACT_NAME=XM-014871-SM_xcore_voice_example_apps_$version" >> $GITHUB_OUTPUT
             echo "SOURCES_ARTIFACT_NAME=XM-014872-SM_xcore_voice_sources_$version" >> $GITHUB_OUTPUT
-            echo "DOCS_ARTIFACT_NAME=XM-014785-PC_xcore_voice_docs_$version" >> $GITHUB_OUTPUT
           else
             echo "EXAMPLES_ARTIFACT_NAME=xcore_voice_example_apps" >> $GITHUB_OUTPUT
             echo "SOURCES_ARTIFACT_NAME=xcore_voice_sources" >> $GITHUB_OUTPUT
-            echo "DOCS_ARTIFACT_NAME=xcore_voice_docs" >> $GITHUB_OUTPUT
           fi
 
   build_apps:
@@ -91,16 +87,6 @@ jobs:
     with:
       is_release: ${{ needs.event_configuration.outputs.is_release }}
       examples_artifact_name: ${{ needs.event_configuration.outputs.examples_artifact_name }}
-
-  build_docs:
-    name: Build documentation
-    needs: event_configuration
-    uses: ./.github/workflows/docs.yml
-    with:
-      docs_artifact_name: ${{ needs.event_configuration.outputs.docs_artifact_name }}
-
-  # NOTE:
-  # The jobs below only run on releases.
 
   release_sources:
     name: Release sources
