@@ -38,7 +38,6 @@ on:
 env:
   TMP_SOURCES_DIR: ${{ github.workspace }}/tmp/src
   RELEASE_SOURCES_DIR: ${{ github.workspace }}/release/src
-  RELEASE_DOCS_DIR: ${{ github.workspace }}/release/docs
   RELEASE_PDF_DOCS_DIR: ${{ github.workspace }}/release/docs/pdf
 
 jobs:
@@ -102,40 +101,6 @@ jobs:
 
   # NOTE:
   # The jobs below only run on releases.
-
-  release_docs:
-    name: Release documentation
-    needs: [event_configuration, build_docs]
-    runs-on: ubuntu-latest
-    if: needs.event_configuration.outputs.is_release == 'true'
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          submodules: recursive
-
-      - name: Download documentation artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: ${{ needs.event_configuration.outputs.docs_artifact_name }}
-          path: ${{ env.RELEASE_DOCS_DIR }}
-
-      - name: Rename xcore voice PDFs
-        run: |
-          cd ${{ env.RELEASE_PDF_DOCS_DIR }}
-          mv programming_guide.pdf xcore_voice_programming_guide.pdf
-          mv quick_start_guide.pdf xcore_voice_quick_start_guide.pdf
-
-      - name: Build other modules' PDFs
-        run: |
-          bash tools/ci/build_pdfs.sh
-          cp dist_pdfs/* ${{ env.RELEASE_PDF_DOCS_DIR }}
-
-      - name: Upload documentation
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ needs.event_configuration.outputs.docs_artifact_name }}
-          path: ${{ env.RELEASE_DOCS_DIR }}
 
   release_sources:
     name: Release sources
