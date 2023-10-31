@@ -4,7 +4,6 @@
 Software Description
 ####################
 
-.. include:: <isonum.txt>
 
 .. toctree::
    :maxdepth: 1
