@@ -2,7 +2,7 @@
 Overview
 ********
 
-This is the XCORE-VOICE Asynchronous Sampling Rate Converter (ASRC) example design.
+This is the |SOFTWARE_URL| Asynchronous Sampling Rate Converter (ASRC) example design.
 
 The example system implements a stereo |I2S| Slave and a stereo Adaptive UAC2.0 interface and exchanges data between the two interfaces.
 Since the two interfaces are operating in different clock domains, there is an ASRC block between them that converts from the input to the output sampling rate.
@@ -29,7 +29,7 @@ The ASRC processing is block based and works on a block size of 244 samples per 
 
 Supported Hardware
 ==================
-This example application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
+This example application is supported on the |HARDWARE_URL| board.
 In addition to the XK-VOICE-L71 board, it requires an XTAG4 to program and debug the device.
 
 To demonstrate the audio exchange between the |I2S| and USB interface, the XK-VOICE-L71 device needs to be connected to an |I2S| Master device.
@@ -114,12 +114,11 @@ the XMOS compiler under Windows.
 
 To install Ninja, follow these steps:
 
--  Download ``ninja.exe`` from
-   https://github.com/ninja-build/ninja/releases. This firmware has been
-   tested with Ninja version v1.11.1.
+-  Download ``ninja.exe`` from `here <https://github.com/ninja-build/ninja/releases>`__.
+   This firmware has been tested with Ninja version v1.11.1.
 -  Ensure Ninja is on the command line path. It can be added to the path
-   permanently by following these steps
-   https://www.computerhope.com/issues/ch000549.htm. Alternatively,
+   permanently by following the steps listed
+   `here <https://www.computerhope.com/issues/ch000549.htm>`__. Alternatively,
    set the path in the current command line session using something
    like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
@@ -131,13 +130,13 @@ make files:
    $ md build
    $ cd build
    $ cmake -G "Ninja" --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake ..
-   $ ninja example_asrc_demo.xe -j
+   $ ninja example_asrc_demo.xe
 
 Following initial ``cmake`` build, for subsequent builds, as long as new source files are not added, just type:
 
 ::
 
-   $ ninja example_asrc_demo.xe -j
+   $ ninja example_asrc_demo.xe
 
 ``cmake`` needs to be rerun to discover any new source files added.
 

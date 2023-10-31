@@ -6,19 +6,9 @@ Resource Usage
 Memory
 ======
 
-Tile 0 memory usage in bytes:
+Out of the 524288 bytes of memory available per tile, this application uses approximately 262000 bytes of memory on Tile 0
+and 208000 bytes of memory on Tile 1.
 
-.. code-block:: console
-
-    Memory available:       524288,   used:      260976+.  MAYBE
-    (Stack: 5556+, Code: 70008, Data: 185412)
-
-Tile 1 memory usage in bytes:
-
-.. code-block:: console
-
-    Memory available:       524288,   used:      206180 .  OKAY
-    (Stack: 4356, Code: 37316, Data: 164508)
 
 Chanends
 ========

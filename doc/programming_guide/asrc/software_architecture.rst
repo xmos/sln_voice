@@ -152,16 +152,16 @@ The error estimated based on the buffer fill level is used to compute the estima
 
 The **rate_server** runs on the |I2S| tile (tile 1) and is periodically triggered from the USB tile (tile 0) by the **usb_to_i2s_intertile** task. The **rate_server** is triggered once after every 16 frames are written to the ``samples_to_host_stream_buf``.
 
-The following information is needed for calculating the rate ratios
+The following information is needed for calculating the rate ratios:
 
-1. Average |I2S| rate
-2. Average USB rate
+1. The average |I2S| rate
+2. The average USB rate
 3. An error factor computed based on the USB ``samples_to_host_stream_buf`` fill level
 4. An error factor computed based on the |I2S| ``send buffer`` fill level
-5. USB ``mic_interface_open`` flag indicating if the USB host is streaming out from the device,
-   since the rate ratio in the |I2S| -> ASRC -> USB direction is calculated only when the host is reading data from the device.
-6. USB ``spkr_interface_open`` flag indicating if the USB host is streaming into the device,
-   since the rate ratio in the USB -> ASRC -> |I2S| direction is calculated only when the host is sending data to the device.
+5. A USB ``mic_interface_open`` flag indicating if the USB host is streaming out from the device,
+   since the rate ratio in the |I2S| -> ASRC -> USB direction is calculated only when the host is reading data from the device
+6. A USB ``spkr_interface_open`` flag indicating if the USB host is streaming into the device,
+   since the rate ratio in the USB -> ASRC -> |I2S| direction is calculated only when the host is sending data to the device
 
 Of the above, the USB related information (2, 3, 5 and 6 above) is available on the USB tile. When triggering the **rate_server**, the **i2s_to_usb_intertile** task gets this information,
 either calculating it or getting it through shared memory from other USB tasks on the same tile, and sends it to the **rate_server** over the inter-tile context using the structure below.
