@@ -11,3 +11,4 @@ Example Designs
    ffva/ffva
    asr/asr
    mic_aggregator/mic_aggregator
+   asrc/asrc
