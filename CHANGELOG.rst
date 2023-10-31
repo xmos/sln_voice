@@ -10,10 +10,6 @@ XCORE-VOICE change log
   * CHANGED: Updated submodule lib_src to version 2.4.0 from 2.2.0
   * CHANGED: Updated submodule fwk_voice to version 0.7.0 from 0.6.0
   * CHANGED: Updated submodule xscope_fileio to version 1.1.2 from 1.1.1
-  * CHANGED: Updated submodule lib_nn to version 0.3.0 from untagged 
-             commit f85b4804ea5f52f5fa4ca4b709a787ac62a8c526
-  * CHANGED: Updated submodule lib_tflite_micro to version 0.6.0 from untagged
-             commit c59ee18f013f159abaa10ef0faf70b18f80f0315
 
 2.1.0
 -----
