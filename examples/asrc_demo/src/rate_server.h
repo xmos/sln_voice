@@ -29,7 +29,7 @@ typedef struct
     bool mic_itf_open;
     bool spkr_itf_open;
 
-}usb_to_i2s_rate_info_t;
+}usb_rate_info_t;
 
 typedef struct
 {
