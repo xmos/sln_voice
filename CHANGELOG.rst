@@ -6,22 +6,23 @@ XCORE-VOICE change log
 
   * ADDED: Mic aggregator app that bridges between 16 mics and TDM16 slave or USB Audio
   * CHANGED: Updated submodule fwk_io on to version 3.1.0 to add support for TDM16 slave tx and 16ch mic_array
+  * ADDED: Asynchronous Sampling Rate Converter (ASRC) example application
 
 2.0.0
 -----
 
-  * ADDED: All speech recognition example deigns now use Sensory TrulyHandsfree speech recognition library.  
-  * ADDED: Low-power far-field dictionary (low-power FFD) example design using wakeword to exit standby mode.  
+  * ADDED: All speech recognition example deigns now use Sensory TrulyHandsfree speech recognition library.
+  * ADDED: Low-power far-field dictionary (low-power FFD) example design using wakeword to exit standby mode.
   * ADDED: Mandarin model to far-field dictionary (low-power FFD) example design demonstration.
   * ADDED: Support for fast flash library which increases flash reading throughput by as much as 70%.
   * MOVED: Audio pipelines relocated to modules to allow easier re-use.
   * FIXED: Example designs now indicate when evaluation period has expired.
-  * FIXED: Numerous minor bug fixes.  
+  * FIXED: Numerous minor bug fixes.
 
 1.0.0
 -----
 
-  * ADDED: Improved documentation 
+  * ADDED: Improved documentation
   * ADDED: Speech recognition porting example design
   * FIXED: USB PIDs changed to 0x4000 for FFVA and 0x4001 for FFD
   * FIXED: Speech recognition model no longer in the filesystem
@@ -31,7 +32,7 @@ XCORE-VOICE change log
 0.21.0-beta.0
 -------------
 
-  * ADDED: Improved Interference Cancellation using Voice-to-Noise Ratio estimator  
+  * ADDED: Improved Interference Cancellation using Voice-to-Noise Ratio estimator
   * ADDED: Low-power mode to far-field dictionary example design
   * ADDED: USB DFU to far-field voice assistant example design
   * ADDED: Optional AEC fixed-delay to far-field voice assistant example design
