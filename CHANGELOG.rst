@@ -4,7 +4,6 @@ XCORE-VOICE change log
 2.2.0
 -----
 
-  * ADDED: ASRC App description (TODO)
   * CHANGED: Updated submodule fwk_io to version 3.3.0 from 3.0.1
   * CHANGED: Updated submodule fwk_core to version 1.0.2 from 1.0.0
   * CHANGED: Updated submodule fwk_rtos to version 3.0.5 from 3.0.3
