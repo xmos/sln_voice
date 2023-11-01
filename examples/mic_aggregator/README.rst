@@ -29,12 +29,13 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. You should be
-able to see something like this:
+First install and source the XTC version: 15.2.1 tools. The easiest way to source
+the tools is to open the provided shortcut to ``XTC Tools 15.2.1 Command Prompt``.
+Running the compiler binary ``xcc`` will produce an output like this:
 
 ::
 
-   $ xcc --version
+   xcc --version
    xcc: Build 19-198606c, Oct-25-2022
    XTC version: 15.2.1
    Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
