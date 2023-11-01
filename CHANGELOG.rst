@@ -10,6 +10,7 @@ XCORE-VOICE change log
   * CHANGED: Updated submodule lib_src to version 2.4.0 from 2.2.0
   * CHANGED: Updated submodule fwk_voice to version 0.7.0 from 0.6.0
   * CHANGED: Updated submodule xscope_fileio to version 1.1.2 from 1.1.1
+  * CHANGED: Updated submodule lib_qspi_fast_read to version 1.0.2 from 1.0.1
 
 2.1.0
 -----
