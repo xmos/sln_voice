@@ -1,5 +1,3 @@
-.. include:: <isonum.txt>
-.. include:: ../../substitutions.rst
 
 .. _sln_voice_low_power_ffd_speech_recognition:
 
