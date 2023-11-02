@@ -29,6 +29,7 @@ if((${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A) OR (${CMAKE_SYSTEM_NAME} STREQUAL 
         PUBLIC
             lib_src/lib_src/api
             lib_src/lib_src/src/fixed_factor_of_3
+            lib_src/lib_src/src/fixed_factor_vpu_voice
             lib_src/lib_src/src/fixed_factor_of_3/ds3
             lib_src/lib_src/src/fixed_factor_of_3/os3
             lib_src/lib_src/src/fixed_factor_of_3_voice
@@ -41,5 +42,13 @@ if((${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A) OR (${CMAKE_SYSTEM_NAME} STREQUAL 
     target_link_libraries(lib_src
         PUBLIC
             framework_core_legacy_compat
+    )
+
+    ## Set any local library compile options
+    set(LIB_COMPILE_FLAGS "-O3")
+
+    target_compile_options(lib_src
+    PRIVATE
+        ${LIB_COMPILE_FLAGS}
     )
 endif()

@@ -1,4 +1,3 @@
-.. include:: ../../../substitutions.rst
 
 .. _sln_voice_low_power_ffd_deploying_linux_mac:
 
@@ -6,7 +5,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `Make`.
+This document explains how to deploy the software using *CMake* and *Make*.
 
 Building the Host Applications
 ==============================
@@ -34,7 +33,7 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_low_power_ffd
 

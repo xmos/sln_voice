@@ -1,4 +1,3 @@
-.. include:: <isonum.txt>
 
 .. _sln_voice_ffd_modifying_software:
 

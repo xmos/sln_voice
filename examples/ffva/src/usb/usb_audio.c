@@ -25,10 +25,13 @@
  * THE SOFTWARE.
  *
  */
+#define DEBUG_UNIT USB_AUDIO
+#define DEBUG_PRINT_ENABLE_USB_AUDIO 1
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <rtos_printf.h>
 #include <xcore/hwtimer.h>
 #include <src.h>
 
@@ -55,8 +58,8 @@ uint8_t clkValid;
 audio_control_range_2_n_t(1) volumeRng[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX+1]; 			// Volume range state
 audio_control_range_4_n_t(1) sampleFreqRng; 						// Sample frequency range state
 
-static volatile bool mic_interface_open = false;
-static volatile bool spkr_interface_open = false;
+volatile bool mic_interface_open = false;
+volatile bool spkr_interface_open = false;
 
 static uint32_t prev_n_bytes_received = 0;
 static bool host_streaming_out = false;
@@ -502,19 +505,19 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
                                     uint8_t cur_alt_setting)
 {
     (void)rhport;
-  
+
     uint8_t rx_data[CFG_TUD_AUDIO_FUNC_1_EP_OUT_SW_BUF_SZ];
     samp_t usb_audio_frames[AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
     const size_t stream_buffer_send_byte_count = sizeof(usb_audio_frames) / RATE_MULTIPLIER;
 
     host_streaming_out = true;
     prev_n_bytes_received = n_bytes_received;
-  
+
     if (!spkr_interface_open) {
         spkr_interface_open = true;
     }
 
-    /* 
+    /*
      * rx_data is a holding space to recieve the latest USB transaction.
      * If it fits, we then push into rx_buffer. This could be a nominal-size transaction, or it could not be.
      * We then only push nominal size transactions into the stream buffer.
@@ -527,8 +530,8 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
     }
     else
     {
-        /* 
-         * I don't believe we ever get here because I think the EP FIFO will complain before this, 
+        /*
+         * I don't believe we ever get here because I think the EP FIFO will complain before this,
          * but better safe than sorry
          */
         rtos_printf("Rx'd too much USB data in one transaction, cannot read\n");
@@ -551,7 +554,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
         while(num_rx_total < sizeof(usb_audio_frames)){
             size_t num_rx = xStreamBufferReceive(rx_buffer, &usb_audio_frames[num_rx_total], sizeof(usb_audio_frames)-num_rx_total, 0);
             num_rx_total += num_rx;
-        }        
+        }
     }
     else
     {
@@ -565,7 +568,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
 
             static int32_t __attribute__((aligned (8))) src_data[CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX][SRC_FF3V_FIR_NUM_PHASES][SRC_FF3V_FIR_TAPS_PER_PHASE];
             samp_t src_audio_frames[AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX];
-  
+
             for (int i = 0; i < AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER; i++) {
                 for (int j = 0; j < CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX; j++) {
                     int64_t sum = 0;
@@ -578,7 +581,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
         } else {
             xStreamBufferSend(samples_from_host_stream_buf, usb_audio_frames, stream_buffer_send_byte_count, 0);
         }
-  
+
         /*
          * Wake up the task waiting on this buffer whenever there is one more
          * USB frame worth of audio data than the amount of data required to
@@ -589,7 +592,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
          * pipeline frame time.
          */
         const size_t buffer_notify_level = stream_buffer_send_byte_count * (1 + USB_FRAMES_PER_VFE_FRAME);
-  
+
         /*
          * TODO: If the above is modified such that not exactly AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER
          * frames are written to the stream buffer at a time, then this will need to change to >=.
@@ -601,7 +604,7 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
     } else {
         rtos_printf("lost USB output samples\n");
     }
-  
+
     return true;
 }
 
@@ -629,13 +632,13 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     samp_t usb_audio_frames[2 * RATE_MULTIPLIER * AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /*
-     * Copying XUA_lite logic basically verbatim - if the host is streaming out, 
+     * Copying XUA_lite logic basically verbatim - if the host is streaming out,
      * then we send back the number of samples per channel that we last received.
      * If it's not, then we send the nominal number of samples per channel.
      * This assumes (as with XUA_lite) that the host sends the same number of samples for each channel.
      * This also assumes that TX and RX rates are the same, which is an assumption made elsewhere.
-     * This finally assumes that at nominal rate, 
-     *     AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER == prev_n_bytes_received / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX
+     * This finally assumes that at nominal rate,
+     *     AUDIO_FRAMES_PER_USB_FRAME == prev_n_bytes_received / (CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX * sizeof(samp_t))
      */
     if (host_streaming_out && (0 != prev_n_bytes_received))
     {
@@ -643,7 +646,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     }
     else
     {
-        tx_size_bytes = sizeof(samp_t) * (AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
+        tx_size_bytes = sizeof(samp_t) * AUDIO_FRAMES_PER_USB_FRAME * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX;
     }
     tx_size_frames = tx_size_bytes / (sizeof(samp_t) * CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX);
 
@@ -670,7 +673,7 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
         /* wait until we have 2 full audio pipeline output frames in the buffer */
         ready = 1;
     }
-    
+
     if (!ready) {
         // we need to send something despite not being fully ready
         //  so, send all zeros
