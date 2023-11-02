@@ -1,3 +1,5 @@
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #include "div.h"
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 {
