@@ -1,4 +1,4 @@
-@Library('xmos_jenkins_shared_library@v0.27.0') _
+@Library('xmos_jenkins_shared_library@v0.28.0') _
 
 getApproval()
 
@@ -8,7 +8,8 @@ pipeline {
         disableConcurrentBuilds()
         skipDefaultCheckout()
         timestamps()
-        buildDiscarder(xmosDiscardBuildSettings(onlyArtifacts=false))
+        // on develop discard builds after a certain number else keep forever
+        buildDiscarder(xmosDiscardBuildSettings())
     }
 
     parameters {
@@ -24,6 +25,7 @@ pipeline {
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
+        PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         XMOSDOC_VERSION = 'v4.0'
@@ -39,7 +41,7 @@ pipeline {
                         expression { !env.GH_LABEL_DOC_ONLY.toBoolean() }
                     }
                     agent {
-                        label 'xcore.ai'
+                        label 'xcore.ai && vrd'
                     }
                     stages {
                         stage('Checkout') {
@@ -204,9 +206,9 @@ pipeline {
                                 expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
-                                sh "cp -r /projects_us/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
+                                sh "cp -r /projects/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
                                 sh "ls -la $PIPELINE_TEST_VECTORS"
-                                sh "cp -r /projects_us/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
+                                sh "cp -r /projects/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
                                 sh "ls -la $ASR_TEST_VECTORS"
                             }
                         }

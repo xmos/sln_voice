@@ -1,5 +1,5 @@
-// Copyright (c) 2023 XMOS LIMITED.
-// This Software is subject to the terms of the XMOS Public License: Version 1
+// Copyright 2023 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #include <stdio.h>
 #include <stdint.h>
