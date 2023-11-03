@@ -60,7 +60,7 @@ static void i2s_start(void)
             0, // Not used for I2S slave
             I2S_MODE_I2S,
             2.2 * I2S_TO_USB_ASRC_BLOCK_LENGTH,
-            4 * 240 * /*USB_TO_I2S_ASRC_BLOCK_LENGTH **/ 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
+            4 * USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
             appconfI2S_INTERRUPT_CORE);
 #endif
 #endif
