@@ -50,7 +50,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     int nRet;
 
     DBG_TRACE("App build at %s, %s\r\n", __DATE__, __TIME__);
-    DBG_TRACE("DSpotter vertion %s\r\n", DSpotterHL_GetVer());
+    DBG_TRACE("DSpotter version %s\r\n", DSpotterHL_GetVer());
 
 #ifdef UART_DUMP_RECORD
     DBG_TRACE("It will send record data to UART. The format is four bytes audio data and one byte checksum.\r\n");
