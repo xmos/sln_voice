@@ -4,12 +4,14 @@ XCORE-VOICE change log
 2.2.0
 -----
 
-  * CHANGED: Updated submodule fwk_io to version 3.3.0 from 3.0.1
+  * CHANGED: Updated submodule fwk_io to version 3.3.0 from 3.1.0
   * CHANGED: Updated submodule fwk_core to version 1.0.2 from 1.0.0
   * CHANGED: Updated submodule fwk_rtos to version 3.0.5 from 3.0.3
   * CHANGED: Updated submodule lib_src to version 2.4.0 from 2.2.0
   * CHANGED: Updated submodule fwk_voice to version 0.7.0 from 0.6.0
   * CHANGED: Updated submodule xscope_fileio to version 1.1.2 from 1.1.1
+  * CHANGED: Updated submodule lib_qspi_fast_read to version 1.0.2 from 1.0.1
+  * ADDED: FFD example with Cyberon speech recognition engine and model (DSpotter v2.2.18.0)
 
 2.1.0
 -----
@@ -17,8 +19,6 @@ XCORE-VOICE change log
   * ADDED: Mic aggregator app that bridges between 16 mics and TDM16 slave or USB Audio
   * ADDED: Asynchronous Sampling Rate Converter (ASRC) example application
   * ADDED: lib_xua 3.5.1 as submodule to support Mic aggregator app
-  * CHANGED: Updated submodule fwk_io on to version 3.1.0 to add support for TDM16 slave tx and 16ch mic_array
-  * ADDED: FFD example with Cyberon speech recognition engine and model (DSpotter v2.2.18.0)
 
 2.0.0
 -----
