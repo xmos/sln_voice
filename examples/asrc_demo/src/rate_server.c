@@ -212,7 +212,7 @@ void rate_server(void *args)
 {
     static bool prev_spkr_itf_open = false;
     uint64_t usb_to_i2s_rate_ratio = 0;
-    usb_to_i2s_rate_info_t usb_rate_info;
+    usb_rate_info_t usb_rate_info;
     i2s_to_usb_rate_info_t i2s_rate_info;
 
     for(;;)

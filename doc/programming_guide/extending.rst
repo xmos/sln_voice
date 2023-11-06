@@ -6,7 +6,7 @@ Memory and CPU Requirements
 ###########################
 
 ******
-Memory 
+Memory
 ******
 
 The table below lists the approximate memory requirements for the larger software components.  All memory use estimates in the table below are based on the default configuration for the feature.  Alternate configurations will require more or less memory.  The estimates are provided as guideline to assist application developers judge the memory cost of extending the application or benefit of removing an existing feature.  It can be assumed that the memory requirement of components not listed in the table below are under 5 kB.
@@ -42,6 +42,8 @@ The table below lists the approximate CPU requirements in MIPS for the larger so
 The following formula was used to convert CPU% to MIPS:
 
 MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
+
+.. _table-CPU-sln-voice:
 
 .. list-table:: CPU Requirements  (@ 600 MHz)
     :widths: 50 50 50
