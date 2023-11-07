@@ -1,4 +1,4 @@
-// Copyright 2021-2022 XMOS LIMITED.
+// Copyright 2021-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -25,7 +25,7 @@ extern devmem_manager_t *devmem_ctx;
 
 size_t FlashReadData(void * dst, const void * src, size_t size)
 {
-    devmem_read_ext(devmem_ctx, dst, src, size); 
+    devmem_read_ext(devmem_ctx, dst, src, size);
 	return size;
 }
 
