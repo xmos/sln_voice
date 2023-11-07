@@ -11,8 +11,8 @@ Overview
 
 These are the XCORE-VOICE far-field local control example designs demonstrating:
 
-- 2-microphone far-field voice control with |I2C| or UART interface 
-- Audio pipeline including interference cancelling and noise suppression 
+- 2-microphone far-field voice control with |I2C| or UART interface
+- Audio pipeline including interference cancelling and noise suppression
 - 16-phrase English language speech recognition
 
 ***************
@@ -26,7 +26,7 @@ This is the far-field voice local command (FFD) example design. Two examples are
 
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
-Sensory's THF and Cyberon's DSpotter™ libraries ship with an expiring development license. The Sensory one will suspend recognition after 11.4 hours or 107 recognition events, and the Cyberon one will suspend recognition after 100 recognition events. Ater the maximum number of recognitions is reached, a device reset is required to resume normal operation.To perform a reset, either power cycle the device or press the SW2 button.
+Sensory's THF and Cyberon's DSpotter™ libraries ship with an expiring development license. The Sensory one will suspend recognition after 11.4 hours or 107 recognition events, and the Cyberon one will suspend recognition after 100 recognition events. After the maximum number of recognitions is reached, a device reset is required to resume normal operation. To perform a reset, either power cycle the device or press the SW2 button.
 
 Production software runs on a special device - need to contact Cyberon, Sensory or XMOS sale for information on that.
 
@@ -64,7 +64,7 @@ This example application features audio playback responses.  Speakers can be con
 .. image:: ../../shared/images/speakers.jpg
   :width: 800
   :alt: speakers
-  
+
 Running the Demonstration
 -------------------------
 

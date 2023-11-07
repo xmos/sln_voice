@@ -19,6 +19,7 @@ XCORE-VOICE change log
   * ADDED: Mic aggregator app that bridges between 16 mics and TDM16 slave or USB Audio
   * ADDED: Asynchronous Sampling Rate Converter (ASRC) example application
   * ADDED: lib_xua 3.5.1 as submodule to support Mic aggregator app
+  * CHANGED: Updated submodule fwk_io on to version 3.1.0 from version 3.0.1
 
 2.0.0
 -----
