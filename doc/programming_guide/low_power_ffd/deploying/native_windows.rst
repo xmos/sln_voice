@@ -77,7 +77,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    ninja run_example_low_power_ffd
+    xrun example_low_power_ffd.xe
 
 Debugging the Firmware
 ======================
@@ -86,6 +86,6 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    ninja debug_example_low_power_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_low_power_ffd.xe
 
 |newpage|

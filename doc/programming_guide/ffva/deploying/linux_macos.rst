@@ -63,8 +63,8 @@ From the build folder run:
 
 .. code-block:: console
 
-    make run_example_ffva_int_fixed_delay
-    make run_example_ffva_ua_adec_altarch
+    xrun example_ffva_int_fixed_delay.xe
+    xrun example_ffva_ua_adec_altarch.xe
 
 Upgrading the Firmware
 ======================
@@ -139,5 +139,5 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    make debug_example_int_adec
-    make debug_example_ua_adec
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_int_fixed_delay.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_ua_adec_altarch.xe
