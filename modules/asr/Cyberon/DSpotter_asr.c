@@ -127,8 +127,9 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
         rtos_uart_tx_write(uart_tx_ctx, byaTxBuffer, (uint32_t)nTransferSize);
     }
 #else
-    if (++g_nRecordFrameCount % 100 == 0)
+    if (++g_nRecordFrameCount % 100 == 0) {
         DBG_TRACE(".");
+    }
 #endif
 
 #ifdef SKIP_DSPOTTER_RECOG
