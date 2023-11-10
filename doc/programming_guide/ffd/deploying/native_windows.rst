@@ -72,7 +72,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun example_ffd.xe
+    xrun --xscope example_ffd.xe
 
 Debugging the Firmware
 ======================

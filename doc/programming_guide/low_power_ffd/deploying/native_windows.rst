@@ -77,7 +77,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun example_low_power_ffd.xe
+    xrun --xscope example_low_power_ffd.xe
 
 Debugging the Firmware
 ======================

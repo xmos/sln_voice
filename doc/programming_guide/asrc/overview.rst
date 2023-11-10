@@ -143,13 +143,12 @@ Following initial ``cmake`` build, for subsequent builds, as long as new source 
 Running the app
 ===============
 
-To run the app, either xrun or xflash can be used. Connect the XK-VOICE-L71 board to the host and type:
+To run the app, either xrun or xflash can be used. Connect the XK-VOICE-L71 board to the host and type the following
+to run with real-time debug output enabled:
 
 ::
 
-   $ xrun example_asrc_demo.xe
-
-Optionally, xrun ``--xscope`` can be used to provide real-time debug output.
+   $ xrun --xscope example_asrc_demo.xe
 
 or to flash the application so that it always boots after a power cycle:
 

@@ -63,8 +63,8 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun example_ffva_int_fixed_delay.xe
-    xrun example_ffva_ua_adec_altarch.xe
+    xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_ua_adec_altarch.xe
 
 Upgrading the Firmware
 ======================
