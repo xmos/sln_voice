@@ -86,7 +86,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    ninja run_example_asr
+    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 

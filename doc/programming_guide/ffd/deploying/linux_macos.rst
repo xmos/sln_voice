@@ -61,7 +61,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    make run_example_ffd_<speech_engine>
+    xrun --xscope example_ffd_<speech_engine>.xe
 
 Debugging the Firmware
 ======================
@@ -71,4 +71,4 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    make debug_example_ffd_<speech_engine>
+    xgdb -ex "connect --xscope" -ex "run" example_ffd_<speech_engine>.xe

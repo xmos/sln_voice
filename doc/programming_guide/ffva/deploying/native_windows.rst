@@ -84,8 +84,8 @@ From the build folder run:
 
 .. code-block:: console
 
-    ninja run_example_ffva_int_fixed_delay
-    ninja run_example_ffva_ua_adec_altarch
+    xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_ua_adec_altarch.xe
 
 Upgrading the Firmware
 ======================
@@ -160,5 +160,5 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    ninja debug_example_int_adec
-    ninja debug_example_ua_adec
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_int_fixed_delay.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_ua_adec_altarch.xe
