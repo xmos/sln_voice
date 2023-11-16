@@ -6,7 +6,7 @@ Modifying the Software
 Implementing the ASR API
 ========================
 
-Begin your ASR port by creating a new folder under ``example/speech_recognition/asr/port``.  Be sure to include ``asr/api/asr.h`` in your port's main source file.  The ``asr.h`` and ``device_memory.h`` files include comments detailing the public API methods and parameters.  ASR ports that implement the public API defined can easily be added to current and future XCORE-VOICE example designs that support speech recognition.
+Begin your ASR port by creating a new folder under ``modules/asr/``.  The ``asr.h`` and ``device_memory.h`` files include comments detailing the public API methods and parameters.  ASR ports that implement the public API defined can easily be added to current and future XCORE-VOICE example designs that support speech recognition.
 
 Pay close attention to the functions:
 - ``asr_printf``
@@ -35,11 +35,13 @@ Like ``devmem_read_ext``, the ``devmem_read_ext_async`` function is provided to 
 
   To minimize SRAM scratch space usage, some ASR ports load coefficients into SRAM in chunks.  This is useful when performing a routine  such as a vector matrix multiply as this operation can be performed on a portion of the matrix at a time.
 
+When the port of the new ASR is complete, you can use the example in ``examples/speech_recognition`` to test it.
+
 .. note::
 
   You may also need to modify ``BRICK_SIZE_SAMPLES`` in ``app_conf.h`` to match the number of audio samples expected per process for your ASR port.  In other example designs, this is defined by ``appconfINTENT_SAMPLE_BLOCK_LENGTH``.  This is set to 240 in the existing example designs.  
 
-In the current source code, the model data (and optional grammar data) are set in ``src/process_file.c``.  Modify these variables to reflect your data.  The remainder of the API should be familiar to ASR developers.  The API can be extended if necessary.
+In the current source code, the model data (and optional grammar data) are set in ``examples/speech_recognition/src/process_file.c``.  Modify these variables to reflect your data.  The remainder of the API should be familiar to ASR developers.  The API can be extended if necessary.
 
 
 Flashing Models
@@ -47,12 +49,12 @@ Flashing Models
 
 To flash your model, modify the ``--data`` argument passed to ``xflash`` command in the :ref:`sln_voice_asr_programming_guide_flash_model` section.
 
-See ``asr/port/example/asr_example_model.h`` to see how the model's flash address is defined.
+See ``examples/speech_recognition/asr_example/asr_example_model.h`` to see how the model's flash address is defined.
 
 Placing Models in SRAM
 ======================
 
-Small models (near or under 100kB in size) may be placed in SRAM.  See ``asr/port/example/asr_example_model.h`` and ``asr/port/example/asr_example_model.c`` for more information on placing your model in SRAM.
+Small models (near or under 100kB in size) may be placed in SRAM.  See ``examples/speech_recognition/asr_example/asr_example_model.c`` for more information on placing your model in SRAM.
 
 *******
 ASR API

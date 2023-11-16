@@ -4,7 +4,7 @@
 Speech Recognition Ports
 ########################
 
-A ports of the Sensory speech recognition library is provided.
+Ports of the Sensory and Cyberon speech recognition libraries are provided.
 
 .. list-table:: Speech Recognition Ports
    :widths: 30 50
@@ -14,10 +14,10 @@ A ports of the Sensory speech recognition library is provided.
    * - Filename/Directory
      - Description
    * - modules/asr directory
-     - include folder for ASR modules
-   * - port directory
-     - contains ports for supported ASR engines
-   * - port/sensory directory
+     - include folder for ASR modules and ports
+   * - module/asr/sensory directory
      - contains the Sensory library and associated port code
-   * - asr.cmake
-     - cmake for adding ASR port targets
+   * - module/asr/Cyberon directory
+     - contains the Cyberon library and associated port code
+   * - modules/asr/CmakeLists.txt
+     - CMakeLists file for adding ASR port targets

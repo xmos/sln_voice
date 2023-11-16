@@ -27,7 +27,9 @@ Additional third party code is included under the following copyrights and licen
     * - `FreeRTOS <https://freertos.org/>`__
       - Copyright (c) 2017 Amazon.com, Inc., licensed under the `MIT License <https://github.com/xmos/FreeRTOS/blob/release/xcore-smp/LICENSE.md>`__
     * - Sensory TrulyHandsfree™
-      - The Sensory TrulyHandsfree speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by `Sensory Inc <https://www.sensory.com/>`__.
+      - The Sensory TrulyHandsfree™ speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by `Sensory Inc <https://www.sensory.com/>`__.
+    * - Cyberon DSpotter™
+      - For any licensing questions about Cyberon DSpotter™ speech recognition library please contact `Cyberon Corporation <https://www.cyberon.com.tw/>`_.
     * - `TinyUSB <https://docs.tinyusb.org/en/latest/index.html>`__
       - Copyright (c) 2018 hathach (tinyusb.org), licensed under the `MIT license <https://github.com/hathach/tinyusb/blob/1bba2c0fc3bce05e9fbe4ff23dda30283d08574d/LICENSE>`__      
 
