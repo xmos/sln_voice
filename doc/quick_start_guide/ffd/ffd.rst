@@ -102,7 +102,7 @@ Sensory TrulyHandsfree™ and Cyberon DSpotter™ models detect the same command
 **Wakewords**
 
 - Hello XMOS
-- Hello Cyberon' (DSpotter™ model only)
+- Hello Cyberon (DSpotter™ model only)
 
 **Dictionary Commands**
 

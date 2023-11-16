@@ -1,10 +1,12 @@
 # Far-field Voice Local Command
 
-This is the XCORE-VOICE far-field voice local control firmware with Sensory TrulyHandsfree™ speech recognition. 
+This is the XCORE-VOICE far-field voice local control firmware. Two examples are provided: one example uses the Sensory TrulyHandsfree™ (THF) speech recognition, and the other one uses the Cyberon DSPotter™ speech recognition.
 
-This software is an evaluation version only. It includes a mechanism that limits the maximum number of recognitions to 50. You can reset the counter to 0 by restarting or rebooting the application.
+This software is an evaluation version only. It includes a mechanism that limits the maximum number of recognitions. You can reset the counter to 0 by restarting or rebooting the application.
 
 The Sensory TrulyHandsfree™ speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by [Sensory Inc](https://www.sensory.com/).
+
+The Cyberon DSPotter™ speech recognition library is provided as an expiring development license. Commercial licensing is granted by [Cyberon Corporation](https://www.cyberon.com.tw/) and is subject to deployment only on part number XU316-1024-QF60B-C24-CY.
 
 See the full documentation for more information on configuring, modifying, building, and running the firmware.
 
@@ -13,9 +15,12 @@ See the full documentation for more information on configuring, modifying, build
 The application will recognize the following utterances:
 
 **Wakeword Utterances**
+
 - Hello XMOS
+- Hello Cyberon (DSpotter™ model only)
 
 **Command Utterances**
+
 - Switch on the TV
 - Channel up
 - Channel down
