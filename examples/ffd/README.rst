@@ -6,9 +6,9 @@ This is the XCORE-VOICE far-field voice local control firmware. Two examples are
 
 This software is an evaluation version only. It includes a mechanism that limits the maximum number of recognitions. You can reset the counter to 0 by restarting or rebooting the application.
 
-The Sensory TrulyHandsfree™ speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by `Sensory Inc<https://www.sensory.com/>`__.
+The Sensory TrulyHandsfree™ speech recognition library is `Copyright (C) 1995-2022 Sensory Inc.` and is provided as an expiring development license. Commercial licensing is granted by `Sensory Inc<https://www.sensory.com/>`_.
 
-The Cyberon DSPotter™ speech recognition library is provided as an expiring development license. Commercial licensing is granted by `Cyberon Corporation<https://www.cyberon.com.tw/>`__ and is subject to deployment only on part number XU316-1024-QF60B-C24-CY.
+The Cyberon DSPotter™ speech recognition library is provided as an expiring development license. Commercial licensing is granted by `Cyberon Corporation<https://www.cyberon.com.tw/>`_ and is subject to deployment only on part number XU316-1024-QF60B-C24-CY.
 
 See the full documentation for more information on configuring, modifying, building, and running the firmware.
 
