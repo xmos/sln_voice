@@ -136,7 +136,14 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     return ASR_ERROR;
 #endif
 
+    // Uncomment the line below to compute MIPS usage.
+    // uint32_t timer_start = get_reference_time();
+
     int nRet = DSpotterHL_AddSampleNoFlow(audio_buf, buf_len);
+
+    // Uncomment the two lines below to compute MIPS usage.
+    // uint32_t timer_end = get_reference_time();
+    // asr_printf("DSpotter processing time: %lu (us)\n", (timer_end - timer_start) / 100);
 
     if (nRet == DSPOTTER_SUCCESS)
     {
