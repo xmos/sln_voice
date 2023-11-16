@@ -19,6 +19,7 @@ The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_  library
 
 Supported Hardware
 ==================
+
 This example application is supported on the `XK-VOICE-L71 <https://www.digikey.co.uk/en/products/detail/xmos/XK-VOICE-L71/15761172>`_ board.
 In addition to the XK-VOICE-L71 board, it requires an XTAG4 to program and debug the device.
 
