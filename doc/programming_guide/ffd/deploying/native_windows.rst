@@ -72,7 +72,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    ninja run_example_ffd
+    xrun --xscope example_ffd.xe
 
 Debugging the Firmware
 ======================
@@ -81,4 +81,4 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    ninja debug_example_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_ffd.xe

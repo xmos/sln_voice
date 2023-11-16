@@ -57,7 +57,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    make run_example_ffd
+    xrun --xscope example_ffd.xe
 
 Debugging the Firmware
 ======================
@@ -67,4 +67,4 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    make debug_example_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_ffd.xe

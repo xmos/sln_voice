@@ -2,8 +2,8 @@
 Documentation Source
 ####################
 
-This folder contains source files for the documentation. The sources do not render well in GitHub or an RST viewer.
-In addition, some information is not visible at all and some links will not be functional.
+This folder contains source files for the documentation and is intended for XMOS employees. Pre-built documentation is published on `the XMOS website<https://www.xmos.com>`_.
+The sources do not render well in GitHub or an RST viewer. In addition, some information is not visible at all and some links will not be functional.
 
 **********************
 Building Documentation
