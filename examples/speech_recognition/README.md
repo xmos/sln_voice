@@ -33,10 +33,10 @@ Before building the host application, you will need to add the path to the XTC T
 
 Then build the host application:
 
-    cmake -G "NMake Makefiles" -B build_host
+    cmake -G Ninja -B build_host
     cd build_host
-    nmake xscope_host_endpoint
-    nmake install
+    ninja xscope_host_endpoint
+    ninja install
 
 The host application, `xscope_host_endpoint.exe`, will install at `<USERPROFILE>\.xmos\bin`, and may be moved if desired.  You may wish to add this directory to your `PATH` variable.
 
@@ -48,15 +48,15 @@ Run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run:
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_asr
 
 On Windows run:
 
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G "Ninja" -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_asr
+    ninja example_asr
 
 ## Flashing the Model
 
@@ -68,13 +68,7 @@ Run the following commands in the build folder to flash the model:
 
 Run the following command in the build folder to run the firmware.
 
-On Linux and Mac run:
-
-    make run_example_asr
-
-On Windows run:
-
-    nmake run_example_asr
+    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 
