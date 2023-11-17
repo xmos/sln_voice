@@ -100,22 +100,10 @@ re-flashed.
 If there are no changes to the data partition, run the following from the build
 folder.
 
-On Linux and Mac run:
-
-    make run_example_low_power_ffd
-
-On Windows run:
-
-    ninja run_example_low_power_ffd
+    xrun --xscope example_low_power_ffd.xe
 
 ## Debugging the firmware with `xgdb`
 
 Run the following commands in the build folder.
 
-On Linux and Mac run:
-
-    make debug_example_low_power_ffd
-
-On Windows run:
-
-    ninja debug_example_low_power_ffd
+    xgdb -ex "conn --xscope" -ex "r" example_low_power_ffd.xe

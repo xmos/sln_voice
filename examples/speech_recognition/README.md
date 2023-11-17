@@ -68,13 +68,7 @@ Run the following commands in the build folder to flash the model:
 
 Run the following command in the build folder to run the firmware.
 
-On Linux and Mac run:
-
-    make run_example_asr
-
-On Windows run:
-
-    ninja run_example_asr
+    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 

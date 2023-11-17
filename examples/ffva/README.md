@@ -76,29 +76,15 @@ re-flashed.
 
 Run the following commands in the build folder.
 
-On Linux and Mac run:
-
-    make run_example_ffva_int_fixed_delay
-    make run_example_ffva_ua_adec_altarch
-
-On Windows run:
-
-    ninja run_example_ffva_int_fixed_delay
-    ninja run_example_ffva_ua_adec_altarch
+    xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_ua_adec_altarch.xe
 
 ## Debugging the firmware with `xgdb`
 
 Run the following commands in the build folder.
 
-On Linux and Mac run:
-
-    make debug_example_ffva_int_fixed_delay
-    make debug_example_ffva_ua_adec_altarch
-
-On Windows run:
-
-    ninja debug_example_ffva_int_fixed_delay
-    ninja debug_example_ffva_ua_adec_altarch
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec_altarch.xe
 
 ## Running the Firmware With WAV Files
 
