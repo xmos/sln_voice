@@ -9,7 +9,7 @@ help()
    echo "XCORE-VOICE Device Firmware Update (DFU) Test"
    echo
    echo "Syntax: check_dfu.sh [-h] adapterID"
-   echo 
+   echo
    echo "Options:"
    echo "   h     Print this Help."
 }
@@ -43,7 +43,7 @@ xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/
 xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 
 # flash the data partition
-# build_tests.sh creates example_ffva_ua_adec_data_partition.bin used here
+# build_tests.sh creates example_ffva_ua_adec_altarch_data_partition.bin used here
 xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}
 
 # wait for device to reset (may not be necessary)

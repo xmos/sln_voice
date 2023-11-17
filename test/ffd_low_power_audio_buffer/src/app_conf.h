@@ -1,6 +1,5 @@
 // Copyright 2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
-// This Software is subject to the terms of the XMOS Public License: Version 1
 
 #ifndef APP_CONF_H
 #define APP_CONF_H

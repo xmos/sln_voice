@@ -21,19 +21,6 @@
 extern void i2s_rate_conversion_enable(void);
 extern void configure_io_expander(void);
 
-static void gpio_start(void)
-{
-    rtos_gpio_rpc_config(gpio_ctx_t0, appconfGPIO_T0_RPC_PORT, appconfGPIO_RPC_PRIORITY);
-    rtos_gpio_rpc_config(gpio_ctx_t1, appconfGPIO_T1_RPC_PORT, appconfGPIO_RPC_PRIORITY);
-
-#if ON_TILE(0)
-    rtos_gpio_start(gpio_ctx_t0);
-#endif
-#if ON_TILE(1)
-    rtos_gpio_start(gpio_ctx_t1);
-#endif
-}
-
 static void flash_start(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
@@ -73,7 +60,8 @@ static void i2s_start(void)
             0, // Not used for I2S slave
             I2S_MODE_I2S,
             2.2 * I2S_TO_USB_ASRC_BLOCK_LENGTH,
-            4 * 240 * /*USB_TO_I2S_ASRC_BLOCK_LENGTH **/ 4 * (appconfI2S_TDM_ENABLED ? 3 : 1),
+            4 * USB_TO_I2S_ASRC_BLOCK_LENGTH * 4 * (appconfI2S_TDM_ENABLED ? 3 : 1), // factor of 4 for the worst case 48 -> 192kHz upsampling.
+                                                                                     // An extra factor of 4 to account for jitter during startup.
             appconfI2S_INTERRUPT_CORE);
 #endif
 #endif
@@ -91,7 +79,6 @@ void platform_start(void)
     rtos_intertile_start(intertile_ctx);
     rtos_intertile_start(intertile_usb_audio_ctx);
     rtos_intertile_start(intertile_i2s_audio_ctx);
-    gpio_start();
     flash_start();
     i2c_master_start();
     enable_level_shifters();

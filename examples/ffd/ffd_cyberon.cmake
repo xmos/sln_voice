@@ -1,23 +1,14 @@
-set(LOW_POWER_FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
+set(FFD_SRC_ROOT ${CMAKE_CURRENT_LIST_DIR})
 
-#****************************
-# Set Sensory model variables
-#****************************
-set(SENSORY_WAKEWORD_SEARCH_HEADER_FILE "${CMAKE_CURRENT_LIST_DIR}/model/wakeword-pc60w-6.1.0-op10-prod-search.h")
-set(SENSORY_WAKEWORD_SEARCH_SOURCE_FILE "${CMAKE_CURRENT_LIST_DIR}/model/wakeword-pc60w-6.1.0-op10-prod-search.c")
-set(SENSORY_WAKEWORD_NET_SOURCE_FILE "${CMAKE_CURRENT_LIST_DIR}/model/wakeword-pc60w-6.1.0-op10-prod-net.c")
-
-set(SENSORY_COMMAND_SEARCH_HEADER_FILE "${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.1.0-op10-prod-search.h")
-set(SENSORY_COMMAND_SEARCH_SOURCE_FILE "${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.1.0-op10-prod-search.c")
-set(SENSORY_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/model/command-pc62w-6.1.0-op10-prod-net.bin.nibble_swapped")
+set(MODEL_LANGUAGE "english_usa")
+set(CYBERON_COMMAND_NET_FILE "${FFD_SRC_ROOT}/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
 
 #**********************
 # Gather Sources
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
-set(APP_SOURCES
-    ${APP_SOURCES}
-)
+
+
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
@@ -25,13 +16,10 @@ set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response
     ${CMAKE_CURRENT_LIST_DIR}/src/power
-    ${CMAKE_CURRENT_LIST_DIR}/src/wakeword
 )
 set(RTOS_CONF_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/rtos_conf
 )
-
-include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 
 #**********************
 # QSPI Flash Layout
@@ -67,6 +55,7 @@ math(EXPR MODEL_DATA_PARTITION_OFFSET
     OUTPUT_FORMAT DECIMAL
 )
 
+
 #**********************
 # Flags
 #**********************
@@ -87,77 +76,74 @@ set(APP_COMPILE_DEFINITIONS
     QSPI_FLASH_FILESYSTEM_START_ADDRESS=${FILESYSTEM_START_ADDRESS}
     QSPI_FLASH_MODEL_START_ADDRESS=${MODEL_START_ADDRESS}
     QSPI_FLASH_CALIBRATION_ADDRESS=${CALIBRATION_PATTERN_START_ADDRESS}
-    WAKEWORD_NET_SOURCE_FILE="${SENSORY_WAKEWORD_NET_SOURCE_FILE}"
-    WAKEWORD_SEARCH_HEADER_FILE="${SENSORY_WAKEWORD_SEARCH_HEADER_FILE}"
-    WAKEWORD_SEARCH_SOURCE_FILE="${SENSORY_WAKEWORD_SEARCH_SOURCE_FILE}"
-    COMMAND_SEARCH_HEADER_FILE="${SENSORY_COMMAND_SEARCH_HEADER_FILE}"
-    COMMAND_SEARCH_SOURCE_FILE="${SENSORY_COMMAND_SEARCH_SOURCE_FILE}"
+    ASR_CYBERON=1
 )
 
 set(APP_LINK_OPTIONS
     -report
+    -lotp3
     ${CMAKE_CURRENT_LIST_DIR}/src/config.xscope
 )
 
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
-    sln_voice::app::asr::sensory
-    rtos::drivers::clock_control
+    sln_voice::app::asr::Cyberon
+    sln_voice::app::ffd::xk_voice_l71
 )
 
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_example_low_power_ffd)
+set(TARGET_NAME tile0_example_ffd_cyberon)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=0)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::low_power_ffd::xk_voice_l71)
+target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES})
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_example_low_power_ffd)
+set(TARGET_NAME tile1_example_ffd_cyberon)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
 target_compile_definitions(${TARGET_NAME} PUBLIC ${APP_COMPILE_DEFINITIONS} THIS_XCORE_TILE=1)
 target_compile_options(${TARGET_NAME} PRIVATE ${APP_COMPILER_FLAGS})
-target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES} sln_voice::app::low_power_ffd::xk_voice_l71)
+target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES})
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS} )
 unset(TARGET_NAME)
 
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(example_low_power_ffd tile0_example_low_power_ffd tile1_example_low_power_ffd 1)
+merge_binaries(example_ffd_cyberon tile0_example_ffd_cyberon tile1_example_ffd_cyberon 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(example_low_power_ffd)
-create_debug_target(example_low_power_ffd)
+create_run_target(example_ffd_cyberon)
+create_debug_target(example_ffd_cyberon)
 
 #**********************
 # Create data partition support targets
 #**********************
-set(TARGET_NAME example_low_power_ffd)
+set(TARGET_NAME example_ffd_cyberon)
 set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
 set(MODEL_FILE ${TARGET_NAME}_model.bin)
 set(FATFS_FILE ${TARGET_NAME}_fat.fs)
 set(FLASH_CAL_FILE ${LIB_QSPI_FAST_READ_ROOT_PATH}/lib_qspi_fast_read/calibration_pattern_nibble_swap.bin)
 
 add_custom_target(${MODEL_FILE} ALL
-    COMMAND ${CMAKE_COMMAND} -E copy ${SENSORY_COMMAND_NET_FILE} ${MODEL_FILE}
+    COMMAND ${CMAKE_COMMAND} -E copy ${CYBERON_COMMAND_NET_FILE} ${MODEL_FILE}
     COMMENT
-        "Copy Sensory NET file"
+        "Copy Cyberon NET file"
     VERBATIM
 )
 
 create_filesystem_target(
     #[[ Target ]]                   ${TARGET_NAME}
-    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support
+    #[[ Input Directory ]]          ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/${MODEL_LANGUAGE}
     #[[ Image Size ]]               ${FILESYSTEM_SIZE_BYTES}
 )
 

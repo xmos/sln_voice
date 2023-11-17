@@ -13,7 +13,7 @@ These are the XCORE-VOICE far-field voice assistant example designs demonstratin
 
 - 2-microphone far-field voice assistant front-end
 - Audio pipeline including echo cancelation, interference cancelling and noise suppression
-- Stereo reference input and voice assistant output each supported as |I2S| or USB (UAC2.0)    
+- Stereo reference input and voice assistant output each supported as |I2S| or USB (UAC2.0)
 
 This application can be used out of the box as a voice processor solution, or extended to run local wakeword engines.
 
@@ -67,7 +67,7 @@ On the host computer, open a ``XTC Tools Command Prompt``.
 
 .. code-block:: console
 
-    xflash --quad-spi-clock 50MHz --factory example_ffva_ua_adec.xe --boot-partition-size 0x100000 --data example_ffva_ua_adec_data_partition.bin
+    xflash --quad-spi-clock 50MHz --factory example_ffva_ua_adec_altarch.xe --boot-partition-size 0x100000 --data example_ffva_ua_adec_altarch_data_partition.bin
 
 Being returned to the prompt means flashing has completed, and the XTAG4 may be disconnected.
 
@@ -87,13 +87,13 @@ Record Captured Voice
 .. image:: images/channels_dropdown.png
   :width: 800
   :alt: audacity channels dropdown
-  
+
 6. Set Project Rate to 48000Hz in Selection Toolbar.
 
 .. image:: images/audacity-rate.png
   :width: 230
   :alt: audacity bitrate setting
-  
+
 7. Click Record (press 'r') to start capturing audio streamed from the XCORE-VOICE device.
 
 8. Talk over music; move around the room while talking.
@@ -107,13 +107,13 @@ Record Captured Voice
 .. image:: images/split-track-to-mono.jpg
   :width: 400
   :alt: audacity split action dropdown
-  
+
 12. Click Solo on left channel of split processed audio. Increase Gain slider if necessary.
 
 .. image:: images/solo-gain.png
   :width: 400
   :alt: audacity solo and gain options
-  
+
 13. Click Play (press space) to playback processed audio.
 
 Only your voice is audible. Playback music is removed by acoustic echo cancellation; voice is isolated by interference canceller; background noise is removed by noise suppression algorithms.

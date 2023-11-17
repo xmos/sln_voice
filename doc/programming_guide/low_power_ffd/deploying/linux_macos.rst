@@ -5,7 +5,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `Make`.
+This document explains how to deploy the software using *CMake* and *Make*.
 
 Building the Host Applications
 ==============================
@@ -33,7 +33,7 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_low_power_ffd
 
@@ -57,7 +57,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    make run_example_low_power_ffd
+    xrun --xscope example_low_power_ffd.xe
 
 Debugging the Firmware
 ======================
@@ -66,6 +66,6 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    make debug_example_low_power_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_low_power_ffd.xe
 
 |newpage|
