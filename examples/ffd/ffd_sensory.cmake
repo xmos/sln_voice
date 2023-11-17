@@ -19,7 +19,7 @@ file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 set(APP_SOURCES
     ${APP_SOURCES}
     ${SENSORY_COMMAND_SEARCH_SOURCE_FILE}
-)  
+)
 
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
@@ -32,8 +32,6 @@ set(APP_INCLUDES
 set(RTOS_CONF_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src/rtos_conf
 )
-
-include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
 
 #**********************
 # QSPI Flash Layout
@@ -69,7 +67,7 @@ math(EXPR MODEL_DATA_PARTITION_OFFSET
     OUTPUT_FORMAT DECIMAL
 )
 
-    
+
 #**********************
 # Flags
 #**********************
@@ -91,6 +89,7 @@ set(APP_COMPILE_DEFINITIONS
     QSPI_FLASH_MODEL_START_ADDRESS=${MODEL_START_ADDRESS}
     QSPI_FLASH_CALIBRATION_ADDRESS=${CALIBRATION_PATTERN_START_ADDRESS}
     COMMAND_SEARCH_SOURCE_FILE="${SENSORY_COMMAND_SEARCH_SOURCE_FILE}"
+    ASR_SENSORY=1
 )
 
 set(APP_LINK_OPTIONS
@@ -107,7 +106,7 @@ set(APP_COMMON_LINK_LIBRARIES
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_example_ffd)
+set(TARGET_NAME tile0_example_ffd_sensory)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
@@ -117,7 +116,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES})
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_example_ffd)
+set(TARGET_NAME tile1_example_ffd_sensory)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
@@ -130,18 +129,18 @@ unset(TARGET_NAME)
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(example_ffd tile0_example_ffd tile1_example_ffd 1)
+merge_binaries(example_ffd_sensory tile0_example_ffd_sensory tile1_example_ffd_sensory 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(example_ffd)
-create_debug_target(example_ffd)
+create_run_target(example_ffd_sensory)
+create_debug_target(example_ffd_sensory)
 
 #**********************
 # Create data partition support targets
 #**********************
-set(TARGET_NAME example_ffd)
+set(TARGET_NAME example_ffd_sensory)
 set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
 set(MODEL_FILE ${TARGET_NAME}_model.bin)
 set(FATFS_FILE ${TARGET_NAME}_fat.fs)

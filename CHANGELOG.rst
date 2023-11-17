@@ -13,6 +13,7 @@ XCORE-VOICE change log
   * CHANGED: Updated submodule lib_qspi_fast_read to version 1.0.2 from 1.0.1
   * ADDED: Support for Microsoft OS 2.0 Descriptors for FFVA and ASRC examples
            so the DFU interface automatically shows up as a WinUSB interface on Windows.
+  * ADDED: FFD example with Cyberon speech recognition engine and model (DSpotter v2.2.18.0)
 
 2.1.0
 -----

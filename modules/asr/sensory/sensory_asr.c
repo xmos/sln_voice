@@ -25,7 +25,7 @@ typedef struct sensory_asr_struct
 } sensory_asr_t;
 
 static devmem_manager_t *devmem_ctx = NULL;
-static sensory_asr_t sensory_asr; 
+static sensory_asr_t sensory_asr;
 
 /**
  * Wrapper for devmem_read_ext called by libTHFMicro.
@@ -33,14 +33,14 @@ static sensory_asr_t sensory_asr;
 __attribute__((fptrgroup("sensory_asr_xcore_memcpy_fptr_grp")))
 static void xcore_memcpy(void * dst, const void * src, size_t size) \
 {
-    devmem_read_ext(devmem_ctx, dst, src, size); 
+    devmem_read_ext(devmem_ctx, dst, src, size);
 }
 
 /**
  * Return TRUE if ptr is in SwMem (flash) address range.
 **/
 __attribute__((fptrgroup("sensory_asr_xcore_is_flash_fptr_grp")))
-static BOOL xcore_is_flash(const void * ptr) 
+static BOOL xcore_is_flash(const void * ptr)
 {
     if (IS_FLASH((intptr_t) ptr)) return TRUE;
     else return FALSE;
@@ -130,12 +130,14 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     sensory_asr->brick_count++;
     sensory_asr->word_id = -1;
 
-    //uint32_t timer_start = get_reference_time();
+    // Uncomment the line below to compute MIPS usage.
+    // uint32_t timer_start = get_reference_time();
 
     error = SensoryProcessData((s16 *) audio_buf, app);
 
-    //uint32_t timer_end = get_reference_time();
-    //asr_printf("Duration: %lu (us)\n", (timer_end - timer_start) / 100);
+    // Uncomment the two lines below to compute MIPS usage.
+    // uint32_t timer_end = get_reference_time();
+    // asr_printf("Sensory processing time: %lu (us)\n", (timer_end - timer_start) / 100);
 
     // if (t->tokensPruned) {
     //     asr_printf("Search for recognizer was limited by maxTokens count %d\n"
@@ -184,7 +186,7 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     return ASR_OK; // more to process
 }
 
-asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result) 
+asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
 {
     xassert(ctx);
     xassert(result);
@@ -219,7 +221,7 @@ asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes)
     attributes->samples_per_brick = FRAME_LEN;
 
     infoStruct_T info;
-    errors_t err = SensoryInfo(&info); 
+    errors_t err = SensoryInfo(&info);
     if (err == ERR_OK)
     {
         sprintf(attributes->engine_version, "%lu", info.version);
@@ -233,7 +235,7 @@ asr_error_t asr_reset(asr_port_t *ctx)
     xassert(ctx);
     sensory_asr_t *sensory_asr = (sensory_asr_t *) ctx;
     appStruct_T *app = &(sensory_asr->app);
-    
+
     SensoryProcessRestart(app);
     return ASR_OK;
 }
