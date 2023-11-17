@@ -30,7 +30,7 @@ XCORE-VOICE host builds should also work using other Windows GNU development env
 libusb
 ======
 
-The DFU feature of XCORE-VOICE requires `dfu-util <https://dfu-util.sourceforge.net/>`_ which requires ``libusb v1.0``. ``libusb`` requires the installation of a driver for use on a Windows host. Driver installation should be done using a third-party installation tool like `Zadig <https://zadig.akeo.ie/>`_.
+The DFU feature of XCORE-VOICE requires `dfu-util <https://dfu-util.sourceforge.net/>`_.
 
 *****
 macOS
