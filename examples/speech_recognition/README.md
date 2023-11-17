@@ -33,10 +33,10 @@ Before building the host application, you will need to add the path to the XTC T
 
 Then build the host application:
 
-    cmake -G "NMake Makefiles" -B build_host
+    cmake -G Ninja -B build_host
     cd build_host
-    nmake xscope_host_endpoint
-    nmake install
+    ninja xscope_host_endpoint
+    ninja install
 
 The host application, `xscope_host_endpoint.exe`, will install at `<USERPROFILE>\.xmos\bin`, and may be moved if desired.  You may wish to add this directory to your `PATH` variable.
 
@@ -54,9 +54,9 @@ On Linux and Mac run:
 
 On Windows run:
 
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G "Ninja" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_asr
+    ninja example_asr
 
 ## Flashing the Model
 
@@ -74,7 +74,7 @@ On Linux and Mac run:
 
 On Windows run:
 
-    nmake run_example_asr
+    ninja run_example_asr
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 

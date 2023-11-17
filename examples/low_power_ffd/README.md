@@ -57,9 +57,9 @@ Before building the host application, you will need to add the path to the XTC T
 
 Then build the host application:
 
-    cmake -G "NMake Makefiles" -B build_host
+    cmake -G Ninja -B build_host
     cd build_host
-    nmake install
+    ninja install
 
 The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
@@ -75,9 +75,9 @@ On Linux and Mac run:
 
 On Windows run:
 
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_low_power_ffd
+    ninja example_low_power_ffd
 
 ## Running the Firmware
 
@@ -90,7 +90,7 @@ On Linux and Mac run:
 
 On Windows run:
 
-    nmake flash_app_example_low_power_ffd
+    ninja flash_app_example_low_power_ffd
 
 Once flashed, the application will run.
 
@@ -106,7 +106,7 @@ On Linux and Mac run:
 
 On Windows run:
 
-    nmake run_example_low_power_ffd
+    ninja run_example_low_power_ffd
 
 ## Debugging the firmware with `xgdb`
 
@@ -118,4 +118,4 @@ On Linux and Mac run:
 
 On Windows run:
 
-    nmake debug_example_low_power_ffd
+    ninja debug_example_low_power_ffd
