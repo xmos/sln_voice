@@ -102,7 +102,7 @@ On Linux or Mac run:
 
 The host applications will be installed at ``/opt/xmos/bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
-Then build the host application:
+On Windows run:
 
 ::
 

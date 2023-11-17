@@ -1,12 +1,16 @@
-# Far-field Voice Assistant
+*************************
+Far-field Voice Assistant
+*************************
 
 This is the far-field voice assistant example design firmware.  See the full documentation for more information on configuring, modifying, building, and running the firmware.
 
-## Supported Hardware
+Supported Hardware
+==================
 
 This example is supported on the XK_VOICE_L71 board.
 
-## Building the Host Applications
+Building the Host Applications
+==============================
 
 This application requires a host application to create the flash data partition. Run the following commands in the root folder to build the host application using your native Toolchain:
 
@@ -22,11 +26,15 @@ The host applications will be installed at ``/opt/xmos/bin``, and may be moved i
 
 On Windows run:
 
-Before building the host application, you will need to add the path to the XTC Tools to your environment.
+Before building the host application, you will need to add the path to the XTC Tools to your environment:
+
+::
 
     set "XMOS_TOOL_PATH=<path-to-xtc-tools>"
 
 Then build the host application:
+
+::
 
     cmake -G Ninja -B build_host
     cd build_host
@@ -40,6 +48,8 @@ Run the following commands in the root folder to build the firmware.
 
 On Linux and Mac run:
 
+::
+
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
@@ -47,6 +57,8 @@ On Linux and Mac run:
     make example_ffva_ua_adec_altarch
 
 On Windows run:
+
+::
 
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
@@ -59,10 +71,14 @@ flash the device with the appropriate command to the desired configuration:
 
 On Linux and Mac run:
 
+::
+
     make flash_app_example_ffva_int_fixed_delay
     make flash_app_example_ffva_ua_adec_altarch
 
 On Windows run:
+
+::
 
     ninja flash_app_example_ffva_int_fixed_delay
     ninja flash_app_example_ffva_ua_adec_altarch
@@ -72,21 +88,28 @@ Once flashed, the application will run.
 If changes are made to the data partition components, the application must be
 re-flashed.
 
-## Running the Firmware
+Running the Firmware
+====================
 
-Run the following commands in the build folder.
+Run the following commands in the build folder:
+
+::
 
     xrun --xscope example_ffva_int_fixed_delay.xe
     xrun --xscope example_ffva_ua_adec_altarch.xe
 
-## Debugging the firmware with `xgdb`
+Debugging the firmware with `xgdb`
+=================================
 
-Run the following commands in the build folder.
+Run the following commands in the build folder:
+
+::
 
     xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec_altarch.xe
 
-## Running the Firmware With WAV Files
+Running the Firmware With WAV Files
+===================================
 
 This application supports USB audio input and output debug configuration.
 
@@ -94,7 +117,9 @@ To enable USB audio debug, configure cmake with:
 
 Run the following commands in the root folder to build the firmware.
 
-On Linux and Mac run:
+On Linux and Mac run::
+
+::
 
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
@@ -102,6 +127,8 @@ On Linux and Mac run:
     make example_ffva_ua_adec_altarch
 
 On Windows run:
+
+::
 
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
@@ -111,6 +138,8 @@ On Windows run:
 After rebuilding the firmware, run the application.
 
 In a separate terminal, run the usb audio host utility provided in the tools/audio folder:
+
+::
 
     process_wav.sh -c4 input.wav output.wav
 
