@@ -1,6 +1,6 @@
 # Low-Power Far-field Voice Local Command
 
-This is the XCORE-VOICE low-power far-field voice local control firmware with Sensory TrulyHandsFree speech recognition. 
+This is the XCORE-VOICE low-power far-field voice local control firmware with Sensory TrulyHandsFree speech recognition.
 
 Please note that this software comes with an expiring Sensory development license.  It will suspend recognition after 11.4 hours or 107 recognition events. The only way to clear this is to reset the system.
 
@@ -71,13 +71,13 @@ On Linux and Mac run:
 
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
-    make example_low_power_ffd
+    make example_low_power_ffd_sensory
 
 On Windows run:
 
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
-    ninja example_low_power_ffd
+    ninja example_low_power_ffd_sensory
 
 ## Running the Firmware
 
@@ -86,11 +86,11 @@ model(s) must be loaded. Run the following commands from the build folder.
 
 On Linux and Mac run:
 
-    make flash_app_example_low_power_ffd
+    make flash_app_example_low_power_ffd_sensory
 
 On Windows run:
 
-    ninja flash_app_example_low_power_ffd
+    ninja flash_app_example_low_power_ffd_sensory
 
 Once flashed, the application will run.
 
@@ -100,22 +100,10 @@ re-flashed.
 If there are no changes to the data partition, run the following from the build
 folder.
 
-On Linux and Mac run:
-
-    make run_example_low_power_ffd
-
-On Windows run:
-
-    ninja run_example_low_power_ffd
+    xrun --xscope example_low_power_ffd_sensory.xe
 
 ## Debugging the firmware with `xgdb`
 
 Run the following commands in the build folder.
 
-On Linux and Mac run:
-
-    make debug_example_low_power_ffd
-
-On Windows run:
-
-    ninja debug_example_low_power_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_low_power_ffd_sensory.xe

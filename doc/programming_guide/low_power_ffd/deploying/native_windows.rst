@@ -59,7 +59,7 @@ Run the following commands in the root folder to build the firmware:
 
     cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    ninja example_low_power_ffd
+    ninja example_low_power_ffd_sensory
 
 Running the Firmware
 ====================
@@ -70,7 +70,7 @@ Within the root of the build folder, run:
 
 .. code-block:: console
 
-    ninja flash_app_example_low_power_ffd
+    ninja flash_app_example_low_power_ffd_sensory
 
 After this command completes, the application will be running.
 
@@ -81,7 +81,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun --xscope example_low_power_ffd.xe
+    xrun --xscope example_low_power_ffd_sensory.xe
 
 Debugging the Firmware
 ======================
@@ -90,6 +90,6 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    xgdb -ex "connect --xscope" -ex "run" example_low_power_ffd.xe
+    xgdb -ex "connect --xscope" -ex "run" example_low_power_ffd_sensory.xe
 
 |newpage|
