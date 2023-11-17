@@ -1,6 +1,5 @@
 #!/bin/bash
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
-set -e # exit on first error
 set -x # echo on
 
 # help text
