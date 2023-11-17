@@ -82,7 +82,9 @@ Building the Host Applications
 
 This application requires a host application to create the flash data partition. Run the following commands in the root folder to build the host application using your native Toolchain:
 
-NOTE: Permissions may be required to install the host applications.
+.. note::
+
+    Permissions may be required to install the host applications.
 
 
 On Linux and Mac run:
