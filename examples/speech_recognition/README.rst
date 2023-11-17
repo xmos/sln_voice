@@ -4,7 +4,8 @@ Automated Speech Recognition Porting
 
 This is the XCORE-VOICE automated speech recognition (ASR) porting example application.
 
-## Supported Hardware
+Supported Hardware
+==================
 
 This example is supported on the XK_VOICE_L71 board.  However, the XCORE-AI-EXPLORER board can be supported with a couple minor modifications.
 
@@ -69,7 +70,8 @@ The host application, `xscope_host_endpoint.exe`, will install at `<USERPROFILE>
 
 Before running the host application, you may need to add the location of `xscope_endpoint.dll` to your `PATH`. This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.ai/documentation/XM-014363-PC-LATEST/html/tools-guide/install-configure/getting-started.html>`__.
 
-## Building the Firmware
+Building the Firmware
+=====================
 
 Run the following commands in the root folder to build the firmware:
 

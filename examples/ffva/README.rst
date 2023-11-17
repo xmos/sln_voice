@@ -44,7 +44,8 @@ Then build the host application:
 
 The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
-## Building the Firmware
+Building the Firmware
+=====================
 
 Run the following commands in the root folder to build the firmware.
 
