@@ -7,6 +7,10 @@ Deploying the Firmware with Linux or macOS
 
 This document explains how to deploy the software using *CMake* and *Make*.
 
+.. note::
+
+    In the commands below ``<speech_engine>`` can be either ``sensory`` or ``cyberon``, depending on the choice of the speech recognition engine and model.
+
 Building the Host Applications
 ==============================
 
@@ -33,7 +37,7 @@ Run the following commands in the root folder to build the firmware:
 
     cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    make example_ffd
+    make example_ffd_<speech_engine>
 
 Running the Firmware
 ====================
@@ -45,7 +49,7 @@ Within the root of the build folder, run:
 
 .. code-block:: console
 
-    make flash_app_example_ffd
+    make flash_app_example_ffd_<speech_engine>
 
 After this command completes, the application will be running.
 
@@ -57,7 +61,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun --xscope example_ffd.xe
+    xrun --xscope example_ffd_<speech_engine>.xe
 
 Debugging the Firmware
 ======================
@@ -67,4 +71,4 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    xgdb -ex "connect --xscope" -ex "run" example_ffd.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffd_<speech_engine>.xe
