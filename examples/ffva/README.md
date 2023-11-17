@@ -40,7 +40,7 @@ Run the following commands in the root folder to build the firmware.
 
 On Linux and Mac run:
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
     make example_ffva_int_fixed_delay
@@ -48,7 +48,7 @@ On Linux and Mac run:
 
 On Windows run:
 
-    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
     ninja example_ffva_int_fixed_delay
@@ -110,14 +110,14 @@ Run the following commands in the root folder to build the firmware.
 
 On Linux and Mac run:
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
+    cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
 
     make example_ffva_ua_adec_altarch
 
 On Windows run:
 
-    cmake -G Ninja -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
+    cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
 
     ninja example_ffva_ua_adec_altarch

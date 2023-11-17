@@ -69,13 +69,13 @@ Run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run:
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_low_power_ffd
 
 On Windows run:
 
-    cmake -G Ninja -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_low_power_ffd
 
