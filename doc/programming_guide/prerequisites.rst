@@ -14,7 +14,18 @@ Windows
 
 A standard C/C++ compiler is required to build applications for the host PC.  Windows users may use `Build Tools for Visual Studio <https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#download-and-install-the-tools>`__ command-line interface.
 
-XCORE-VOICE host build should also work using other Windows GNU development environments like GNU Make, MinGW or Cygwin.
+It is highly recommended to use *Ninja* as the build system for native Windows firmware builds.
+To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
+install with ``winget`` by running the following commands in *PowerShell*:
+
+.. code-block:: PowerShell
+
+    # Install
+    winget install Ninja-build.ninja
+    # Reload user Path
+    $env:Path=[System.Environment]::GetEnvironmentVariable("Path","User")
+
+XCORE-VOICE host builds should also work using other Windows GNU development environments like GNU Make, MinGW or Cygwin.
 
 libusb
 ======
