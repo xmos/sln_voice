@@ -75,3 +75,7 @@ sleep 5
 
 # get readback upgrade image
 dfu-util -e -d ,20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
+
+# cleanup afterwards so we don't leave an image on the flash
+xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+
