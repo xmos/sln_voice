@@ -28,9 +28,9 @@ Before building the host application, you will need to add the path to the XTC T
 
 Then build the host application:
 
-    cmake -G "NMake Makefiles" -B build_host
+    cmake -G Ninja -B build_host
     cd build_host
-    nmake install
+    ninja install
 
 The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
@@ -40,7 +40,7 @@ Run the following commands in the root folder to build the firmware.
 
 On Linux and Mac run:
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
     make example_ffva_int_fixed_delay
@@ -48,11 +48,11 @@ On Linux and Mac run:
 
 On Windows run:
 
-    cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    nmake example_ffva_int_fixed_delay
-    nmake example_ffva_ua_adec_altarch
+    ninja example_ffva_int_fixed_delay
+    ninja example_ffva_ua_adec_altarch
 
 From the build folder, create the data partition containing the filesystem and
 flash the device with the appropriate command to the desired configuration:
@@ -64,8 +64,8 @@ On Linux and Mac run:
 
 On Windows run:
 
-    nmake flash_app_example_ffva_int_fixed_delay
-    nmake flash_app_example_ffva_ua_adec_altarch
+    ninja flash_app_example_ffva_int_fixed_delay
+    ninja flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
 
@@ -76,29 +76,15 @@ re-flashed.
 
 Run the following commands in the build folder.
 
-On Linux and Mac run:
-
-    make run_example_ffva_int_fixed_delay
-    make run_example_ffva_ua_adec_altarch
-
-On Windows run:
-
-    nmake run_example_ffva_int_fixed_delay
-    nmake run_example_ffva_ua_adec_altarch
+    xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_ua_adec_altarch.xe
 
 ## Debugging the firmware with `xgdb`
 
 Run the following commands in the build folder.
 
-On Linux and Mac run:
-
-    make debug_example_ffva_int_fixed_delay
-    make debug_example_ffva_ua_adec_altarch
-
-On Windows run:
-
-    nmake debug_example_ffva_int_fixed_delay
-    nmake debug_example_ffva_ua_adec_altarch
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec_altarch.xe
 
 ## Running the Firmware With WAV Files
 
@@ -110,17 +96,17 @@ Run the following commands in the root folder to build the firmware.
 
 On Linux and Mac run:
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
+    cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
 
     make example_ffva_ua_adec_altarch
 
 On Windows run:
 
-    cmake -G "NMake Makefiles" -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
+    cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
 
-    nmake example_ffva_ua_adec_altarch
+    ninja example_ffva_ua_adec_altarch
 
 After rebuilding the firmware, run the application.
 
