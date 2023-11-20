@@ -4,7 +4,7 @@ PDM Microphone Aggregator Example
 
 
 This example provides a bridge between 16 PDM microphones to either
-TDM16 slave or USB Audio and targets the xcore-ai explorer board. 
+TDM16 slave or USB Audio and targets the xcore-ai explorer board.
 
 This application is to support cases where many microphone inputs need
 to be sent to a host where signal processing will be performed. Please
@@ -113,8 +113,8 @@ Connect the explorer board to the host and type:
 
 ::
 
-   $ xrun example_mic_aggregator_tdm.xe 
-   $ xrun example_mic_aggregator_usb.xe 
+   $ xrun example_mic_aggregator_tdm.xe
+   $ xrun example_mic_aggregator_usb.xe
 
 Optionally, you may use xrun ``--xscope`` to provide debug output.
 
@@ -137,7 +137,8 @@ An oscilloscope will also be handy in case of hardware debug being needed.
 
 
 .. note::
-    Note you will only be able to inject PDM data to two channels at a time due to a single pair of microphones on the HW.
+
+    You will only be able to inject PDM data to two channels at a time due to a single pair of microphones on the HW.
 
 
 If you wish to see all 16 microphones running then an external microphone board

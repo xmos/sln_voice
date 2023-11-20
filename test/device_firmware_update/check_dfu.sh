@@ -1,6 +1,5 @@
 #!/bin/bash
 # Copyright (c) 2022, XMOS Ltd, All rights reserved
-set -e # exit on first error
 set -x # echo on
 
 # help text
@@ -36,8 +35,19 @@ fi
 SLN_VOICE_ROOT=$(git rev-parse --show-toplevel)
 source "${SLN_VOICE_ROOT}"/tools/ci/helper_functions.sh
 
+USB_PID=4001
+USB_VID=20b1
+
 # xflash erase
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+
+# if another device with same VID and PID is present, erase two flash devices.
+if lsusb -d ${USB_VID}:${USB_PID}; then
+    echo "Warning: Found device with USB VID ${USB_VID} and PID ${USB_PID}. Erase the flash of two devices"
+    xflash --id 0 --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+    xflash --id 1 --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+fi
+
 
 # reset board
 xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
@@ -65,7 +75,7 @@ export_tools_version
 xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR} --upgrade 0 ${FIRMWARE} -o ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # write the upgrade image
-dfu-util -e -d ,20b1:4001 -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
+dfu-util -e -d  ${USB_VID}:${USB_PID} -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # reset board
 xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
@@ -74,4 +84,8 @@ xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
 sleep 5
 
 # get readback upgrade image
-dfu-util -e -d ,20b1:4001 -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
+dfu-util -e -d  ${USB_VID}:${USB_PID} -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
+
+# cleanup afterwards so we don't leave an image on the flash. Leaving an image may cause issues as we have multiple targets
+xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
+

@@ -136,13 +136,14 @@ To run the app, either xrun or xflash can be used. Connect the XK-VOICE-L71 boar
 
    $ xrun example_asrc_demo.xe
 
+Optionally, xrun ``--xscope`` can be used to provide debug output.
+
 or
 
 ::
 
    $ xflash example_asrc_demo.xe
 
-Optionally, xrun ``--xscope`` can be used to provide debug output.
 
 
 Operation
