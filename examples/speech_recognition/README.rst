@@ -4,10 +4,41 @@ Automated Speech Recognition Porting
 
 This is the XCORE-VOICE automated speech recognition (ASR) porting example application.
 
-Supported Hardware
-==================
+Supported Hardware and pre-requisites
+=====================================
 
 This example is supported on the XK_VOICE_L71 board.  However, the XCORE-AI-EXPLORER board can be supported with a couple minor modifications.
+
+On the host machine the XTC tools, version 15.2.1, must be installed and sourced.
+The output should be
+something like this:
+
+::
+
+   $ xcc --version
+   xcc: Build 19-198606c, Oct-25-2022
+   XTC version: 15.2.1
+   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
+
+On Windows it is highly recommended to use ``Ninja`` as the make system under
+``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
+works around an issue where certain path names may cause an issue with
+the XMOS compiler under Windows.
+
+To install Ninja, follow these steps:
+
+-  Download ``ninja.exe`` from
+   https://github.com/ninja-build/ninja/releases. This firmware has been
+   tested with Ninja version v1.11.1.
+-  Ensure Ninja is on the command line path. It can be added to the path
+   permanently by following these steps
+   https://www.computerhope.com/issues/ch000549.htm. Alternatively,
+   set the path in the current command line session using something
+   like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
+
+Before building the host application, you will need to add the path to the XTC Tools to your environment.
+
+  set "XMOS_TOOL_PATH=<path-to-xtc-tools>"
 
 Building the host server
 ========================
