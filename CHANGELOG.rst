@@ -11,7 +11,6 @@ XCORE-VOICE change log
   * CHANGED: Updated submodule lib_qspi_fast_read to version 1.0.2 from 1.0.1.
   * CHANGED: Updated submodule lib_src to version 2.4.0 from 2.2.0.
   * CHANGED: Updated submodule xscope_fileio to version 1.1.2 from 1.1.1.
-  * ADDED: Submodule lib_xua with version 3.5.1.
   * ADDED: Support for Microsoft OS 2.0 Descriptors for FFVA and ASRC examples
     so the DFU interface automatically shows up as a WinUSB interface on
     Windows.
