@@ -6,11 +6,6 @@ The XCORE-VOICE Solution consists of example designs and a C-based SDK for the d
 
 XCORE-VOICE example designs provide turn-key solutions to enable easier product development for smart home applications such as light switches, thermostats, and home appliances. xcore.ai’s unique architecture providing powerful signal processing and accelerated AI capabilities combined with the XCORE-VOICE framework allows designers to incorporate keyword, event detection, or advanced local dictionary support to create a complete voice interface solution.
 
-Build Status
-************
-
-The build status can be found `here <https://github.com/xmos/sln_voice/actions/workflows/ci.yml/badge.svg?branch=develop&event=push>`_.
-
 Cloning
 *******
 
