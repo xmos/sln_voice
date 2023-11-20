@@ -1,6 +1,5 @@
 // Copyright 2020-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
-// XMOS Public License: Version 1
 
 #define DEBUG_UNIT APP_MAIN
 #define DEBUG_PRINT_ENABLE_APP_MAIN 1
