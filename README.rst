@@ -9,9 +9,7 @@ XCORE-VOICE example designs provide turn-key solutions to enable easier product 
 Build Status
 ************
 
-Build Type       |    Status     |
------------      | --------------|
-CI (Linux)       | `CI <https://github.com/xmos/sln_voice/actions/workflows/ci.yml/badge.svg?branch=develop&event=push>`_ |
+The build status can be found `here <https://github.com/xmos/sln_voice/actions/workflows/ci.yml/badge.svg?branch=develop&event=push>`_.
 
 Cloning
 *******
@@ -58,6 +56,6 @@ This Software is subject to the terms of the `XMOS Public Licence: Version 1 <ht
 
 Additional third party copyrighted code is included under the following licenses:
 
-The Sensory TrulyHandsfree™ speech recognition library is *Copyright (C) 1995-2022 Sensory Inc.* and is provided as an expiring development license. Commercial licensing is granted by [Sensory Inc](https://www.sensory.com/).
+The Sensory TrulyHandsfree™ speech recognition library is *Copyright (C) 1995-2022 Sensory Inc.* and is provided as an expiring development license. Commercial licensing is granted by `Sensory Inc <https://www.sensory.com/>`_.
 
-The Cyberon DSPotter™ speech recognition library is provided as an expiring development license. Commercial licensing is granted by [Cyberon Corporation](https://www.cyberon.com.tw/) and is subject to deployment only on part number XU316-1024-QF60B-C24-CY.
+The Cyberon DSPotter™ speech recognition library is provided as an expiring development license. Commercial licensing is granted by `Cyberon Corporation <https://www.cyberon.com.tw/`>_ and is subject to deployment only on part number XU316-1024-QF60B-C24-CY.
