@@ -26,6 +26,10 @@ This application requires a host application to create the flash data partition.
 
   Permissions may be required to install the host applications.
 
+.. note::
+
+  A C/C++ compiler, such as Visual Studio or MinGW, must be included in the path.
+
 Before building the host application, you will need to add the path to the XTC Tools to your environment.
 
 .. code-block:: console
@@ -51,7 +55,7 @@ Run the following commands in the root folder to build the firmware:
 
     cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    ninja example_ffd
+    ninja example_ffd_<speech_engine>
 
 Running the Firmware
 ====================
@@ -62,7 +66,7 @@ Within the root of the build folder, run:
 
 .. code-block:: console
 
-    ninja flash_app_example_ffd
+    ninja flash_app_example_ffd_<speech_engine>
 
 After this command completes, the application will be running.
 
@@ -72,7 +76,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun --xscope example_ffd.xe
+    xrun --xscope example_ffd_<speech_engine>.xe
 
 Debugging the Firmware
 ======================
@@ -81,4 +85,4 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    xgdb -ex "connect --xscope" -ex "run" example_ffd.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffd_<speech_engine>.xe

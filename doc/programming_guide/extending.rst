@@ -22,6 +22,8 @@ The table below lists the approximate memory requirements for the larger softwar
       - 275
     * - Sensory Speech Recognition Engine
       - 180
+    * - Cyberon Speech Recognition Engine
+      - 125
     * - Interference Canceler (IC) + Voice To Noise Ratio Estimator (VNR)
       - 130
     * - USB
@@ -35,7 +37,7 @@ The table below lists the approximate memory requirements for the larger softwar
 CPU
 ***
 
-The table below lists the approximate CPU requirements for the larger software components.  All CPU use estimates in the table below are based on the default configuration for the feature.  Alternate configurations will require more or less MIPS.  The estimates are provided as guideline to assist application developers judge the MIP cost of extending the application or benefits of removing an existing feature.  It can be assumed that the memory requirement of components not listed in the table below are under 1%.
+The table below lists the approximate CPU requirements in MIPS for the larger software components.  All CPU use estimates in the table below are based on the default configuration for the feature.  Alternate configurations will require more or less MIPS.  The estimates are provided as guideline to assist application developers judge the MIP cost of extending the application or benefits of removing an existing feature.  It can be assumed that the memory requirement of components not listed in the table below are under 1%.
 
 The following formula was used to convert CPU% to MIPS:
 
@@ -63,6 +65,9 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - Sensory Speech Recognition Engine
       - 80
       - 96
+    * - Cyberon Speech Recognition Engine
+      - 72
+      - 87
     * - Interference Canceler (IC) + Voice To Noise Ratio Estimator (VNR)
       - 25
       - 30
@@ -72,3 +77,4 @@ MIPS = (CPU% / 100%) * (600 MHz / 5 cores)
     * - Adaptive Gain Control (AGC)
       - 5
       - 6
+
