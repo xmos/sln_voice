@@ -26,7 +26,7 @@
  *
  */
 #define DEBUG_UNIT USB_AUDIO
-#define DEBUG_PRINT_ENABLE_USB_AUDIO 1
+#define DEBUG_PRINT_ENABLE_USB_AUDIO 0
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -1087,11 +1087,6 @@ bool tud_audio_rx_done_post_read_cb(uint8_t rhport,
          */
         const size_t buffer_notify_level = stream_buffer_send_byte_count * (1 + USB_FRAMES_PER_ASRC_INPUT_FRAME);
 
-        /*
-         * TODO: If the above is modified such that not exactly AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER
-         * frames are written to the stream buffer at a time, then this will need to change to >=.
-         */
-
         if (xStreamBufferBytesAvailable(samples_from_host_stream_buf) == buffer_notify_level)
         {
             xTaskNotifyGive(usb_audio_out_asrc_handle);
@@ -1129,13 +1124,11 @@ bool tud_audio_tx_done_pre_load_cb(uint8_t rhport,
     samp_t usb_audio_frames[2 * AUDIO_FRAMES_PER_USB_FRAME][CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_TX];
 
     /*
-     * Copying XUA_lite logic basically verbatim - if the host is streaming out,
+     * If the host is streaming out,
      * then we send back the number of samples per channel that we last received.
      * If it's not, then we send the nominal number of samples per channel.
-     * This assumes (as with XUA_lite) that the host sends the same number of samples for each channel.
+     * This assumes that the host sends the same number of samples for each channel.
      * This also assumes that TX and RX rates are the same, which is an assumption made elsewhere.
-     * This finally assumes that at nominal rate,
-     *     AUDIO_FRAMES_PER_USB_FRAME / RATE_MULTIPLIER == prev_n_bytes_received / CFG_TUD_AUDIO_FUNC_1_N_CHANNELS_RX
      */
     if (host_streaming_out && (0 != prev_n_bytes_received))
     {

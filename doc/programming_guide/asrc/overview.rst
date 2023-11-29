@@ -14,7 +14,7 @@ The rate ratio is used by the ASRC task to dynamically adapt filter coefficients
 
 .. figure:: diagrams/asrc_top_level.png
    :align: center
-   :scale: 80 %
+   :width: 100%
    :alt: ASRC example top level system diagram
 
    ASRC example top level system diagram

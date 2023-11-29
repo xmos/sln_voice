@@ -2,7 +2,7 @@
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #define DEBUG_UNIT APP_MAIN
-#define DEBUG_PRINT_ENABLE_APP_MAIN 1
+#define DEBUG_PRINT_ENABLE_APP_MAIN 0
 
 #include <platform.h>
 #include <xs1.h>
@@ -61,9 +61,6 @@ void startup_task(void *arg)
 #endif
 
     mem_analysis();
-    /*
-     * TODO: Watchdog?
-     */
 }
 
 void vApplicationMinimalIdleHook(void)

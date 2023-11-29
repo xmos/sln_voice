@@ -348,9 +348,6 @@ void startup_task(void *arg)
 #endif
 
     mem_analysis();
-    /*
-     * TODO: Watchdog?
-     */
 }
 
 void vApplicationMinimalIdleHook(void)
