@@ -1,4 +1,3 @@
-.. include:: ../../../substitutions.rst
 
 .. _sln_voice_low_power_ffd_deploying_linux_mac:
 
@@ -6,7 +5,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `Make`.
+This document explains how to deploy the software using *CMake* and *Make*.
 
 Building the Host Applications
 ==============================
@@ -34,9 +33,9 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    make example_low_power_ffd
+    make example_low_power_ffd_sensory
 
 Running the Firmware
 ====================
@@ -47,7 +46,7 @@ Within the root of the build folder, run:
 
 .. code-block:: console
 
-    make flash_app_example_low_power_ffd
+    make flash_app_example_low_power_ffd_sensory
 
 After this command completes, the application will be running.
 
@@ -58,7 +57,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    make run_example_low_power_ffd
+    xrun --xscope example_low_power_ffd_sensory.xe
 
 Debugging the Firmware
 ======================
@@ -67,6 +66,6 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    make debug_example_low_power_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_low_power_ffd_sensory.xe
 
 |newpage|

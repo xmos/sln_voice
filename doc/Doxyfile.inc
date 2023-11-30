@@ -25,15 +25,20 @@ INPUT += ../modules/voice/modules/lib_vnr/api/common ../modules/voice/modules/li
 INPUT += ../modules/rtos/modules/drivers 
 
 # RTOS SW Services
-INPUT += ../modules/rtos/modules/sw_services/device_control/host ../modules/rtos/modules/sw_services/device_control/api 
+INPUT += ../modules/rtos/modules/sw_services/device_control/host
+INPUT += ../modules/rtos/modules/sw_services/device_control/api
+INPUT += ../modules/rtos/modules/sw_services/concurrency_support/api
+INPUT += ../modules/rtos/modules/sw_services/generic_pipeline/api
 
 # IO library APIs
 INPUT += ../modules/io/modules/i2c/api
 INPUT += ../modules/io/modules/i2s/api
-INPUT += ../modules/io/modules/qspi_io/api
 INPUT += ../modules/io/modules/spi/api
 INPUT += ../modules/io/modules/uart/api
 INPUT += ../modules/io/modules/mic_array/lib_mic_array/api ../modules/io/modules/mic_array/etc/vanilla ../modules/io/modules/mic_array/doc/programming_guide/src
+
+# QSPI library APIs
+INPUT += ../modules/lib_qspi_fast_read/lib_qspi_fast_read/api
 
 # XCORE-VOICE APIs
 INPUT += ../modules/asr/
@@ -45,7 +50,7 @@ MATHJAX_RELPATH = https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/
 # Make short MATHJAX sequences prettier
 ALIASES += math{1}="@f$\1@f$"
 ALIASES += vector{1}="@f$\bar \1@f$"
-ALIASES += operation{1}="@par Operation Performed:^^@parblock^^@f{flalign*}{ \1 && @f}^^@endparblock"
+ALIASES += operation{1}="@par Operation Performed^^@parblock^^@f{aligned}{ \1 @f}^^@endparblock"
 
 ALIASES += "beginrst=^^\verbatim embed:rst^^"
 ALIASES += "endrst=\endverbatim"

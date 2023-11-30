@@ -1,4 +1,3 @@
-.. include:: <isonum.txt>
 
 .. _sln_voice_ffd_modifying_software:
 
@@ -15,5 +14,6 @@ The FFD example design is highly customizable.  This section describes how to mo
    audio_pipeline
    software_description
    software_modifications
-   speech_recognition
- 
+   speech_recognition_sensory
+   speech_recognition_cyberon
+

@@ -11,7 +11,9 @@ modules/io/doc/substitutions.rst
 modules/sample_rate_conversion
 modules/voice/doc/substitutions.rst
 modules/xscope_fileio
+modules/xua
 sln_voice_venv
+**/.venv
 test
 xmos_cmake_toolchain
 build_*
@@ -19,4 +21,9 @@ modules/*/build
 modules/*/build_*
 modules/*/test
 modules/*/doc/shared/legal.rst
+modules/*/index*
+modules/*/modules/*/index*
 **/*.md
+**CHANGELOG*
+**LICENSE*
+**README*

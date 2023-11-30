@@ -1,4 +1,3 @@
-.. include:: ../../../substitutions.rst
 
 .. _sln_voice_ffva_deploying_linux_macos_programming_guide:
 
@@ -6,7 +5,7 @@
 Deploying the Firmware with Linux or macOS
 ******************************************
 
-This document explains how to deploy the software using ``CMake`` and ``Make``. 
+This document explains how to deploy the software using *CMake* and *Make*.
 
 Building the Host Applications
 ==============================
@@ -32,7 +31,7 @@ Run the following commands in the root folder to build the |I2S| firmware:
 
 .. code-block:: console
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_ffva_int_fixed_delay
 
@@ -40,9 +39,9 @@ Run the following commands in the root folder to build the USB firmware:
 
 .. code-block:: console
 
-    cmake -B build -DCMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    make example_ffva_ua_adec
+    make example_ffva_ua_adec_altarch
 
 Running the Firmware
 ====================
@@ -54,7 +53,7 @@ Inside of the build folder root, after building the firmware, run one of:
 .. code-block:: console
 
     make flash_app_example_ffva_int_fixed_delay
-    make flash_app_example_ffva_ua_adec
+    make flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
 
@@ -64,8 +63,8 @@ From the build folder run:
 
 .. code-block:: console
 
-    make run_example_ffva_int_fixed_delay
-    make run_example_ffva_ua_adec
+    xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_ua_adec_altarch.xe
 
 Upgrading the Firmware
 ======================
@@ -76,7 +75,7 @@ To create an upgrade image from the build folder run:
 
 .. code-block:: console
 
-    make create_upgrade_img_example_ffva_ua_adec
+    make create_upgrade_img_example_ffva_ua_adec_altarch
 
 Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
 
@@ -108,7 +107,7 @@ From the build folder, the upgrade image can be written by running:
 
 .. code-block:: console
 
-    dfu-util -e -d ,20b1:4001 -a 1 -D example_ffva_ua_adec_upgrade.bin
+    dfu-util -e -d ,20b1:4001 -a 1 -D example_ffva_ua_adec_altarch_upgrade.bin
 
 The upgrade image can be read back by running:
 
@@ -140,5 +139,5 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    make debug_example_int_adec
-    make debug_example_ua_adec
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_int_fixed_delay.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_ua_adec_altarch.xe

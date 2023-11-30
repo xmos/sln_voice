@@ -29,3 +29,6 @@
 	path = modules/inferencing/lib_tflite_micro
 	url = git@github.com:xmos/lib_tflite_micro.git
 	ignore = dirty
+[submodule "modules/xua"]
+	path = modules/xua
+	url = git@github.com:xmos/lib_xua.git

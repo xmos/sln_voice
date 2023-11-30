@@ -1,4 +1,3 @@
-.. include:: ../../../substitutions.rst
 
 .. _sln_voice_ffd_deploying_native_windows:
 
@@ -6,7 +5,17 @@
 Deploying the Firmware with Native Windows
 ******************************************
 
-This document explains how to deploy the software using `CMake` and `NMake`. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
+This document explains how to deploy the software using *CMake* and *Ninja*. If you are not using native Windows MSVC build tools and instead using a Linux emulation tool such as WSL, refer to :doc:`Deploying the Firmware with Linux or macOS <linux_macos>`.
+
+To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
+install with ``winget`` by running the following commands in *PowerShell*:
+
+.. code-block:: PowerShell
+
+    # Install
+    winget install Ninja-build.ninja
+    # Reload user Path
+    $env:Path=[System.Environment]::GetEnvironmentVariable("Path","User")
 
 Building the Host Applications
 ==============================
@@ -16,6 +25,10 @@ This application requires a host application to create the flash data partition.
 .. note::
 
   Permissions may be required to install the host applications.
+
+.. note::
+
+  A C/C++ compiler, such as Visual Studio or MinGW, must be included in the path.
 
 Before building the host application, you will need to add the path to the XTC Tools to your environment.
 
@@ -27,9 +40,9 @@ Then build the host application:
 
 .. code-block:: console
 
-  cmake -G "NMake Makefiles" -B build_host
+  cmake -G Ninja -B build_host
   cd build_host
-  nmake install
+  ninja install
 
 The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
@@ -40,9 +53,9 @@ Run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
-    cmake -G "NMake Makefiles" -B build -D CMAKE_TOOLCHAIN_FILE=xmos_cmake_toolchain/xs3a.cmake
+    cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
-    nmake example_ffd
+    ninja example_ffd_<speech_engine>
 
 Running the Firmware
 ====================
@@ -53,7 +66,7 @@ Within the root of the build folder, run:
 
 .. code-block:: console
 
-    nmake flash_app_example_ffd
+    ninja flash_app_example_ffd_<speech_engine>
 
 After this command completes, the application will be running.
 
@@ -63,7 +76,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    nmake run_example_ffd
+    xrun --xscope example_ffd_<speech_engine>.xe
 
 Debugging the Firmware
 ======================
@@ -72,4 +85,4 @@ To debug with xgdb, from the build folder run:
 
 .. code-block:: console
 
-    nmake debug_example_ffd
+    xgdb -ex "connect --xscope" -ex "run" example_ffd_<speech_engine>.xe

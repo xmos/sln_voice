@@ -1,5 +1,3 @@
-.. include:: ../../substitutions.rst
-.. include:: <isonum.txt>
 
 .. _sln_voice_ffd_quick_start:
 
@@ -13,8 +11,8 @@ Overview
 
 These are the XCORE-VOICE far-field local control example designs demonstrating:
 
-- 2-microphone far-field voice control with |I2C| or UART interface 
-- Audio pipeline including interference cancelling and noise suppression 
+- 2-microphone far-field voice control with |I2C| or UART interface
+- Audio pipeline including interference cancelling and noise suppression
 - 16-phrase English language speech recognition
 
 ***************
@@ -22,14 +20,15 @@ Example designs
 ***************
 
 Demonstration
-===============================
+=============
 
-This is the far-field voice local command (FFD) example design with Sensory TrulyHandsfree™ (THF) speech recognition and local dictionary.
+This is the far-field voice local command (FFD) example design. Two examples are provided: both examples include speech recognition and a local dictionary. One example uses the Sensory TrulyHandsfree™ (THF) libraries, and the other one uses the Cyberon DSPotter™ libraries.
 
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
+Sensory's THF and Cyberon's DSpotter™ libraries ship with an expiring development license. The Sensory one will suspend recognition after 11.4 hours or 107 recognition events, and the Cyberon one will suspend recognition after 100 recognition events. After the maximum number of recognitions is reached, a device reset is required to resume normal operation. To perform a reset, either power cycle the device or press the SW2 button.
 
-Sensory's THF software ships with an expiring development license. It will suspend recognition after 11.4 hours or 107 recognition events; after which, a device reset is required to resume normal operation. To perform a reset, either power cycle the device or press the SW2 button.
+Production software runs on a special device. Contact Cyberon, Sensory or XMOS sales for information about production use of the device.
 
 **Requirements**
 
@@ -65,7 +64,7 @@ This example application features audio playback responses.  Speakers can be con
 .. image:: ../../shared/images/speakers.jpg
   :width: 800
   :alt: speakers
-  
+
 Running the Demonstration
 -------------------------
 
@@ -93,12 +92,17 @@ There are three LED states:
 - Solid Red & Green = Waiting for or Processing Command
 - Fast Flashing Red = Evaluation period has expired
 
-The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS,' waiting begins for a command (solid red & green).
+The application resets waiting for the wakeword (flashing green). Upon recognizing 'Hello XMOS' or 'Hello Cyberon' (DSpotter™ model only), waiting begins for a command (solid red & green).
 After a period of inactivity, or successful command processing the application returns to waiting for wakeword (flashing green).
+
+Sensory TrulyHandsfree™ and Cyberon DSpotter™ models detect the same commands, as listed below.
+
+
 
 **Wakewords**
 
 - Hello XMOS
+- Hello Cyberon (DSpotter™ model only)
 
 **Dictionary Commands**
 
