@@ -131,7 +131,7 @@ integrated XTAG debug adapter). You will require in addition:
    -  J14, J10, SCL/SDA IOT, the I2S expansion header, MIC data and MIC
       clock.
 
--  Six jumper wires. Please see. the microphone aggregator main documentation
+-  Six jumper wires. Please see the microphone aggregator main documentation
    for details on how these are connected.
 
 An oscilloscope will also be handy in case of hardware debug being needed.
