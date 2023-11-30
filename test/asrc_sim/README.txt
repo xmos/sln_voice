@@ -7,6 +7,8 @@ usb_in_i2s_out application that simulates the USB -> ASRC -> I2S direction.
 
 REQUIREMENTS
 ============
+The simulation framework requires a Linux or MacOS platform and the instructions below for building and running it assume so.
+
 The simulation framework is implemented in C++ and uses the systemC and numCpp packages. The ASRC implementation used in the simulation
 is the ASRC C emulator that is part of lib_src. Only mono channel ASRC is supported. All 3 dependencies (SystemC, numCpp and lib_src) are fetched as FetchContent during
 the cmake process.
