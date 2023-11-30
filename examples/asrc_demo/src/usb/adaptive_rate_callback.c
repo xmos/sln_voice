@@ -10,10 +10,8 @@
 #define TOTAL_TAIL_SECONDS 16
 #define STORED_PER_SECOND 4
 
-#if __xcore__
 #include "tusb_config.h"
 #include "app_conf.h"
-#endif
 #include "adaptive_rate_callback.h"
 
 #define TOTAL_STORED                    (TOTAL_TAIL_SECONDS * STORED_PER_SECOND)

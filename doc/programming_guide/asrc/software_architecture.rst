@@ -20,7 +20,7 @@ The :ref:`fig-ASRC-task-diagram-label` shows the RTOS tasks and other components
 
 .. figure:: diagrams/asrc_task_diagram.drawio.png
    :align: center
-   :scale: 80 %
+   :width: 100%
    :alt: ASRC example task diagram
 
    ASRC example task diagram
@@ -117,7 +117,7 @@ The :ref:`asrc_i2s_to_usb_data_path-label` diagram shows the application tasks i
 
 .. figure:: diagrams/asrc_i2s_to_usb_data_path.png
    :align: center
-   :scale: 80 %
+   :width: 100%
    :alt: ASRC |I2S| → ASRC → USB data path
 
    |I2S| → ASRC → USB data path
@@ -128,7 +128,7 @@ The :ref:`asrc_usb_to_i2s_data_path-label` diagram shows the application tasks i
 
 .. figure:: diagrams/asrc_usb_to_i2s_data_path.png
    :align: center
-   :scale: 80 %
+   :width: 100%
    :alt: USB → ASRC → |I2S| data path
 
    USB → ASRC → |I2S| data path
@@ -188,7 +188,7 @@ The :ref:`fig-rate-server-label` diagram shows the code flow during the rate rat
 
 .. figure:: diagrams/rate_server_connections.drawio.png
    :align: center
-   :scale: 80 %
+   :width: 100%
    :alt: **rate_server** code flow
 
    Rate calculation code flow

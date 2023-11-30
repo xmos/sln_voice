@@ -118,6 +118,8 @@ void ASRC::process()
             {
                 rate_ratio = float_div_u64_fixed_output_q_format(g_avg_i2s_rate, g_avg_usb_rate, 28+32);
 
+                // Try doing (g_i2s_rate_info.samples * g_usb_rate_info.ticks) / (g_usb_rate_info.samples * g_i2s_rate_info.ticks).
+                // Doesn't seem to show any benefit so not enabling it and sticking to g_avg_i2s_rate/g_avg_usb_rate instead
                 //uint64_t test_rate_ratio = test_mult_div(g_i2s_rate_info, g_usb_rate_info);
 
                 //printf("rate_ratio = %llu, test = %llu\n", rate_ratio, test_rate_ratio);
