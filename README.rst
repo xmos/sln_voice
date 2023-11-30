@@ -37,9 +37,7 @@ See the READMEs for the early example applications:
 
 
   * `Microphone Aggregator <https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.rst>`_: an example design for a bridge between 16 PDM microphones to either TDM16 slave or USB Audio
-
-  * `Speech Recognition <https://github.com/xmos/sln_voice/blob/develop/examples/speech_recognition/README.rst>`_: an example design for automatic speech recognition
-
+
 Getting Help
 ************
 
