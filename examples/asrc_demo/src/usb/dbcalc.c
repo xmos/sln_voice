@@ -44,8 +44,8 @@ uint32_t db_to_mult(int32_t db, int32_t db_frac_bits, int32_t result_frac_bits)
     return (1 << result_frac_bits);
 
 
-  /* First scale the decibal value to the required precision and divide by 10
-     We scale to DB_CALC_PREC - 4 before the division with to make sure we don't overflow */
+  /* First scale the decibel value to the required precision and divide by 10
+     We scale to DB_CALC_PREC - 4 before the division to make sure we don't overflow */
   db = db << (DB_CALC_PREC - 4 - 1 - db_frac_bits);
   db = db / 10;
   db = db << 4;

@@ -122,16 +122,9 @@ uint64_t test_mult_div(rate_info_t numerator, rate_info_t denominator)
         quotient = (uint64_t)quotient << lsh;
     }
 
-
     //printf("Quotient = %llu\n", quotient);
 
-
-
-
-
     return quotient;
-
-    // Do the second division now
 }
 
 void reset_state()

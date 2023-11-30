@@ -78,6 +78,7 @@ void ASRC::process()
             {
                 rate_ratio = float_div_u64_fixed_output_q_format(g_avg_usb_rate, g_avg_i2s_rate, 28+32);
                 error = pi_control(m_config->nominal_i2s_rate, &buf_state);
+                // Uncomment to apply a fixed correction instead of the pi_control() code.
                 //double correction = 0.000000043;
                 //uint64_t correction_i = (uint64_t)(correction * ((uint64_t)1 << (28+32)));
                 //rate_ratio = rate_ratio - correction_i;

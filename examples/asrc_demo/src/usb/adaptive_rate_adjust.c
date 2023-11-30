@@ -1,6 +1,5 @@
 // Copyright 2022-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
-// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #define DEBUG_UNIT ADAPTIVE_USB
 #define DEBUG_PRINT_ENABLE_ADAPTIVE_USB 1
@@ -86,7 +85,7 @@ bool tud_xcore_sof_cb(uint8_t rhport, uint32_t cur_time)
     if(count == 8)
     {
         // Log every 8th timestamp to get the timestamp every millisecond. We always assume USB HS operation with bInterval set to 4
-        // implying that SOF are received every 125us but data is transferred every 1ms. The number 8 us hardcoded since this is the only
+        // implying that SOF are received every 125us but data is transferred every 1ms. The number 8 is hardcoded since this is the only
         // supported configuration and bInterval is not configurable for this application.
         timestamp_from_sofs = cur_time;
         count = 0;

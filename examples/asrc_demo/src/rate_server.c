@@ -1,7 +1,7 @@
 // Copyright 2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #define DEBUG_UNIT RATE_SERVER
-#define DEBUG_PRINT_ENABLE_RATE_SERVER 1
+#define DEBUG_PRINT_ENABLE_RATE_SERVER 0
 
 /* STD headers */
 #include <stdio.h>

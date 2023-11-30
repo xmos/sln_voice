@@ -11,7 +11,7 @@ to be sent to a host where signal processing will be performed. Please
 see the other examples in sln_voice where signal processing is performed
 within the xcore in firmware.
 
-This examples uses a modified mic_array with multiple decimator threads to
+This example uses a modified mic_array with multiple decimator threads to
 support 16 DDR microphones on a single 8 bit input port. The example is written as
 ‘bare-metal’ and runs directly on the XCORE device without an RTOS.
 
@@ -131,7 +131,8 @@ integrated XTAG debug adapter). You will require in addition:
    -  J14, J10, SCL/SDA IOT, the I2S expansion header, MIC data and MIC
       clock.
 
--  A handful of jumper wires connected as below.
+-  Six jumper wires. Please see the microphone aggregator main documentation
+   for details on how these are connected.
 
 An oscilloscope will also be handy in case of hardware debug being needed.
 
