@@ -144,7 +144,7 @@ Total  76368      9
 Board Configuration
 ===================
 
-Make the following connections using flying leads:
+Make the following connections between headers using flying leads:
 
 ===============     ================    ==============================================
 Host Connection     Board Connection    Note
