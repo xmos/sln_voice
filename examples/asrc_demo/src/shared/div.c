@@ -3,7 +3,7 @@
 #include "div.h"
 float_s32_t float_div(float_s32_t dividend, float_s32_t divisor)
 {
-    float_s32_t res;// = float_s32_div(dividend, divisor);
+    float_s32_t res;
 
     int dividend_hr;
     int divisor_hr;
