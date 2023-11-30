@@ -27,17 +27,18 @@ Documentation
 
 See the READMEs for the early example applications:
 
-`ASRC Demo <https://github.com/xmos/sln_voice/blob/develop/examples/asrc_demo/README.rst>`_
+  * `ASRC Demo <https://github.com/xmos/sln_voice/blob/develop/examples/asrc_demo/README.rst>`_: an example design for an asynchronous sampling rate converter (ASRC)
 
-`FFD <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/README.rst>`_
+  * `FFD <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/README.rst>`_: two example designs for far-field voice local control, each example contains a boot image and data partition binary
 
-`FFVA <https://github.com/xmos/sln_voice/blob/develop/examples/ffva/README.rst>`_
+  * `FFVA <https://github.com/xmos/sln_voice/blob/develop/examples/ffva/README.rst>`_: two example designs for far-field voice assistant example design, each example contains a boot image and data partition binary
 
-`Low Power FFD <https://github.com/xmos/sln_voice/blob/develop/examples/low_power_ffd/README.rst>`_
+  * `Low Power FFD <https://github.com/xmos/sln_voice/blob/develop/examples/low_power_ffd/README.rst>`_: one example design for a low-power far-field voice local control, the example contains a boot image and data partition binary
 
-`Microphone Aggregator <https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.rst>`_
 
-`Speech Recognition <https://github.com/xmos/sln_voice/blob/develop/examples/speech_recognition/README.rst>`_
+  * `Microphone Aggregator <https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.rst>`_: an example design for a bridge between 16 PDM microphones to either TDM16 slave or USB Audio
+
+  * `Speech Recognition <https://github.com/xmos/sln_voice/blob/develop/examples/speech_recognition/README.rst>`_: an example design for automatic speech recognition
 
 Getting Help
 ************
