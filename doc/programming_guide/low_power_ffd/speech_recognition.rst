@@ -17,7 +17,7 @@ or 107 recognition events.
 Overview
 ========
 
-The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream. Models can be generated using `VoiceHub <https://voicehub.sensory.com/>`__. 
+The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream. Models can be generated using `VoiceHub <https://voicehub.sensory.com/>`__.
 
 Two models are provided for the purpose of Low Power FFD. The small wake word model running on tile 1
 is approximately 67KB. The command model running on tile 0 is approximately 289KB. On tile 1, the
@@ -37,13 +37,14 @@ To run with a different model, see the ``Set Sensory model variables`` section o
 Make sure run the following commands to rebuild and re-flash the data partition:
 
 .. code-block:: console
-    
+
     make clean
     make flash_app_example_low_power_ffd -j
 
 You may also wish to modify the command ID-to-string lookup table which is located in the ``src/intent_engine/intent_engine_io.c`` source file.
 
-To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
+.. TODO: Check if the line below can be removed or re-added
+.. To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
 Wake Word Dictionary
 ====================
