@@ -35,9 +35,8 @@ See the READMEs for the early example applications:
 
   * `Low Power FFD <https://github.com/xmos/sln_voice/blob/develop/examples/low_power_ffd/README.rst>`_: an example design for a low-power far-field voice local control, the example contains a boot image and data partition binary
 
-
   * `Microphone Aggregator <https://github.com/xmos/sln_voice/blob/develop/examples/mic_aggregator/README.rst>`_: an example design for a bridge between 16 PDM microphones to either TDM16 slave or USB Audio
-
+
 Getting Help
 ************
 
