@@ -285,7 +285,16 @@ pipeline {
                                         --rm \
                                         -v ${WORKSPACE}:/build \
                                         ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION -v"""
-                                archiveArtifacts artifacts: 'doc/_build/**', allowEmptyArchive: true
+                                // Zip all the generated files
+                                zip dir: "doc/_build/", zipFile: "xcore_voice_docs_original.zip"
+                                // Rename latex folder as pdf
+                                sh "mv doc/_build/latex doc/_build/pdf"
+                                // Remove linkcheck folder
+                                sh "rm -rf doc/_build/linkcheck"
+                                // Zip all the generated files
+                                zip dir: "doc/_build/", zipFile: "xcore_voice_docs_release.zip"
+                                // Archive doc files
+                                archiveArtifacts artifacts: "xcore_voice_docs*.zip"
                             }
                         }
                     }
