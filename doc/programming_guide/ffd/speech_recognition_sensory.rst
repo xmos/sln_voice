@@ -17,7 +17,7 @@ or 107 recognition events.
 Overview
 ========
 
-The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream.  Models can be generated using `VoiceHub <https://voicehub.sensory.com/>`__. 
+The Sensory THF speech recognition engine runs proprietary models to identify keywords in an audio stream.  Models can be generated using `VoiceHub <https://voicehub.sensory.com/>`__.
 
 Two models are provided - one in US English and one in Mainland Mandarin. The US English model is used by default.  To modify the software to use the Mandarin model, see the comment at the top of the ``ffd_sensory.cmake`` file. Make sure run the following commands to rebuild and re-flash the data partition:
 
@@ -26,7 +26,8 @@ Two models are provided - one in US English and one in Mainland Mandarin. The US
     make clean
     make flash_app_example_ffd_sensory -j
 
-To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
+.. TODO: Check if the line below can be removed or re-added
+.. To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
 Dictionary command table
 ========================
