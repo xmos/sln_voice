@@ -2,7 +2,7 @@
 XCORE:registered:-VOICE Solution Repository
 *******************************************
 
-The XCORE-VOICE Solution consists of example designs and a C-based SDK for the development of audio front-end applications to support far-field voice use cases on the xcore.ai family of chips (XU316). Most of the XCORE-VOICE designs are based on FreeRTOS, leveraging the flexibility of the xcore.ai platform and providing designers with a familiar environment to customize and develop products. The only exception is the Microphone Aggregation example which runs on bare-metal .
+The XCORE-VOICE Solution consists of example designs and a C-based SDK for the development of audio front-end applications to support far-field voice use cases on the xcore.ai family of chips (XU316). Most of the XCORE-VOICE designs are based on FreeRTOS, leveraging the flexibility of the xcore.ai platform and providing designers with a familiar environment to customize and develop products. The only exception is the Microphone Aggregation example which runs on bare-metal; this architecture was selected to compensate the lack of RTOS drivers for some components.
 
 XCORE-VOICE example designs provide turn-key solutions to enable easier product development for smart home applications such as light switches, thermostats, and home appliances. xcore.ai’s unique architecture providing powerful signal processing and accelerated AI capabilities combined with the XCORE-VOICE framework allows designers to incorporate keyword, event detection, or advanced local dictionary support to create a complete voice interface solution.
 
