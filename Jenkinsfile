@@ -289,6 +289,9 @@ pipeline {
                                 zip dir: "doc/_build/", zipFile: "xcore_voice_docs_original.zip"
                                 // Rename latex folder as pdf
                                 sh "mv doc/_build/latex doc/_build/pdf"
+                                // Update links to latex folder in html files
+                                sh "find doc_/build/html -type f -exec sed -i -e 's/latex\/sln_voice_programming_guide_/pdf\/sln_voice_programming_guide_/g' {} \;"
+                                sh "find doc_/build/html -type f -exec sed -i -e 's/latex\/sln_voice_quick_start_guide_/pdf\/sln_voice_quick_start_guide_/g' {} \;"
                                 // Remove linkcheck folder
                                 sh "rm -rf doc/_build/linkcheck"
                                 // Zip all the generated files
