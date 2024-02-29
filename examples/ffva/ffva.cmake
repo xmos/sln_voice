@@ -1,6 +1,10 @@
 #**********************
 # Gather Sources
 #**********************
+
+set(MODEL_LANGUAGE "english_usa")
+set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/../ffd/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
+
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
@@ -36,6 +40,7 @@ set(APP_COMPILE_DEFINITIONS
 set(APP_LINK_OPTIONS
     -lquadspi
     -report
+    -lotp3
     ${CMAKE_CURRENT_LIST_DIR}/src/config.xscope
 )
 

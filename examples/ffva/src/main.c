@@ -24,7 +24,7 @@
 #include "audio_pipeline.h"
 #include "ww_model_runner/ww_model_runner.h"
 #include "fs_support.h"
-
+#include "print.h"
 #include "gpio_test/gpio_test.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
@@ -147,7 +147,7 @@ int audio_pipeline_output(void *output_app_data,
                         size_t frame_count)
 {
     (void) output_app_data;
-
+    printintln(777);
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
@@ -336,13 +336,22 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
+#if appconfINTENT_ENABLED && !ON_TILE(WW_TILE_NO)
+    // Wait until the intent engine is initialized before starting the
+    // audio pipeline.
+    intent_engine_ready_sync();
+#endif
+
     audio_pipeline_init(NULL, NULL);
 
 #if ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
-    rtos_dfu_image_print_debug(dfu_image_ctx);
+    //rtos_dfu_image_print_debug(dfu_image_ctx);
+    // Setup flash low-level mode
+    //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
+    rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
-
+vTaskDelay(pdMS_TO_TICKS(100));
 #if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
     ww_task_create(appconfWW_TASK_PRIORITY);
 #endif

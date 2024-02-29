@@ -14,4 +14,6 @@ void ww_audio_send(rtos_intertile_t *intertile_ctx,
 
 void model_runner_manager(void *args);
 
+void intent_engine_ready_sync(void);
+
 #endif /* WW_MODEL_RUNNER_H_ */

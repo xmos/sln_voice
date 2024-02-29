@@ -25,6 +25,18 @@ static void mclk_init(chanend_t other_tile_c)
 static void flash_init(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
+    rtos_qspi_flash_fast_read_init(
+            qspi_flash_ctx,
+            FLASH_CLKBLK,
+            PORT_SQI_CS,
+            PORT_SQI_SCLK,
+            PORT_SQI_SIO,
+            NULL,
+            qspi_fast_flash_read_transfer_nibble_swap,
+            3,
+            QSPI_FLASH_CALIBRATION_ADDRESS);
+#endif
+#if 0 //ON_TILE(FLASH_TILE_NO)
     fl_QuadDeviceSpec qspi_spec = BOARD_QSPI_SPEC;
     fl_QSPIPorts qspi_ports = {
         .qspiCS = PORT_SQI_CS,

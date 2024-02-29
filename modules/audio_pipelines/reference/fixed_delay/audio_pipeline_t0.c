@@ -143,8 +143,8 @@ void audio_pipeline_init(
     void *input_app_data,
     void *output_app_data)
 {
+    printintln(611);
     const int stage_count = 3;
-
     const pipeline_stage_t stages[] = {
         (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_ns,
@@ -156,8 +156,12 @@ void audio_pipeline_init(
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ns),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
+    printintln(612);
 
     initialize_pipeline_stages();
+
+    printintln(613);
+
 
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,
@@ -167,6 +171,8 @@ void audio_pipeline_init(
                         (const size_t*) stage_stack_sizes,
                         appconfAUDIO_PIPELINE_TASK_PRIORITY,
                         stage_count);
+                            printintln(614);
+
 }
 
 #endif /* ON_TILE(0)*/

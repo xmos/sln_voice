@@ -32,16 +32,21 @@ void ww_audio_send(rtos_intertile_t *intertile_ctx,
     for (int i = 0; i < frame_count; i++) {
         ww_samples[i] = (uint16_t)(processed_audio_frame[i][ASR_CHANNEL] >> 16);
     }
-
+    printintln(555);
     if(audio_stream != NULL) {
         if (xStreamBufferSend(audio_stream, ww_samples, sizeof(ww_samples), 0) != sizeof(ww_samples)) {
             rtos_printf("lost output samples for ww\n");
         }
     }
+
+    /*for (int i = 0; i < appconfINTENT_SAMPLE_BLOCK_LENGTH; i++) {
+        buf_short[(*buf_short_index)++] = buf[i] >> 16;
+    }*/
 }
 
 void ww_task_create(unsigned priority)
 {
+
     audio_stream = xStreamBufferCreate(2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                                        appconfWW_FRAMES_PER_INFERENCE);
 
@@ -51,6 +56,23 @@ void ww_task_create(unsigned priority)
                 audio_stream,
                 uxTaskPriorityGet(NULL),
                 NULL);
+}
+
+void intent_engine_ready_sync(void)
+{
+    int sync = 0;
+#if ON_TILE(WW_TILE_NO)
+    printintln(123);
+    size_t len = rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
+    xassert(len == sizeof(sync));
+    rtos_intertile_rx_data(intertile_ctx, &sync, sizeof(sync));
+        printintln(124);
+
+#else
+    printintln(125);
+
+    rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &sync, sizeof(sync));
+#endif
 }
 
 #endif
