@@ -35,7 +35,7 @@ void* grammar = (void*)gs_grammarLabel;
 #else
 void* grammar = NULL;
 #endif
-
+#include "print.h"
 // Model file is in flash at the offset specified in the CMakeLists
 // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
 // to be added so the address in in the SwMem range.
@@ -61,19 +61,19 @@ void model_runner_manager(void *args)
         NULL,
         vIntentTimerCallback);
     */
+    /* Alert other tile to start the audio pipeline */
+    intent_engine_ready_sync();
     devmem_init(&devmem_ctx);
     printf("Call asr_init(). model = 0x%x, grammar = 0x%x\n", (unsigned int) model, (unsigned int) grammar);
     asr_ctx = asr_init((int32_t *)model, (int32_t *)grammar, &devmem_ctx);
+    printintln(11111);
 
-    int32_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
-    int16_t buf_short[SAMPLES_PER_ASR] = {0};
+    int16_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
+    //int16_t buf_short[SAMPLES_PER_ASR] = {0};
 
     asr_reset(asr_ctx);
 
-    /* Alert other tile to start the audio pipeline */
-    intent_engine_ready_sync();
-
-    size_t buf_short_index = 0;
+    //size_t buf_short_index = 0;
     asr_error_t asr_error;
     asr_result_t asr_result;
     int word_id;
@@ -94,13 +94,13 @@ void model_runner_manager(void *args)
         } while(buf_len > 0);
         printintln(222);
 
-        for (int i = 0; i < appconfINTENT_SAMPLE_BLOCK_LENGTH; i++) {
-            buf_short[buf_short_index++] = buf[i] >> 16;
-        }
-        if (buf_short_index < SAMPLES_PER_ASR)
-            continue;
+        //for (int i = 0; i < appconfINTENT_SAMPLE_BLOCK_LENGTH; i++) {
+        //    buf_short[buf_short_index++] = buf[i] >> 16;
+        //}
+        //if (buf_short_index < SAMPLES_PER_ASR)
+        //    continue;
 
-        buf_short_index = 0; // reset the offset into the buffer of int16s.
+        //buf_short_index = 0; // reset the offset into the buffer of int16s.
                              // Note, we do not need to overlap the window of samples.
                              // This is handled in the ASR ports.
 
@@ -108,16 +108,19 @@ void model_runner_manager(void *args)
         //   so, we need to check if an audio response is playing and skip to the next
         //   audio frame because the playback may trigger the ASR.
         //if (intent_handler_response_playing()) continue;
-
-        asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
+        printintln(222);
+        asr_error = asr_process(asr_ctx, buf, SAMPLES_PER_ASR);
+        printintln(asr_error);
 
         if (asr_error == ASR_EVALUATION_EXPIRED) {
             //led_indicate_end_of_eval();
             continue;
         }
         if (asr_error != ASR_OK) continue;
+        printintln(225);
 
         asr_error = asr_get_result(asr_ctx, &asr_result);
+        printintln(asr_error);
         if (asr_error != ASR_OK) continue;
 
         word_id = asr_result.id;

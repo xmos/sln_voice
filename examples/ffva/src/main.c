@@ -64,6 +64,7 @@ void audio_pipeline_input(void *input_app_data,
                         size_t ch_count,
                         size_t frame_count)
 {
+    printintln(888);
     (void) input_app_data;
     int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
 
@@ -82,6 +83,7 @@ void audio_pipeline_input(void *input_app_data,
             flushed = 1;
         }
     }
+    printintln(890);
 
     /*
      * NOTE: ALWAYS receive the next frame from the PDM mics,
@@ -93,6 +95,7 @@ void audio_pipeline_input(void *input_app_data,
                       mic_ptr,
                       frame_count,
                       portMAX_DELAY);
+    //printintln(891);
 
 #if appconfUSB_ENABLED
     int32_t **usb_mic_audio_frame = NULL;
@@ -115,6 +118,7 @@ void audio_pipeline_input(void *input_app_data,
                    usb_mic_audio_frame,
                    ch_cnt);
 #endif
+    //printintln(897);
 
 #if appconfI2S_ENABLED
     if (!appconfUSB_ENABLED || aec_ref_source == appconfAEC_REF_I2S) {
@@ -139,6 +143,8 @@ void audio_pipeline_input(void *input_app_data,
         }
     }
 #endif
+    //printintln(898);
+
 }
 
 int audio_pipeline_output(void *output_app_data,
@@ -160,6 +166,7 @@ int audio_pipeline_output(void *output_app_data,
         tmp[j][0] = *(tmpptr+j+(2*frame_count));    // ref 0
         tmp[j][1] = *(tmpptr+j+(3*frame_count));    // ref 1
     }
+printintln(440);
 
     rtos_i2s_tx(i2s_ctx,
                 (int32_t*) tmp,
@@ -188,6 +195,8 @@ int audio_pipeline_output(void *output_app_data,
                     portMAX_DELAY);
     }
 #endif
+printintln(441);
+
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -211,7 +220,7 @@ int audio_pipeline_output(void *output_app_data,
                 output_audio_frames,
                 6);
 #endif
-
+printintln(444);
 #if appconfWW_ENABLED
     ww_audio_send(intertile_ctx,
                   frame_count,
@@ -336,14 +345,6 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
-#if appconfINTENT_ENABLED && !ON_TILE(WW_TILE_NO)
-    // Wait until the intent engine is initialized before starting the
-    // audio pipeline.
-    intent_engine_ready_sync();
-#endif
-
-    audio_pipeline_init(NULL, NULL);
-
 #if ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
     //rtos_dfu_image_print_debug(dfu_image_ctx);
@@ -351,10 +352,18 @@ void startup_task(void *arg)
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
-vTaskDelay(pdMS_TO_TICKS(100));
+//vTaskDelay(pdMS_TO_TICKS(100));
 #if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
     ww_task_create(appconfWW_TASK_PRIORITY);
 #endif
+
+#if appconfWW_ENABLED && !ON_TILE(WW_TILE_NO)
+    // Wait until the intent engine is initialized before starting the
+    // audio pipeline.
+    intent_engine_ready_sync();
+#endif
+
+    audio_pipeline_init(NULL, NULL);
 
     mem_analysis();
 }

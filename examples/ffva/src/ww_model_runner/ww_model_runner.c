@@ -20,11 +20,13 @@
 extern configSTACK_DEPTH_TYPE model_runner_manager_stack_size;
 
 static StreamBufferHandle_t audio_stream = NULL;
-
+#include "print.h"
 void ww_audio_send(rtos_intertile_t *intertile_ctx,
                     size_t frame_count,
                     int32_t (*processed_audio_frame)[2])
 {
+    printintln(550);
+
     configASSERT(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
 
     uint16_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
@@ -47,7 +49,7 @@ void ww_audio_send(rtos_intertile_t *intertile_ctx,
 void ww_task_create(unsigned priority)
 {
 
-    audio_stream = xStreamBufferCreate(2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+    audio_stream = xStreamBufferCreate(8*2 * appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                                        appconfWW_FRAMES_PER_INFERENCE);
 
     xTaskCreate((TaskFunction_t)model_runner_manager,
@@ -60,18 +62,30 @@ void ww_task_create(unsigned priority)
 
 void intent_engine_ready_sync(void)
 {
-    int sync = 0;
+    //return;
+    int sync = 3456;
 #if ON_TILE(WW_TILE_NO)
     printintln(123);
+    printintln(get_local_tile_id());
     size_t len = rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
+    printintln(124);
+
+    printintln(sizeof(sync));
+
     xassert(len == sizeof(sync));
     rtos_intertile_rx_data(intertile_ctx, &sync, sizeof(sync));
-        printintln(124);
+    printintln(sync);
+    printintln(127);
 
 #else
     printintln(125);
+    printintln(get_local_tile_id());
 
     rtos_intertile_tx(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, &sync, sizeof(sync));
+        printintln(sync);
+
+    printintln(126);
+
 #endif
 }
 

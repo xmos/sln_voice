@@ -15,6 +15,10 @@
 #define appconfAUDIOPIPELINE_PORT      7
 #define appconfI2S_OUTPUT_SLAVE_PORT   8
 
+#ifndef appconfINTENT_ENGINE_READY_SYNC_PORT
+#define appconfINTENT_ENGINE_READY_SYNC_PORT      18
+#endif /* appconfINTENT_ENGINE_READY_SYNC_PORT */
+
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
 #define FS_TILE_NO              FLASH_TILE_NO
@@ -36,11 +40,6 @@
 /* Intent Engine Configuration */
 #define appconfINTENT_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINTENT_SAMPLE_BLOCK_LENGTH    240
-
-/* Enable inference engine */
-#ifndef appconfINTENT_ENABLED
-#define appconfINTENT_ENABLED   1
-#endif
 
 /* Maximum delay between a wake up phrase and command phrase */
 #ifndef appconfINTENT_RESET_DELAY_MS
@@ -87,10 +86,6 @@
 #ifndef appconfUART_BAUD_RATE
 #define appconfUART_BAUD_RATE       9600
 #endif
-
-#ifndef appconfINTENT_ENGINE_READY_SYNC_PORT
-#define appconfINTENT_ENGINE_READY_SYNC_PORT      15
-#endif /* appconfINTENT_ENGINE_READY_SYNC_PORT */
 
 /**
  * A positive delay will delay mics
@@ -225,6 +220,6 @@
 #define appconfUSB_AUDIO_TASK_PRIORITY            (configMAX_PRIORITIES/2 + 1)
 #define appconfSPI_TASK_PRIORITY                  (configMAX_PRIORITIES/2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY           (configMAX_PRIORITIES/2 + 0)
-#define appconfWW_TASK_PRIORITY                   (configMAX_PRIORITIES/2 - 1)
+#define appconfWW_TASK_PRIORITY                   (configMAX_PRIORITIES-2)
 
 #endif /* APP_CONF_H_ */
