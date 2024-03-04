@@ -47,12 +47,10 @@ static void *audio_pipeline_input_i(void *input_app_data)
     memset(frame_data, 0x00, sizeof(frame_data_t));
 
     size_t bytes_received = 0;
-    //printintln(1005);
     bytes_received = rtos_intertile_rx_len(
             intertile_ctx,
             appconfAUDIOPIPELINE_PORT,
             portMAX_DELAY);
-    //printintln(1006);
 
     xassert(bytes_received == sizeof(frame_data_t));
 
@@ -60,7 +58,6 @@ static void *audio_pipeline_input_i(void *input_app_data)
             intertile_ctx,
             frame_data,
             bytes_received);
-    //printintln(1007);
 
     return frame_data;
 }
@@ -68,7 +65,6 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
-    printintln(1002);
 
     return audio_pipeline_output(output_app_data,
                                (int32_t **)frame_data->samples,
@@ -148,7 +144,6 @@ void audio_pipeline_init(
     void *input_app_data,
     void *output_app_data)
 {
-    printintln(611);
     const int stage_count = 3;
     const pipeline_stage_t stages[] = {
         (pipeline_stage_t)stage_vnr_and_ic,
@@ -161,11 +156,8 @@ void audio_pipeline_init(
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_ns),
         configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_agc) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
-    printintln(612);
 
     initialize_pipeline_stages();
-
-    printintln(613);
 
 
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
@@ -176,7 +168,6 @@ void audio_pipeline_init(
                         (const size_t*) stage_stack_sizes,
                         appconfAUDIO_PIPELINE_TASK_PRIORITY,
                         stage_count);
-                            printintln(614);
 
 }
 

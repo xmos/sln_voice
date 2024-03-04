@@ -86,7 +86,6 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
         g_lpbyDSpotterMem = NULL;
         return NULL;
     }
-    printintln(1110);
 
     DBG_TRACE("The list of trigger words: \r\n");
     nCount = DSpotterHL_GetDisplayCommandCount(DSPOTTER_HL_TRIGGER_STAGE);
@@ -95,10 +94,8 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
         DSpotterHL_GetDisplayCommand(DSPOTTER_HL_TRIGGER_STAGE, i, szCommand, sizeof(szCommand), &nCmdID);
         DBG_TRACE("    %s, ID = %d\r\n", szCommand, nCmdID);
     }
-    printintln(1111);
 
     nCount = DSpotterHL_GetDisplayCommandCount(DSPOTTER_HL_COMMAND_STAGE);
-    printintln(nCount);
     if (nCount > 0)
     {
         DBG_TRACE("The list of command words: \r\n");
@@ -109,7 +106,6 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
         }
     }
     DBG_TRACE("\r\n");
-    printintln(1112);
     return (asr_port_t)100;
 }
 
@@ -134,6 +130,9 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
         DBG_TRACE(".");
     }
 #endif
+    //printintln(buf_len);
+    printintln(audio_buf[0]);
+//    printintln(audio_buf[1]);
 
 #ifdef SKIP_DSPOTTER_RECOG
     return ASR_ERROR;
@@ -143,8 +142,6 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     // uint32_t timer_start = get_reference_time();
 
     int nRet = DSpotterHL_AddSampleNoFlow(audio_buf, buf_len);
-    printintln(555);
-    printintln(nRet);
     // Uncomment the two lines below to compute MIPS usage.
     // uint32_t timer_end = get_reference_time();
     // asr_printf("DSpotter processing time: %lu (us)\n", (timer_end - timer_start) / 100);

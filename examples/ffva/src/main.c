@@ -64,7 +64,6 @@ void audio_pipeline_input(void *input_app_data,
                         size_t ch_count,
                         size_t frame_count)
 {
-    printintln(888);
     (void) input_app_data;
     int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
 
@@ -83,7 +82,6 @@ void audio_pipeline_input(void *input_app_data,
             flushed = 1;
         }
     }
-    printintln(890);
 
     /*
      * NOTE: ALWAYS receive the next frame from the PDM mics,
@@ -95,7 +93,6 @@ void audio_pipeline_input(void *input_app_data,
                       mic_ptr,
                       frame_count,
                       portMAX_DELAY);
-    //printintln(891);
 
 #if appconfUSB_ENABLED
     int32_t **usb_mic_audio_frame = NULL;
@@ -118,7 +115,6 @@ void audio_pipeline_input(void *input_app_data,
                    usb_mic_audio_frame,
                    ch_cnt);
 #endif
-    //printintln(897);
 
 #if appconfI2S_ENABLED
     if (!appconfUSB_ENABLED || aec_ref_source == appconfAEC_REF_I2S) {
@@ -143,7 +139,6 @@ void audio_pipeline_input(void *input_app_data,
         }
     }
 #endif
-    //printintln(898);
 
 }
 
@@ -153,7 +148,6 @@ int audio_pipeline_output(void *output_app_data,
                         size_t frame_count)
 {
     (void) output_app_data;
-    printintln(777);
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
@@ -166,7 +160,6 @@ int audio_pipeline_output(void *output_app_data,
         tmp[j][0] = *(tmpptr+j+(2*frame_count));    // ref 0
         tmp[j][1] = *(tmpptr+j+(3*frame_count));    // ref 1
     }
-printintln(440);
 
     rtos_i2s_tx(i2s_ctx,
                 (int32_t*) tmp,
@@ -195,7 +188,6 @@ printintln(440);
                     portMAX_DELAY);
     }
 #endif
-printintln(441);
 
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
     /* I2S expects sample channel format */
@@ -220,7 +212,6 @@ printintln(441);
                 output_audio_frames,
                 6);
 #endif
-printintln(444);
 #if appconfWW_ENABLED
     ww_audio_send(intertile_ctx,
                   frame_count,

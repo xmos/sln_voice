@@ -66,7 +66,6 @@ void model_runner_manager(void *args)
     devmem_init(&devmem_ctx);
     printf("Call asr_init(). model = 0x%x, grammar = 0x%x\n", (unsigned int) model, (unsigned int) grammar);
     asr_ctx = asr_init((int32_t *)model, (int32_t *)grammar, &devmem_ctx);
-    printintln(11111);
 
     int16_t buf[appconfINTENT_SAMPLE_BLOCK_LENGTH] = {0};
     //int16_t buf_short[SAMPLES_PER_ASR] = {0};
@@ -82,7 +81,6 @@ void model_runner_manager(void *args)
     {
         /* Receive audio frames */
         uint8_t *buf_ptr = (uint8_t*)buf;
-        printintln(111);
         size_t buf_len = appconfWW_FRAMES_PER_INFERENCE * sizeof(int16_t);
         do {
             size_t bytes_rxed = xStreamBufferReceive(input_queue,
@@ -92,7 +90,6 @@ void model_runner_manager(void *args)
             buf_len -= bytes_rxed;
             buf_ptr += bytes_rxed;
         } while(buf_len > 0);
-        printintln(222);
 
         //for (int i = 0; i < appconfINTENT_SAMPLE_BLOCK_LENGTH; i++) {
         //    buf_short[buf_short_index++] = buf[i] >> 16;
@@ -108,19 +105,15 @@ void model_runner_manager(void *args)
         //   so, we need to check if an audio response is playing and skip to the next
         //   audio frame because the playback may trigger the ASR.
         //if (intent_handler_response_playing()) continue;
-        printintln(222);
         asr_error = asr_process(asr_ctx, buf, SAMPLES_PER_ASR);
-        printintln(asr_error);
 
         if (asr_error == ASR_EVALUATION_EXPIRED) {
             //led_indicate_end_of_eval();
             continue;
         }
         if (asr_error != ASR_OK) continue;
-        printintln(225);
 
         asr_error = asr_get_result(asr_ctx, &asr_result);
-        printintln(asr_error);
         if (asr_error != ASR_OK) continue;
 
         word_id = asr_result.id;
