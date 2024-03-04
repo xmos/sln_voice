@@ -221,6 +221,7 @@
 #define appconfUSB_AUDIO_TASK_PRIORITY            (configMAX_PRIORITIES/2 + 1)
 #define appconfSPI_TASK_PRIORITY                  (configMAX_PRIORITIES/2 + 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY           (configMAX_PRIORITIES/2 + 0)
-#define appconfWW_TASK_PRIORITY                   (configMAX_PRIORITIES-2)
+#define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY  (configMAX_PRIORITIES - 2)
+#define appconfLED_TASK_PRIORITY                  (configMAX_PRIORITIES / 2 - 1)
 
 #endif /* APP_CONF_H_ */

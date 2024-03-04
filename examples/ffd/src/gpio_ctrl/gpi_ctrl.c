@@ -7,7 +7,7 @@
 #include "FreeRTOS.h"
 
 #include "platform/app_pll_ctrl.h"
-#include "gpio_ctrl/gpi_ctrl.h"
+#include "gpi_ctrl.h"
 
 __attribute__((weak))
 void gpio_gpi_toggled_cb(uint32_t gpio_val)

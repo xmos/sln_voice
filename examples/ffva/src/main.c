@@ -26,6 +26,8 @@
 #include "intent_handler.h"
 #include "fs_support.h"
 #include "print.h"
+#include "gpi_ctrl.h"
+#include "leds.h"
 #include "gpio_test/gpio_test.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
@@ -343,16 +345,25 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
+#if ON_TILE(0)
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
+#endif
+
+#if ON_TILE(1)
+    gpio_gpi_init(gpio_ctx_t0);
+#endif
+
 #if ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
-    //rtos_dfu_image_print_debug(dfu_image_ctx);
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
-//vTaskDelay(pdMS_TO_TICKS(100));
+
 #if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
-    intent_engine_task_create(appconfWW_TASK_PRIORITY);
+    QueueHandle_t q_intent = xQueueCreate(appconfINTENT_QUEUE_LEN, sizeof(int32_t));
+    intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
+    intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
 #if appconfINTENT_ENABLED && !ON_TILE(ASR_TILE_NO)

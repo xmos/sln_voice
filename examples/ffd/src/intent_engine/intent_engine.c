@@ -18,7 +18,7 @@
 #include "intent_handler.h"
 #include "asr.h"
 #include "device_memory_impl.h"
-//#include "gpio_ctrl/leds.h"
+#include "leds.h"
 
 #if ON_TILE(ASR_TILE_NO)
 
@@ -109,7 +109,7 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
         intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
         //TODO: Enable this line
-        //led_indicate_waiting();
+        led_indicate_waiting();
         intent_state = STATE_EXPECTING_WAKEWORD;
     }
 }
@@ -160,13 +160,12 @@ void intent_engine_task(void *args)
         // this application does not support barge-in
         //   so, we need to check if an audio response is playing and skip to the next
         //   audio frame because the playback may trigger the ASR.
-        //TODO: Enable this line
         if (intent_handler_response_playing()) continue;
 
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
         if (asr_error == ASR_EVALUATION_EXPIRED) {
             //TODO: Enable this line
-            //led_indicate_end_of_eval();
+            led_indicate_end_of_eval();
             continue;
         }
         if (asr_error != ASR_OK) continue;
@@ -184,7 +183,7 @@ void intent_engine_task(void *args)
     #else
         if (intent_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(word_id)) {
             //TODO: Enable this line
-            //led_indicate_listening();
+            led_indicate_listening();
             xTimerStart(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
             intent_state = STATE_EXPECTING_COMMAND;

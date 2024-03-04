@@ -12,7 +12,7 @@
 
 /* App headers */
 #include "app_conf.h"
-#include "gpio_ctrl/leds.h"
+#include "leds.h"
 #include "platform/driver_instances.h"
 
 
