@@ -70,8 +70,76 @@ target_link_libraries(asr_Cyberon
 target_compile_definitions(asr_Cyberon
     INTERFACE
 )
+
 ##*********************************************
 ## Create aliases for sln_voice example designs
 ##*********************************************
 
 add_library(sln_voice::app::asr::Cyberon ALIAS asr_Cyberon)
+
+##*****************************
+## Create Intent Handler target
+##*****************************
+
+add_library(asr_intent_engine INTERFACE)
+
+target_sources(asr_intent_engine
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/intent_engine/intent_engine.c
+        ${CMAKE_CURRENT_LIST_DIR}/intent_engine/intent_engine_io.c
+        ${CMAKE_CURRENT_LIST_DIR}/intent_engine/intent_engine_support.c
+
+)
+target_include_directories(asr_intent_engine
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/intent_engine
+)
+## suppress all linker warnings
+target_link_options(asr_intent_engine
+    INTERFACE
+        -Wl,-w
+)
+
+target_compile_definitions(asr_intent_engine
+    INTERFACE
+)
+
+##*********************************************
+## Create aliases for sln_voice example designs
+##*********************************************
+
+add_library(sln_voice::app::asr::intent_engine ALIAS asr_intent_engine)
+
+##*****************************
+## Create Intent Handler target
+##*****************************
+
+add_library(asr_intent_handler INTERFACE)
+
+target_sources(asr_intent_handler
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/intent_handler/intent_handler.c
+        ${CMAKE_CURRENT_LIST_DIR}/intent_handler/audio_response/audio_response.c
+)
+target_include_directories(asr_intent_handler
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/intent_handler
+        ${CMAKE_CURRENT_LIST_DIR}/intent_handler/audio_response
+)
+## suppress all linker warnings
+target_link_options(asr_intent_handler
+    INTERFACE
+        -Wl,-w
+)
+
+target_compile_definitions(asr_intent_handler
+    INTERFACE
+)
+
+##*********************************************
+## Create aliases for sln_voice example designs
+##*********************************************
+
+add_library(sln_voice::app::asr::intent_handler ALIAS asr_intent_handler)
