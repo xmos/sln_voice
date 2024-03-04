@@ -9,7 +9,6 @@ file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
-    #${CMAKE_CURRENT_LIST_DIR}/src/ww_model_runner
     ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_engine
     ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_handler
 )

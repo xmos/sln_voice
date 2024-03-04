@@ -22,7 +22,6 @@
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
-//#include "ww_model_runner/ww_model_runner.h"
 #include "intent_engine.h"
 #include "intent_handler.h"
 #include "fs_support.h"

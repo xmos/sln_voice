@@ -130,9 +130,6 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
         DBG_TRACE(".");
     }
 #endif
-    //printintln(buf_len);
-    printintln(audio_buf[0]);
-//    printintln(audio_buf[1]);
 
 #ifdef SKIP_DSPOTTER_RECOG
     return ASR_ERROR;
