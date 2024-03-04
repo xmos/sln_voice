@@ -28,8 +28,6 @@
 #include "print.h"
 #include "gpio_test/gpio_test.h"
 
-#define ASR_CHANNEL             (0)
-
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 

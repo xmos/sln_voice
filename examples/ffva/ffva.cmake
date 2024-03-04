@@ -5,12 +5,13 @@
 set(MODEL_LANGUAGE "english_usa")
 set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/../ffd/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
 
-file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_engine/*.c)
+file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_engine/*.c ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_handler/*.c)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
     ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_engine
     ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_handler
+    ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_handler/audio_response
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)

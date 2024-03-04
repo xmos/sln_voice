@@ -161,7 +161,7 @@ void intent_engine_task(void *args)
         //   so, we need to check if an audio response is playing and skip to the next
         //   audio frame because the playback may trigger the ASR.
         //TODO: Enable this line
-        //if (intent_handler_response_playing()) continue;
+        if (intent_handler_response_playing()) continue;
 
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
         if (asr_error == ASR_EVALUATION_EXPIRED) {

@@ -13,7 +13,7 @@
 /* App headers */
 #include "app_conf.h"
 #include "platform/driver_instances.h"
-#include "intent_handler/intent_handler.h"
+#include "intent_handler.h"
 #include "audio_response.h"
 #include "fs_support.h"
 #include "ff.h"
@@ -95,7 +95,7 @@ void audio_response_play(int32_t id) {
                 i2s_audio[(2*i)+0] = (int32_t) file_audio[i] << 16;
                 i2s_audio[(2*i)+1] = (int32_t) file_audio[i] << 16;
             }
-            
+
             rtos_i2s_tx(i2s_ctx,
                         (int32_t*) i2s_audio,
                         appconfAUDIO_PIPELINE_FRAME_ADVANCE,

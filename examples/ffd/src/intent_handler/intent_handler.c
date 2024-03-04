@@ -1,6 +1,6 @@
 // Copyright 2022-2023 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
-fddsfsdf
+
 /* STD headers */
 #include <platform.h>
 #include <xs1.h>
@@ -18,7 +18,7 @@ fddsfsdf
 #include "fs_support.h"
 #include "ff.h"
 #include "audio_response.h"
-#include "intent_engine/intent_engine.h"
+#include "intent_engine.h"
 
 #define WAKEUP_LOW  (appconfINTENT_WAKEUP_EDGE_TYPE)
 #define WAKEUP_HIGH (appconfINTENT_WAKEUP_EDGE_TYPE == 0)
