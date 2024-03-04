@@ -31,10 +31,10 @@ void ww_audio_send(rtos_intertile_t *intertile_ctx,
     int16_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
     for (int i = 0; i < frame_count; i++) {
-        ww_samples[i] = (int16_t)(processed_audio_frame[i][ASR_CHANNEL] >> 16);
+        ww_samples[i] = (int16_t)((processed_audio_frame[i][ASR_CHANNEL] >> 16)  & 0xFFFF);
     }
-    printintln(processed_audio_frame[0][ASR_CHANNEL] );
-    printintln(ww_samples[0]);
+    //printintln(processed_audio_frame[0][ASR_CHANNEL] );
+    //printintln(ww_samples[0]);
     if(audio_stream != NULL) {
         if (xStreamBufferSend(audio_stream, ww_samples, sizeof(ww_samples), 0) != sizeof(ww_samples)) {
             rtos_printf("lost output samples for ww\n");

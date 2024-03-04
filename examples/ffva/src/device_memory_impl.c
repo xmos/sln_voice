@@ -46,20 +46,21 @@ void devmem_read_ext_local(void *dest, const void *src, size_t n) {
     //rtos_printf("devmem_read_ext_local  dest=0x%x    src=0x%x    size=%d\n", dest, src, n);
     if (IS_FLASH(src)) {
         //uint32_t s = get_reference_time();
-        int retval = -1; 
+        int retval = -1;
         while (retval == -1) {
             // Need to subtract off XS1_SWMEM_BASE because qspi flash driver accounts for the offset
             retval = rtos_qspi_flash_fast_read_mode_ll(qspi_flash_ctx, (uint8_t *)dest, (unsigned)(src - XS1_SWMEM_BASE), n, qspi_fast_flash_read_transfer_raw);
+            //printintln(retval);
         }
         //uint32_t d = get_reference_time() - s;
         //printf("%d, %0.01f (us), %0.04f (M/s)\n", n, d / 100.0f, (n / 1000000.0f ) / (d / 100000000.0f));
     } else {
         memcpy(dest, src, n);
-    }    
+    }
 }
 
 void devmem_init(devmem_manager_t *devmem_ctx) {
-    xassert(devmem_ctx);    
+    xassert(devmem_ctx);
     devmem_ctx->malloc = devmem_malloc_local;
     devmem_ctx->free = devmem_free_local;
     devmem_ctx->read_ext = devmem_read_ext_local;
