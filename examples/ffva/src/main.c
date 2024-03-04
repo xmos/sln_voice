@@ -216,18 +216,16 @@ int audio_pipeline_output(void *output_app_data,
                 6);
 #endif
 #if appconfINTENT_ENABLED
-    int32_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
-    for (int i = 0; i < frame_count; i++) {
-        ww_samples[i] = ((int32_t(*)[2])output_audio_frames)[i][ASR_CHANNEL];
+    int32_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    int32_t *tmpptr_1 = (int32_t *)output_audio_frames;
+    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
+        /* ASR output is first */
+        ww_samples[j] = *(tmpptr_1+j);
     }
+
     intent_engine_sample_push(ww_samples,
                               frame_count);
-
-
-    //ww_audio_send(intertile_ctx,
-    //              frame_count,
-    //              (int32_t(*)[2])output_audio_frames);
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
