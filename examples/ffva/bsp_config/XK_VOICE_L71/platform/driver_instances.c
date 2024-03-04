@@ -35,3 +35,6 @@ rtos_spi_slave_t *spi_slave_ctx = &spi_slave_ctx_s;
 
 static rtos_dfu_image_t dfu_image_ctx_s;
 rtos_dfu_image_t *dfu_image_ctx = &dfu_image_ctx_s;
+
+static rtos_uart_tx_t uart_tx_ctx_s;
+rtos_uart_tx_t *uart_tx_ctx = &uart_tx_ctx_s;

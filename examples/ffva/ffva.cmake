@@ -5,11 +5,13 @@
 set(MODEL_LANGUAGE "english_usa")
 set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/../ffd/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
 
-file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_engine/*.c)
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
-    ${CMAKE_CURRENT_LIST_DIR}/src/ww_model_runner
+    #${CMAKE_CURRENT_LIST_DIR}/src/ww_model_runner
+    ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_engine
+    ${CMAKE_CURRENT_LIST_DIR}/../ffd/src/intent_handler
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
@@ -86,6 +88,7 @@ endif()
 # XMOS Example Design Targets
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_int.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffva_int_cyberon.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_ua.cmake)
 
 #**********************

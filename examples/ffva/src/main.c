@@ -22,10 +22,14 @@
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
-#include "ww_model_runner/ww_model_runner.h"
+//#include "ww_model_runner/ww_model_runner.h"
+#include "intent_engine.h"
+#include "intent_handler.h"
 #include "fs_support.h"
 #include "print.h"
 #include "gpio_test/gpio_test.h"
+
+#define ASR_CHANNEL             (0)
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
@@ -212,10 +216,19 @@ int audio_pipeline_output(void *output_app_data,
                 output_audio_frames,
                 6);
 #endif
-#if appconfWW_ENABLED
-    ww_audio_send(intertile_ctx,
-                  frame_count,
-                  (int32_t(*)[2])output_audio_frames);
+#if appconfINTENT_ENABLED
+    int32_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+
+    for (int i = 0; i < frame_count; i++) {
+        ww_samples[i] = ((int32_t(*)[2])output_audio_frames)[i][ASR_CHANNEL];
+    }
+    intent_engine_sample_push(ww_samples,
+                              frame_count);
+
+
+    //ww_audio_send(intertile_ctx,
+    //              frame_count,
+    //              (int32_t(*)[2])output_audio_frames);
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
@@ -344,11 +357,11 @@ void startup_task(void *arg)
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
 //vTaskDelay(pdMS_TO_TICKS(100));
-#if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
-    ww_task_create(appconfWW_TASK_PRIORITY);
+#if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
+    intent_engine_task_create(appconfWW_TASK_PRIORITY);
 #endif
 
-#if appconfWW_ENABLED && !ON_TILE(WW_TILE_NO)
+#if appconfINTENT_ENABLED && !ON_TILE(ASR_TILE_NO)
     // Wait until the intent engine is initialized before starting the
     // audio pipeline.
     intent_engine_ready_sync();

@@ -14,7 +14,7 @@
 /* App headers */
 #include "app_conf.h"
 #include "platform/driver_instances.h"
-#include "intent_engine/intent_engine.h"
+#include "intent_engine.h"
 
 #if ON_TILE(ASR_TILE_NO)
 
@@ -110,6 +110,7 @@ void intent_engine_samples_send_local(
         if (xStreamBufferSend(samples_to_engine_stream_buf, processed_audio_frame, bytes_to_send, 0) != bytes_to_send) {
             rtos_printf("lost local output samples for intent\n");
         }
+
     } else {
         rtos_printf("intent engine streambuffer not ready\n");
     }

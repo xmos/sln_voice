@@ -13,6 +13,7 @@
 #include "rtos_qspi_flash.h"
 #include "rtos_dfu_image.h"
 #include "rtos_spi_slave.h"
+#include "rtos_uart_tx.h"
 
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
@@ -21,6 +22,7 @@
 #define SPI_OUTPUT_TILE_NO 0
 #define MICARRAY_TILE_NO   1
 #define I2S_TILE_NO        1
+#define UART_TILE_NO       0
 
 /** TILE 0 Clock Blocks */
 #define FLASH_CLKBLK  XS1_CLKBLK_1
@@ -59,5 +61,6 @@ extern rtos_i2c_slave_t *i2c_slave_ctx;
 extern rtos_spi_slave_t *spi_slave_ctx;
 extern rtos_i2s_t *i2s_ctx;
 extern rtos_dfu_image_t *dfu_image_ctx;
+extern rtos_uart_tx_t *uart_tx_ctx;
 
 #endif /* DRIVER_INSTANCES_H_ */

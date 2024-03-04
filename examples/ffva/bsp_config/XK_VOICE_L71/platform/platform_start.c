@@ -40,10 +40,6 @@ static void flash_start(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
     rtos_qspi_flash_start(qspi_flash_ctx, appconfQSPI_FLASH_TASK_PRIORITY);
-
-    //uint32_t flash_core_map = ~((1 << appconfUSB_INTERRUPT_CORE) | (1 << appconfUSB_SOF_INTERRUPT_CORE));
-    //rtos_qspi_flash_start(qspi_flash_ctx, appconfQSPI_FLASH_TASK_PRIORITY);
-    //rtos_qspi_flash_op_core_affinity_set(qspi_flash_ctx, flash_core_map);
 #endif
 }
 
@@ -143,6 +139,13 @@ static void usb_start(void)
 #endif
 }
 
+static void uart_start(void)
+{
+#if ON_TILE(UART_TILE_NO)
+    rtos_uart_tx_start(uart_tx_ctx);
+#endif
+}
+
 void platform_start(void)
 {
     rtos_intertile_start(intertile_ctx);
@@ -157,4 +160,5 @@ void platform_start(void)
     mics_start();
     i2s_start();
     usb_start();
+    uart_start();
 }

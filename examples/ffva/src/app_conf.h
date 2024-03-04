@@ -21,8 +21,9 @@
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
+#define ASR_TILE_NO             FLASH_TILE_NO
 #define FS_TILE_NO              FLASH_TILE_NO
-#define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
+#define AUDIO_PIPELINE_TILE_NO  FLASH_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
@@ -129,8 +130,8 @@
 #define appconfUSB_ENABLED         0
 #endif
 
-#ifndef appconfWW_ENABLED
-#define appconfWW_ENABLED          1
+#ifndef appconfINTENT_ENABLED
+#define appconfINTENT_ENABLED          1
 #endif
 
 #ifndef appconfUSB_AUDIO_SAMPLE_RATE
