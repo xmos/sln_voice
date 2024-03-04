@@ -86,6 +86,7 @@ set(APP_LINK_OPTIONS
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
     sln_voice::app::asr::Cyberon
+    sln_voice::app::asr::gpio_ctrl
     sln_voice::app::asr::intent_engine
     sln_voice::app::asr::intent_handler
     sln_voice::app::ffd::xk_voice_l71

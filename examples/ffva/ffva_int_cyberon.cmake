@@ -68,6 +68,7 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
             sln_voice::app::ffva::xk_voice_l71
             sln_voice::app::ffva::ap::${FFVA_AP}
             sln_voice::app::asr::Cyberon
+            sln_voice::app::asr::gpio_ctrl
             sln_voice::app::asr::intent_engine
             sln_voice::app::asr::intent_handler
 
@@ -91,6 +92,7 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
             sln_voice::app::ffva::xk_voice_l71
             sln_voice::app::ffva::ap::${FFVA_AP}
             sln_voice::app::asr::Cyberon
+            sln_voice::app::asr::gpio_ctrl
             sln_voice::app::asr::intent_engine
             sln_voice::app::asr::intent_handler
     )

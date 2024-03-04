@@ -78,7 +78,39 @@ target_compile_definitions(asr_Cyberon
 add_library(sln_voice::app::asr::Cyberon ALIAS asr_Cyberon)
 
 ##*****************************
-## Create Intent Handler target
+## Create GPIO Control target
+##*****************************
+
+add_library(asr_gpio_ctrl INTERFACE)
+
+target_sources(asr_gpio_ctrl
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/gpio_ctrl/gpi_ctrl.c
+        ${CMAKE_CURRENT_LIST_DIR}/gpio_ctrl/leds.c
+)
+target_include_directories(asr_gpio_ctrl
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/gpio_ctrl
+)
+## suppress all linker warnings
+target_link_options(asr_gpio_ctrl
+    INTERFACE
+        -Wl,-w
+)
+
+target_compile_definitions(asr_gpio_ctrl
+    INTERFACE
+)
+
+##*********************************************
+## Create aliases for sln_voice example designs
+##*********************************************
+
+add_library(sln_voice::app::asr::gpio_ctrl ALIAS asr_gpio_ctrl)
+
+##*****************************
+## Create Intent Engine target
 ##*****************************
 
 add_library(asr_intent_engine INTERFACE)
