@@ -1,4 +1,11 @@
 #**********************
+# ASR Language info
+#**********************
+
+set(MODEL_LANGUAGE "english_usa")
+set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/asr/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
+
+#**********************
 # QSPI Flash Layout
 #**********************
 set(BOOT_PARTITION_SIZE 0x100000)
