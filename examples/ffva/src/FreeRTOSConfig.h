@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
@@ -49,7 +49,7 @@ your application. */
 #define configTOTAL_HEAP_SIZE                   160*1024
 #endif
 #if ON_TILE(1)
-#define configTOTAL_HEAP_SIZE                   150*1024
+#define configTOTAL_HEAP_SIZE                   128*1024
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP        0
 

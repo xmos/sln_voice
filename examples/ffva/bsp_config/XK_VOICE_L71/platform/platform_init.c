@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -25,6 +25,10 @@ static void mclk_init(chanend_t other_tile_c)
 static void flash_init(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
+// Flash fast read is used for reading the WW model in the INT device,
+// normal read is used for the DFU in the UA device.
+// The two read mechanisms are not compatible, so we must choose them at initialization.
+#if !appconfUSB_ENABLED:
     rtos_qspi_flash_fast_read_init(
             qspi_flash_ctx,
             FLASH_CLKBLK,
@@ -35,8 +39,7 @@ static void flash_init(void)
             qspi_fast_flash_read_transfer_nibble_swap,
             3,
             QSPI_FLASH_CALIBRATION_ADDRESS);
-#endif
-#if 0 //ON_TILE(FLASH_TILE_NO)
+#else
     fl_QuadDeviceSpec qspi_spec = BOARD_QSPI_SPEC;
     fl_QSPIPorts qspi_ports = {
         .qspiCS = PORT_SQI_CS,

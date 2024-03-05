@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* STD headers */
@@ -108,7 +108,6 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
     if (timeout_event & TIMEOUT_EVENT_INTENT) {
         timeout_event &= ~TIMEOUT_EVENT_INTENT;
         intent_engine_play_response(STOP_LISTENING_SOUND_WAV_ID);
-        //TODO: Enable this line
         led_indicate_waiting();
         intent_state = STATE_EXPECTING_WAKEWORD;
     }
@@ -164,7 +163,6 @@ void intent_engine_task(void *args)
 
         asr_error = asr_process(asr_ctx, buf_short, SAMPLES_PER_ASR);
         if (asr_error == ASR_EVALUATION_EXPIRED) {
-            //TODO: Enable this line
             led_indicate_end_of_eval();
             continue;
         }
@@ -182,7 +180,6 @@ void intent_engine_task(void *args)
         intent_engine_process_asr_result(word_id);
     #else
         if (intent_state == STATE_EXPECTING_WAKEWORD && IS_KEYWORD(word_id)) {
-            //TODO: Enable this line
             led_indicate_listening();
             xTimerStart(int_eng_tmr, 0);
             intent_engine_process_asr_result(word_id);
