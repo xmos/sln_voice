@@ -6,7 +6,7 @@ add_library(asr_sensory INTERFACE)
 
 target_sources(asr_sensory
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/device_memory.c
+        ${SOLUTION_VOICE_ROOT_PATH}/modules/asr/device_memory/device_memory.c
         ${CMAKE_CURRENT_LIST_DIR}/sensory/appAudio.c
         ${CMAKE_CURRENT_LIST_DIR}/sensory/sensory_asr.c
 )
@@ -44,7 +44,6 @@ add_library(asr_Cyberon INTERFACE)
 
 target_sources(asr_Cyberon
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/device_memory.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/DSpotter_asr.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/FlashReadData.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/Convert2TransferBuffer.c
@@ -76,6 +75,39 @@ target_compile_definitions(asr_Cyberon
 ##*********************************************
 
 add_library(sln_voice::app::asr::Cyberon ALIAS asr_Cyberon)
+
+##*****************************
+## Create Device Memory target
+##*****************************
+
+add_library(asr_device_memory INTERFACE)
+
+target_sources(asr_device_memory
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}/device_memory/device_memory.c
+        ${CMAKE_CURRENT_LIST_DIR}/device_memory/device_memory_impl.c
+
+)
+target_include_directories(asr_device_memory
+    INTERFACE
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/device_memory
+)
+## suppress all linker warnings
+target_link_options(asr_device_memory
+    INTERFACE
+        -Wl,-w
+)
+
+target_compile_definitions(asr_device_memory
+    INTERFACE
+)
+
+##*********************************************
+## Create aliases for sln_voice example designs
+##*********************************************
+
+add_library(sln_voice::app::asr::device_memory  ALIAS asr_device_memory)
 
 ##*****************************
 ## Create GPIO Control target

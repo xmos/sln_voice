@@ -22,12 +22,15 @@
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
+
+/* Headers used for the WW intent engine */
+#if appconfINTENT_ENABLED
 #include "intent_engine.h"
 #include "intent_handler.h"
 #include "fs_support.h"
-#include "print.h"
 #include "gpi_ctrl.h"
 #include "leds.h"
+#endif
 #include "gpio_test/gpio_test.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
@@ -345,15 +348,15 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(0)
+#if appconfINTENT_ENABLED && ON_TILE(0)
     led_task_create(appconfLED_TASK_PRIORITY, NULL);
 #endif
 
-#if ON_TILE(1)
+#if appconfINTENT_ENABLED && ON_TILE(1)
     gpio_gpi_init(gpio_ctx_t0);
 #endif
 
-#if ON_TILE(FS_TILE_NO)
+#if appconfINTENT_ENABLED && ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls

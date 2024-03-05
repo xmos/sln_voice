@@ -37,6 +37,7 @@ set(FFVA_INT_CYBERON_COMPILE_DEFINITIONS
     appconfEXTERNAL_MCLK=1
     appconfI2S_ENABLED=1
     appconfUSB_ENABLED=0
+    appconfINTENT_ENABLED=1
     appconfAEC_REF_DEFAULT=appconfAEC_REF_I2S
     appconfI2S_MODE=appconfI2S_MODE_SLAVE
     appconfI2S_AUDIO_SAMPLE_RATE=48000
@@ -68,10 +69,10 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
             sln_voice::app::ffva::xk_voice_l71
             sln_voice::app::ffva::ap::${FFVA_AP}
             sln_voice::app::asr::Cyberon
+            sln_voice::app::asr::device_memory
             sln_voice::app::asr::gpio_ctrl
             sln_voice::app::asr::intent_engine
             sln_voice::app::asr::intent_handler
-
     )
     target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
     unset(TARGET_NAME)
@@ -92,6 +93,7 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
             sln_voice::app::ffva::xk_voice_l71
             sln_voice::app::ffva::ap::${FFVA_AP}
             sln_voice::app::asr::Cyberon
+            sln_voice::app::asr::device_memory
             sln_voice::app::asr::gpio_ctrl
             sln_voice::app::asr::intent_engine
             sln_voice::app::asr::intent_handler

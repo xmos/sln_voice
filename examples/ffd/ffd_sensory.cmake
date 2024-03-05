@@ -98,6 +98,7 @@ set(APP_LINK_OPTIONS
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
     sln_voice::app::asr::sensory
+    sln_voice::app::asr::device_memory
     sln_voice::app::asr::gpio_ctrl
     sln_voice::app::asr::intent_engine
     sln_voice::app::asr::intent_handler

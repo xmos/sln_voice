@@ -6,8 +6,8 @@ include(${CMAKE_CURRENT_LIST_DIR}/asr_example/asr_example.cmake)
 #**********************
 # Gather Sources
 #**********************
-file(GLOB_RECURSE APP_SOURCES 
-    ${CMAKE_CURRENT_LIST_DIR}/src/*.xc 
+file(GLOB_RECURSE APP_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/src/*.xc
     ${CMAKE_CURRENT_LIST_DIR}/src/*.c
 )
 set(APP_INCLUDES
