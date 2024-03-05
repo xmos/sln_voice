@@ -28,7 +28,7 @@ static void flash_init(void)
 // Flash fast read is used for reading the WW model in the INT device,
 // normal read is used for the DFU in the UA device.
 // The two read mechanisms are not compatible, so we must choose them at initialization.
-#if !appconfUSB_ENABLED
+#if !appconfUSB_ENABLED && appconfINTENT_ENABLED
     rtos_qspi_flash_fast_read_init(
             qspi_flash_ctx,
             FLASH_CLKBLK,

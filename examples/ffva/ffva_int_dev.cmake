@@ -1,12 +1,9 @@
 
-set(MODEL_LANGUAGE "english_usa")
-set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/asr/model/$(MODEL_LANGUAGE)/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
-
 set(FFVA_INT_COMPILE_DEFINITIONS
 ${APP_COMPILE_DEFINITIONS}
     appconfEXTERNAL_MCLK=1
     appconfI2S_ENABLED=1
-        =0
+    appconfUSB_ENABLED=0
     appconfAEC_REF_DEFAULT=appconfAEC_REF_I2S
     appconfI2S_MODE=appconfI2S_MODE_SLAVE
     appconfI2S_AUDIO_SAMPLE_RATE=480000
