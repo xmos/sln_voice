@@ -24,7 +24,6 @@
 #define ASR_TILE_NO                             0
 #define UART_TILE_NO                            0
 #define appconfINTENT_WAKEUP_EDGE_TYPE          0
-#define appconfAUDIO_PIPELINE_FRAME_ADVANCE     240
 
 #define UART_RX_CORE_MASK       (1 << 2)
 #define UART_RX_ISR_CORE        2
