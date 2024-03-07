@@ -33,8 +33,20 @@
 #endif
 #include "gpio_test/gpio_test.h"
 
+/* Config headers for sw_pll */
+#include "sw_pll.h"
+#include "fractions_1000ppm.h"
+#include "register_setup_1000ppm.h"
+
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
+
+typedef struct i2s_callback_args_t {
+    port_t p_mclk_count;                    // Used for keeping track of MCLK output for sw_pll
+    port_t p_bclk_count;                    // Used for keeping track of BCLK input for sw_pll
+    sw_pll_state_t *sw_pll;                 // Pointer to sw_pll state (if used)
+
+} i2s_callback_args_t;
 
 #if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 void i2s_slave_intertile(void *args) {
@@ -61,6 +73,18 @@ void i2s_slave_intertile(void *args) {
                     (int32_t*) tmp,
                     appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                     portMAX_DELAY);
+
+
+#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+    i2s_callback_args_t* i2s_callback_args = (i2s_callback_args_t*) args;
+    port_clear_buffer(i2s_callback_args->p_bclk_count);
+    port_in(i2s_callback_args->p_bclk_count);                                  // Block until BCLK transition to synchronise. Will consume up to 1/64 of a LRCLK cycle
+    uint16_t mclk_pt = port_get_trigger_time(i2s_callback_args->p_mclk_count); // Immediately sample mclk_count
+    uint16_t bclk_pt = port_get_trigger_time(i2s_callback_args->p_bclk_count); // Now grab bclk_count (which won't have changed)
+
+    sw_pll_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
+#endif
+
     }
 }
 #endif
@@ -329,17 +353,69 @@ static void mem_analysis(void)
 	}
 }
 
+static int *p_lock_status = NULL;
+/// @brief Save the pointer to the pll lock_status variable
+static void set_pll_lock_status_ptr(int* p)
+{
+    p_lock_status = p;
+}
+
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
 
     platform_start();
+#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+
+    sw_pll_state_t sw_pll = {0};
+    port_t p_bclk = PORT_I2S_BCLK;
+    port_t p_lrclk = PORT_I2S_LRCLK;
+    port_t p_mclk = PORT_MCLK;
+    port_t p_mclk_count = PORT_MCLK_COUNT;  // Used internally by sw_pll
+    port_t p_bclk_count = PORT_BCLK_COUNT;  // Used internally by sw_pll
+    xclock_t ck_bclk = I2S_CLKBLK;
+    set_pll_lock_status_ptr(&sw_pll.lock_status);
+        // Create clock from mclk port and use it to clock the p_mclk_count port which will count MCLKs.
+        port_enable(p_mclk_count);
+        port_enable(p_bclk_count);
+
+        // Allow p_mclk_count to count mclks
+        xclock_t clk_mclk = MCLK_CLKBLK;
+        clock_enable(clk_mclk);
+        clock_set_source_port(clk_mclk, p_mclk);
+        port_set_clock(p_mclk_count, clk_mclk);
+        clock_start(clk_mclk);
+
+        // Allow p_bclk_count to count bclks
+        port_set_clock(p_bclk_count, ck_bclk);
+        printintln(111);
+        sw_pll_init(&sw_pll,
+                    SW_PLL_15Q16(0.0),
+                    SW_PLL_15Q16(1.0),
+                    PLL_CONTROL_LOOP_COUNT_INT,
+                    PLL_RATIO,
+                    (appconfBCLK_NOMINAL_HZ / appconfLRCLK_NOMINAL_HZ),
+                    frac_values_90,
+                    SW_PLL_NUM_LUT_ENTRIES(frac_values_90),
+                    APP_PLL_CTL_REG,
+                    APP_PLL_DIV_REG,
+                    SW_PLL_NUM_LUT_ENTRIES(frac_values_90) / 2,
+                    PLL_PPM_RANGE);
+        printintln(112);
+
+        debug_printf("Using SW PLL to track I2S input\n");
+    i2s_callback_args_t i2s_callback_args = {
+        .sw_pll = &sw_pll,
+        .p_mclk_count = p_mclk_count,
+        .p_bclk_count = p_bclk_count
+    };
+#endif
 
 #if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
                 RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
-                NULL,
+                &i2s_callback_args,
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
