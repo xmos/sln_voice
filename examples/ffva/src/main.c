@@ -363,17 +363,20 @@ static void set_pll_lock_status_ptr(int* p)
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
-
     platform_start();
 #if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
 
     sw_pll_state_t sw_pll = {0};
     port_t p_bclk = PORT_I2S_BCLK;
-    port_t p_lrclk = PORT_I2S_LRCLK;
     port_t p_mclk = PORT_MCLK;
     port_t p_mclk_count = PORT_MCLK_COUNT;  // Used internally by sw_pll
     port_t p_bclk_count = PORT_BCLK_COUNT;  // Used internally by sw_pll
     xclock_t ck_bclk = I2S_CLKBLK;
+
+    port_enable(p_mclk);
+    port_enable(p_bclk);
+    // NOTE:  p_lrclk does not need to be enabled by the caller
+
     set_pll_lock_status_ptr(&sw_pll.lock_status);
         // Create clock from mclk port and use it to clock the p_mclk_count port which will count MCLKs.
         port_enable(p_mclk_count);
