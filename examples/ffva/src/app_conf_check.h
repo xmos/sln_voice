@@ -12,6 +12,10 @@
 #error Cannot use USB with an external mclk source
 #endif
 
+#if appconfUSB_ENABLED && appconfINTENT_ENABLED
+#error Cannot use wakeword engine in USB configurations
+#endif
+
 #if appconfI2S_TDM_ENABLED && appconfI2S_AUDIO_SAMPLE_RATE != 3*appconfAUDIO_PIPELINE_SAMPLE_RATE
 #error appconfI2S_AUDIO_SAMPLE_RATE must be 48000 to use I2S TDM
 #endif
