@@ -15,6 +15,11 @@
 #include "rtos_spi_slave.h"
 #include "rtos_uart_tx.h"
 
+/* Config headers for sw_pll */
+#include "sw_pll.h"
+#include "fractions_1000ppm.h"
+#include "register_setup_1000ppm.h"
+
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
 #define I2C_TILE_NO        0
@@ -62,5 +67,16 @@ extern rtos_spi_slave_t *spi_slave_ctx;
 extern rtos_i2s_t *i2s_ctx;
 extern rtos_dfu_image_t *dfu_image_ctx;
 extern rtos_uart_tx_t *uart_tx_ctx;
+
+typedef struct {
+    port_t p_mclk_count;                    // Used for keeping track of MCLK output for sw_pll
+    port_t p_bclk_count;                    // Used for keeping track of BCLK input for sw_pll
+    sw_pll_state_t *sw_pll;                 // Pointer to sw_pll state (if used)
+
+}sw_pll_ctx_t;
+
+static sw_pll_state_t sw_pll = {0};
+
+extern sw_pll_ctx_t *sw_pll_ctx;
 
 #endif /* DRIVER_INSTANCES_H_ */
