@@ -14,9 +14,9 @@
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
-#define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
-#define ASR_TILE_NO             FLASH_TILE_NO
-#define FS_TILE_NO              FLASH_TILE_NO
+#define AUDIO_PIPELINE_OUTPUT_TILE_NO   MICARRAY_TILE_NO
+#define ASR_TILE_NO                     FLASH_TILE_NO
+#define FS_TILE_NO                      FLASH_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ

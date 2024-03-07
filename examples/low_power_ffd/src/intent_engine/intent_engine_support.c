@@ -22,7 +22,7 @@ static StreamBufferHandle_t samples_to_engine_stream_buf = 0;
 
 #endif /* ON_TILE(ASR_TILE_NO) */
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
 
 void intent_engine_samples_send_remote(
         rtos_intertile_t *intertile,
@@ -37,7 +37,7 @@ void intent_engine_samples_send_remote(
                       sizeof(asr_sample_t) * frame_count);
 }
 
-#else /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
+#else /* ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO) */
 
 static void intent_engine_intertile_samples_in_task(void *arg)
 {
@@ -92,4 +92,4 @@ void intent_engine_intertile_task_create(uint32_t priority)
                 NULL);
 }
 
-#endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
+#endif /* ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO) */
