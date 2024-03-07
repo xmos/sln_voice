@@ -304,7 +304,7 @@ static void usb_init(void)
 
 static void uart_init(void)
 {
-#if ON_TILE(UART_TILE_NO)
+#if appconfINTENT_ENABLED && ON_TILE(UART_TILE_NO)
     hwtimer_t tmr_tx = hwtimer_alloc();
 
     rtos_uart_tx_init(

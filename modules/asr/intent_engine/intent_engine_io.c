@@ -104,7 +104,7 @@ int32_t intent_engine_create(uint32_t priority, void *args)
 {
     q_intent = (QueueHandle_t) args;
 
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+#if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
     intent_engine_task_create(priority);
 #else
     intent_engine_intertile_task_create(priority);
@@ -115,8 +115,8 @@ int32_t intent_engine_create(uint32_t priority, void *args)
 
 int32_t intent_engine_sample_push(int32_t *buf, size_t frames)
 {
-#if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+#if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
+#if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
     intent_engine_samples_send_local(
             frames,
             buf);

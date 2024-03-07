@@ -127,8 +127,6 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
     set(MODEL_FILE ${TARGET_NAME}_model.bin)
     set(FATFS_FILE ${TARGET_NAME}_fat.fs)
     set(FLASH_CAL_FILE ${LIB_QSPI_FAST_READ_ROOT_PATH}/lib_qspi_fast_read/calibration_pattern_nibble_swap.bin)
-    #set(FATFS_CONTENTS_DIR ${TARGET_NAME}_fatmktmp)
-
 
     add_custom_target(${MODEL_FILE} ALL
         COMMAND ${CMAKE_COMMAND} -E copy ${CYBERON_COMMAND_NET_FILE} ${MODEL_FILE}
@@ -189,50 +187,4 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
     unset(DATA_PARTITION_FILE_LIST)
     unset(DATA_PARTITION_DEPENDS_LIST)
 
-    #add_custom_target(
-    #    ${FATFS_FILE} ALL
-    #    COMMAND ${CMAKE_COMMAND} -E rm -rf ${FATFS_CONTENTS_DIR}/fs/
-    #    COMMAND ${CMAKE_COMMAND} -E make_directory ${FATFS_CONTENTS_DIR}/fs/
-    #    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_LIST_DIR}/filesystem_support/demo.txt ${FATFS_CONTENTS_DIR}/fs/
-    #    COMMAND fatfs_mkimage --input=${FATFS_CONTENTS_DIR} --output=${FATFS_FILE}
-    #    COMMENT
-    #        "Create filesystem"
-    #    VERBATIM
-    #)
-
-    #set_target_properties(${FATFS_FILE} PROPERTIES
-    #    ADDITIONAL_CLEAN_FILES ${FATFS_CONTENTS_DIR}
-    #)
-
-    # The filesystem is the only component in the data partition, copy it to
-    # the assocated data partition file which is required for CI.
-    #add_custom_command(
-    #    OUTPUT ${DATA_PARTITION_FILE}
-    #    COMMAND ${CMAKE_COMMAND} -E copy ${FATFS_FILE} ${DATA_PARTITION_FILE}
-    #    DEPENDS
-    #        ${FATFS_FILE}
-    #    COMMENT
-    #        "Create data partition"
-    #    VERBATIM
-    #)
-
-    #list(APPEND DATA_PARTITION_FILE_LIST
-    #    ${FATFS_FILE}
-    #    ${DATA_PARTITION_FILE}
-    #)
-
-    #create_data_partition_directory(
-    #    #[[ Target ]]                   ${TARGET_NAME}
-    #    #[[ Copy Files ]]               "${DATA_PARTITION_FILE_LIST}"
-    #    #[[ Dependencies ]]             "${DATA_PARTITION_FILE_LIST}"
-    #)
-
-    #create_flash_app_target(
-    #    #[[ Target ]]                  ${TARGET_NAME}
-    #    #[[ Boot Partition Size ]]     0x100000
-    #    #[[ Data Partition Contents ]] ${DATA_PARTITION_FILE}
-    #    #[[ Dependencies ]]            ${DATA_PARTITION_FILE}
-    #)
-
-    #unset(DATA_PARTITION_FILE_LIST)
 endforeach()

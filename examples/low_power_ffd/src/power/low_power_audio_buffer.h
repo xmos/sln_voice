@@ -17,7 +17,7 @@
 
 #define LOW_POWER_AUDIO_BUFFER_ENABLED ( \
     appconfAUDIO_PIPELINE_BUFFER_ENABLED && \
-    ON_TILE(AUDIO_PIPELINE_TILE_NO) )
+    ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO) )
 
 /**
  * Enqueue audio samples into a ring buffer. Oldest data will be overwritten.

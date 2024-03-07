@@ -274,7 +274,7 @@ void intent_engine_task(void *args)
 void intent_engine_ready_sync(void)
 {
     int sync = 0;
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
     size_t len = rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
     xassert(len == sizeof(sync));
     rtos_intertile_rx_data(intertile_ctx, &sync, sizeof(sync));

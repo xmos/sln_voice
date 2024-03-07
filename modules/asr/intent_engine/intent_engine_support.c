@@ -29,8 +29,8 @@ void intent_engine_stream_buf_reset(void)
 
 #endif /* ON_TILE(ASR_TILE_NO) */
 
-#if ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ASR_TILE_NO != AUDIO_PIPELINE_OUTPUT_TILE_NO
+#if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
 
 void intent_engine_samples_send_remote(
         rtos_intertile_t *intertile,
@@ -45,7 +45,7 @@ void intent_engine_samples_send_remote(
                       sizeof(int32_t) * frame_count);
 }
 
-#else /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
+#else /* ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO) */
 
 static void intent_engine_intertile_samples_in_task(void *arg)
 {
@@ -93,10 +93,10 @@ void intent_engine_intertile_task_create(uint32_t priority)
                 NULL);
 }
 
-#endif /* ON_TILE(AUDIO_PIPELINE_TILE_NO) */
-#endif /* ASR_TILE_NO != AUDIO_PIPELINE_TILE_NO */
+#endif /* ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO) */
+#endif /* ASR_TILE_NO != AUDIO_PIPELINE_OUTPUT_TILE_NO */
 
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+#if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
 #if ON_TILE(ASR_TILE_NO)
 
 void intent_engine_samples_send_local(
@@ -131,4 +131,4 @@ void intent_engine_task_create(unsigned priority)
 }
 
 #endif /* ON_TILE(ASR_TILE_NO) */
-#endif /* ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO */
+#endif /* ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO */

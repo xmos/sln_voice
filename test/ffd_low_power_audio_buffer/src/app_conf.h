@@ -14,7 +14,7 @@
 #define ON_TILE(t) (!defined(THIS_XCORE_TILE) || THIS_XCORE_TILE == (t))
 #endif /* __XC__ */
 
-#define AUDIO_PIPELINE_TILE_NO                      1
+#define AUDIO_PIPELINE_OUTPUT_TILE_NO               1
 #define appconfAUDIO_PIPELINE_BUFFER_ENABLED        1
 #define appconfAUDIO_PIPELINE_BUFFER_NUM_FRAMES     32
 #define appconfAUDIO_PIPELINE_FRAME_ADVANCE         240
