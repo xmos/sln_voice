@@ -40,6 +40,8 @@ static void flash_start(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
     rtos_qspi_flash_start(qspi_flash_ctx, appconfQSPI_FLASH_TASK_PRIORITY);
+    rtos_qspi_flash_op_core_affinity_set(qspi_flash_ctx, flash_core_map);
+
 #endif
 }
 
