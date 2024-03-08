@@ -1,5 +1,5 @@
-// Copyright 2023 XMOS LIMITED.
-// This Software is subject to the terms of the XCORE VocalFusion Licence.
+// Copyright 2023-2024 XMOS LIMITED.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 // Header file listing fraction options searched
 // These values to go in the bottom 16 bits of the secondary PLL fractional-n divider register.
 static short frac_values_90[790] = {

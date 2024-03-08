@@ -35,7 +35,6 @@
 
 /* Config headers for sw_pll */
 #include "sw_pll.h"
-//#include "register_setup_1000ppm.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
