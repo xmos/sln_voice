@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -114,6 +114,7 @@ static void usb_init(void)
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
+
     rtos_intertile_init(intertile_usb_audio_ctx, other_tile_c);
     rtos_intertile_init(intertile_i2s_audio_ctx, other_tile_c);
 

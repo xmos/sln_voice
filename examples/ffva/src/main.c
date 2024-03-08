@@ -33,6 +33,9 @@
 #endif
 #include "gpio_test/gpio_test.h"
 
+/* Config headers for sw_pll */
+#include "sw_pll.h"
+
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
 
@@ -61,6 +64,18 @@ void i2s_slave_intertile(void *args) {
                     (int32_t*) tmp,
                     appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                     portMAX_DELAY);
+
+
+#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+    sw_pll_ctx_t* i2s_callback_args = (sw_pll_ctx_t*) args;
+    port_clear_buffer(i2s_callback_args->p_bclk_count);
+    port_in(i2s_callback_args->p_bclk_count);                                  // Block until BCLK transition to synchronise. Will consume up to 1/64 of a LRCLK cycle
+    uint16_t mclk_pt = port_get_trigger_time(i2s_callback_args->p_mclk_count); // Immediately sample mclk_count
+    uint16_t bclk_pt = port_get_trigger_time(i2s_callback_args->p_bclk_count); // Now grab bclk_count (which won't have changed)
+
+    sw_pll_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
+#endif
+
     }
 }
 #endif
@@ -332,10 +347,19 @@ static void mem_analysis(void)
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
-
     platform_start();
 
 #if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+
+// Use sw_pll_ctx only if the MCLK recovery is enabled
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+    xTaskCreate((TaskFunction_t) i2s_slave_intertile,
+                "i2s_slave_intertile",
+                RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
+                sw_pll_ctx,
+                appconfAUDIO_PIPELINE_TASK_PRIORITY,
+                NULL);
+#else
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
                 RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
@@ -343,7 +367,7 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
-
+#endif
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
 #endif

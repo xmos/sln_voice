@@ -220,4 +220,17 @@
 #define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY  (configMAX_PRIORITIES - 2)
 #define appconfLED_TASK_PRIORITY                  (configMAX_PRIORITIES / 2 - 1)
 
+/* Software PLL settings for mclk recovery configurations */
+/* see fractions.h and register_setup.h for other pll settings */
+#define appconfLRCLK_NOMINAL_HZ     appconfI2S_AUDIO_SAMPLE_RATE
+#define appconfBCLK_NOMINAL_HZ      (appconfLRCLK_NOMINAL_HZ * 64)
+#define PLL_RATIO                   (MIC_ARRAY_CONFIG_MCLK_FREQ / appconfLRCLK_NOMINAL_HZ)
+#define PLL_CONTROL_LOOP_COUNT_UA   80   // How many SoF periods per control loop iteration. Aim for ~100Hz
+#define PLL_CONTROL_LOOP_COUNT_INT  512  // How many refclk ticks (LRCLK) per control loop iteration. Aim for ~100Hz
+#define PLL_PPM_RANGE               1000 // Max allowable diff in clk count. For the PID constants we
+                                         // have chosen, this number should be larger than the number
+                                         // of elements in the look up table as the clk count diff is
+                                         // added to the LUT index with a multiplier of 1. Only used for INT mclkless
+
+
 #endif /* APP_CONF_H_ */

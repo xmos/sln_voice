@@ -32,3 +32,6 @@
 [submodule "modules/xua"]
 	path = modules/xua
 	url = git@github.com:xmos/lib_xua.git
+[submodule "modules/sw_pll"]
+	path = modules/sw_pll
+	url = git@github.com:xmos/lib_sw_pll

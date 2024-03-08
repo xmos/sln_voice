@@ -152,6 +152,64 @@ static void spi_init(void)
 #endif
 }
 
+#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+static int *p_lock_status = NULL;
+/// @brief Save the pointer to the pll lock_status variable
+static void set_pll_lock_status_ptr(int* p)
+{
+    p_lock_status = p;
+}
+#endif
+
+static void platform_sw_pll_init(void)
+{
+#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+
+    port_t p_bclk = PORT_I2S_BCLK;
+    port_t p_mclk = PORT_MCLK;
+    port_t p_mclk_count = PORT_MCLK_COUNT;  // Used internally by sw_pll
+    port_t p_bclk_count = PORT_BCLK_COUNT;  // Used internally by sw_pll
+    xclock_t ck_bclk = I2S_CLKBLK;
+
+    port_enable(p_mclk);
+    port_enable(p_bclk);
+    // NOTE:  p_lrclk does not need to be enabled by the caller
+
+    set_pll_lock_status_ptr(&sw_pll.lock_status);
+    // Create clock from mclk port and use it to clock the p_mclk_count port which will count MCLKs.
+    port_enable(p_mclk_count);
+    port_enable(p_bclk_count);
+
+    // Allow p_mclk_count to count mclks
+    xclock_t clk_mclk = MCLK_CLKBLK;
+    clock_enable(clk_mclk);
+    clock_set_source_port(clk_mclk, p_mclk);
+    port_set_clock(p_mclk_count, clk_mclk);
+    clock_start(clk_mclk);
+
+    // Allow p_bclk_count to count bclks
+    port_set_clock(p_bclk_count, ck_bclk);
+    sw_pll_init(&sw_pll,
+                SW_PLL_15Q16(0.0),
+                SW_PLL_15Q16(1.0),
+                PLL_CONTROL_LOOP_COUNT_INT,
+                PLL_RATIO,
+                (appconfBCLK_NOMINAL_HZ / appconfLRCLK_NOMINAL_HZ),
+                frac_values_90,
+                SW_PLL_NUM_LUT_ENTRIES(frac_values_90),
+                APP_PLL_CTL_REG,
+                APP_PLL_DIV_REG,
+                SW_PLL_NUM_LUT_ENTRIES(frac_values_90) / 2,
+                PLL_PPM_RANGE);
+
+    debug_printf("Using SW PLL to track I2S input\n");
+    sw_pll_ctx->sw_pll = &sw_pll;
+    sw_pll_ctx->p_mclk_count = p_mclk_count;
+    sw_pll_ctx->p_bclk_count = p_bclk_count;
+
+#endif
+}
+
 static void mics_init(void)
 {
     static rtos_driver_rpc_t mic_array_rpc_config;
@@ -176,6 +234,7 @@ static void mics_init(void)
 
 static void i2s_init(void)
 {
+
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     static rtos_driver_rpc_t i2s_rpc_config;
@@ -263,7 +322,7 @@ void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
     rtos_intertile_init(intertile_usb_audio_ctx, other_tile_c);
-
+    platform_sw_pll_init();
     mclk_init(other_tile_c);
     gpio_init();
     flash_init();
@@ -273,4 +332,5 @@ void platform_init(chanend_t other_tile_c)
     i2s_init();
     usb_init();
     uart_init();
+
 }
