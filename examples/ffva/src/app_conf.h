@@ -225,7 +225,6 @@
 #define appconfLRCLK_NOMINAL_HZ     appconfI2S_AUDIO_SAMPLE_RATE
 #define appconfBCLK_NOMINAL_HZ      (appconfLRCLK_NOMINAL_HZ * 64)
 #define PLL_RATIO                   (MIC_ARRAY_CONFIG_MCLK_FREQ / appconfLRCLK_NOMINAL_HZ)
-#define PLL_CONTROL_LOOP_COUNT_UA   80   // How many SoF periods per control loop iteration. Aim for ~100Hz
 #define PLL_CONTROL_LOOP_COUNT_INT  512  // How many refclk ticks (LRCLK) per control loop iteration. Aim for ~100Hz
 #define PLL_PPM_RANGE               1000 // Max allowable diff in clk count. For the PID constants we
                                          // have chosen, this number should be larger than the number
