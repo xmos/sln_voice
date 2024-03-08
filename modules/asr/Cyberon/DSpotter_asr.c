@@ -39,7 +39,7 @@ devmem_manager_t *devmem_ctx = NULL;
 //https://www.xmos.ai/documentation/XM-014363-PC-4/html/prog-guide/prog-ref/xcc-pragma-directives/pragmas.html
 //#pragma stackfunction n. This pragma allocates n words ( int s) of stack space for the next function declaration in the current translation unit.
 //pragma stackfunction 1500 => Stack size is 1500*sizeof(int) = 6000
-#pragma stackfunction 1500
+#pragma stackfunction 2500
 asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
 {
     DSpotterInitData oDSpotterInitData;
@@ -87,7 +87,7 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
         return NULL;
     }
 
-    DBG_TRACE("The list of trigger word: \r\n");
+    DBG_TRACE("The list of trigger words: \r\n");
     nCount = DSpotterHL_GetDisplayCommandCount(DSPOTTER_HL_TRIGGER_STAGE);
     for (int i = 0; i < nCount; i++)
     {
@@ -98,15 +98,14 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem)
     nCount = DSpotterHL_GetDisplayCommandCount(DSPOTTER_HL_COMMAND_STAGE);
     if (nCount > 0)
     {
-        DBG_TRACE("The list of command word: \r\n");
+        DBG_TRACE("The list of command words: \r\n");
         for (int i = 0; i < nCount; i++)
         {
             DSpotterHL_GetDisplayCommand(DSPOTTER_HL_COMMAND_STAGE, i, szCommand, sizeof(szCommand), &nCmdID);
-            DBG_TRACE("    %s, ID = %d\r\n", szCommand, nCmdID);
+            DBG_TRACE("%d    %s, ID = %d\r\n", i, szCommand, nCmdID);
         }
     }
     DBG_TRACE("\r\n");
-
     return (asr_port_t)100;
 }
 
@@ -140,7 +139,6 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len)
     // uint32_t timer_start = get_reference_time();
 
     int nRet = DSpotterHL_AddSampleNoFlow(audio_buf, buf_len);
-
     // Uncomment the two lines below to compute MIPS usage.
     // uint32_t timer_end = get_reference_time();
     // asr_printf("DSpotter processing time: %lu (us)\n", (timer_end - timer_start) / 100);

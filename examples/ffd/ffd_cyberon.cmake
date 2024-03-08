@@ -13,8 +13,6 @@ set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
     ${CMAKE_CURRENT_LIST_DIR}/src/gpio_ctrl
     ${CMAKE_CURRENT_LIST_DIR}/src/intent_engine
-    ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler
-    ${CMAKE_CURRENT_LIST_DIR}/src/intent_handler/audio_response
     ${CMAKE_CURRENT_LIST_DIR}/src/power
 )
 set(RTOS_CONF_INCLUDES
@@ -88,6 +86,10 @@ set(APP_LINK_OPTIONS
 set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::ffd::ap
     sln_voice::app::asr::Cyberon
+    sln_voice::app::asr::device_memory
+    sln_voice::app::asr::gpio_ctrl
+    sln_voice::app::asr::intent_engine
+    sln_voice::app::asr::intent_handler
     sln_voice::app::ffd::xk_voice_l71
 )
 

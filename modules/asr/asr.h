@@ -1,4 +1,4 @@
-// Copyright 2023 XMOS LIMITED.
+// Copyright 2023-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #ifndef XCORE_VOICE_ASR_H
 #define XCORE_VOICE_ASR_H
@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "device_memory.h"
+#include "device_memory/device_memory.h"
 
 /**
  * \addtogroup asr_api asr_api
@@ -18,9 +18,9 @@
  */
 
 /**
- * String output function that allows the application  
+ * String output function that allows the application
  * to provide an alternative implementation.
- * 
+ *
  * ASR ports should call asr_printf instead of printf
  */
 __attribute__((weak))
@@ -36,7 +36,7 @@ void asr_printf(const char * format, ...) {
  * Typedef to the ASR port context struct.
  *
  * An ASR port can store any data needed in the context.
- * The context pointer is passed to all API methods and 
+ * The context pointer is passed to all API methods and
  * can be cast to any struct defined by the ASR port.
  */
 typedef void* asr_port_t;
@@ -77,7 +77,7 @@ typedef struct asr_result_struct
  */
 typedef enum asr_error_enum {
     ASR_OK = 0,              ///< Ok
-    ASR_ERROR,               ///< General error  
+    ASR_ERROR,               ///< General error
     ASR_INSUFFICIENT_MEMORY, ///< Insufficient memory for given model
     ASR_NOT_SUPPORTED,       ///< Function not supported for given model
     ASR_INVALID_PARAMETER,   ///< Invalid Parameter
@@ -92,7 +92,7 @@ typedef enum asr_error_enum {
  *
  * \param model      A pointer to the model data.
  * \param grammar    A pointer to the grammar data (Optional).
- * \param devmem_ctx A pointer to the device manager (Optional). 
+ * \param devmem_ctx A pointer to the device manager (Optional).
  *                   Save this pointer if calling any device manager API functions.
  *
  * \returns the ASR port context.
@@ -104,8 +104,8 @@ asr_port_t asr_init(int32_t *model, int32_t *grammar, devmem_manager_t *devmem_c
  *
  * \param ctx         A pointer to the ASR port context.
  * \param attributes  The attributes result.
- * 
- * \returns Success or error code.  
+ *
+ * \returns Success or error code.
  */
 asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes);
 
@@ -115,8 +115,8 @@ asr_error_t asr_get_attributes(asr_port_t *ctx, asr_attributes_t *attributes);
  * \param ctx        A pointer to the ASR port context.
  * \param audio_buf  A pointer to the 16-bit PCM samples.
  * \param buf_len    The number of PCM samples.
- * 
- * \returns Success or error code.  
+ *
+ * \returns Success or error code.
  */
 asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len);
 
@@ -125,30 +125,30 @@ asr_error_t asr_process(asr_port_t *ctx, int16_t *audio_buf, size_t buf_len);
  *
  * \param ctx        A pointer to the ASR port context.
  * \param result     The processed result.
- * 
- * \returns Success or error code.  
+ *
+ * \returns Success or error code.
  */
 asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result);
 
 /**
  * Reset ASR port (if necessary).
- * 
+ *
  * Called before the next call to asr_process.
  *
  * \param ctx        A pointer to the ASR port context.
- * 
- * \returns Success or error code.  
+ *
+ * \returns Success or error code.
  */
 asr_error_t asr_reset(asr_port_t *ctx);
 
 /**
  * Release ASR port (if necessary).
- * 
+ *
  * The ASR port must deallocate any memory.
  *
  * \param ctx        A pointer to the ASR port context.
- * 
- * \returns Success or error code.  
+ *
+ * \returns Success or error code.
  */
 asr_error_t asr_release(asr_port_t *ctx);
 

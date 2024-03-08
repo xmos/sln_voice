@@ -4,7 +4,7 @@
 #ifndef APP_CONF_CHECK_H_
 #define APP_CONF_CHECK_H_
 
-#if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+#if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
 #error "This application currently expects the ASR and audio pipeline to be on separate tiles."
 #endif
 

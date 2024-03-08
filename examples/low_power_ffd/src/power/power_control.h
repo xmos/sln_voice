@@ -8,7 +8,7 @@
 #include "power_state.h"
 
 // Specifies the tile that is controlling the low power mode.
-#define POWER_CONTROL_TILE_NO        AUDIO_PIPELINE_TILE_NO
+#define POWER_CONTROL_TILE_NO        AUDIO_PIPELINE_OUTPUT_TILE_NO
 
 /**
  * @brief Initialize the power control task.

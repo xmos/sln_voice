@@ -1,4 +1,4 @@
-// Copyright 2020-2023 XMOS LIMITED.
+// Copyright 2020-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #include <platform.h>
@@ -22,9 +22,15 @@
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
-#include "ww_model_runner/ww_model_runner.h"
-#include "fs_support.h"
 
+/* Headers used for the WW intent engine */
+#if appconfINTENT_ENABLED
+#include "intent_engine.h"
+#include "intent_handler.h"
+#include "fs_support.h"
+#include "gpi_ctrl.h"
+#include "leds.h"
+#endif
 #include "gpio_test/gpio_test.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
@@ -139,6 +145,7 @@ void audio_pipeline_input(void *input_app_data,
         }
     }
 #endif
+
 }
 
 int audio_pipeline_output(void *output_app_data,
@@ -147,7 +154,6 @@ int audio_pipeline_output(void *output_app_data,
                         size_t frame_count)
 {
     (void) output_app_data;
-
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
@@ -188,6 +194,7 @@ int audio_pipeline_output(void *output_app_data,
                     portMAX_DELAY);
     }
 #endif
+
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -211,11 +218,16 @@ int audio_pipeline_output(void *output_app_data,
                 output_audio_frames,
                 6);
 #endif
+#if appconfINTENT_ENABLED
 
-#if appconfWW_ENABLED
-    ww_audio_send(intertile_ctx,
-                  frame_count,
-                  (int32_t(*)[2])output_audio_frames);
+    int32_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
+        /* ASR output is first */
+        ww_samples[j] = (uint32_t) *(output_audio_frames+j);
+    }
+
+    intent_engine_sample_push(ww_samples,
+                              frame_count);
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
@@ -336,16 +348,34 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
-    audio_pipeline_init(NULL, NULL);
+#if appconfINTENT_ENABLED && ON_TILE(0)
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
+#endif
 
-#if ON_TILE(FS_TILE_NO)
+#if appconfINTENT_ENABLED && ON_TILE(1)
+    gpio_gpi_init(gpio_ctx_t0);
+#endif
+
+#if appconfINTENT_ENABLED && ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
-    rtos_dfu_image_print_debug(dfu_image_ctx);
+    // Setup flash low-level mode
+    //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
+    rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
 
-#if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
-    ww_task_create(appconfWW_TASK_PRIORITY);
+#if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
+    QueueHandle_t q_intent = xQueueCreate(appconfINTENT_QUEUE_LEN, sizeof(int32_t));
+    intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
+    intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
+
+#if appconfINTENT_ENABLED && !ON_TILE(ASR_TILE_NO)
+    // Wait until the intent engine is initialized before starting the
+    // audio pipeline.
+    intent_engine_ready_sync();
+#endif
+
+    audio_pipeline_init(NULL, NULL);
 
     mem_analysis();
 }

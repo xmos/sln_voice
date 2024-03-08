@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* STD headers */
@@ -65,6 +65,7 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
+
     return audio_pipeline_output(output_app_data,
                                (int32_t **)frame_data->samples,
                                6,
@@ -144,7 +145,6 @@ void audio_pipeline_init(
     void *output_app_data)
 {
     const int stage_count = 3;
-
     const pipeline_stage_t stages[] = {
         (pipeline_stage_t)stage_vnr_and_ic,
         (pipeline_stage_t)stage_ns,
@@ -159,6 +159,7 @@ void audio_pipeline_init(
 
     initialize_pipeline_stages();
 
+
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,
                         input_app_data,
@@ -167,6 +168,7 @@ void audio_pipeline_init(
                         (const size_t*) stage_stack_sizes,
                         appconfAUDIO_PIPELINE_TASK_PRIORITY,
                         stage_count);
+
 }
 
 #endif /* ON_TILE(0)*/

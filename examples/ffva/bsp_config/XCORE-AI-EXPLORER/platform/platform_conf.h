@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef PLATFORM_CONF_H_
@@ -188,14 +188,14 @@
 #ifndef BOARD_QSPI_SPEC
 /* Set up a default SPI spec if the app has not provided
  * one explicitly.
- * Note: The version checks only work in XTC Tools >15.2.0 
- *       By default FL_QUADDEVICE_W25Q64JW is used 
+ * Note: The version checks only work in XTC Tools >15.2.0
+ *       By default FL_QUADDEVICE_W25Q64JW is used
  */
 #ifdef __XMOS_XTC_VERSION_MAJOR__
 #if (__XMOS_XTC_VERSION_MAJOR__ == 15)      \
     && (__XMOS_XTC_VERSION_MINOR__ >= 2)    \
     && (__XMOS_XTC_VERSION_PATCH__ >= 0)
-/* In XTC >15.2.0 some SFDP support enables a generic 
+/* In XTC >15.2.0 some SFDP support enables a generic
  * default spec
  */
 #define BOARD_QSPI_SPEC     FL_QUADDEVICE_DEFAULT

@@ -44,8 +44,8 @@ if(${TEST_ASR} STREQUAL "SENSORY")
     set(APP_SOURCES
         ${APP_SOURCES}
         ${FFD_SRC_ROOT}/model/english_usa/command-pc62w-6.4.0-op10-prod-search.c
-    )    
-    set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/command-pc62w-6.4.0-op10-prod-net.bin.nibble_swapped)    
+    )
+    set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/command-pc62w-6.4.0-op10-prod-net.bin.nibble_swapped)
     set(TEST_ASR_LIBRARY_ID 0)
     set(TEST_ASR_NAME test_asr_sensory)
 else()

@@ -102,7 +102,7 @@ int audio_pipeline_output(void *output_app_data,
                           size_t ch_count,
                           size_t frame_count)
 {
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
 
     asr_sample_t asr_buf[appconfAUDIO_PIPELINE_FRAME_ADVANCE] = {0};
 
@@ -145,7 +145,7 @@ int audio_pipeline_output(void *output_app_data,
         intent_engine_sample_push(asr_buf, frame_count);
     }
 #endif // LOW_POWER_AUDIO_BUFFER_ENABLED
-#endif // ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#endif // ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
 
     return AUDIO_PIPELINE_DONT_FREE_FRAME;
 }
@@ -211,7 +211,7 @@ void startup_task(void *arg)
     intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
 
-#if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+#if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
     // Wait until the intent engine is initialized before starting the
     // audio pipeline.
     intent_engine_ready_sync();

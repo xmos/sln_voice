@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -25,6 +25,21 @@ static void mclk_init(chanend_t other_tile_c)
 static void flash_init(void)
 {
 #if ON_TILE(FLASH_TILE_NO)
+// Flash fast read is used for reading the WW model in the INT device,
+// normal read is used for the DFU in the UA device.
+// The two read mechanisms are not compatible, so we must choose them at initialization.
+#if !appconfUSB_ENABLED && appconfINTENT_ENABLED
+    rtos_qspi_flash_fast_read_init(
+            qspi_flash_ctx,
+            FLASH_CLKBLK,
+            PORT_SQI_CS,
+            PORT_SQI_SCLK,
+            PORT_SQI_SIO,
+            NULL,
+            qspi_fast_flash_read_transfer_nibble_swap,
+            3,
+            QSPI_FLASH_CALIBRATION_ADDRESS);
+#else
     fl_QuadDeviceSpec qspi_spec = BOARD_QSPI_SPEC;
     fl_QSPIPorts qspi_ports = {
         .qspiCS = PORT_SQI_CS,
@@ -46,6 +61,7 @@ static void flash_init(void)
             PORT_SQI_SCLK,
             PORT_SQI_SIO,
             NULL);
+#endif
 #endif
 }
 
@@ -227,6 +243,22 @@ static void usb_init(void)
 #endif
 }
 
+static void uart_init(void)
+{
+#if appconfINTENT_ENABLED && ON_TILE(UART_TILE_NO)
+    hwtimer_t tmr_tx = hwtimer_alloc();
+
+    rtos_uart_tx_init(
+            uart_tx_ctx,
+            XS1_PORT_1A,    /* J4:24*/
+            appconfUART_BAUD_RATE,
+            8,
+            UART_PARITY_NONE,
+            1,
+            tmr_tx);
+#endif
+}
+
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
@@ -240,4 +272,5 @@ void platform_init(chanend_t other_tile_c)
     mics_init();
     i2s_init();
     usb_init();
+    uart_init();
 }

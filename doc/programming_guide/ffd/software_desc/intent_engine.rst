@@ -48,7 +48,7 @@ In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
 .. code-block:: c
     :caption: intent_engine_create snippet (intent_engine_io.c)
 
-    #if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+    #if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
         intent_engine_task_create(priority);
     #else
         intent_engine_intertile_task_create(priority);
@@ -67,7 +67,7 @@ samples at startup.
     :caption: intent_engine_create snippet (intent_engine_io.c)
 
         int sync = 0;
-    #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    #if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
         size_t len = rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
         xassert(len == sizeof(sync));
         rtos_intertile_rx_data(intertile_ctx, &sync, sizeof(sync));
@@ -85,8 +85,8 @@ In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
 .. code-block:: c
     :caption: intent_engine_create snippet (intent_engine_io.c)
 
-    #if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
-    #if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+    #if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
+    #if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
         intent_engine_samples_send_local(
                 frames,
                 buf);
