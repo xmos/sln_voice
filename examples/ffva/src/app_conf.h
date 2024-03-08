@@ -146,8 +146,6 @@
 #define appconfEXTERNAL_MCLK       0
 #endif
 
-#define appconfRECOVER_MCLK_I2S_APP_PLL 1
-
 /*
  * This option sends all 6 16 KHz channels (two channels of processed audio,
  * stereo reference audio, and stereo microphone audio) out over a single

@@ -350,6 +350,10 @@ void startup_task(void *arg)
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
     platform_start();
 
+#if !appconfRECOVER_MCLK_I2S_APP_PLL
+    int32_t* sw_pll_ctx = NULL;
+#endif
+
 #if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
