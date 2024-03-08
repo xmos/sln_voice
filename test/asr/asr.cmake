@@ -112,7 +112,6 @@ target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
         ${ASR_LIBRARY}
-        sln_voice::app::asr::device_memory
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
@@ -131,7 +130,6 @@ target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
         ${ASR_LIBRARY}
-        sln_voice::app::asr::device_memory
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
