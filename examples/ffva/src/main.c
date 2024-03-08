@@ -358,7 +358,7 @@ void startup_task(void *arg)
                 RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
                 sw_pll_ctx,
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
-                NULL);#endif
+                NULL);
 #else
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
@@ -367,7 +367,7 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
-
+#endif
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
 #endif
