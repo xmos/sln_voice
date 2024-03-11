@@ -44,6 +44,7 @@ add_library(asr_Cyberon INTERFACE)
 
 target_sources(asr_Cyberon
     INTERFACE
+        ${SOLUTION_VOICE_ROOT_PATH}/modules/asr/device_memory/device_memory.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/DSpotter_asr.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/FlashReadData.c
         ${CMAKE_CURRENT_LIST_DIR}/Cyberon/Convert2TransferBuffer.c
