@@ -54,10 +54,9 @@ elseif(${TEST_ASR} STREQUAL "CYBERON")
     set(ASR_BRICK_SIZE_SAMPLES 240)
     set(APP_SOURCES
         ${APP_SOURCES}
-        ${FFD_SRC_ROOT}/model/english_usa/command-pc62w-6.4.0-op10-prod-search.c
     )
     set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap)
-    set(TEST_ASR_LIBRARY_ID 0)
+    set(TEST_ASR_LIBRARY_ID 1)
     set(TEST_ASR_NAME test_asr_cyberon)
 else()
     message(FATAL_ERROR "Unable to build ${TEST_ASR} test")

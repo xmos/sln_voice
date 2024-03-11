@@ -25,24 +25,27 @@
 #endif
 
 #if (appconfASR_LIBRARY_ID == 0)
-    // Sensory
-    
+    // Sensory only
+
     // SEARCH model file is specified in the CMakeLists SENSORY_SEARCH_FILE variable
     extern const unsigned short gs_grammarLabel[];
     void* grammar = (void*)gs_grammarLabel;
-
-    // Model file is in flash at the offset specified in the CMakeLists
-    // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
-    // to be added so the address in in the SwMem range.  
-    uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
+#elif (appconfASR_LIBRARY_ID == 1)
+    void* grammar = NULL;
 #else
     #error "Unsupported appconfASR_LIBRARY_ID"
+#endif
+#if (appconfASR_LIBRARY_ID == 0) || (appconfASR_LIBRARY_ID == 1)
+    // Model file is in flash at the offset specified in the CMakeLists
+    // QSPI_FLASH_MODEL_START_ADDRESS variable.  The XS1_SWMEM_BASE value needs
+    // to be added so the address in in the SwMem range.
+    uint16_t *model = (uint16_t *) (XS1_SWMEM_BASE + QSPI_FLASH_MODEL_START_ADDRESS);
 #endif
 
 static TaskHandle_t xscope_fileio_task_handle;
 static xscope_file_t infile;
 static xscope_file_t outfile;
-static asr_port_t asr_ctx; 
+static asr_port_t asr_ctx;
 static devmem_manager_t devmem_ctx;
 static char log_buffer[1024];
 
@@ -85,7 +88,7 @@ void xscope_fileio_task(void *arg) {
     wav_header input_header_struct;
     unsigned input_header_size;
     unsigned frame_count;
-    unsigned brick_count;        
+    unsigned brick_count;
     uint32_t DWORD_ALIGNED in_buf_raw_32[appconfASR_BRICK_SIZE_SAMPLES * appconfINPUT_CHANNELS];
     int16_t DWORD_ALIGNED in_buf_int_16[appconfINPUT_CHANNELS * appconfASR_BRICK_SIZE_SAMPLES];
     size_t bytes_read = 0;
@@ -116,15 +119,15 @@ void xscope_fileio_task(void *arg) {
         rtos_printf("Error: unsupported wav bit depth (%d) for %s file. Only 32 supported\n", input_header_struct.bit_depth, appconfINPUT_FILENAME);
         _Exit(1);
     }
-    // Ensure input wav file contains correct number of channels 
+    // Ensure input wav file contains correct number of channels
     if(input_header_struct.num_channels != appconfINPUT_CHANNELS){
         rtos_printf("Error: wav num channels(%d) does not match (%u)\n", input_header_struct.num_channels, appconfINPUT_CHANNELS);
         _Exit(1);
     }
-    
+
     // Calculate number of frames in the wav file
     frame_count = wav_get_num_frames(&input_header_struct);
-    brick_count = frame_count / appconfASR_BRICK_SIZE_SAMPLES; 
+    brick_count = frame_count / appconfASR_BRICK_SIZE_SAMPLES;
 
     // Init ASR library
     devmem_init(&devmem_ctx);
@@ -165,40 +168,40 @@ void xscope_fileio_task(void *arg) {
 
         // Send audio to ASR
         asr_error = asr_process(asr_ctx, in_buf_int_16, appconfASR_BRICK_SIZE_SAMPLES);
-        if (asr_error != ASR_OK) continue; 
+        if (asr_error != ASR_OK) continue;
 
         asr_error = asr_get_result(asr_ctx, &asr_result);
-        if (asr_error != ASR_OK) continue; 
+        if (asr_error != ASR_OK) continue;
 
         // Query or compute recognition event metadata
         size_t start_index;
         size_t end_index;
         size_t duration;
-        
+
         if (asr_result.id > 0) {
             if (asr_result.start_index > 0) {
                 start_index = asr_result.start_index;
             } else {
                 // No metadata so assume this brick - appconfASR_MISSING_START_METADATA_CORRECTION
-                start_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION; 
+                start_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION;
             }
 
             if (asr_result.end_index > 0) {
-                end_index = asr_result.end_index;        
+                end_index = asr_result.end_index;
             } else {
                 // No metadata so assume start_index
-                end_index = start_index; 
+                end_index = start_index;
             }
 
             if (asr_result.duration > 0) {
-                duration = asr_result.duration;        
+                duration = asr_result.duration;
             } else {
                 // No metadata so assume no duration
-                duration = 0;        
+                duration = 0;
             }
 
             // Log result
-            sprintf(log_buffer, "RECOGNIZED: id=%d, start=%d, end=%d, duration=%d\n", 
+            sprintf(log_buffer, "RECOGNIZED: id=%d, start=%d, end=%d, duration=%d\n",
                 asr_result.id,
                 start_index,
                 end_index,
@@ -235,10 +238,10 @@ void xscope_fileio_tasks_create(unsigned priority, void* app_data) {
                 app_data,
                 priority,
                 &xscope_fileio_task_handle);
-    
+
     // Define the core affinity mask such that this task can only run on a specific core
     UBaseType_t uxCoreAffinityMask = 0x10;
 
     /* Set the core affinity mask for the task. */
-    vTaskCoreAffinitySet( xscope_fileio_task_handle, uxCoreAffinityMask );                
+    vTaskCoreAffinitySet( xscope_fileio_task_handle, uxCoreAffinityMask );
 }
