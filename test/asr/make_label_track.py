@@ -30,6 +30,26 @@ SENSORY_LUT = {
     17: "Hello XMOS"
 }
 
+CYBERON_LUT = {
+    1: "Hello XMOS",
+    2: "Switch on the TV",
+    3: "Switch off the TV",
+    4: "Channel up",
+    5: "Channel down",
+    6: "Volume up",
+    7: "Volume down",
+    8: "Switch on the lights",
+    9: "Switch off the lights",
+    10: "Brightness up",
+    11: "Brightness down",
+    12: "Switch on the lights",
+    13: "Switch off the fan",
+    14: "Speed up the fan",
+    15: "Slow down the fan",
+    16: "Set higher temperature",
+    17: "Set lower temperature",
+}
+
 def convert(val):
     constructors = [int, float, str]
     for c in constructors:
@@ -59,6 +79,8 @@ def process(log, label_track, lut):
         for recognition_event in recognition_events:
             if lut == "Sensory":
                 event_str = SENSORY_LUT[recognition_event["id"]]
+            elif lut == "Cyberon":
+                event_str = CYBERON_LUT[recognition_event["id"]]
             else:
                 event_str = str(recognition_event["id"])
 
@@ -70,7 +92,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Label Track Maker')
     parser.add_argument('--log_file', help='Log file to parse')
     parser.add_argument('--label_track', help='Label track file')
-    parser.add_argument('--lut', choices={"Sensory"}, help='Lookup')
+    parser.add_argument('--lut', choices={"Sensory", "Cyberon"}, help='Lookup')
     args = parser.parse_args()
 
     process(args.log_file, args.label_track, args.lut)

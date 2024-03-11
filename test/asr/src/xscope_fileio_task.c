@@ -66,6 +66,16 @@ void xscope_fileio_lock_release(void) {
 }
 
 void init_xscope_host_data_user_cb(chanend_t c_host) {
+    // TODO: Use a better way to add a delay here.
+    // If vTaskDelay() is used, the error is generated:
+
+    //  xrun: Program received signal ET_ECALL, Application exception.
+    //      [Switching to tile[0] core[1]]
+    //      vTaskDelay (xTicksToDelay=100) at /home/lucianom/sln_voice/modules/rtos/modules/FreeRTOS/FreeRTOS-SMP-Kernel/tasks.c:1864 I
+
+    //      1864	                configASSERT( uxSchedulerSuspended == 1 );
+    //  Current language:  auto; currently minimal
+    printintln(111);
     xscope_io_init(c_host);
 }
 #endif
