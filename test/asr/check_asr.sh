@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022, XMOS Ltd, All rights reserved
+# Copyright (c) 2022-2024, XMOS Ltd, All rights reserved
 set -e # exit on first error
 set -x # echo on
 
@@ -94,6 +94,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     read -ra FIELDS <<< ${INPUT_ARRAY[j]}
     FILE_NAME=${FIELDS[0]}
     MAX_ALLOWABLE_WER=${FIELDS[1]}
+
     INPUT_WAV="${INPUT_DIR}/${FILE_NAME}.wav"
     PROCESSED_WAV="${OUTPUT_DIR}/${FILE_NAME}_processed.wav"
     LABEL_TRACK="${OUTPUT_DIR}/${FILE_NAME}_labels.txt"
