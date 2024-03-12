@@ -19,7 +19,6 @@
 #include "xscope_fileio_task.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
-//#include "fs_support.h"
 
 #ifndef MEM_ANALYSIS_ENABLED
 #define MEM_ANALYSIS_ENABLED 0
@@ -53,7 +52,6 @@ void startup_task(void *arg)
 
 #if ON_TILE(FLASH_TILE)
 #if (appconfASR_LIBRARY_ID == 0) || (appconfASR_LIBRARY_ID == 1)
-    //rtos_fatfs_init(qspi_flash_ctx);
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);

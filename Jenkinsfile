@@ -69,9 +69,9 @@ pipeline {
                             }
                         }
                         stage('Create virtual environment') {
-                            when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
-                            }
+                            //when {
+                            //    expression { params.NIGHTLY_TEST_ONLY == true }
+                            //}
                             steps {
                                 // Create venv
                                 sh "pyenv install -s $PYTHON_VERSION"
@@ -84,9 +84,9 @@ pipeline {
                             }
                         }
                         stage('Cleanup xtagctl') {
-                            when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
-                            }
+                            //when {
+                            //    expression { params.NIGHTLY_TEST_ONLY == true }
+                            //}
                             steps {
                                 // Cleanup any xtagctl cruft from previous failed runs
                                 withTools(params.TOOLS_VERSION) {

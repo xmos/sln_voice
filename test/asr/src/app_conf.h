@@ -32,12 +32,6 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY         (configMAX_PRIORITIES - 1)
 
 /* Maximum delay between a wake up phrase and command phrase */
-#ifndef appconfINTENT_RESET_DELAY_MS
-#if appconfAUDIO_PLAYBACK_ENABLED
-#define appconfINTENT_RESET_DELAY_MS         5000
-#else
 #define appconfINTENT_RESET_DELAY_MS         4000
-#endif
-#endif
 
 #endif /* APP_CONF_H_ */
