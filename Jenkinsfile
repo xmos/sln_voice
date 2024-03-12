@@ -68,7 +68,35 @@ pipeline {
                                 sh "ls -la dist/"
                             }
                         }
-
+                        stage('Create virtual environment') {
+                            when {
+                                expression { params.NIGHTLY_TEST_ONLY == true }
+                            }
+                            steps {
+                                // Create venv
+                                sh "pyenv install -s $PYTHON_VERSION"
+                                sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
+                                // Install dependencies
+                                withVenv() {
+                                    sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
+                                    sh "pip install -r test/requirements.txt"
+                                }
+                            }
+                        }
+                        stage('Cleanup xtagctl') {
+                            when {
+                                expression { params.NIGHTLY_TEST_ONLY == true }
+                            }
+                            steps {
+                                // Cleanup any xtagctl cruft from previous failed runs
+                                withTools(params.TOOLS_VERSION) {
+                                    withVenv {
+                                        sh "xtagctl reset_all $VRD_TEST_RIG_TARGET"
+                                    }
+                                }
+                                sh "rm -f ~/.xtag/status.lock ~/.xtag/acquired"
+                            }
+                        }
                         stage('Run ASR test') {
                             //when {
                             //    expression { params.NIGHTLY_TEST_ONLY == true }
