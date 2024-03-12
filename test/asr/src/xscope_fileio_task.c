@@ -189,25 +189,26 @@ void xscope_fileio_task(void *arg) {
         size_t duration;
 
         if (asr_result.id > 0) {
-            if (asr_result.start_index > 0) {
-                start_index = asr_result.start_index;
-            } else {
-                // No metadata so assume this brick - appconfASR_MISSING_START_METADATA_CORRECTION
-                start_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION;
-            }
 
             if (asr_result.end_index > 0) {
                 end_index = asr_result.end_index;
             } else {
-                // No metadata so assume start_index
-                end_index = start_index;
+                // No metadata so assume this brick - appconfASR_MISSING_START_METADATA_CORRECTION
+                end_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION;;
+            }
+
+            if (asr_result.start_index > 0) {
+                start_index = asr_result.start_index;
+            } else {
+                // No metadata so assume the end_index - 2*appconfASR_MISSING_START_METADATA_CORRECTION
+                start_index = end_index - 2 * appconfASR_MISSING_METADATA_CORRECTION;
             }
 
             if (asr_result.duration > 0) {
                 duration = asr_result.duration;
             } else {
                 // No metadata so assume no duration
-                duration = 0;
+                duration = -1;
             }
 
             // Log result
