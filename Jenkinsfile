@@ -97,6 +97,42 @@ pipeline {
                                 sh "rm -f ~/.xtag/status.lock ~/.xtag/acquired"
                             }
                         }
+                        stage('Checkout Amazon WWE') {
+                            //when {
+                            //    expression { params.NIGHTLY_TEST_ONLY == true }
+                            //}
+                            steps {
+                                sh 'git clone git@github.com:xmos/amazon_wwe.git'
+                            }
+                        }
+                        stage('Setup test vectors') {
+                            //when {
+                            //    expression { params.NIGHTLY_TEST_ONLY == true }
+                            //}
+                            steps {
+                                sh "cp -r /projects/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
+                                sh "ls -la $PIPELINE_TEST_VECTORS"
+                                sh "cp -r /projects/hydra_audio/xcore-voice_no_processing_ffd_test_suite $ASR_TEST_VECTORS"
+                                sh "ls -la $ASR_TEST_VECTORS"
+                            }
+                        }
+                        stage('Run FFVA Pipeline test') {
+                            when {
+                                expression { params.NIGHTLY_TEST_ONLY == true }
+                            }
+                            steps {
+                                withTools(params.TOOLS_VERSION) {
+                                    withVenv {
+                                        script {
+                                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                                sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
+                                            }
+                                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         stage('Run ASR test') {
                             //when {
                             //    expression { params.NIGHTLY_TEST_ONLY == true }
