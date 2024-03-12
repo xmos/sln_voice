@@ -193,14 +193,15 @@ void xscope_fileio_task(void *arg) {
             if (asr_result.end_index > 0) {
                 end_index = asr_result.end_index;
             } else {
-                // No metadata so assume this brick - appconfASR_MISSING_START_METADATA_CORRECTION
-                end_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION;;
+                // No metadata so assume this brick - appconfASR_MISSING_START_METADATA_CORRECTION / 2
+                end_index = (b * appconfASR_BRICK_SIZE_SAMPLES) - appconfASR_MISSING_METADATA_CORRECTION / 2;
             }
 
             if (asr_result.start_index > 0) {
                 start_index = asr_result.start_index;
             } else {
-                // No metadata so assume the end_index - 2*appconfASR_MISSING_START_METADATA_CORRECTION
+                // No metadata so assume the end_index - (2 * appconfASR_MISSING_START_METADATA_CORRECTION)
+                // The average duration of the detection is 1.16 ms, and  (2 * appconfASR_MISSING_START_METADATA_CORRECTION) is 1.2 ms
                 start_index = end_index - 2 * appconfASR_MISSING_METADATA_CORRECTION;
             }
 
