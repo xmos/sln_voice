@@ -9,7 +9,6 @@ XCORE-VOICE change log
   * CHANGED: Remove need to use external MCLK in FFVA INT examples
   * ADDED: lib_sw_pll submodule v1.1.0.
 
-
 2.2.0
 -----
 

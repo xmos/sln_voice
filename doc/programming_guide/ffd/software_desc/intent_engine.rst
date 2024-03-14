@@ -1,12 +1,12 @@
-.. _sln_voice_ffd_intent_engine:
+.. _sln_voice_intent_engine:
 
-#################
-src/intent_engine
-#################
+#########################
+modules/asr/intent_engine
+#########################
 
 This folder contains the intent engine module for the FFD application.
 
-.. list-table:: FFD Intent Engine
+.. list-table:: ASR Intent Engine
    :widths: 30 50
    :header-rows: 1
    :align: left
@@ -43,7 +43,7 @@ intent_engine_create
 
 This function has the role of creating the model running task and providing a pointer, which can be used by the application to handle the output intent result.  In the case of the default configuration, the application provides a FreeRTOS Queue object.
 
-In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
+The ASR engine is on tile 0 in both FFD and FFVA, but the audio pipeline output is on tile 1 for FFD and on tile 0 for FFVA.
 
 .. code-block:: c
     :caption: intent_engine_create snippet (intent_engine_io.c)
@@ -80,7 +80,7 @@ intent_engine_sample_push
 
 This function has the role of sending the ASR output channel from the audio pipeline to the intent engine.
 
-In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
+The ASR engine is on tile 0 in both FFD and FFVA, but the audio pipeline output is on tile 1 for FFD and on tile 0 for FFVA.
 
 .. code-block:: c
     :caption: intent_engine_create snippet (intent_engine_io.c)
