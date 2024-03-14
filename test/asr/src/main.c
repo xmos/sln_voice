@@ -1,4 +1,4 @@
-// Copyright 2020-2023 XMOS LIMITED.
+// Copyright 2020-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #include <platform.h>
@@ -51,7 +51,7 @@ void startup_task(void *arg)
     vTaskDelay(pdMS_TO_TICKS(1000));
 
 #if ON_TILE(FLASH_TILE)
-#if (appconfASR_LIBRARY_ID == 0)
+#if (appconfASR_LIBRARY_ID == 0) || (appconfASR_LIBRARY_ID == 1)
     // Setup flash low-level mode
     //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
     rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);

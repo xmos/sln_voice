@@ -68,7 +68,6 @@ pipeline {
                                 sh "ls -la dist/"
                             }
                         }
-
                         stage('ASRC Unit tests') {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -255,9 +254,12 @@ pipeline {
                                     withVenv {
                                         script {
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick.txt test/asr/sensory_output " + adapterIDs[0]
+                                                sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick_sensory.txt test/asr/sensory_output " + adapterIDs[0]
+                                                sh "test/asr/check_asr.sh Cyberon $ASR_TEST_VECTORS test/asr/ffd_quick_cyberon.txt test/asr/cyberon_output " + adapterIDs[0]
                                             }
                                             sh "pytest test/asr/test_asr.py --log test/asr/sensory_output/results.csv"
+                                            sh "pytest test/asr/test_asr.py --log test/asr/cyberon_output/results.csv"
+
                                         }
                                     }
                                 }

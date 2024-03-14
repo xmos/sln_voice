@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright (c) 2022, XMOS Ltd, All rights reserved
+# Copyright (c) 2022-2024, XMOS Ltd, All rights reserved
 set -e # exit on first error
 set -x # echo on
 
@@ -55,11 +55,17 @@ then
     DATA_PARTITION="dist/test_asr_sensory_data_partition.bin"
     TRIM_COMMAND="" # trim is not needed
     TRUTH_TRACK="${INPUT_DIR}/truth_labels.txt"
+elif [[ ${ASR_LIBRARY} == "Cyberon" ]]
+then
+    ASR_FIRMWARE="dist/test_asr_cyberon.xe"
+    DATA_PARTITION="dist/test_asr_cyberon_data_partition.bin"
+    TRIM_COMMAND="" # trim is not needed
+    TRUTH_TRACK="${INPUT_DIR}/truth_labels.txt"
 # elif [[ ${ASR_LIBRARY} == "Other" ]]
 # then
 #     ASR_FIRMWARE="dist/test_asr_other.xe"
 #     DATA_PARTITION="dist/test_asr_other_data_partition.bin"
-#     TRIM_COMMAND="trim 0 01:45" # need to trim input to account for 50 command limit  
+#     TRIM_COMMAND="trim 0 01:45" # need to trim input to account for 50 command limit
 #     TRUTH_TRACK="${INPUT_DIR}/truth_labels_1_45.txt"
 fi
 
@@ -96,7 +102,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     PIPELINE_OUTPUT_CSV="${OUTPUT_DIR}/${FILE_NAME}_pipeline.csv"
     ASR_OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}_asr.log"
     SCORING_OUTPUT_LOG="${OUTPUT_DIR}/${FILE_NAME}_scoring.log"
-    
+
     TEMP_XSCOPE_FILEIO_INPUT_WAV="${OUTPUT_DIR}/input.wav"
     TEMP_XSCOPE_FILEIO_OUTPUT_WAV="${OUTPUT_DIR}/output.wav"
     TEMP_XSCOPE_FILEIO_OUTPUT_LOG="${OUTPUT_DIR}/output.log"
@@ -128,7 +134,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     sleep 15
 
     # run xscope host in directory where the TEMP_XSCOPE_FILEIO_INPUT_WAV resides
-    #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
+    #   xscope_host_endpoint is run in a subshell (inside parentheses) so when
     #   it exits, the xrun command above will also exit
     (cd ${OUTPUT_DIR} ; ${DIST_HOST}/xscope_host_endpoint 12345)
 
@@ -155,9 +161,9 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
 
     # wait for app to load
     sleep 15
-    
+
     # run xscope host in directory where the TEMP_XSCOPE_FILEIO_INPUT_WAV resides
-    #   xscope_host_endpoint is run in a subshell (inside parentheses) so when 
+    #   xscope_host_endpoint is run in a subshell (inside parentheses) so when
     #   it exits, the xrun command above will also exit
     (cd ${OUTPUT_DIR} ; ${DIST_HOST}/xscope_host_endpoint 12345)
 
@@ -181,11 +187,11 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # log results
     echo "${INPUT_WAV}, ${MAX_ALLOWABLE_WER}, ${WER}" >> ${RESULTS}
 
-    # clean up temp 
+    # clean up temp
     rm ${TEMP_XSCOPE_FILEIO_INPUT_WAV}
     rm ${TEMP_XSCOPE_FILEIO_OUTPUT_WAV}
     rm ${TEMP_XSCOPE_FILEIO_OUTPUT_LOG}
-done 
+done
 
 # print results
 cat ${RESULTS}

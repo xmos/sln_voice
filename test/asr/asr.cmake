@@ -48,6 +48,16 @@ if(${TEST_ASR} STREQUAL "SENSORY")
     set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/command-pc62w-6.4.0-op10-prod-net.bin.nibble_swapped)
     set(TEST_ASR_LIBRARY_ID 0)
     set(TEST_ASR_NAME test_asr_sensory)
+elseif(${TEST_ASR} STREQUAL "CYBERON")
+    message(STATUS "Building Cyberon ASR test")
+    set(ASR_LIBRARY sln_voice::app::asr::Cyberon)
+    set(ASR_BRICK_SIZE_SAMPLES 240)
+    set(APP_SOURCES
+        ${APP_SOURCES}
+    )
+    set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap)
+    set(TEST_ASR_LIBRARY_ID 1)
+    set(TEST_ASR_NAME test_asr_cyberon)
 else()
     message(FATAL_ERROR "Unable to build ${TEST_ASR} test")
 endif()
@@ -87,6 +97,7 @@ endif()
 set(APP_LINK_OPTIONS
     -report
     ${CMAKE_CURRENT_LIST_DIR}/src/config.xscope
+    -lotp3
 )
 
 set(APP_COMMON_LINK_LIBRARIES
@@ -112,6 +123,7 @@ target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
         ${ASR_LIBRARY}
+        sln_voice::app::asr::device_memory
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
@@ -130,6 +142,7 @@ target_link_libraries(${TARGET_NAME}
     PUBLIC
         ${APP_COMMON_LINK_LIBRARIES}
         ${ASR_LIBRARY}
+        sln_voice::app::asr::device_memory
 )
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
