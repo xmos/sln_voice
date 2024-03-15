@@ -21,7 +21,7 @@ Support for ASR engine
 
 The ``example_ffva_int_cyberon_fixed_delay`` provides an example about how to include an ASR engine, the  Cyberon DSPotter™.
 
-All the considerations made in the :ref:`section about the FFD devices <sln_voice_ffd_overview>`_ are still valid for the FFVA example. The only notable difference is that the pipeline output in the FFVA example
+Most of the considerations made in the :ref:`section about the FFD devices <sln_voice_ffd_overview>`_ are still valid for the FFVA example. The only notable difference is that the pipeline output in the FFVA example
 is on the same tile as the ASR engine, i.e. tile 0.
 
 .. note::
