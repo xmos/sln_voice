@@ -6,6 +6,8 @@ XCORE-VOICE change log
 
   * ADDED: FFVA INT example with Cyberon speech recognition engine and model
     (DSpotter v2.2.18.0).
+  * CHANGED: Moved files in folders device_memory, gpio_ctrl, intent_engine and
+    intent_handler from examples/ffd/src to folder modules/asr.
   * CHANGED: Remove need to use external MCLK in FFVA INT examples
   * ADDED: lib_sw_pll submodule v1.1.0.
 
