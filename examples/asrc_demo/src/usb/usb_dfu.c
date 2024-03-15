@@ -80,14 +80,14 @@ void tud_dfu_download_cb(uint8_t alt, uint16_t block_num, uint8_t const* data, u
             if (dn_base_addr == 0) {
                 total_len = 0;
                 dn_base_addr = rtos_dfu_image_get_upgrade_addr(dfu_image_ctx);
-                bytes_avail = data_partition_base_addr - dn_base_addr;    
+                bytes_avail = data_partition_base_addr - dn_base_addr;
             }
             /* fallthrough */
         case 2:
             if (dn_base_addr == 0) {
                 total_len = 0;
                 dn_base_addr = data_partition_base_addr;
-                bytes_avail = rtos_qspi_flash_size_get(qspi_flash_ctx) - dn_base_addr;    
+                bytes_avail = rtos_qspi_flash_size_get(qspi_flash_ctx) - dn_base_addr;
             }
             rtos_printf("Using addr 0x%x\nsize %u\n", dn_base_addr, bytes_avail);
             if(length > 0) {
@@ -208,12 +208,4 @@ void tud_dfu_detach_cb(void)
 {
     rtos_printf("Host detach, we should probably reboot\n");
     reboot();
-}
-
-static void reboot(void)
-{
-    rtos_printf("Reboot initiated by tile:0x%x\n", get_local_tile_id());
-    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 0x10000);
-    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
-    while(1) {;}
 }
