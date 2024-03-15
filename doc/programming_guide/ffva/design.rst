@@ -27,7 +27,7 @@ is on the same tile as the ASR engine, i.e. tile 0.
 
     Both the audio pipeline and the ASR engine process use the same sample block length. ``appconfINTENT_SAMPLE_BLOCK_LENGTH`` and ``appconfAUDIO_PIPELINE_FRAME_ADVANCE`` are both 240.
 
-More information about the Cyberon engine can be found in `the Speech Recognition - Cyberon <sln_voice_ffd_speech_recognition_cyberon>`_ section.
+More information about the Cyberon engine can be found in  :ref:`the Speech Recognition - Cyberon <sln_voice_ffd_speech_recognition_cyberon>`_ section.
 
 |newpage|
 
