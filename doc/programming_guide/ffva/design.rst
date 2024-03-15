@@ -21,13 +21,14 @@ Support for ASR engine
 
 The ``example_ffva_int_cyberon_fixed_delay`` provides an example about how to include an ASR engine, the  Cyberon DSPotter™.
 
-All the considerations made in the section about FFD are still valid for the FFVA example. The only notable difference is that the pipeline output in the FFVA example
+All the considerations made in the :ref:`section about the FFD devices <sln_voice_ffd_overview>`_ are still valid for the FFVA example. The only notable difference is that the pipeline output in the FFVA example
 is on the same tile as the ASR engine, i.e. tile 0.
+
 .. note::
 
     Both the audio pipeline and the ASR engine process use the same sample block length. ``appconfINTENT_SAMPLE_BLOCK_LENGTH`` and ``appconfAUDIO_PIPELINE_FRAME_ADVANCE`` are both 240.
 
-More information about the Cyberon engine can be found in  :ref:`the Speech Recognition - Cyberon <sln_voice_ffd_speech_recognition_cyberon>`_ section.
+More information about the Cyberon engine can be found in  :ref:`sln_voice_ffd_speech_recognition_cyberon` section.
 
 |newpage|
 
