@@ -4,7 +4,7 @@
 modules/asr/intent_engine
 #########################
 
-This folder contains the intent engine module for the FFD application.
+This folder contains the intent engine module for the  and FFVA application.
 
 .. list-table:: ASR Intent Engine
    :widths: 30 50

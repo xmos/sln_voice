@@ -98,8 +98,6 @@ Therefore, the underlying distribution of these 10 ms bins should not be assumed
 
 The description of the software is split up by folder:
 
-.. _sln_voice_ffd_software_descr_table:
-
 .. list-table:: FFD Software Description
    :widths: 40 120
    :header-rows: 1
