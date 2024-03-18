@@ -6,7 +6,8 @@ XCORE-VOICE change log
 
   * ADDED: FFVA INT example with Cyberon speech recognition engine and model
     (DSpotter v2.2.18.0).
-  * CHANGED: Remove need to use external MCLK in FFVA INT examples
+  * CHANGED: Remove need to use external MCLK in FFVA INT examples.
+  * ADDED: Support for DFU over I2C for FFVA INT example.
   * ADDED: lib_sw_pll submodule v1.1.0.
 
 
