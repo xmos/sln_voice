@@ -25,7 +25,7 @@ uint32_t dfu_common_write_to_flash(uint8_t alt,
                                    uint16_t length)
 {
     rtos_printf("Received Alt %d BlockNum %d of length %d\n", alt, block_num, length);
-    uint32_t return_value = 0;
+    uint32_t return_value = 0; // DFU_STATUS_OK
 
     unsigned data_partition_base_addr = rtos_dfu_image_get_data_partition_addr(dfu_image_ctx);
     switch(alt) {
@@ -83,7 +83,6 @@ uint32_t dfu_common_write_to_flash(uint8_t alt,
                 }
             }
 
-            return_value = 0; // DFU_STATUS_OK;
             break;
     }
 

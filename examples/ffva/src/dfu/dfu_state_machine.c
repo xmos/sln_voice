@@ -52,7 +52,7 @@ typedef struct dfu_int_dfu_data_t
     uint16_t data_xfer_length;
     uint16_t download_block_number;
     uint8_t frag_number;
-    uint8_t dfu_data_buffer[DFU_PAGE_SIZE];
+    uint8_t dfu_data_buffer[DFU_SECTOR_SIZE];
     uint32_t previous_timeout_ms;
     uint32_t timeout_start;
 } dfu_int_dfu_data_t;
@@ -82,7 +82,7 @@ void dfu_int_detach()
      *
      */
     debug_printf("Detach\n");
-    reboot_xvf3800(DFU_REBOOT_DELAY_MS);
+    reboot();
 }
 
 void dfu_int_download(uint16_t length, const uint8_t *download_data)
@@ -351,7 +351,7 @@ static void dfu_int_reset_download_buffer()
     dfu_data.data_xfer_length = 0;
     dfu_data.frag_number = 0;
     dfu_data.download_block_number = 0;
-    memset(dfu_data.dfu_data_buffer, 0, DFU_PAGE_SIZE);
+    memset(dfu_data.dfu_data_buffer, 0, DFU_SECTOR_SIZE);
 }
 
 static void dfu_int_reset_state()
@@ -541,7 +541,7 @@ void dfu_int_state_machine(void *args)
              *
              */
             // First, clear the buffer
-            memset(dfu_data.dfu_data_buffer, 0, DFU_PAGE_SIZE);
+            memset(dfu_data.dfu_data_buffer, 0, DFU_SECTOR_SIZE);
             dfu_data.data_xfer_length = 0;
 
             if (dfu_data.current_state == DFU_INT_DFU_IDLE ||
@@ -650,7 +650,7 @@ void dfu_int_state_machine(void *args)
                     dfu_data.current_state = DFU_INT_DFU_DNBUSY;
                     /*
                      * From here on, we assume that DFU_DATA_XFER_SIZE is an
-                     * integer factor of DFU_PAGE_SIZE. I'm not going to
+                     * integer factor of DFU_SECTOR_SIZE. I'm not going to
                      * waste cycles asserting on this, so reader beware, please
                      * make sure this is always the case (unless you want to do
                      * some horrible maths!)
@@ -664,8 +664,8 @@ void dfu_int_state_machine(void *args)
                             dfu_data.alt_setting,
                             dfu_data.download_block_number,
                             dfu_data.dfu_data_buffer,
-                            DFU_PAGE_SIZE);
-                        memset(dfu_data.dfu_data_buffer, 0, DFU_PAGE_SIZE);
+                            DFU_SECTOR_SIZE);
+                        memset(dfu_data.dfu_data_buffer, 0, DFU_SECTOR_SIZE);
                         dfu_data.frag_number = 0;
                         dfu_data.download_block_number += 1;
                     }

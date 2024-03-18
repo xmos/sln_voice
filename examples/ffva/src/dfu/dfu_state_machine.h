@@ -17,15 +17,15 @@
  */
 #define DFU_DATA_XFER_SIZE 128
 /**
- * \brief Defines the size of a flash page; used to assemble multiple payloads
+ * \brief Defines the size of a flash sector; used to assemble multiple payloads
  *   into one write operation.
  */
-#define DFU_PAGE_SIZE 256
+#define DFU_SECTOR_SIZE 4056
 /**
- * \brief Defines the number of payloads required to fill one flash page. It is
- *   assumed that #DFU_DATA_XFER_SIZE is an integer factor of #DFU_PAGE_SIZE.
+ * \brief Defines the number of payloads required to fill one flash sector. It is
+ *   assumed that #DFU_DATA_XFER_SIZE is an integer factor of #DFU_SECTOR_SIZE.
  */
-#define DFU_NUM_FRAGMENTS (DFU_PAGE_SIZE / DFU_DATA_XFER_SIZE)
+#define DFU_NUM_FRAGMENTS (DFU_SECTOR_SIZE / DFU_DATA_XFER_SIZE)
 
 /**
  * \enum dfu_int_alt_setting_t
@@ -124,7 +124,7 @@ typedef struct dfu_int_get_status_packet_t
 
 /**
  * \brief Sends a DFU_DETACH request to the DFU state machine.
- * 
+ *
  * This is implemented as a device reboot after #DFU_REBOOT_DELAY_MS ms, set by
  *   default as 100 ms.
  */
@@ -132,13 +132,13 @@ void dfu_int_detach();
 
 /**
  * \brief Sends a DFU_DNLOAD request to the DFU state machine.
- * 
+ *
  * This function will copy \p length bytes of the \p download_data buffer
  *   into a buffer internal to dfu_state_machine.c, before notifying the state
  *   machine and returning. If \p length is given as 0, the state machine will
  *   regard this as the end of the download process and will move to the
  *   manifestation phase.
- * 
+ *
  * \param[in] length         Number of valid bytes of data in \p download_data.
  * \param[in] download_data  Buffer containing \p length valid bytes of data.
  */
@@ -146,12 +146,12 @@ void dfu_int_download(uint16_t length, const uint8_t *download_data);
 
 /**
  * \brief Sends a DFU_UPLOAD request to the DFU state machine.
- * 
+ *
  * The state machine will fill \p upload_buffer with the next transfer block of
- *   data, and this function will then return the number of bytes written. 
+ *   data, and this function will then return the number of bytes written.
  *   Should the function return less than \p upload_buffer_length , then the
  *   device is signalling the end of the upload process.
- * 
+ *
  * \param[out] upload_buffer         Buffer into which to place the upload data
  * \param[in]  upload_buffer_length  Length of \p upload_buffer in bytes
  * \return                           size_t Number of bytes written to buffer
@@ -160,16 +160,16 @@ size_t dfu_int_upload(uint8_t *upload_buffer, size_t upload_buffer_length);
 
 /**
  * \brief Sends a DFU_GETSTATUS request to the DFU state machine.
- * 
+ *
  * This function will populate \p get_status_packet with required information.
  *   This will be handled by the calling task, rather than by the asynchronous
- *   state machine task. The calling task will predict the next state that the 
+ *   state machine task. The calling task will predict the next state that the
  *   state machine will move into. The calling task will then usually signal the
  *   asynchronous task to action this request. This allows an instantaneous
  *   resonse to this request, rather than waiting for the state machine to
  *   process the request - which may be a non-trivial time if the state machine
  *   is currently writing to flash.
- * 
+ *
  * \param[out] get_status_packet Pointer to the structure to be populated
  */
 void dfu_int_get_status(dfu_int_get_status_packet_t *get_status_packet);
@@ -181,56 +181,56 @@ void dfu_int_clear_status();
 
 /**
  * \brief Reads and returns the current state of the state machine.
- * 
- * This request is serviced instantaneously, so long as the calling task has 
+ *
+ * This request is serviced instantaneously, so long as the calling task has
  *   access to the current state of the state machine (which in the current
  *   implementation it does).
- * 
+ *
  * \return dfu_int_state_t The current state of the state machine.
  */
 dfu_int_state_t dfu_int_get_state();
 
 /**
- * \brief Sends a DFU_ABORT request to the DFU state machine. 
+ * \brief Sends a DFU_ABORT request to the DFU state machine.
  */
 void dfu_int_abort();
 
 /**
  * \brief Sets the alternate interface used in UPLOAD and DNLOAD operations.
- * 
+ *
  * This request will also always reset the state machine.
- * 
+ *
  * \param[in] alt Alternate setting to change to.
  */
 void dfu_int_set_alternate(dfu_int_alt_setting_t alt);
 
 /**
  * \brief Sets the transfer block number for use in an UPLOAD operation.
- * 
+ *
  * The DFU_UPLOAD request will return the data found at this transfer block.
  *   The transfer block size for this implementation is 64 bytes.
  *   This number will automatically increment on every successful DFU_UPLOAD.
  *   This number will default to 0. Therefore, to read the entire image, it is
  *   not necessary to first set this value.
- * 
+ *
  * \param[in] transferblock Transfer block to use in an UPLOAD operation.
  */
 void dfu_int_set_transfer_block(uint16_t transferblock);
 
 /**
  * \brief Retrieves the current transfer block number.
- * 
+ *
  * Strictly, this number represents the next transfer block that the UPLOAD
  *   operation will return. If called after issuing a DFU_UPLOAD request, it
  *   will represent the transfer block of the previous request plus one.
- * 
+ *
  * \return uint16_t Current transfer block setting.
  */
 uint16_t dfu_int_get_transfer_block();
 
 /**
  * \brief RTOS task running the DFU state machine.
- * 
+ *
  * Task should be created before attempting to use any of the above functions.
  *   Initialises the state machine and then proceeds into a loop, waiting for
  *   notifications on index 0 to determine which request has been issued. Will
@@ -238,7 +238,7 @@ uint16_t dfu_int_get_transfer_block();
  *   been issued since the last time the task awoke; must be exactly 1 or the
  *   state machine will move to the error state. Notification index 2 is
  *   currently unused.
- * 
+ *
  * \param[in] args Unused
  */
 void dfu_int_state_machine(void *args);
