@@ -209,3 +209,11 @@ void tud_dfu_detach_cb(void)
     rtos_printf("Host detach, we should probably reboot\n");
     reboot();
 }
+
+static void reboot(void)
+{
+    rtos_printf("Reboot initiated by tile:0x%x\n", get_local_tile_id());
+    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 0x10000);
+    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
+    while(1) {;}
+}
