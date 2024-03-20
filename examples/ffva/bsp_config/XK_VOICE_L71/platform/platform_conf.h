@@ -103,7 +103,7 @@
 
 #ifndef appconfI2C_CTRL_ENABLED
 /*
- * When this is enabled on the XVF3610_Q60A board, the board
+ * When this is enabled on the XCORE-VOICE-L71 board, the board
  * cannot function as an I2C master and will not configure the
  * DAC. In this case the DAC should be configured externally.
  * MCLK will also default to be external if this is set on
@@ -112,7 +112,10 @@
 #define appconfI2C_CTRL_ENABLED    1
 #endif /* appconfI2C_CTRL_ENABLED */
 
+#ifndef APP_CONTROL_TRANSPORT_COUNT
 #define APP_CONTROL_TRANSPORT_COUNT appconfI2C_CTRL_ENABLED
+#endif // APP_CONTROL_TRANSPORT_COUNT
+
 #ifndef appconfEXTERNAL_MCLK
 #if appconfI2C_CTRL_ENABLED
 #define appconfEXTERNAL_MCLK       1
