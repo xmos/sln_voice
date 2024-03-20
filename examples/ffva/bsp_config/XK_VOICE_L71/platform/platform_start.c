@@ -17,7 +17,6 @@
 #include "usb_support.h"
 
 #if appconfI2C_CTRL_ENABLED
-//#include "app_control/app_control.h"
 #include "device_control_i2c.h"
 #endif
 
@@ -47,20 +46,15 @@ static void flash_start(void)
 
 static void i2c_master_start(void)
 {
-//#if !appconfI2C_CTRL_ENABLED
     rtos_i2c_master_rpc_config(i2c_master_ctx, appconfI2C_MASTER_RPC_PORT, appconfI2C_MASTER_RPC_PRIORITY);
 
 #if ON_TILE(I2C_TILE_NO)
     rtos_i2c_master_start(i2c_master_ctx);
 #endif
-//#endif
 }
 
 static void audio_codec_start(void)
 {
-    printintln(100);
-
-//#if !appconfI2C_CTRL_ENABLED
 #if appconfI2S_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
@@ -73,8 +67,6 @@ static void audio_codec_start(void)
     rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
 #endif
 #endif
-printintln(111);
-//#endif
 }
 
 static void spi_start(void)
@@ -151,6 +143,4 @@ void platform_start(void)
     i2s_start();
     usb_start();
     uart_start();
-    //i2c_slave_start();
-
 }

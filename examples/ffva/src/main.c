@@ -382,7 +382,7 @@ void startup_task(void *arg)
     xTaskCreate(
         dfu_servicer,
         "DFU servicer",
-        RTOS_THREAD_STACK_SIZE(servicer_task),
+        RTOS_THREAD_STACK_SIZE(dfu_servicer),
         &servicer_dfu,
         appconfDEVICE_CONTROL_I2C_PRIORITY,
         NULL

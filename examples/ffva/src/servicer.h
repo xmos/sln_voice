@@ -43,38 +43,7 @@ typedef struct {
     control_resource_info_t *res_info;
 }servicer_t;
 
-// Servicer tasks
-/**
- * @brief Generic servicer task.
- * The servicers that only receive and process requests from the host are implemented as the generic servicer.
- *
- * \param servicer      Pointer to the Servicer's state data structure
- */
-void servicer_task(void *servicer);
 
-/**
- * @brief IO config servicer task.
- * \param servicer      Pointer to the Servicer's state data structure
- */
-void io_config_servicer(void *args);
-
-/**
- * @brief GPO servicer task.
- *
- * This task handles GPO commands and drives the pins on the GPO port.
- *
- * \param servicer      Pointer to the Servicer's state data structure
- */
-void gpo_servicer(void *args);
-
-/**
- * @brief Application servicer task.
- *
- * This task handles Application level commands such as firmware information.
- *
- * \param servicer      Pointer to the Servicer's state data structure
- */
-void application_servicer(void *args);
 
 /**
  * @brief DFU servicer task.
@@ -182,28 +151,6 @@ control_ret_t servicer_write_cmd(control_resource_info_t *res_info, control_cmd_
  * @return              CONTROL_SUCCESS if read command processed successfully. contro_ret_t error status otherwise.
  */
 control_ret_t servicer_read_cmd(control_resource_info_t *res_info, control_cmd_t cmd, uint8_t *payload, size_t payload_len);
-
-/**
- * @brief               Function for getting a read command processed by the servicer's underlying resource
- *
- * @param res_info      Command Resource ID
- * @param cmd           Command command IO
- * @param payload       Payload buffer to populate with the read response
- * @param payload_len   Length of the payload buffer
- * @return              CONTROL_SUCCESS if read command processed successfully. contro_ret_t error status otherwise.
- */
-control_ret_t servicer_read_from_resource(control_resource_info_t *res_info, control_cmd_t cmd, uint8_t *payload, size_t payload_len);
-
-/**
- * @brief               Function for getting a write command processed by the servicer's underlying resource
- *
- * @param res_info      Command Resource ID
- * @param cmd           Command command IO
- * @param payload       Command write payload buffer
- * @param payload_len   Length of the payload buffer
- * @return              CONTROL_SUCCESS if write command processed successfully. contro_ret_t error status otherwise.
- */
-control_ret_t servicer_write_to_resource(control_resource_info_t *res_info, control_cmd_t cmd, const uint8_t *payload, size_t payload_len);
 
 /**
  * @brief DFU servicer read command handler
