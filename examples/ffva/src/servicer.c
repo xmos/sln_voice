@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2024 XMOS LIMITED.
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT SERVICER_TASK
 #ifndef DEBUG_PRINT_ENABLE_SERVICER_TASK
@@ -10,7 +10,6 @@
 #include "platform/platform_conf.h"
 #include "device_control_i2c.h"
 #include "servicer.h"
-//#include "control_init.h"
 
 
 #if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)

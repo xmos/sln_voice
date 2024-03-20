@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2024 XMOS LIMITED.
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@ control_ret_t queue_get_free_pkt(control_pkt_t **pkt, control_pkt_queue_t *contr
                 (*pkt)->payload = (*pkt)->save_payload_ptr;
                 (*pkt)->save_payload_ptr = NULL;
             }
-            (*pkt)->pkt_status = PKT_FREE;    
+            (*pkt)->pkt_status = PKT_FREE;
         }
         else {
             debug_printf("ERROR: Control packet queue FULL\n");
@@ -48,7 +48,7 @@ void queue_add_pkt(control_pkt_queue_t *control_pkt_queue, int32_t free_when_don
 
 control_ret_t queue_write_command_to_free_packet(control_pkt_queue_t *control_pkt_queue, control_resid_t resid, control_cmd_t cmd, const uint8_t *payload, size_t payload_len) {
     // Make sure we're writing to a free packet
-    control_pkt_t *pkt;  
+    control_pkt_t *pkt;
     control_ret_t ret = queue_get_free_pkt(&pkt, control_pkt_queue);
     if(ret != CONTROL_SUCCESS)
     {
