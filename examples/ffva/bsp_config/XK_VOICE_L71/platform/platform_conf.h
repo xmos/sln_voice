@@ -102,6 +102,7 @@
 #endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
 
 #ifndef appconfI2C_CTRL_ENABLED
+#if ! ASR_CYBERON
 /*
  * When this is enabled on the XCORE-VOICE-L71 board, the board
  * cannot function as an I2C master and will not configure the
@@ -110,6 +111,9 @@
  * the XVF3610_Q60A board.
  */
 #define appconfI2C_CTRL_ENABLED    1
+#else
+#define appconfI2C_CTRL_ENABLED    0
+#endif
 #endif /* appconfI2C_CTRL_ENABLED */
 
 #ifndef APP_CONTROL_TRANSPORT_COUNT
@@ -117,11 +121,7 @@
 #endif // APP_CONTROL_TRANSPORT_COUNT
 
 #ifndef appconfEXTERNAL_MCLK
-#if appconfI2C_CTRL_ENABLED
 #define appconfEXTERNAL_MCLK       1
-#else
-#define appconfEXTERNAL_MCLK       0
-#endif /* appconfI2C_CTRL_ENABLED */
 #endif /* appconfEXTERNAL_MCLK */
 
 #ifndef appconf_CONTROL_I2C_DEVICE_ADDR
