@@ -5,7 +5,6 @@
 
 #include <stdint.h>
 #include "device_control_shared.h"
-#include "packet_queue.h"
 
 // Types of commands in the Command ID enum space -
 // - Dedicated: Commands dedicated only for the resource

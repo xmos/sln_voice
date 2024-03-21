@@ -2,7 +2,6 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #pragma once
 #include "device_control.h"
-#include "packet_queue.h"
 #include "cmd_map.h"
 
 #define NUM_TILE_0_SERVICERS            (1) // only DFU servicer is used
@@ -11,27 +10,18 @@
 extern device_control_t *device_control_i2c_ctx;
 extern device_control_t *device_control_ctxs[1];
 
-// For handling special commands (Not prototyped so isn't final)
-typedef struct {
-    uint8_t *special_commands_buffer;
-    int32_t special_cmd_in_progress;    /// Flag indicating if a special command is already in progress
-    int32_t start_host_coeff_index;     /// stat coefficient index requested by the host
-    int32_t special_cmds_buf_size; /// special data chunk size plus extra space for cases when the chunk size is not a multiple of the payload length sent by the host
-    int32_t special_cmd_payload_size; /// Expected special command payload size in samples
-    int32_t start_buf_coeff_index; /// Absolute filter coefficient index in special_commands_buffer[0]
-    int32_t end_buf_coeff_index; /// Absolute index of the last valid filter coefficient index in the special_commands_buffer buffer
-    /** No. of coefficients worth of overflow space added to the special cmds buffer to accomodate the special commands buffer size not being a multiple of no. of coefficients
-     * sent per control packet. Used for error checking in the special commands handler.*/
-    int32_t special_cmds_buf_overflow_size;
-}special_cmd_handler_t;
+/**
+ * Clears the read bit on a command code
+ *
+ * \param[in,out] c The command code to clear the read bit on.
+ */
+#define CONTROL_CMD_CLEAR_READ(c) ((c) & ~0x80)
 
 // Structure encapsulating all the information about a resource
 typedef struct
 {
     control_resid_t resource;
     command_map_t command_map;
-    control_pkt_queue_t control_pkt_queue;
-    special_cmd_handler_t special_cmd_handler;
 }control_resource_info_t;
 
 typedef struct {
