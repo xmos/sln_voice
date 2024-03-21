@@ -151,7 +151,6 @@ uint16_t dfu_common_read_from_flash(uint8_t alt,
     return retval;
 }
 
-// TODO: Check if lines commented out below are necessary
 void reboot(void)
 {
     rtos_printf("Reboot initiated by tile:0x%x\n", get_local_tile_id());
