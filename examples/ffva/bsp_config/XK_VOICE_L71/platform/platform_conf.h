@@ -104,7 +104,7 @@
 #ifndef appconfI2C_CTRL_ENABLED
 #if ! ASR_CYBERON
 /*
- * When this is enabled on the XCORE-VOICE-L71 board, the board
+ * When this is enabled on the XK-VOICE-L71 board, the board
  * cannot function as an I2C master and will not configure the
  * DAC. In this case the DAC should be configured externally.
  * MCLK will also default to be external if this is set on
