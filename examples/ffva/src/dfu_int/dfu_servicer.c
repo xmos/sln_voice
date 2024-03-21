@@ -18,8 +18,10 @@
 #include "dfu_cmds.h"
 #include "device_control_i2c.h"
 
-#include "dfu_common.h" // for reboot()
+#include "dfu_common.h"
 #include "dfu_state_machine.h"
+
+extern device_control_t *device_control_i2c_ctx;
 
 void dfu_servicer_init(servicer_t *servicer)
 {
@@ -56,17 +58,14 @@ void dfu_servicer(void *args) {
         resources[i] = servicer->res_info[i].resource;
     }
 
-    if(appconfI2C_DFU_ENABLED > 0)
-    {
-        control_ret_t dc_ret;
-        debug_printf("Calling device_control_servicer_register(), servicer ID %d, on tile %d, core %d.\n", servicer->id, THIS_XCORE_TILE, rtos_core_id_get());
+    control_ret_t dc_ret;
+    debug_printf("Calling device_control_servicer_register(), servicer ID %d, on tile %d, core %d.\n", servicer->id, THIS_XCORE_TILE, rtos_core_id_get());
 
-        dc_ret = device_control_servicer_register(&servicer_ctx,
+    dc_ret = device_control_servicer_register(&servicer_ctx,
                                             device_control_ctxs,
                                             1,
                                             resources, servicer->num_resources);
-        debug_printf("Out of device_control_servicer_register(), servicer ID %d, on tile %d. servicer_ctx address = 0x%x\n", servicer->id, THIS_XCORE_TILE, &servicer_ctx);
-    }
+    debug_printf("Out of device_control_servicer_register(), servicer ID %d, on tile %d. servicer_ctx address = 0x%x\n", servicer->id, THIS_XCORE_TILE, &servicer_ctx);
 
  #if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     // Start I2C slave.
@@ -98,17 +97,8 @@ void dfu_servicer(void *args) {
         NULL
     );
 
-    if(appconfI2C_DFU_ENABLED > 0)
-    {
-        for(;;){
-            device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
-        }
-    }
-    else
-    {
-        for(;;){
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
+    for(;;){
+        device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
     }
 }
 

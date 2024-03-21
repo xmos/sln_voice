@@ -22,6 +22,7 @@
 #endif
 
 extern void i2s_rate_conversion_enable(void);
+extern device_control_t *device_control_i2c_ctx;
 
 static void gpio_start(void)
 {
@@ -76,7 +77,7 @@ static void audio_codec_start(void)
 
 static void i2c_slave_start(void)
 {
-#if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_start(i2c_slave_ctx,
                          device_control_i2c_ctx,
                          (rtos_i2c_slave_start_cb_t) device_control_i2c_start_cb,

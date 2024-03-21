@@ -6,6 +6,23 @@
 #define NUM_RESOURCES_DFU_SERVICER      (1) // DFU servicer
 
 /**
+ * @brief DFU servicer task.
+ *
+ * This task handles DFU commands from the device control interface and relays
+ * them to the internal DFU INT state machine.
+ *
+ * \param args      Pointer to the Servicer's state data structure
+ */
+void dfu_servicer(void *args);
+
+// Servicer initialization functions
+/**
+ * @brief DFU servicer initialisation function.
+ * \param servicer      Pointer to the Servicer's state data structure
+ */
+void dfu_servicer_init(servicer_t *servicer);
+
+/**
  * @brief DFU servicer read command handler
  *
  * Handles read commands dedicated to the DFU servicer resource

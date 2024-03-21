@@ -43,25 +43,6 @@ typedef struct {
     control_resource_info_t *res_info;
 }servicer_t;
 
-
-
-/**
- * @brief DFU servicer task.
- *
- * This task handles DFU commands from the device control interface and relays
- * them to the internal DFU INT state machine.
- *
- * \param args      Pointer to the Servicer's state data structure
- */
-void dfu_servicer(void *args);
-
-// Servicer initialization functions
-/**
- * @brief DFU servicer initialisation function.
- * \param servicer      Pointer to the Servicer's state data structure
- */
-void dfu_servicer_init(servicer_t *servicer);
-
 // Servicer device_control callback functions
 /**
  * @brief Device control callback function to handle a read command.
