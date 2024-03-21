@@ -13,6 +13,8 @@
 
 #include "platform/platform_conf.h"
 #include "servicer.h"
+#include "dfu_servicer.h"
+
 #include "dfu_cmds.h"
 #include "device_control_i2c.h"
 

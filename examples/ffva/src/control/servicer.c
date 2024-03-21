@@ -10,7 +10,7 @@
 #include "platform/platform_conf.h"
 #include "device_control_i2c.h"
 #include "servicer.h"
-
+#include "dfu_servicer.h"
 
 #if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
 static device_control_t device_control_i2c_ctx_s;
