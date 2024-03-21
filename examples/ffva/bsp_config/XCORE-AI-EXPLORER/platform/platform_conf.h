@@ -105,12 +105,12 @@
 #define appconfI2C_CTRL_ENABLED    0
 #endif /* appconfI2C_CTRL_ENABLED */
 
+#ifndef APP_CONTROL_TRANSPORT_COUNT
+#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_CTRL_ENABLED
+#endif // APP_CONTROL_TRANSPORT_COUNT
+
 #ifndef appconfEXTERNAL_MCLK
-#if appconfI2C_CTRL_ENABLED
 #define appconfEXTERNAL_MCLK       1
-#else
-#define appconfEXTERNAL_MCLK       0
-#endif /* appconfI2C_CTRL_ENABLED */
 #endif /* appconfEXTERNAL_MCLK */
 
 #ifndef appconf_CONTROL_I2C_DEVICE_ADDR

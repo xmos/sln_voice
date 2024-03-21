@@ -22,7 +22,7 @@
 
 #if XK_VOICE_L71
 #if appconfSPI_OUTPUT_ENABLED
-#error SPI audio output not currently supported on XVF3610 board
+#error SPI audio output not currently supported on XK-VOICE-L71 board
 #endif
 #endif
 
