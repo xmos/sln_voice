@@ -13,7 +13,7 @@
 #include "dac3101.h"
 #include "pcal6408a.h"
 
-/* I2C io expander address on XCF3610_Q60A board */
+/* I2C io expander address on XK-VOICE-L71 board */
 #define IOEXP_I2C_ADDR        PCAL6408A_I2C_ADDR
 
 /* IO expander pinout */

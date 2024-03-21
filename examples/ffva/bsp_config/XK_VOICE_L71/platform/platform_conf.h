@@ -108,7 +108,7 @@
  * cannot function as an I2C master and will not configure the
  * DAC. In this case the DAC should be configured externally.
  * MCLK will also default to be external if this is set on
- * the XVF3610_Q60A board.
+ * the XK-VOICE-L71 board.
  */
 #define appconfI2C_CTRL_ENABLED    1
 #else
