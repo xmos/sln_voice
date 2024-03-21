@@ -4,8 +4,8 @@
 #ifndef APP_CONF_H_
 #define APP_CONF_H_
 
-/* Applciation version */
-/* This values are only used the xvf_dfu host app for FFVA-INT*/
+/* Application version numbers */
+/* This values are only used by the xvf_dfu host app for FFVA-INT*/
 #define VERSION_MAJOR   255
 #define VERSION_MINOR   254
 #define VERSION_PATCH   253
