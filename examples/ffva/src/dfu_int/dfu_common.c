@@ -154,13 +154,12 @@ uint16_t dfu_common_read_from_flash(uint8_t alt,
 // TODO: Check if lines commented out below are necessary
 void reboot(void)
 {
-    //#define WDT_PRESCALER_MILLISECONDS   (24000 - 1) // Set prescaler to tick every millisecond, assuming 24MHz XIN. Note max value 65535.
     rtos_printf("Reboot initiated by tile:0x%x\n", get_local_tile_id());
-    //write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_WRAP_NUM, WDT_PRESCALER_MILLISECONDS);
+    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_WRAP_NUM, (24000 - 1));
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 100);
-    //write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_NUM, 0); // Reset counter
+    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_NUM, 0); // Reset counter
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
-    // If we are running DFU over I2C return to the application, so we can close the I2C connection
+    // If we are running DFU over I2C return to the application, so that we can close the I2C connection
  #if ! appconfI2C_DFU_ENABLED
     while(1) {;}
 #endif
