@@ -6,6 +6,8 @@ file(GLOB_RECURSE APP_SOURCES   ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
 
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src/control
+    ${CMAKE_CURRENT_LIST_DIR}/src/dfu_i2c
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
 )
 
@@ -44,6 +46,7 @@ set(APP_LINK_OPTIONS
 set(APP_COMMON_LINK_LIBRARIES
     inferencing_tflite_micro
     rtos::freertos_usb
+    rtos::sw_services::device_control
     lib_src
     lib_sw_pll
 )
