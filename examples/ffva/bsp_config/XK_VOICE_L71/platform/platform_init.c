@@ -12,7 +12,7 @@
 #include "adaptive_rate_adjust.h"
 #include "usb_support.h"
 #include "device_control.h"
-#include "device_control.h"
+#include "servicer.h"
 
 static void mclk_init(chanend_t other_tile_c)
 {
@@ -320,11 +320,11 @@ static void uart_init(void)
 extern device_control_t *device_control_i2c_ctx;
 
 void control_init() {
-    control_ret_t ret = CONTROL_SUCCESS;
 #if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_TILE_NO)
+    control_ret_t ret = CONTROL_SUCCESS;
     ret = device_control_init(device_control_i2c_ctx,
                                 DEVICE_CONTROL_HOST_MODE,
-                                1,//(NUM_TILE_0_SERVICERS + NUM_TILE_1_SERVICERS - 1), // GPO servicer does not register with I2C or SPI device control context
+                                (NUM_TILE_0_SERVICERS + NUM_TILE_1_SERVICERS),
                                 NULL, 0);
     xassert(ret == CONTROL_SUCCESS);
 

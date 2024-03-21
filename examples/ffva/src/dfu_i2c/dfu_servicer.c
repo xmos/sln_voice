@@ -2,7 +2,7 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT DFU_SERVICER
 #ifndef DEBUG_PRINT_ENABLE_DFU_SERVICER
-#define DEBUG_PRINT_ENABLE_DFU_SERVICER 1
+#define DEBUG_PRINT_ENABLE_DFU_SERVICER 0
 #endif
 #include "debug_print.h"
 
@@ -16,6 +16,7 @@
 #include "dfu_cmds.h"
 #include "device_control_i2c.h"
 
+// TODO: Enable lines below when the rest of DFU code is included
 //#include "dfu_common.h" // for reboot()
 //#include "dfu_state_machine.h"
 
@@ -37,7 +38,6 @@ void dfu_servicer_init(servicer_t *servicer)
     servicer->res_info[0].control_pkt_queue.pkts = NULL;
     servicer->res_info[0].command_map.num_commands = NUM_DFU_CONTROLLER_SERVICER_RESID_CMDS;
     servicer->res_info[0].command_map.commands = dfu_controller_servicer_resid_cmd_map;
-
 }
 
 void dfu_servicer(void *args) {
@@ -102,6 +102,7 @@ void dfu_servicer(void *args) {
             vTaskDelay(pdMS_TO_TICKS(100));
         }
     }
+    // TODO: Enable lines below when the rest of DFU code is included
     /*xTaskCreate(
         dfu_int_state_machine,
         "DFU state machine task",

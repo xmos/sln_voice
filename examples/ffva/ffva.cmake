@@ -6,6 +6,8 @@ file(GLOB_RECURSE APP_SOURCES   ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
 
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src/control
+    ${CMAKE_CURRENT_LIST_DIR}/src/dfu_i2c
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
 )
 

@@ -5,8 +5,10 @@
 #include "packet_queue.h"
 #include "cmd_map.h"
 
-#define DFU_CONTROLLER_SERVICER_RESID 240
-#define NUM_RESOURCES_DFU_SERVICER (1) // DFU servicer
+#define DFU_CONTROLLER_SERVICER_RESID   (240)
+#define NUM_RESOURCES_DFU_SERVICER      (1) // DFU servicer
+#define NUM_TILE_0_SERVICERS            (1) // only DFU servicer is used
+#define NUM_TILE_1_SERVICERS            (0) // no control servicer
 
 extern device_control_t *device_control_i2c_ctx;
 extern device_control_t *device_control_ctxs[1];

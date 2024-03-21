@@ -166,9 +166,9 @@
 #define appconfSPI_TASK_PRIORITY                (configMAX_PRIORITIES/2)
 #endif /* appconfSPI_TASK_PRIORITY */
 
-
-#define appconfDEVICE_CONTROL_I2C_PRIORITY   (configMAX_PRIORITIES-1)
-
+#ifndef appconfDEVICE_CONTROL_I2C_PRIORITY
+#define appconfDEVICE_CONTROL_I2C_PRIORITY      (configMAX_PRIORITIES-1)
+#endif // appconfDEVICE_CONTROL_I2C_PRIORITY
 
 /*****************************************/
 /*  DFU Settings                         */

@@ -2,7 +2,7 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT SERVICER_TASK
 #ifndef DEBUG_PRINT_ENABLE_SERVICER_TASK
-    #define DEBUG_PRINT_ENABLE_SERVICER_TASK 1
+    #define DEBUG_PRINT_ENABLE_SERVICER_TASK 0
 #endif
 #include "debug_print.h"
 #include <stdio.h>
