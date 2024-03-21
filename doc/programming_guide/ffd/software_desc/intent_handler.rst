@@ -1,12 +1,12 @@
-.. _sln_voice_ffd_intent_handler:
+.. _sln_voice_intent_handler:
 
-##################
-src/intent_handler
-##################
+##########################
+modules/asr/intent_handler
+##########################
 
-This folder contains ASR output handling modules for the FFD application.
+This folder contains ASR output handling modules for the FFD and FFVA applications.
 
-.. list-table:: FFD Intent handler
+.. list-table:: ASR Intent handler
    :widths: 30 50
    :header-rows: 1
    :align: left

@@ -1,9 +1,9 @@
 
 .. _sln_voice_ffva_src:
 
-###
-src
-###
+#################
+examples/ffva/src
+#################
 
 This folder contains the core application source.
 

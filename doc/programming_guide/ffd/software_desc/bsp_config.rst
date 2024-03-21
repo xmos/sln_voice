@@ -1,8 +1,8 @@
 .. _sln_voice_ffd_bsp_config:
 
-##########
-bsp_config
-##########
+#######################
+examples/ffd/bsp_config
+#######################
 
 This folder contains bsp_configs for the FFD application.  More information on bsp_configs can be found in the RTOS Framework documentation.
 

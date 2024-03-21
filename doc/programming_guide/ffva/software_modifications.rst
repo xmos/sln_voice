@@ -144,45 +144,10 @@ With:
 It is also possible to add or remove stages.  Refer to the RTOS Framework documentation on the generic pipeline sw_service.
 
 
-Populating a Keyword Engine Block
--------------------------------------
+Changing the ASR engine
+-----------------------
 
-To add a keyword engine block, a user may populate the existing ``model_runner_manager()`` function with their model:
-
-.. code-block:: c
-    :caption: Model Runner (model_runner.c)
-
-    configSTACK_DEPTH_TYPE model_runner_manager_stack_size = 287;
-
-    void model_runner_manager(void *args)
-    {
-        StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
-
-        int16_t buf[appconfWW_FRAMES_PER_INFERENCE];
-
-        /* Perform any initialization here */
-
-        while (1)
-        {
-            /* Receive audio frames */
-            uint8_t *buf_ptr = (uint8_t*)buf;
-            size_t buf_len = appconfWW_FRAMES_PER_INFERENCE * sizeof(int16_t);
-            do {
-                size_t bytes_rxed = xStreamBufferReceive(input_queue,
-                                                        buf_ptr,
-                                                        buf_len,
-                                                        portMAX_DELAY);
-                buf_len -= bytes_rxed;
-                buf_ptr += bytes_rxed;
-            } while(buf_len > 0);
-
-            /* Perform inference here */
-            // rtos_printf("inference\n");
-        }
-    }
-
-Populate initialization and inference engine calls where commented. After adding user code, the stack size of the task will need to be adjusted accordingly based on the engine being used. The input streambuffer must be emptied at least at the rate of the audio pipeline otherwise frames will be lost.
-
+THE FFVA provides an example with a specific ASR engine. A different ASR engine can be used by updating and adding the necessary files in ``modules\asr``.
 
 Replacing Example Design Interfaces
 -----------------------------------

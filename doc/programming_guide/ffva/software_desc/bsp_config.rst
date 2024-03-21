@@ -1,8 +1,8 @@
 .. _sln_voice_ffva_bsp_config:
 
-##########
-bsp_config
-##########
+########################
+examples/ffva/bsp_config
+########################
 
 This folder contains bsp_configs for the FFVA application.  More information on bsp_configs can be found in the RTOS Framework documentation.
 

@@ -1,8 +1,8 @@
 .. _sln_voice_ffd_filesystem_support:
 
-##################
-filesystem_support
-##################
+###############################
+examples/ffd/filesystem_support
+###############################
 
 This folder contains filesystem contents for the FFD application.
 

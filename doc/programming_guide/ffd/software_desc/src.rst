@@ -1,8 +1,8 @@
 .. _sln_voice_ffd_src:
 
-###
-src
-###
+################
+examples/ffd/src
+################
 
 This folder contains the core application source.
 
