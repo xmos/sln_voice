@@ -2,7 +2,7 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT DFU_STATE_MACHINE
 #ifndef DEBUG_PRINT_ENABLE_DFU_STATE_MACHINE
-#define DEBUG_PRINT_ENABLE_DFU_STATE_MACHINE 0
+#define DEBUG_PRINT_ENABLE_DFU_STATE_MACHINE 1
 #endif
 #include "debug_print.h"
 
@@ -390,7 +390,6 @@ void dfu_int_state_machine(void *args)
     dfu_data.task_handle = xTaskGetCurrentTaskHandle();
     dfu_data.alt_setting = DFU_INT_ALTERNATE_FACTORY;
     dfu_int_reset_state();
-
     /* Sit in a loop and wait for mail */
     while (1)
     {

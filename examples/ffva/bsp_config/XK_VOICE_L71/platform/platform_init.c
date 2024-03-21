@@ -108,7 +108,7 @@ static void i2c_init(void)
 {
     static rtos_driver_rpc_t i2c_rpc_config;
 
-#if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,

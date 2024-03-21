@@ -16,7 +16,7 @@
 #include "dac3101.h"
 #include "usb_support.h"
 
-#if appconfI2C_CTRL_ENABLED
+#if appconfI2C_DFU_ENABLED
 #include "device_control_i2c.h"
 #endif
 

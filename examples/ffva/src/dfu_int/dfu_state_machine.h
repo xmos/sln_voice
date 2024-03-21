@@ -20,7 +20,7 @@
  * \brief Defines the size of a flash sector; used to assemble multiple payloads
  *   into one write operation.
  */
-#define DFU_SECTOR_SIZE 4056
+#define DFU_SECTOR_SIZE 4096
 /**
  * \brief Defines the number of payloads required to fill one flash sector. It is
  *   assumed that #DFU_DATA_XFER_SIZE is an integer factor of #DFU_SECTOR_SIZE.

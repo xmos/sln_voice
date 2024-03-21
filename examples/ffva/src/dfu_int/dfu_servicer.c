@@ -2,7 +2,7 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT DFU_SERVICER
 #ifndef DEBUG_PRINT_ENABLE_DFU_SERVICER
-#define DEBUG_PRINT_ENABLE_DFU_SERVICER 0
+#define DEBUG_PRINT_ENABLE_DFU_SERVICER 1
 #endif
 #include "debug_print.h"
 
@@ -18,9 +18,8 @@
 #include "dfu_cmds.h"
 #include "device_control_i2c.h"
 
-// TODO: Enable lines below when the rest of DFU code is included
-//#include "dfu_common.h" // for reboot()
-//#include "dfu_state_machine.h"
+#include "dfu_common.h" // for reboot()
+#include "dfu_state_machine.h"
 
 void dfu_servicer_init(servicer_t *servicer)
 {
@@ -57,7 +56,7 @@ void dfu_servicer(void *args) {
         resources[i] = servicer->res_info[i].resource;
     }
 
-    if(appconfI2C_CTRL_ENABLED > 0)
+    if(appconfI2C_DFU_ENABLED > 0)
     {
         control_ret_t dc_ret;
         debug_printf("Calling device_control_servicer_register(), servicer ID %d, on tile %d, core %d.\n", servicer->id, THIS_XCORE_TILE, rtos_core_id_get());
@@ -69,7 +68,7 @@ void dfu_servicer(void *args) {
         debug_printf("Out of device_control_servicer_register(), servicer ID %d, on tile %d. servicer_ctx address = 0x%x\n", servicer->id, THIS_XCORE_TILE, &servicer_ctx);
     }
 
- #if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+ #if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     // Start I2C slave.
     // This ends up calling device_control_resources_register() which has a strange non-yielding implementation,
     // where it waits for servicers to register with the device control context. That's why, control_start_io_tasks()
@@ -90,31 +89,16 @@ void dfu_servicer(void *args) {
 #endif
     vPortFree(resources);
 
-    // The first call to device_control_servicer_cmd_recv triggers the device_control_i2c_start_cb() through I2S slave ISR call somehow. device_control_i2c_start_cb() and device_control_servicer_cmd_recv() have to be in separate logical cores
-    // and be scheduled simultaneously for this to work.
-    if(APP_CONTROL_TRANSPORT_COUNT > 0)
-    {
-        for(;;){
-            device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
-        }
-    }
-    else
-    {
-        for(;;){
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-    }
-    // TODO: Enable lines below when the rest of DFU code is included
-    /*xTaskCreate(
+    xTaskCreate(
         dfu_int_state_machine,
         "DFU state machine task",
         RTOS_THREAD_STACK_SIZE(dfu_int_state_machine),
         NULL,
         uxTaskPriorityGet(NULL), // Same priority so should run after this task
         NULL
-    );*/
-    
-    if(appconfI2C_CTRL_ENABLED > 0)
+    );
+
+    if(appconfI2C_DFU_ENABLED > 0)
     {
         for(;;){
             device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
@@ -142,8 +126,7 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
     case DFU_CONTROLLER_SERVICER_RESID_DFU_UPLOAD:
     {
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_UPLOAD\n");
-        // TODO: Undo the change below when the rest of DFU code is included
-        size_t upload_len = 0; //dfu_int_upload(&payload[2], DFU_DATA_XFER_SIZE);
+        size_t upload_len = dfu_int_upload(&payload[2], DFU_DATA_XFER_SIZE);
 
         payload[0] = upload_len & 0xFF;
         payload[1] = (upload_len >> 8) & 0xFF;
@@ -154,20 +137,19 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
     case DFU_CONTROLLER_SERVICER_RESID_DFU_GETSTATUS:
     {
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_GETSTATUS\n");
-        // TODO: Enable lines below when the rest of DFU code is included
-        // dfu_int_get_status_packet_t retval;
-        // dfu_int_get_status(&retval);
+        dfu_int_get_status_packet_t retval;
+        dfu_int_get_status(&retval);
 
-        // uint8_t time_high, time_mid, time_low;
-        // time_low = (uint8_t)(retval.timeout_ms & 0xFF);
-        // time_mid = (uint8_t)((retval.timeout_ms >> 8) & 0xFF);
-        // time_high = (uint8_t)((retval.timeout_ms >> 16) & 0xFF);
+        uint8_t time_high, time_mid, time_low;
+        time_low = (uint8_t)(retval.timeout_ms & 0xFF);
+        time_mid = (uint8_t)((retval.timeout_ms >> 8) & 0xFF);
+        time_high = (uint8_t)((retval.timeout_ms >> 16) & 0xFF);
 
-        // payload[0] = retval.current_status;
-        // payload[1] = time_low;
-        // payload[2] = time_mid;
-        // payload[3] = time_high;
-        // payload[4] = retval.next_state;
+        payload[0] = retval.current_status;
+        payload[1] = time_low;
+        payload[2] = time_mid;
+        payload[3] = time_high;
+        payload[4] = retval.next_state;
         
         break;
     }
@@ -175,8 +157,7 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
     case DFU_CONTROLLER_SERVICER_RESID_DFU_GETSTATE:
     {
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_GETSTATE\n");
-        // TODO: Undo the change below when the rest of DFU code is included
-        uint8_t state = 0; // dfu_int_get_state();
+        uint8_t state = dfu_int_get_state();
         payload[0] = state;
         break;
     }
@@ -184,8 +165,7 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
     case DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK:
     {
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK\n");
-        // TODO: Undo the change below when the rest of DFU code is included
-        uint16_t transferblock =  0; //dfu_int_get_transfer_block();
+        uint16_t transferblock =  dfu_int_get_transfer_block();
         
         uint8_t tb_high, tb_low;
         tb_low = (uint8_t)(transferblock & 0xFF);
@@ -219,47 +199,40 @@ control_ret_t dfu_servicer_write_cmd(control_resource_info_t *res_info, control_
     {
     case DFU_CONTROLLER_SERVICER_RESID_DFU_DETACH:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_DETACH\n");
-        // TODO: Enable the line below when the rest of DFU code is included
-        // dfu_int_detach();
+        dfu_int_detach();
         break;
 
     case DFU_CONTROLLER_SERVICER_RESID_DFU_DNLOAD:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_DNLOAD\n");
-        // TODO: Enable the line below when the rest of DFU code is included
-        // uint16_t dnload_length = payload[0] + (payload[1] << 8);
-        // const uint8_t * dnload_data = &payload[2];
-        // dfu_int_download(dnload_length, dnload_data);
+        uint16_t dnload_length = payload[0] + (payload[1] << 8);
+        const uint8_t * dnload_data = &payload[2];
+        dfu_int_download(dnload_length, dnload_data);
         break;
 
     case DFU_CONTROLLER_SERVICER_RESID_DFU_CLRSTATUS:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_CLRSTATUS\n");
-        // TODO: Enable the line below when the rest of DFU code is included
-        // dfu_int_clear_status();
+        dfu_int_clear_status();
         break;
 
     case DFU_CONTROLLER_SERVICER_RESID_DFU_ABORT:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_ABORT\n");
-        // TODO: Enable the line below when the rest of DFU code is included
-        // dfu_int_abort();
+        dfu_int_abort();
         break;
 
     case DFU_CONTROLLER_SERVICER_RESID_DFU_SETALTERNATE:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_SETALTERNATE\n");
-        // TODO: Enable the line below when the rest of DFU code is included
-        // dfu_int_set_alternate(payload[0]);
+        dfu_int_set_alternate(payload[0]);
         break;
 
     case DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK\n");
-        // TODO: Enable lines below when the rest of DFU code is included
-        // uint16_t const transferblock = (payload[1] << 8) + payload[0];
-        // dfu_int_set_transfer_block(transferblock);
+        uint16_t const transferblock = (payload[1] << 8) + payload[0];
+        dfu_int_set_transfer_block(transferblock);
         break;
 
     case DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT:
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT\n");
-        // TODO: Enable the line below when the rest of DFU code is included
-        // reboot();
+        reboot();
         break;
 
     default:

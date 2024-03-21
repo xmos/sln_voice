@@ -2,7 +2,7 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT DFU_COMMON
 #ifndef DEBUG_PRINT_ENABLE_DFU_COMMON
-#define DEBUG_PRINT_ENABLE_DFU_COMMON 0
+#define DEBUG_PRINT_ENABLE_DFU_COMMON 1
 #endif
 #include "debug_print.h"
 
@@ -151,10 +151,21 @@ uint16_t dfu_common_read_from_flash(uint8_t alt,
     return retval;
 }
 
+#define WDT_PRESCALER_MILLISECONDS   (24000 - 1) // Set prescaler to tick every millisecond, assuming 24MHz XIN. Note max value 65535.
+
 void reboot(void)
 {
     rtos_printf("Reboot initiated by tile:0x%x\n", get_local_tile_id());
+    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_WRAP_NUM, WDT_PRESCALER_MILLISECONDS);
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 0x10000);
+    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_NUM, 0); // Reset counter
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
-    while(1) {;}
+    //while(1) {;}
+//#define WDT_PRESCALER_MILLISECONDS   (24000 - 1) // Set prescaler to tick every millisecond, assuming 24MHz XIN. Note max value 65535.
+
+//    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_WRAP_NUM, WDT_PRESCALER_MILLISECONDS);
+//    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 100); // Set WDT trigger after this many ticks. Note this is an 11b field so 2047 max
+//    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_NUM, 0); // Reset counter
+//    write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
+    //debug_printf("Rebooting!\n");
 }

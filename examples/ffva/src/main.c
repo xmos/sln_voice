@@ -374,7 +374,7 @@ void startup_task(void *arg)
     gpio_test(gpio_ctx_t0);
 #endif
 
-#if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     // Initialise control related things
     servicer_t servicer_dfu;
     dfu_servicer_init(&servicer_dfu);
