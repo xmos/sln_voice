@@ -153,6 +153,7 @@ uint16_t dfu_common_read_from_flash(uint8_t alt,
 
 #define WDT_PRESCALER_MILLISECONDS   (24000 - 1) // Set prescaler to tick every millisecond, assuming 24MHz XIN. Note max value 65535.
 
+// TODO: Check the reboot function
 void reboot(void)
 {
     rtos_printf("Reboot initiated by tile:0x%x\n", get_local_tile_id());
