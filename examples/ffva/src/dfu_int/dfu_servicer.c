@@ -141,6 +141,14 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
         break;
     }
 
+    case DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION:
+    {
+        debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION\n");
+        static const uint8_t version[3] = {VERSION_MAJOR, VERSION_MINOR, VERSION_PATCH};
+        memcpy(payload, &version, sizeof(version));
+        break;
+    }
+
     default:
     {
         debug_printf("DFU_CONTROLLER_SERVICER UNHANDLED COMMAND!!!\n");
