@@ -1,4 +1,4 @@
-// Copyright 2023-2024 XMOS LIMITED.
+// Copyright 2024 XMOS LIMITED.
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #define DEBUG_UNIT DFU_SERVICER
 #ifndef DEBUG_PRINT_ENABLE_DFU_SERVICER
@@ -36,8 +36,6 @@ void dfu_servicer_init(servicer_t *servicer)
     servicer->res_info = &dfu_res_info[0];
     // Servicer resource
     servicer->res_info[0].resource = DFU_CONTROLLER_SERVICER_RESID;
-    servicer->res_info[0].control_pkt_queue.depth = 0;
-    servicer->res_info[0].control_pkt_queue.pkts = NULL;
     servicer->res_info[0].command_map.num_commands = NUM_DFU_CONTROLLER_SERVICER_RESID_CMDS;
     servicer->res_info[0].command_map.commands = dfu_controller_servicer_resid_cmd_map;
 }
@@ -48,9 +46,6 @@ void dfu_servicer(void *args) {
     servicer_t *servicer = (servicer_t*)args;
     xassert(servicer != NULL);
 
-    for(int i=0; i<servicer->num_resources; i++) {
-        servicer->res_info[i].control_pkt_queue.queue_wr_index = 0;
-    }
     control_resid_t *resources = (control_resid_t*)pvPortMalloc(servicer->num_resources * sizeof(control_resid_t));
     for(int i=0; i<servicer->num_resources; i++)
     {
@@ -69,41 +64,8 @@ void dfu_servicer(void *args) {
         debug_printf("Out of device_control_servicer_register(), servicer ID %d, on tile %d. servicer_ctx address = 0x%x\n", servicer->id, THIS_XCORE_TILE, &servicer_ctx);
     }
 
- #if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
-    // Start I2C slave.
-    // This ends up calling device_control_resources_register() which has a strange non-yielding implementation,
-    // where it waits for servicers to register with the device control context. That's why, control_start_io_tasks()
-    // is not called from platform_start(). Additionally, if there is only one xcore core dedicated for all RTOS tasks,
-    // this design will not work, since device_control_resources_register() will not yield and the servicers wouldn't get
-    // scheduled so they could register with the device control leading to an eventual timeout error from device_control_resources_register().
-
-    rtos_i2c_slave_start(i2c_slave_ctx,
-                         device_control_i2c_ctx,
-                         (rtos_i2c_slave_start_cb_t) device_control_i2c_start_cb,
-                         (rtos_i2c_slave_rx_cb_t) device_control_i2c_rx_cb,
-                         (rtos_i2c_slave_tx_start_cb_t) device_control_i2c_tx_start_cb,
-                         (rtos_i2c_slave_tx_done_cb_t) NULL,
-                         NULL,
-                         NULL,
-                         appconfI2C_INTERRUPT_CORE,
-                         appconfI2C_TASK_PRIORITY);
-#endif
     vPortFree(resources);
 
-    // The first call to device_control_servicer_cmd_recv triggers the device_control_i2c_start_cb() through I2S slave ISR call somehow. device_control_i2c_start_cb() and device_control_servicer_cmd_recv() have to be in separate logical cores
-    // and be scheduled simultaneously for this to work.
-    if(APP_CONTROL_TRANSPORT_COUNT > 0)
-    {
-        for(;;){
-            device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
-        }
-    }
-    else
-    {
-        for(;;){
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
-    }
     // TODO: Enable lines below when the rest of DFU code is included
     /*xTaskCreate(
         dfu_int_state_machine,
@@ -114,17 +76,8 @@ void dfu_servicer(void *args) {
         NULL
     );*/
     
-    if(appconfI2C_CTRL_ENABLED > 0)
-    {
-        for(;;){
-            device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
-        }
-    }
-    else
-    {
-        for(;;){
-            vTaskDelay(pdMS_TO_TICKS(100));
-        }
+    for(;;){
+        device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
     }
 }
 
