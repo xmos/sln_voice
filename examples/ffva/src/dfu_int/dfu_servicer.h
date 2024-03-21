@@ -2,6 +2,8 @@
 // This Software is subject to the terms of the XCORE VocalFusion Licence.
 #pragma once
 
+#include "servicer.h"
+
 #define DFU_CONTROLLER_SERVICER_RESID   (240)
 #define NUM_RESOURCES_DFU_SERVICER      (1) // DFU servicer
 

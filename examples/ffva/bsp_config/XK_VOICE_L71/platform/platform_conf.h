@@ -101,7 +101,7 @@
 #define appconfPIPELINE_AUDIO_SAMPLE_RATE   16000
 #endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
 
-#ifndef appconfI2C_CTRL_ENABLED
+#ifndef appconfI2C_DFU_ENABLED
 #if ! ASR_CYBERON
 /*
  * When this is enabled on the XK-VOICE-L71 board, the board
@@ -110,14 +110,14 @@
  * MCLK will also default to be external if this is set on
  * the XK-VOICE-L71 board.
  */
-#define appconfI2C_CTRL_ENABLED    1
+#define appconfI2C_DFU_ENABLED    1
 #else
-#define appconfI2C_CTRL_ENABLED    0
+#define appconfI2C_DFU_ENABLED    0
 #endif
-#endif /* appconfI2C_CTRL_ENABLED */
+#endif /* appconfI2C_DFU_ENABLED */
 
 #ifndef APP_CONTROL_TRANSPORT_COUNT
-#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_CTRL_ENABLED
+#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_DFU_ENABLED
 #endif // APP_CONTROL_TRANSPORT_COUNT
 
 #ifndef appconfEXTERNAL_MCLK

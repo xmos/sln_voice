@@ -23,7 +23,7 @@
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
-#include "servicer.h"
+#include "dfu_servicer.h"
 
 /* Headers used for the WW intent engine */
 #if appconfINTENT_ENABLED

@@ -22,7 +22,6 @@
 #endif
 
 extern void i2s_rate_conversion_enable(void);
-extern device_control_t *device_control_i2c_ctx;
 
 static void gpio_start(void)
 {

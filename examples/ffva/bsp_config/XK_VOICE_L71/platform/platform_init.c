@@ -14,6 +14,8 @@
 #include "device_control.h"
 #include "servicer.h"
 
+extern device_control_t *device_control_i2c_ctx;
+
 static void mclk_init(chanend_t other_tile_c)
 {
 #if !appconfEXTERNAL_MCLK && ON_TILE(1)
@@ -317,7 +319,6 @@ static void uart_init(void)
             tmr_tx);
 #endif
 }
-extern device_control_t *device_control_i2c_ctx;
 
 void control_init() {
 #if appconfI2C_DFU_ENABLED && ON_TILE(I2C_TILE_NO)
