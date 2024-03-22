@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# To run this tests do the following:
+# To run this test do the following:
 # 1. Configure a Rapsberry-Pi:
 #   a. Follow the instructions for XVF3800-INT on https://github.com/xmos/vocalfusion-rpi-setup?tab=readme-ov-file#setup
 #   b. Clone on the Raspberry Pi the repo host_xvf_control using `git clone https://github.com/xmos/host_xvf_control`
 #   c. In the file host_xvf_control/src/dfu/transport_config.yaml update the value of I2C_ADDRESS from 0x2C to 0x42
-#   d. Build the xvf_dfu host application on a Raspberry-Pi using the instructions in https://github.com/xmos/host_xvf_control
-# 2. Connect a XK-VOICE-L71 board to the Raspberry-Pi expander
-# 3. Connect an xTAG to XK-VOICE-L71 board from a host machine, and flash the board with the application example_ffva_int_fixed_delay
+#   d. Build the xvf_dfu host application on a Raspberry-Pi using the instructions in https://github.com/xmos/host_xvf_control/blob/main/README.rst
+# 2. Prepare the hardware
+#   a. Attach an XK-VOICE-L71 board to the Raspberry-Pi expander
+#   b. Connect an xTAG to XK-VOICE-L71 board and to a host machine
+# 3. Build the application example_ffva_int_fixed_delay and flash it to the board
 # 4. Generate an upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download1.bin
 # 5. Generate a different upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download2.bin
 # 6. Copy the files download1.bin, download2.bin, emptyfile.bin and check_dfu_i2c.sh to the host_xvf_control/build folder on the Raspberry-Pi
@@ -23,6 +25,7 @@ check_upgrade() {
 
   # Download upgrade image
   ./xvf_dfu --download $1
+
   # Reboot the device
   ./xvf_dfu --reboot
 
@@ -56,7 +59,7 @@ check_upgrade() {
 
 counter=0
 
-#Checking if the file exists
+# Checking if necessary files exist
 if [ ! -f $UPGRADE_FILE_1 ]; then
   echo "File $UPGRADE_FILE_1 doesn't exist."
   exit -1
@@ -73,7 +76,9 @@ fi
 while [ $counter -lt $ITERATION_NUM ]
 do
   counter=$(( $counter + 1 ))
+  echo "------------------------"
   echo "DFU attempt number $counter"
+  echo "------------------------"
 
   # Download first upgrade image
   check_upgrade $UPGRADE_FILE_1
