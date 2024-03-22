@@ -3,15 +3,17 @@
 # To run this tests do the following:
 # 1. Configure a Rapsberry-Pi:
 #   a. Follow the instructions for XVF3800-INT on https://github.com/xmos/vocalfusion-rpi-setup?tab=readme-ov-file#setup
-#   b. Install dfu-util on a Raspbnerry-Pi and add it to the path
-# 2. Connect a voice-reference board to the Raspberry-Pi expander
-# 2. Connect an xTAG to voice-reference board from a host machine, and flash a voice-reference board with example_ffva_int_fixed_delay
-# 3. Generate an upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download1.bin
-# 4. Generate a different upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download2.bin
-# 5. Copy the files download1.bin, download2.bin, emptyfile.bin and check_dfu_i2c.sh to the Raspberry-Pi
-# 6. On the Raspberry-Pi, set the desired value of ITERATION_NUM in check_dfu_i2c.sh and run this script: `source check_dfu_i2c.sh`
+#   b. Clone on the Raspberry Pi the repo host_xvf_control using `git clone https://github.com/xmos/host_xvf_control`
+#   c. In the file host_xvf_control/src/dfu/transport_config.yaml update the value of I2C_ADDRESS from 0x2C to 0x42
+#   d. Build the xvf_dfu host application on a Raspberry-Pi using the instructions in https://github.com/xmos/host_xvf_control
+# 2. Connect a XK-VOICE-L71 board to the Raspberry-Pi expander
+# 3. Connect an xTAG to XK-VOICE-L71 board from a host machine, and flash the board with the application example_ffva_int_fixed_delay
+# 4. Generate an upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download1.bin
+# 5. Generate a different upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download2.bin
+# 6. Copy the files download1.bin, download2.bin, emptyfile.bin and check_dfu_i2c.sh to the host_xvf_control/build folder on the Raspberry-Pi
+# 7. On the Raspberry-Pi, set the desired value of ITERATION_NUM in check_dfu_i2c.sh and run this script: `source check_dfu_i2c.sh`
 
-ITERATION_NUM=400
+ITERATION_NUM=2
 UPGRADE_FILE_1="download1.bin"
 UPGRADE_FILE_2="download2.bin"
 EMPTY_FILE="emptyfile.bin"
@@ -31,7 +33,10 @@ check_upgrade() {
   ./xvf_dfu --upload-upgrade $UPLOAD_FILE
 
   # Compare uploaded and downloaded images
-  diff $UPLOAD_FILE $1
+  upload_size=$(stat -c '%s' $UPLOAD_FILE)
+  # The uploaded file is not padded,
+  # so don't include the padding of the downloaded image
+  cmp -n $upload_size $UPLOAD_FILE $1
   if [[ $? == 0 ]]; then
     echo "Upload of $1 is correct"
   else
@@ -39,8 +44,8 @@ check_upgrade() {
     exit 1
   fi
 
-  # Delete downloaded image
-  rm $1
+  # Delete uploaded images
+  rm $UPLOAD_FILE
 
   # 1s delay
   sleep 1
