@@ -26,7 +26,7 @@
  *
  */
 #define DEBUG_UNIT USB_AUDIO
-#define DEBUG_PRINT_ENABLE_USB_AUDIO 1
+#define DEBUG_PRINT_ENABLE_USB_AUDIO 0
 
 #include <stdlib.h>
 #include <stdio.h>
