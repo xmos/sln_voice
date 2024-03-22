@@ -1,5 +1,5 @@
 // Copyright 2024 XMOS LIMITED.
-// This Software is subject to the terms of the XCORE VocalFusion Licence.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #pragma once
 #include "device_control.h"
 #include "cmd_map.h"
@@ -32,23 +32,6 @@ typedef struct {
     // Resource ID and command map for every resource
     control_resource_info_t *res_info;
 }servicer_t;
-
-/**
- * @brief DFU servicer task.
- *
- * This task handles DFU commands from the device control interface and relays
- * them to the internal DFU INT state machine.
- *
- * \param args      Pointer to the Servicer's state data structure
- */
-void dfu_servicer(void *args);
-
-// Servicer initialization functions
-/**
- * @brief DFU servicer initialisation function.
- * \param servicer      Pointer to the Servicer's state data structure
- */
-void dfu_servicer_init(servicer_t *servicer);
 
 // Servicer device_control callback functions
 /**

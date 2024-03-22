@@ -1,5 +1,5 @@
 // Copyright 2024 XMOS LIMITED.
-// This Software is subject to the terms of the XCORE VocalFusion Licence.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wunused-variable"
@@ -18,6 +18,7 @@ static control_cmd_info_t dfu_controller_servicer_resid_cmd_map[] =
     { DFU_CONTROLLER_SERVICER_RESID_DFU_ABORT, 1, sizeof(uint8_t), CMD_WRITE_ONLY },
     { DFU_CONTROLLER_SERVICER_RESID_DFU_SETALTERNATE, 1, sizeof(uint8_t), CMD_WRITE_ONLY },
     { DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK, 2, sizeof(uint8_t), CMD_READ_WRITE },
+    { DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION, 3, sizeof(uint8_t), CMD_READ_ONLY },
     { DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT, 1, sizeof(uint8_t), CMD_WRITE_ONLY },
 };
 #pragma clang diagnostic pop

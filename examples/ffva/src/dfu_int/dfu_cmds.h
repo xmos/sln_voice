@@ -1,5 +1,5 @@
 // Copyright 2024 XMOS LIMITED.
-// This Software is subject to the terms of the XCORE VocalFusion Licence.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #pragma once
 
@@ -39,6 +39,9 @@ enum e_dfu_controller_servicer_resid_cmds
 #ifndef DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK
     DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK = 65,
 #endif
+#ifndef DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION
+    DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION = 88,
+#endif
 #ifndef DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT
     DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT = 89,
 #endif
@@ -64,6 +67,8 @@ enum e_dfu_controller_servicer_resid_cmds
 #define DFU_CONTROLLER_SERVICER_RESID_DFU_SETALTERNATE_NUM_VALUES (1)
 // number of values of type dfu_controller_servicer_resid_dfu_transferblock_t expected by DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK
 #define DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK_NUM_VALUES (2)
+// number of values of type dfu_controller_servicer_resid_dfu_getversion_t expected by DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION
+#define DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION_NUM_VALUES (3)
 // number of values of type dfu_controller_servicer_resid_dfu_reboot_t expected by DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT
 #define DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT_NUM_VALUES (1)
 
@@ -86,5 +91,7 @@ typedef uint8_t dfu_controller_servicer_resid_dfu_abort_t;
 typedef uint8_t dfu_controller_servicer_resid_dfu_setalternate_t;
 // type expected by DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK
 typedef uint8_t dfu_controller_servicer_resid_dfu_transferblock_t;
+// type expected by DFU_CONTROLLER_SERVICER_RESID_DFU_GETVERSION
+typedef uint8_t dfu_controller_servicer_resid_dfu_getversion_t;
 // type expected by DFU_CONTROLLER_SERVICER_RESID_DFU_REBOOT
 typedef uint8_t dfu_controller_servicer_resid_dfu_reboot_t;

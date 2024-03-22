@@ -1,9 +1,28 @@
 // Copyright 2024 XMOS LIMITED.
-// This Software is subject to the terms of the XCORE VocalFusion Licence.
+// This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #pragma once
+
+#include "servicer.h"
 
 #define DFU_CONTROLLER_SERVICER_RESID   (240)
 #define NUM_RESOURCES_DFU_SERVICER      (1) // DFU servicer
+
+/**
+ * @brief DFU servicer task.
+ *
+ * This task handles DFU commands from the device control interface and relays
+ * them to the internal DFU INT state machine.
+ *
+ * \param args      Pointer to the Servicer's state data structure
+ */
+void dfu_servicer(void *args);
+
+// Servicer initialization functions
+/**
+ * @brief DFU servicer initialisation function.
+ * \param servicer      Pointer to the Servicer's state data structure
+ */
+void dfu_servicer_init(servicer_t *servicer);
 
 /**
  * @brief DFU servicer read command handler

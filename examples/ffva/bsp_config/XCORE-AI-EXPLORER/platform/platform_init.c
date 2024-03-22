@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -88,7 +88,7 @@ static void gpio_init(void)
 
 static void i2c_init(void)
 {
-#if appconfI2C_CTRL_ENABLED
+#if appconfI2C_DFU_ENABLED
 #if ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),

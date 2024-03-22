@@ -14,6 +14,8 @@
 #include "device_control.h"
 #include "servicer.h"
 
+extern device_control_t *device_control_i2c_ctx;
+
 static void mclk_init(chanend_t other_tile_c)
 {
 #if !appconfEXTERNAL_MCLK && ON_TILE(1)
@@ -108,7 +110,7 @@ static void i2c_init(void)
 {
     static rtos_driver_rpc_t i2c_rpc_config;
 
-#if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,
@@ -317,10 +319,9 @@ static void uart_init(void)
             tmr_tx);
 #endif
 }
-extern device_control_t *device_control_i2c_ctx;
 
 void control_init() {
-#if appconfI2C_CTRL_ENABLED && ON_TILE(I2C_TILE_NO)
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_TILE_NO)
     control_ret_t ret = CONTROL_SUCCESS;
     ret = device_control_init(device_control_i2c_ctx,
                                 DEVICE_CONTROL_HOST_MODE,
