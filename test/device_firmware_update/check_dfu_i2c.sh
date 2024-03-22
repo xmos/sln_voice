@@ -24,10 +24,13 @@ check_upgrade() {
   # Download upgrade image
   ./xvf_dfu --download $1
   # Reboot the device
-  ./xvf_dfu -r
+  ./xvf_dfu --reboot
 
   # 3s delay
   sleep 3
+
+  # Read app version, just for debugging
+  ./xvf_dfu --version
 
   # Upload upgrade image
   ./xvf_dfu --upload-upgrade $UPLOAD_FILE
