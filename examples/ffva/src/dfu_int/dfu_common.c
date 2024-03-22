@@ -14,6 +14,7 @@
 #include "rtos_dfu_image.h"
 #include "rtos_qspi_flash.h"
 #include "platform/driver_instances.h"
+#include "platform/platform_conf.h" // needed for appconfI2C_DFU_ENABLED
 
 static size_t bytes_avail = 0;
 static uint32_t dn_base_addr = 0;
@@ -158,7 +159,7 @@ void reboot(void)
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_COUNT_NUM, 100);
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_PRESCALER_NUM, 0); // Reset counter
     write_sswitch_reg_no_ack(get_local_tile_id(), XS1_SSWITCH_WATCHDOG_CFG_NUM, (1 << XS1_WATCHDOG_COUNT_ENABLE_SHIFT) | (1 << XS1_WATCHDOG_TRIGGER_ENABLE_SHIFT) );
-    // If we are running DFU over I2C return to the application, so that we can close the I2C connection
+    // If running DFU over I2C this function returns to the application, so that the I2C connection can be closed
  #if ! appconfI2C_DFU_ENABLED
     while(1) {;}
 #endif
