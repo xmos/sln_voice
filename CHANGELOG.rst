@@ -11,7 +11,6 @@ XCORE-VOICE change log
   * ADDED: Support for DFU over I2C for FFVA INT example.
   * ADDED: lib_sw_pll submodule v1.1.0.
 
-
 2.2.0
 -----
 
