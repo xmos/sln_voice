@@ -69,6 +69,9 @@ From the build folder run:
 Upgrading the Firmware
 ======================
 
+UA variant
+----------
+
 The UA variants of this application contain DFU over the USB DFU Class V1.1 transport method.
 
 To create an upgrade image from the build folder run:
@@ -77,7 +80,7 @@ To create an upgrade image from the build folder run:
 
     make create_upgrade_img_example_ffva_ua_adec_altarch
 
-Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__
+Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__.
 
 To verify the device is running run:
 
@@ -131,6 +134,64 @@ The data partition image can be written by running:
 
 Note that the data partition will always be at the address specified in the initial flashing call.
 
+INT variant
+-----------
+
+The INT variants of this application contain DFU over |I2C|.
+
+To create an upgrade image from the build folder run:
+
+.. code-block:: console
+
+    make create_upgrade_img_example_ffva_int_fixed_delay
+
+Once the application is running, the *xvf_dfu* tool can be used to perform various actions. Installation instructions for respective operating system can be found `here <https://github.com/xmos/host_xvf_control/blob/main/README.rst>`__.
+
+Before running the *xvf_dfu* host application, the ``I2C_ADDRESS`` value in the file ``transport_config.yaml`` located in the same folder as the binary file ``xvf_dfu`` must be updated. This value must match the one set for ``appconf_CONTROL_I2C_DEVICE_ADDR`` in the ``platform_conf.h`` file.
+
+The DFU interprets the flash as 3 separate partitions, the read only factory image, the read/write upgrade image, and the read/write data partition containing the filesystem.
+
+The factory image can be read back by running:
+
+.. code-block:: console
+
+    xvf_dfu --upload-factory readback_factory_img.bin
+
+The factory image can not be written to.
+
+From the build folder, the upgrade image can be written by running:
+
+.. code-block:: console
+
+    xvf_dfu -d example_ffva_int_fixed_delay_upgrade.bin
+
+The upgrade image can be read back by running:
+
+.. code-block:: console
+
+    xvf_dfu --upload-upgrade readback_upgrade_img.bin
+
+The device can be rebooted remotely by running
+
+.. code-block:: console
+
+    xvf_dfu --reboot
+
+On system reboot, the upgrade image will always be loaded if valid.  If the upgrade image is invalid, the factory image will be loaded.  To revert back to the factory image, you can upload an file containing the word 0xFFFFFFFF.
+
+The FFVA-INT variants include some version numbers:
+
+  - *APP_VERSION_MAJOR*
+  - *APP_VERSION_MINOR*
+  - *APP_VERSION_PATCH*
+
+These values are defined in the ``app_conf.h`` file and they can read by running:
+
+.. code-block:: console
+
+    xvf_dfu --version
+
+The data partition image cannot be read or write using the *xvf_dfu* host application.
 
 Debugging the Firmware
 ======================
