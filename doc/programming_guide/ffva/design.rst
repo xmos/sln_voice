@@ -175,7 +175,7 @@ machine interacts with a separate RTOS task in
 order to asynchronously perform flash read/write operations.
 
 .. _fig_control_plane_components:
-.. figure:: diagrams/control_plane_components_diagram.png
+.. figure:: diagrams/control_plane_components.drawio.png
   :width: 100%
 
   |project| Control Plane Components Diagram
