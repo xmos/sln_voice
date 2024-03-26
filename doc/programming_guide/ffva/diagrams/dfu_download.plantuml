@@ -1,0 +1,24 @@
+@startuml
+participant Host as H
+participant Device as D
+H -> D : SET_INTERFACE (ALT=1)
+D --> H
+H -> D : DFU_GETSTATUS
+D --> H : Status=OK, State=dfuIDLE, Timeout=0ms
+loop until image is complete: n from 0 to N-1
+    H -> D : DFU_DNLOAD (BlockNum=n, Size>0)
+    D --> H
+    H -> D : DFU_GETSTATUS
+    D --> H : Status=OK, State=dfuDNBUSY, Timeout=10ms
+    H -> D : DFU_GETSTATUS
+    D --> H : Status=OK, State=dfuDNLOAD-IDLE, Timeout=0ms
+end
+H -> D : DFU_DNLOAD (BlockNum=N, Size=0)
+D --> H
+H -> D : DFU_GETSTATUS
+D --> H : Status=OK, State=dfuMANIFEST
+H -> D : DFU_GETSTATUS
+D --> H : Status=OK, State=dfuIDLE, Timeout=0ms
+H -> D : DFU_DETACH
+D --> H
+@enduml
