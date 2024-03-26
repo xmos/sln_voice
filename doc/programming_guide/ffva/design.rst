@@ -154,16 +154,16 @@ A message sequence chart of the upload operation is below:
 .. _dfu_usb_interface_design:
 
 DFU over USB implementation
----------------------------
+===========================
 
-The UA variant of the device make use of a USB connection for handling DFU operations.
+The UA variant of the device makes use of a USB connection for handling DFU operations.
 This interface is a relatively standard, specification-compliant implementation.
 The implementation is encapsulated within the tinyUSB library, which provides a USB stack for the |project|.
 
 .. _dfu_i2c_interface_design:
 
 DFU over |I2C| implementation
------------------------------
+=============================
 
 The INT variant of the device presents a DFU interface that may be controlled
 over |I2C|.
@@ -218,10 +218,7 @@ end-of-frame symbols, a cyclical redundancy check or an error correcting code.
 Packets containing a response from the FFVA-INT to the host application place
 a status value in the first byte of the payload.
 
-INT DFU implementation
-^^^^^^^^^^^^^^^^^^^^^^
-
-Mirroring the USB DFU specification, the INT implementation supports a set of 9
+Mirroring the USB DFU specification, the INT DFU implementation supports a set of 9
 control commands intended to drive the state machine, along with an additional 2
 utility commands:
 
