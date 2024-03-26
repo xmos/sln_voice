@@ -109,7 +109,7 @@ The rest of this section describes the message sequence charts of the supported 
 
 A message sequence chart of the download operation is below:
 
-.. figure:: images/dfu_download.plantuml.png
+.. figure:: diagrams/dfu_download.plantuml.png
   :width: 75%
 
   Message sequence chart of the download operation
@@ -128,7 +128,7 @@ A message sequence chart of the download operation is below:
 
 A message sequence chart of the reboot operation is below:
 
-.. figure:: images/dfu_reboot.plantuml.png
+.. figure:: diagrams/dfu_reboot.plantuml.png
 
   Message sequence chart of the reboot operation
 
@@ -142,7 +142,7 @@ A message sequence chart of the reboot operation is below:
 
 A message sequence chart of the upload operation is below:
 
-.. figure:: images/dfu_upload.plantuml.png
+.. figure:: diagrams/dfu_upload.plantuml.png
   :width: 75%
 
   Message sequence chart of the upload operation
@@ -154,7 +154,7 @@ A message sequence chart of the upload operation is below:
 .. _dfu_usb_interface_design:
 
 DFU over USB implementation
----------------------------
+***************************
 
 The UA variant of the device make use of a USB connection for handling DFU operations.
 This interface is a relatively standard, specification-compliant implementation.
@@ -163,7 +163,7 @@ The implementation is encapsulated within the tinyUSB library, which provides a 
 .. _dfu_i2c_interface_design:
 
 DFU over |I2C| implementation
------------------------------
+*****************************
 
 The INT variant of the device presents a DFU interface that may be controlled
 over |I2C|.
