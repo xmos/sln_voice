@@ -1,0 +1,90 @@
+<mxfile host="Electron" modified="2024-03-26T11:26:34.654Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.1.0 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="vvGfasUbwbNwmBFhu6XW" version="24.1.0" type="device">
+  <diagram id="FnM0JfIhcnUEYQeIsV1q" name="Page-1">
+    <mxGraphModel dx="780" dy="504" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="lQjqljfRX2A7sibKbxj1-2" value="Wait for command from Host" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="139" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-3" value="Device Control" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="65" y="110" width="110" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="J9SPE6yGJHCnPIthaM8Q-4" value="" style="edgeStyle=none;html=1;strokeColor=#464749;fillColor=#FFFFFF;fontFamily=Arial Nova Light;fontColor=#464749;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="lQjqljfRX2A7sibKbxj1-10" target="lQjqljfRX2A7sibKbxj1-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="346" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-10" value="Place on Servicer&lt;br&gt;queue" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="239.5" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="lQjqljfRX2A7sibKbxj1-17" target="lQjqljfRX2A7sibKbxj1-40" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-17" value="Wait on Gateway queue" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="341" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="lQjqljfRX2A7sibKbxj1-24" target="lQjqljfRX2A7sibKbxj1-27" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-24" value="&lt;div style=&quot;line-height: 18px&quot;&gt;Wait for command from Device Control&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" parent="1" vertex="1">
+          <mxGeometry x="340" y="139" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-25" value="Servicer" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontStyle=1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="354" y="106" width="80" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-26" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="lQjqljfRX2A7sibKbxj1-27" target="lQjqljfRX2A7sibKbxj1-29" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-27" value="&lt;div style=&quot;line-height: 18px;&quot;&gt;Read from queue&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" parent="1" vertex="1">
+          <mxGeometry x="340" y="240" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-29" value="&lt;div style=&quot;line-height: 18px;&quot;&gt;Process command&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fad7ac;strokeColor=#b46504;" parent="1" vertex="1">
+          <mxGeometry x="340" y="347" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-30" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;startArrow=none;startFill=0;endArrow=classic;endFill=1;" parent="1" source="lQjqljfRX2A7sibKbxj1-29" target="lQjqljfRX2A7sibKbxj1-36" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="400" y="610" as="sourcePoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-35" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontFamily=Helvetica;startArrow=none;startFill=0;endArrow=classic;endFill=1;dashed=1;" parent="1" source="lQjqljfRX2A7sibKbxj1-36" target="lQjqljfRX2A7sibKbxj1-17" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-36" value="Write status to Gateway queue" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#fad7ac;strokeColor=#b46504;" parent="1" vertex="1">
+          <mxGeometry x="340" y="439.5" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="lQjqljfRX2A7sibKbxj1-40" value="Return Servicer status" style="whiteSpace=wrap;html=1;rounded=0;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="60" y="440" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="J9SPE6yGJHCnPIthaM8Q-1" value="&#39;" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="lQjqljfRX2A7sibKbxj1-36" target="lQjqljfRX2A7sibKbxj1-24" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="250" y="306" as="sourcePoint" />
+            <mxPoint x="250" y="175" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="400" y="520" />
+              <mxPoint x="480" y="520" />
+              <mxPoint x="480" y="169" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="J9SPE6yGJHCnPIthaM8Q-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=none;startFill=0;endArrow=classic;endFill=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="lQjqljfRX2A7sibKbxj1-40" target="lQjqljfRX2A7sibKbxj1-2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="120" y="720" as="sourcePoint" />
+            <mxPoint x="70" y="175" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="120" y="520" />
+              <mxPoint x="40" y="520" />
+              <mxPoint x="40" y="169" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="OHgh5iognpjeZKVBjPan-1" value="" style="edgeStyle=none;html=1;strokeColor=#464749;fillColor=#FFFFFF;fontFamily=Arial Nova Light;fontColor=#464749;endArrow=none;endFill=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;startArrow=classic;startFill=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="lQjqljfRX2A7sibKbxj1-17" target="lQjqljfRX2A7sibKbxj1-10">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="130" y="250" as="sourcePoint" />
+            <mxPoint x="130" y="209" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

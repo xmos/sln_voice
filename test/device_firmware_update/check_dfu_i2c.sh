@@ -9,11 +9,22 @@
 # 2. Prepare the hardware
 #   a. Attach an XK-VOICE-L71 board to the Raspberry-Pi expander
 #   b. Connect an xTAG to XK-VOICE-L71 board and to a host machine
-# 3. Build the application example_ffva_int_fixed_delay and flash it to the board
-# 4. Generate an upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download1.bin
-# 5. Generate a different upgrade image using `xflash --upgrade 1 example_ffva_int_fixed_delay.xe --factory-version 15.2 -o download2.bin
+# 3. Build the application example_ffva_int_fixed_delay and flash it to the board:
+#      cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
+#      cd build
+#      make flash_app_example_ffva_int_fixed_delay
+# 4. Change the value of APP_VERSION_MAJOR in app_conf.h and generate an upgrade image:
+#      cd build
+#      make create_upgrade_img_example_ffva_int_fixed_delay
+#      mv example_ffva_int_fixed_delay_upgrade.bin download1.bin
+# 5. Change the value again of APP_VERSION_MAJOR in app_conf.h and generate an upgrade image:
+#      cd build
+#      make create_upgrade_img_example_ffva_int_fixed_delay
+#      mv example_ffva_int_fixed_delay_upgrade.bin download2.bin
 # 6. Copy the files download1.bin, download2.bin, emptyfile.bin and check_dfu_i2c.sh to the host_xvf_control/build folder on the Raspberry-Pi
-# 7. On the Raspberry-Pi, set the desired value of ITERATION_NUM in check_dfu_i2c.sh and run this script: `source check_dfu_i2c.sh`
+# 7. On the Raspberry-Pi, set the desired value of ITERATION_NUM in check_dfu_i2c.sh
+# 8.  Run this script:
+#      source check_dfu_i2c.sh
 
 ITERATION_NUM=2
 UPGRADE_FILE_1="download1.bin"

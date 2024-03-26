@@ -1,0 +1,10 @@
+@startuml
+participant Host as H
+participant Device as D
+H -> D : SET_INTERFACE (ALT=0)
+D --> H
+H -> D : DFU_GETSTATUS
+D --> H : Status=OK, State=dfuIDLE, Timeout=0ms
+H -> D : DFU_DETACH
+D --> H
+@enduml

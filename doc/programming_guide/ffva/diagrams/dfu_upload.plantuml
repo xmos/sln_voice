@@ -1,0 +1,14 @@
+@startuml
+participant Host as H
+participant Device as D
+H -> D : SET_INTERFACE (ALT=0)
+D --> H
+H -> D : DFU_GETSTATUS
+D --> H : Status=OK, State=dfuIDLE, Timeout=0ms
+loop until image is complete: n from 0 to N-1
+    H -> D : DFU_UPLOAD (BlockNum=n)
+    D --> H : Data, Size>0
+end
+H -> D : DFU_UPLOAD (BlockNum=N)
+D --> H : Data, Size=0
+@enduml
