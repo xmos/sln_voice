@@ -169,14 +169,14 @@ The INT variant of the device presents a DFU interface that may be controlled
 over |I2C|.
 
 :numref:`fig_control_plane_components` shows the modules involved in
-processing the DFU commands. The *I2C* has a dedicated logical core so that it is always ready
-to receive and send control messages. The DFU state machine is driven by use of control commands. The DFU state
+processing the DFU commands. The *I2C* task has a dedicated logical core so that it is always ready
+to receive and send control messages. The DFU state machine is driven by the control commands. The DFU state
 machine interacts with a separate RTOS task in
 order to asynchronously perform flash read/write operations.
 
 .. _fig_control_plane_components:
 .. figure:: diagrams/control_plane_components.drawio.png
-  :width: 100%
+  :width: 50%
 
   |project| Control Plane Components Diagram
 
@@ -190,15 +190,15 @@ In this diagram, boxes with the same colour reside in the same RTOS task.
 
 .. _fig_control_plane_dc_servicer_flow_chart:
 .. figure:: diagrams/control_plane_device_control_servicer_flow_chart.drawio.png
-  :width: 100%
+  :width: 50%
 
   |project| Device Control -- Servicer Flow Chart
 
-This diagram shows a critical aspect of Control Plane operation.
+This diagram shows a critical aspect of the DFU control operation.
 The Device Control module, having placed a command on a Servicer's command
 queue, waits on the Gateway queue for a response.
 As a result, it ensures processing of a single control command at a time.
-Limiting Control Plane operation to a single command in-flight reduces the
+Limiting DFU control operation to a single command in-flight reduces the
 complexity of the control protocol and eliminates several potential error
 cases.
 

@@ -80,7 +80,7 @@ To create an upgrade image from the build folder run:
 
     make create_upgrade_img_example_ffva_ua_adec_altarch
 
-Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for respective operating system can be found `here <https://dfu-util.sourceforge.net/>`__.
+Once the application is running, a USB DFU v1.1 tool can be used to perform various actions.  This example will demonstrate with dfu-util commands.  Installation instructions for the respective operating systems can be found `here <https://dfu-util.sourceforge.net/>`__.
 
 To verify the device is running run:
 
@@ -118,7 +118,7 @@ The upgrade image can be read back by running:
 
     dfu-util -e -d ,20b1:4001 -a 1 -U readback_upgrade_img.bin
 
-On system reboot, the upgrade image will always be loaded if valid.  If the upgrade image is invalid, the factory image will be loaded.  To revert back to the factory image, you can upload an file containing the word 0xFFFFFFFF.
+On system reboot, the upgrade image will always be loaded if valid.  If the upgrade image is invalid, the factory image will be loaded.  To revert back to the factory image, you can upload a file containing the word 0xFFFFFFFF.
 
 The data partition image can be read back by running:
 
@@ -145,7 +145,7 @@ To create an upgrade image from the build folder run:
 
     make create_upgrade_img_example_ffva_int_fixed_delay
 
-Once the application is running, the *xvf_dfu* tool can be used to perform various actions. Installation instructions for respective operating system can be found `here <https://github.com/xmos/host_xvf_control/blob/main/README.rst>`__.
+Once the application is running, the *xvf_dfu* tool can be used to perform various actions. Installation instructions for Raspbian OS can be found `here <https://github.com/xmos/host_xvf_control/blob/main/README.rst>`__.
 
 Before running the *xvf_dfu* host application, the ``I2C_ADDRESS`` value in the file ``transport_config.yaml`` located in the same folder as the binary file ``xvf_dfu`` must be updated. This value must match the one set for ``appconf_CONTROL_I2C_DEVICE_ADDR`` in the ``platform_conf.h`` file.
 
@@ -177,7 +177,7 @@ The device can be rebooted remotely by running
 
     xvf_dfu --reboot
 
-On system reboot, the upgrade image will always be loaded if valid.  If the upgrade image is invalid, the factory image will be loaded.  To revert back to the factory image, you can upload an file containing the word 0xFFFFFFFF.
+On system reboot, the upgrade image will always be loaded if valid.  If the upgrade image is invalid, the factory image will be loaded.  To revert back to the factory image, you can upload a file containing the word 0xFFFFFFFF.
 
 The FFVA-INT variants include some version numbers:
 
@@ -185,7 +185,7 @@ The FFVA-INT variants include some version numbers:
   - *APP_VERSION_MINOR*
   - *APP_VERSION_PATCH*
 
-These values are defined in the ``app_conf.h`` file and they can read by running:
+These values are defined in the ``app_conf.h`` file, and they can read by running:
 
 .. code-block:: console
 
