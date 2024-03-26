@@ -168,10 +168,58 @@ DFU over |I2C| implementation
 The INT variant of the device presents a DFU interface that may be controlled
 over |I2C|.
 
-The INT DFU state machine is driven by use of control commands, as described in
-:ref:`Control Plane Detailed Design<control_plane_design>`. The DFU state
-machine has its own servicer, which then interacts with a separate RTOS task in
+:numref:`fig_control_plane_components` shows the modules involved in
+processing the DFU commands. The *I2C* has a dedicated logical core so that it is always ready
+to receive and send control messages. The DFU state machine is driven by use of control commands. The DFU state
+machine interacts with a separate RTOS task in
 order to asynchronously perform flash read/write operations.
+
+.. _fig_control_plane_components:
+.. figure:: diagrams/control_plane_components_diagram.png
+  :width: 100%
+
+  |project| Control Plane Components Diagram
+
+.. raw:: latex
+
+    \newpage
+
+:numref:`fig_control_plane_dc_servicer_flow_chart` shows the interaction
+between the Device Control module and the DFU Servicer.
+In this diagram, boxes with the same colour reside in the same RTOS task.
+
+.. _fig_control_plane_dc_servicer_flow_chart:
+.. figure:: diagrams/control_plane_device_control_servicer_flow_chart.png
+  :width: 100%
+
+  |project| Device Control -- Servicer Flow Chart
+
+This diagram shows a critical aspect of Control Plane operation.
+The Device Control module, having placed a command on a Servicer's command
+queue, waits on the Gateway queue for a response.
+As a result, it ensures processing of a single control command at a time.
+Limiting Control Plane operation to a single command in-flight reduces the
+complexity of the control protocol and eliminates several potential error
+cases.
+
+The FFVA-INT uses a packet protocol to receive control commands and send each
+corresponding response.
+Because packet transmission occurs over a very short-haul transport, as in
+|I2C|, the protocol does not include fields for error detection or correction such as start-of-frame and
+end-of-frame symbols, a cyclical redundancy check or an error correcting code.
+:numref:`fig_control_plane_packet` depicts the structure of each packet.
+
+.. _fig_control_plane_packet:
+.. figure:: diagrams/control_plane_packet_diagram.drawio.png
+  :width: 100%
+
+  |project| Control Plane Packet Diagram
+
+Packets containing a response from the FFVA-INT to the host application place
+a status value in the first byte of the payload.
+
+INT DFU implementation
+----------------------
 
 Mirroring the USB DFU specification, the INT implementation supports a set of 9
 control commands intended to drive the state machine, along with an additional 2
@@ -189,15 +237,14 @@ These commands are then used to drive the state machine described in the
 
 When writing a custom compliant host application, the use of XMOS' **fwk_rtos**
 library is advised; the **device_control** library provided there gives a host
-API that can communicate effectively with the |project|, as demonstrated in
-the *xvf_host* application. However, a description of the |I2C| bus activity
+API that can communicate effectively with the FFVA-INT. A description of the |I2C| bus activity
 during the execution of the above DFU commands is provided below, in the
 instance that usage of the **device_control** library is inconvenient or
 impossible.
 
-The |project|'s |I2C| address is set by default as 0x42. This may be
+The FFVA-INT |I2C| address is set by default as 0x42. This may be
 confirmed by examination of the ``appconf_CONTROL_I2C_DEVICE_ADDR`` define in the
-``platform_conf.h`` file. The |project|'s |I2C| address may also be altered by editing this file.
+``platform_conf.h`` file. The |I2C| address may also be altered by editing this file.
 The DFU resource has an internal "resource ID" of 0xF0. This maps to the
 register that read/write operations on the DFU resource should target -
 therefore, the register to write to will always be 0xF0.
@@ -244,7 +291,7 @@ To issue a read command (e.g. DFU_GETSTATUS):
   bytes. ACK each received byte. After the last expected byte, issue a STOP.
 
 It is heavily advised that those wishing to write a custom host application to
-drive the DFU process for the |project| over |I2C| familiarise themselves with
+drive the DFU process for the FFVA-INT over |I2C| familiarise themselves with
 `version 1.1 of the Universal Serial Bus Device Class Specification for Device
 Firmware Upgrade <https://www.usb.org/sites/default/files/DFU_1.1.pdf>`_.
 
