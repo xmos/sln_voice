@@ -154,7 +154,7 @@ A message sequence chart of the upload operation is below:
 .. _dfu_usb_interface_design:
 
 DFU over USB implementation
-***************************
+---------------------------
 
 The UA variant of the device make use of a USB connection for handling DFU operations.
 This interface is a relatively standard, specification-compliant implementation.
@@ -163,7 +163,7 @@ The implementation is encapsulated within the tinyUSB library, which provides a 
 .. _dfu_i2c_interface_design:
 
 DFU over |I2C| implementation
-*****************************
+-----------------------------
 
 The INT variant of the device presents a DFU interface that may be controlled
 over |I2C|.
@@ -189,7 +189,7 @@ between the Device Control module and the DFU Servicer.
 In this diagram, boxes with the same colour reside in the same RTOS task.
 
 .. _fig_control_plane_dc_servicer_flow_chart:
-.. figure:: diagrams/control_plane_device_control_servicer_flow_chart.png
+.. figure:: diagrams/control_plane_device_control_servicer_flow_chart.drawio.png
   :width: 100%
 
   |project| Device Control -- Servicer Flow Chart
@@ -219,7 +219,7 @@ Packets containing a response from the FFVA-INT to the host application place
 a status value in the first byte of the payload.
 
 INT DFU implementation
-----------------------
+^^^^^^^^^^^^^^^^^^^^^^
 
 Mirroring the USB DFU specification, the INT implementation supports a set of 9
 control commands intended to drive the state machine, along with an additional 2
