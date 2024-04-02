@@ -19,9 +19,11 @@
 #include "app_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
+#include "platform/platform_conf.h"
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
+#include "dfu_servicer.h"
 
 /* Headers used for the WW intent engine */
 #if appconfINTENT_ENABLED
@@ -370,6 +372,21 @@ void startup_task(void *arg)
 #endif
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
+#endif
+
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+    // Initialise control related things
+    servicer_t servicer_dfu;
+    dfu_servicer_init(&servicer_dfu);
+
+    xTaskCreate(
+        dfu_servicer,
+        "DFU servicer",
+        RTOS_THREAD_STACK_SIZE(dfu_servicer),
+        &servicer_dfu,
+        appconfDEVICE_CONTROL_I2C_PRIORITY,
+        NULL
+    );
 #endif
 
 #if appconfINTENT_ENABLED && ON_TILE(0)

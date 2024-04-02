@@ -4,6 +4,21 @@
 #ifndef APP_CONF_H_
 #define APP_CONF_H_
 
+/**
+ * Application version numbers
+ * These values can be read by the xvf_dfu host app
+ * The xvf_dfu app is used with the FFVA-INT device only
+ */
+#ifndef APP_VERSION_MAJOR
+#define APP_VERSION_MAJOR   255
+#endif
+#ifndef APP_VERSION_MINOR
+#define APP_VERSION_MINOR   254
+#endif
+#ifndef APP_VERSION_PATCH
+#define APP_VERSION_PATCH   253
+#endif
+
 /* Intertile port settings */
 #define appconfUSB_AUDIO_PORT          0
 #define appconfGPIO_T0_RPC_PORT        1

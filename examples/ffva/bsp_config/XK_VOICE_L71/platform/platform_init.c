@@ -11,6 +11,10 @@
 #include "platform/platform_init.h"
 #include "adaptive_rate_adjust.h"
 #include "usb_support.h"
+#include "device_control.h"
+#include "servicer.h"
+
+extern device_control_t *device_control_i2c_ctx;
 
 static void mclk_init(chanend_t other_tile_c)
 {
@@ -106,15 +110,14 @@ static void i2c_init(void)
 {
     static rtos_driver_rpc_t i2c_rpc_config;
 
-#if appconfI2C_CTRL_ENABLED
-#if ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,
                         PORT_I2C_SDA,
                         appconf_CONTROL_I2C_DEVICE_ADDR);
 #endif
-#else
+
 #if ON_TILE(I2C_TILE_NO)
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     rtos_i2c_master_init(
@@ -134,7 +137,6 @@ static void i2c_init(void)
             i2c_master_ctx,
             &i2c_rpc_config,
             intertile_ctx);
-#endif
 #endif
 }
 
@@ -318,6 +320,22 @@ static void uart_init(void)
 #endif
 }
 
+void control_init() {
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_TILE_NO)
+    control_ret_t ret = CONTROL_SUCCESS;
+    ret = device_control_init(device_control_i2c_ctx,
+                                DEVICE_CONTROL_HOST_MODE,
+                                (NUM_TILE_0_SERVICERS + NUM_TILE_1_SERVICERS),
+                                NULL, 0);
+    xassert(ret == CONTROL_SUCCESS);
+
+    ret = device_control_start(device_control_i2c_ctx,
+                                -1,
+                                -1);
+    xassert(ret == CONTROL_SUCCESS);
+#endif
+}
+
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
@@ -332,5 +350,5 @@ void platform_init(chanend_t other_tile_c)
     i2s_init();
     usb_init();
     uart_init();
-
+    control_init();
 }

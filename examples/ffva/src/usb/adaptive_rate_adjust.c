@@ -1,8 +1,8 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #define DEBUG_UNIT ADAPTIVE_USB
-#define DEBUG_PRINT_ENABLE_ADAPTIVE_USB 1
+#define DEBUG_PRINT_ENABLE_ADAPTIVE_USB 0
 
 // Taken from usb_descriptors.c
 #define USB_AUDIO_EP 0x01

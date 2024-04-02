@@ -9,6 +9,8 @@ XCORE-VOICE change log
   * CHANGED: Moved files in folders device_memory, gpio_ctrl, intent_engine and
     intent_handler from examples/ffd/src to folder modules/asr.
   * CHANGED: Remove need to use external MCLK in FFVA INT examples
+  * ADDED: Support for DFU over I2C for FFVA INT example.
+  * CHANGED: Updated submodule fwk_rtos to version 3.1.0 from 3.0.5.
   * ADDED: lib_sw_pll submodule v1.1.0.
 
 2.2.0

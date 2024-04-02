@@ -80,14 +80,14 @@ void tud_dfu_download_cb(uint8_t alt, uint16_t block_num, uint8_t const* data, u
             if (dn_base_addr == 0) {
                 total_len = 0;
                 dn_base_addr = rtos_dfu_image_get_upgrade_addr(dfu_image_ctx);
-                bytes_avail = data_partition_base_addr - dn_base_addr;    
+                bytes_avail = data_partition_base_addr - dn_base_addr;
             }
             /* fallthrough */
         case 2:
             if (dn_base_addr == 0) {
                 total_len = 0;
                 dn_base_addr = data_partition_base_addr;
-                bytes_avail = rtos_qspi_flash_size_get(qspi_flash_ctx) - dn_base_addr;    
+                bytes_avail = rtos_qspi_flash_size_get(qspi_flash_ctx) - dn_base_addr;
             }
             rtos_printf("Using addr 0x%x\nsize %u\n", dn_base_addr, bytes_avail);
             if(length > 0) {

@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef PLATFORM_CONF_H_
@@ -101,23 +101,27 @@
 #define appconfPIPELINE_AUDIO_SAMPLE_RATE   16000
 #endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
 
-#ifndef appconfI2C_CTRL_ENABLED
+#ifndef appconfI2C_DFU_ENABLED
+#if ! ASR_CYBERON
 /*
- * When this is enabled on the XVF3610_Q60A board, the board
+ * When this is enabled on the XK-VOICE-L71 board, the board
  * cannot function as an I2C master and will not configure the
  * DAC. In this case the DAC should be configured externally.
  * MCLK will also default to be external if this is set on
- * the XVF3610_Q60A board.
+ * the XK-VOICE-L71 board.
  */
-#define appconfI2C_CTRL_ENABLED    0
-#endif /* appconfI2C_CTRL_ENABLED */
+#define appconfI2C_DFU_ENABLED    1
+#else
+#define appconfI2C_DFU_ENABLED    0
+#endif
+#endif /* appconfI2C_DFU_ENABLED */
+
+#ifndef APP_CONTROL_TRANSPORT_COUNT
+#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_DFU_ENABLED
+#endif // APP_CONTROL_TRANSPORT_COUNT
 
 #ifndef appconfEXTERNAL_MCLK
-#if appconfI2C_CTRL_ENABLED
 #define appconfEXTERNAL_MCLK       1
-#else
-#define appconfEXTERNAL_MCLK       0
-#endif /* appconfI2C_CTRL_ENABLED */
 #endif /* appconfEXTERNAL_MCLK */
 
 #ifndef appconf_CONTROL_I2C_DEVICE_ADDR
@@ -162,6 +166,10 @@
 #define appconfSPI_TASK_PRIORITY                (configMAX_PRIORITIES/2)
 #endif /* appconfSPI_TASK_PRIORITY */
 
+#ifndef appconfDEVICE_CONTROL_I2C_PRIORITY
+#define appconfDEVICE_CONTROL_I2C_PRIORITY      (configMAX_PRIORITIES-1)
+#endif // appconfDEVICE_CONTROL_I2C_PRIORITY
+
 /*****************************************/
 /*  DFU Settings                         */
 /*****************************************/
@@ -195,14 +203,14 @@
 #ifndef BOARD_QSPI_SPEC
 /* Set up a default SPI spec if the app has not provided
  * one explicitly.
- * Note: The version checks only work in XTC Tools >15.2.0 
- *       By default FL_QUADDEVICE_W25Q64JW is used 
+ * Note: The version checks only work in XTC Tools >15.2.0
+ *       By default FL_QUADDEVICE_W25Q64JW is used
  */
 #ifdef __XMOS_XTC_VERSION_MAJOR__
 #if (__XMOS_XTC_VERSION_MAJOR__ == 15)      \
     && (__XMOS_XTC_VERSION_MINOR__ >= 2)    \
     && (__XMOS_XTC_VERSION_PATCH__ >= 0)
-/* In XTC >15.2.0 some SFDP support enables a generic 
+/* In XTC >15.2.0 some SFDP support enables a generic
  * default spec
  */
 #define BOARD_QSPI_SPEC     FL_QUADDEVICE_DEFAULT
