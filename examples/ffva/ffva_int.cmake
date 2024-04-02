@@ -11,6 +11,7 @@ set(FFVA_INT_COMPILE_DEFINITIONS
     MIC_ARRAY_CONFIG_MCLK_FREQ=12288000
 )
 
+query_tools_version()
 foreach(FFVA_AP ${FFVA_PIPELINES_INT})
     #**********************
     # Tile Targets
@@ -63,6 +64,8 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
     #**********************
     create_run_target(example_ffva_int_${FFVA_AP})
     create_debug_target(example_ffva_int_${FFVA_AP})
+    message(variable="${XTC_VERSION_MAJOR}")
+    create_upgrade_img_target(example_ffva_int_${FFVA_AP} ${XTC_VERSION_MAJOR} ${XTC_VERSION_MINOR})
 
     #**********************
     # Create data partition support targets

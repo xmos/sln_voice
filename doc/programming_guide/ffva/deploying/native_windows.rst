@@ -100,6 +100,7 @@ Upgrading the Firmware
 ======================
 
 The UA variants of this application contain DFU over the USB DFU Class V1.1 transport method.
+In this section DFU over |I2C| for the INT variants is not covered. The INT variants require an |I2C| connection to the host, and Windows doesn't support this feature.
 
 To create an upgrade image from the build folder run:
 
