@@ -16,46 +16,19 @@ INT requires |I2S| connections to the host.  Refer to the schematic, connecting 
 UA requires a USB connection to the host.
 
 
-Single Controller Solution
-==========================
+Support for ASR engine
+======================
 
-In a single controller solution, a user can populate the model runner manager task with the application specific code.
+The ``example_ffva_int_cyberon_fixed_delay`` provides an example about how to include an ASR engine, the  Cyberon DSPotter™.
 
-This dummy thread receives only the ASR channel output, which has been downshifted to 16 bits.
+Most of the considerations made in the :ref:`section about the FFD devices<sln_voice_ffd_overview>` are still valid for the FFVA example. The only notable difference is that the pipeline output in the FFVA example
+is on the same tile as the ASR engine, i.e. tile 0.
 
-The user must ensure the streambuffer is emptied at the rate of the audio pipeline at minimum, otherwise samples will be lost.
+.. note::
 
-Populate:
+    Both the audio pipeline and the ASR engine process use the same sample block length. ``appconfINTENT_SAMPLE_BLOCK_LENGTH`` and ``appconfAUDIO_PIPELINE_FRAME_ADVANCE`` are both 240.
 
-.. code-block:: c
-    :caption: Model Runner Dummy (model_runner.c)
-
-    void model_runner_manager(void *args)
-    {
-        StreamBufferHandle_t input_queue = (StreamBufferHandle_t)args;
-
-        int16_t buf[appconfWW_FRAMES_PER_INFERENCE];
-
-        /* Perform any initialization here */
-
-        while (1)
-        {
-            /* Receive audio frames */
-            uint8_t *buf_ptr = (uint8_t*)buf;
-            size_t buf_len = appconfWW_FRAMES_PER_INFERENCE * sizeof(int16_t);
-            do {
-                size_t bytes_rxed = xStreamBufferReceive(input_queue,
-                                                         buf_ptr,
-                                                         buf_len,
-                                                         portMAX_DELAY);
-                buf_len -= bytes_rxed;
-                buf_ptr += bytes_rxed;
-            } while(buf_len > 0);
-
-            /* Perform inference here */
-            // rtos_printf("inference\n");
-        }
-    }
+More information about the Cyberon engine can be found in  :ref:`sln_voice_ffd_speech_recognition_cyberon` section.
 
 |newpage|
 

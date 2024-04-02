@@ -203,9 +203,6 @@
 
 #include "app_conf_check.h"
 
-/* WW Config */
-#define appconfWW_FRAMES_PER_INFERENCE          (240)
-
 /* I/O and interrupt cores for Tile 0 */
 /* Note, USB and SPI are mutually exclusive */
 #define appconfXUD_IO_CORE                      1 /* Must be kept off core 0 with the RTOS tick ISR */
