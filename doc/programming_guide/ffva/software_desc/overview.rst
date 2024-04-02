@@ -4,7 +4,7 @@
 Overview
 ********
 
-There are two main build configurations for this application.
+There are three main build configurations for this application.
 
 .. list-table:: FFVA INT Fixed Delay Resources
    :widths: 30 10 30
@@ -14,15 +14,27 @@ There are two main build configurations for this application.
    * - Resource
      - Tile 0
      - Tile 1
-   * - Unused CPU Time (600 MHz)
-     - 98%
-     - 75%
    * - Total Memory Free
-     - 166k
-     - 82k
+     - 141k
+     - 80k
    * - Runtime Heap Memory Free
      - 75k
-     - 82k
+     - 76k
+
+.. list-table:: FFVA INT Cyberon Fixed Delay Resources
+   :widths: 30 10 30
+   :header-rows: 1
+   :align: left
+
+   * - Resource
+     - Tile 0
+     - Tile 1
+   * - Total Memory Free
+     - 21k
+     - 79k
+   * - Runtime Heap Memory Free
+     - 19k
+     - 81k
 
 .. list-table:: FFVA UA ADEC Resources
    :widths: 30 10 30
@@ -32,12 +44,9 @@ There are two main build configurations for this application.
    * - Resource
      - Tile 0
      - Tile 1
-   * - Unused CPU Time (600 MHz)
-     - 83%
-     - 45%
    * - Total Memory Free
-     - 123k
-     - 58k
+     - 94k
+     - 59k
    * - Runtime Heap Memory Free
      - 54k
      - 83k
@@ -59,3 +68,7 @@ The description of the software is split up by folder:
      - Filesystem contents for application
    * - :ref:`sln_voice_ffva_src`
      - Main application
+   * - :ref:`sln_voice_intent_engine`
+     - Intent engine integration (FFVA INT Cyberon only)
+   * - :ref:`sln_voice_intent_handler`
+     - Intent engine output integration (FFVA INT Cyberon only)
