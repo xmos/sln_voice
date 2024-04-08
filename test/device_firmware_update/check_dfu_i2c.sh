@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# The steps below are meant to be run on a Linux/macOS platform.
-# On Windows the `make` command must be replaced by `ninja`
 # To run this test do the following:
 # 1. Configure a Rapsberry-Pi:
 #   a. Follow the instructions for XVF3800-INT on https://github.com/xmos/vocalfusion-rpi-setup?tab=readme-ov-file#setup
