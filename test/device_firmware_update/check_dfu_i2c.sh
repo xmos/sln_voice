@@ -5,25 +5,40 @@
 #   a. Follow the instructions for XVF3800-INT on https://github.com/xmos/vocalfusion-rpi-setup?tab=readme-ov-file#setup
 #   b. Clone on the Raspberry Pi the repo host_xvf_control using `git clone https://github.com/xmos/host_xvf_control`
 #   c. In the file host_xvf_control/src/dfu/transport_config.yaml update the value of I2C_ADDRESS from 0x2C to 0x42
-#   d. Build the xvf_dfu host application on a Raspberry-Pi using the instructions in https://github.com/xmos/host_xvf_control/blob/main/README.rst
+#   d. Build the xvf_dfu host application on the Raspberry-Pi using the instructions in https://github.com/xmos/host_xvf_control/blob/main/README.rst
 # 2. Prepare the hardware
 #   a. Attach an XK-VOICE-L71 board to the Raspberry-Pi expander
 #   b. Connect an xTAG to XK-VOICE-L71 board and to a host machine
 # 3. Build the application example_ffva_int_fixed_delay and flash it to the board:
-#      cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
-#      cd build
-#      make flash_app_example_ffva_int_fixed_delay
+#      - on Linux/macOS:
+#          cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
+#          cd build
+#          make flash_app_example_ffva_int_fixed_delay
+#      - on Windows:
+#          cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
+#          cd build
+#          ninja flash_app_example_ffva_int_fixed_delay
 # 4. Change the value of APP_VERSION_MAJOR in app_conf.h and generate an upgrade image:
-#      cd build
-#      make create_upgrade_img_example_ffva_int_fixed_delay
-#      mv example_ffva_int_fixed_delay_upgrade.bin download1.bin
+#      - on Linux/macOS:
+#          cd build
+#          make create_upgrade_img_example_ffva_int_fixed_delay
+#          mv example_ffva_int_fixed_delay_upgrade.bin download1.bin
+#      - on Windows:
+#          cd build
+#          ninja create_upgrade_img_example_ffva_int_fixed_delay
+#          MOVE example_ffva_int_fixed_delay_upgrade.bin download1.bin
 # 5. Change the value again of APP_VERSION_MAJOR in app_conf.h and generate an upgrade image:
-#      cd build
-#      make create_upgrade_img_example_ffva_int_fixed_delay
-#      mv example_ffva_int_fixed_delay_upgrade.bin download2.bin
+#      - on Linux/macOS:
+#          cd build
+#          make create_upgrade_img_example_ffva_int_fixed_delay
+#          mv example_ffva_int_fixed_delay_upgrade.bin download2.bin
+#      - on Windows:
+#          cd build
+#          ninja create_upgrade_img_example_ffva_int_fixed_delay
+#          MOVE example_ffva_int_fixed_delay_upgrade.bin download2.bin
 # 6. Copy the files download1.bin, download2.bin, emptyfile.bin and check_dfu_i2c.sh to the host_xvf_control/build folder on the Raspberry-Pi
 # 7. On the Raspberry-Pi, set the desired value of ITERATION_NUM in check_dfu_i2c.sh
-# 8.  Run this script:
+# 8. On the Raspberry-Pi, run this script from the host_xvf_control build folder:
 #      source check_dfu_i2c.sh
 
 ITERATION_NUM=2
