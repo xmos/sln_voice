@@ -25,7 +25,7 @@
 #      mv example_ffva_int_fixed_delay_upgrade.bin download2.bin
 # 6. Copy the files download1.bin, download2.bin, emptyfile.bin and check_dfu_i2c.sh to the host_xvf_control/build folder on the Raspberry-Pi
 # 7. On the Raspberry-Pi, set the desired value of ITERATION_NUM in check_dfu_i2c.sh
-# 8.  Run this script:
+# 8. On the Raspberry-Pi, run this script from the host_xvf_control build folder:
 #      source check_dfu_i2c.sh
 
 ITERATION_NUM=2
