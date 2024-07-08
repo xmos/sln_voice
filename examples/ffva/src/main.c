@@ -87,9 +87,13 @@ void audio_pipeline_input(void *input_app_data,
                         size_t ch_count,
                         size_t frame_count)
 {
-    (void) input_app_data;
-    int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
 
+    (void) input_app_data;
+    #if !USE_I2S_INPUT
+    int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
+    //#else
+    int32_t **mic_ptr = (int32_t **)(input_audio_frames);
+    //#endif
     static int flushed;
     while (!flushed) {
         size_t received;
@@ -116,7 +120,7 @@ void audio_pipeline_input(void *input_app_data,
                       mic_ptr,
                       frame_count,
                       portMAX_DELAY);
-
+    #endif
 #if appconfUSB_ENABLED
     int32_t **usb_mic_audio_frame = NULL;
     size_t ch_cnt = 2;  /* ref frames */
@@ -140,7 +144,7 @@ void audio_pipeline_input(void *input_app_data,
 #endif
 
 #if appconfI2S_ENABLED
-    if (!appconfUSB_ENABLED || aec_ref_source == appconfAEC_REF_I2S) {
+    if (!appconfUSB_ENABLED || aec_ref_source == appconfAEC_REF_I2S || USE_I2S_INPUT) {
         /* This shouldn't need to block given it shares a clock with the PDM mics */
 
         xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
@@ -156,13 +160,17 @@ void audio_pipeline_input(void *input_app_data,
         xassert(rx_count == frame_count);
 
         for (int i=0; i<frame_count; i++) {
+            #if !USE_I2S_INPUT
             /* ref is first */
             *(tmpptr + i) = tmp[i][0];
             *(tmpptr + i + frame_count) = tmp[i][1];
+            #else
+            *(tmpptr + (2 * frame_count) + i) = tmp[i][0];
+            *(tmpptr + (2 * frame_count) + i + frame_count) = tmp[i][1];
+            #endif
         }
     }
 #endif
-
 }
 
 int audio_pipeline_output(void *output_app_data,
@@ -171,6 +179,7 @@ int audio_pipeline_output(void *output_app_data,
                         size_t frame_count)
 {
     (void) output_app_data;
+
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
@@ -213,6 +222,7 @@ int audio_pipeline_output(void *output_app_data,
 #endif
 
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
+
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
     int32_t *tmpptr = (int32_t *)output_audio_frames;
@@ -236,7 +246,6 @@ int audio_pipeline_output(void *output_app_data,
                 6);
 #endif
 #if appconfINTENT_ENABLED
-
     int32_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
         /* ASR output is first */
