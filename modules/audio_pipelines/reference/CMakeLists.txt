@@ -1,5 +1,5 @@
 ##******************************************
-## Create fixed_delay AEC+IC+NS+AGC 
+## Create fixed_delay AEC+IC+NS+AGC
 ##   2 mic input channels
 #    2 reference input channels
 ##******************************************
@@ -30,7 +30,7 @@ target_link_libraries(fixed_delay_aec_ic_ns_agc_2mic_2ref
 )
 
 ##******************************************
-## Create ADEC "prevarch" AEC+IC+NS+AGC 
+## Create ADEC "prevarch" AEC+IC+NS+AGC
 ##   2 mic input channels
 #    2 reference input channels
 ##******************************************
@@ -66,7 +66,7 @@ target_link_libraries(adec_aec_ic_ns_agc_2mic_2ref
 )
 
 ##******************************************
-## Create ADEC altarch AEC+IC+NS+AGC 
+## Create ADEC altarch AEC+IC+NS+AGC
 ##   2 mic input channels
 #    2 reference input channels
 ##******************************************
@@ -108,7 +108,8 @@ target_link_libraries(adec_altarch_aec_ic_ns_agc_2mic_2ref
 add_library(empty_2mic_2ref INTERFACE)
 target_sources(empty_2mic_2ref
     INTERFACE
-        ${CMAKE_CURRENT_LIST_DIR}/empty/audio_pipeline.c
+        ${CMAKE_CURRENT_LIST_DIR}/empty/audio_pipeline_t0.c
+        ${CMAKE_CURRENT_LIST_DIR}/empty/audio_pipeline_t1.c
 )
 target_include_directories(empty_2mic_2ref
     INTERFACE
