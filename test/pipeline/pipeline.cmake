@@ -33,7 +33,7 @@ elseif(${TEST_PIPELINE} STREQUAL "FFD")
         ${APP_INCLUDES}
         ${CMAKE_CURRENT_SOURCE_DIR}/examples/ffd/src
     )
-    set(AUDIO_PIPELINE_LIBRARY sln_voice::app::ffd::ap)
+    set(AUDIO_PIPELINE_LIBRARY sln_voice::app::ffd::ap::ic_ns_agc)
     set(AUDIO_PIPELINE_INPUT_CHANNELS 2)
     set(AUDIO_PIPELINE_INPUT_TILE_NO 1)
     set(AUDIO_PIPELINE_OUTPUT_TILE_NO 1)

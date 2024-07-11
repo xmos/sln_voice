@@ -16,6 +16,9 @@ set(SENSORY_COMMAND_NET_FILE "${FFD_SRC_ROOT}/model/${MODEL_LANGUAGE}/command-pc
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 
+# Exclude the source files in the control directory
+list(FILTER APP_SOURCES EXCLUDE REGEX "src/control/.*\\.c$")
+
 set(APP_SOURCES
     ${APP_SOURCES}
     ${SENSORY_COMMAND_SEARCH_SOURCE_FILE}
@@ -96,7 +99,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::app::ffd::ap
+    sln_voice::app::ffd::ap::ic_ns_agc
     sln_voice::app::asr::sensory
     sln_voice::app::asr::device_memory
     sln_voice::app::asr::gpio_ctrl

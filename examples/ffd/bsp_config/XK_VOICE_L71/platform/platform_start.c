@@ -17,6 +17,8 @@
 
 extern void i2s_rate_conversion_enable(void);
 
+extern void i2s_rate_conversion_enable(void);
+
 static void gpio_start(void)
 {
     rtos_gpio_rpc_config(gpio_ctx_t0, appconfGPIO_T0_RPC_PORT, appconfGPIO_RPC_PRIORITY);

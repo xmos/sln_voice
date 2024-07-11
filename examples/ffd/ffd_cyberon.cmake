@@ -8,6 +8,8 @@ set(CYBERON_COMMAND_NET_FILE "${FFD_SRC_ROOT}/model/english_usa/Hello_XMOS_pack_
 #**********************
 file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
 
+# Exclude the source files in the control directory
+list(FILTER APP_SOURCES EXCLUDE REGEX "src/control/.*\\.c$")
 
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
@@ -84,7 +86,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::app::ffd::ap
+    sln_voice::app::ffd::ap::ic_ns_agc
     sln_voice::app::asr::Cyberon
     sln_voice::app::asr::device_memory
     sln_voice::app::asr::gpio_ctrl
