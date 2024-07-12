@@ -106,73 +106,11 @@ static void mics_init(void)
 #endif
 }
 
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
-static int *p_lock_status = NULL;
-/// @brief Save the pointer to the pll lock_status variable
-static void set_pll_lock_status_ptr(int* p)
-{
-    p_lock_status = p;
-}
-#endif
-
-static void platform_sw_pll_init(void)
-{
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
-
-    port_t p_bclk = PORT_I2S_BCLK;
-    port_t p_mclk = PORT_MCLK;
-    port_t p_mclk_count = PORT_MCLK_COUNT;  // Used internally by sw_pll
-    port_t p_bclk_count = PORT_BCLK_COUNT;  // Used internally by sw_pll
-    xclock_t ck_bclk = I2S_CLKBLK;
-
-    port_enable(p_mclk);
-    port_enable(p_bclk);
-    // NOTE:  p_lrclk does not need to be enabled by the caller
-
-    set_pll_lock_status_ptr(&sw_pll.lock_status);
-    // Create clock from mclk port and use it to clock the p_mclk_count port which will count MCLKs.
-    port_enable(p_mclk_count);
-    port_enable(p_bclk_count);
-
-    // Allow p_mclk_count to count mclks
-    xclock_t clk_mclk = MCLK_CLKBLK;
-    clock_enable(clk_mclk);
-    clock_set_source_port(clk_mclk, p_mclk);
-    port_set_clock(p_mclk_count, clk_mclk);
-    clock_start(clk_mclk);
-
-    // Allow p_bclk_count to count bclks
-    port_set_clock(p_bclk_count, ck_bclk);
-    sw_pll_init(&sw_pll,
-                SW_PLL_15Q16(0.0),
-                SW_PLL_15Q16(1.0),
-                PLL_CONTROL_LOOP_COUNT_INT,
-                PLL_RATIO,
-                (appconfBCLK_NOMINAL_HZ / appconfLRCLK_NOMINAL_HZ),
-                frac_values_90,
-                SW_PLL_NUM_LUT_ENTRIES(frac_values_90),
-                APP_PLL_CTL_REG,
-                APP_PLL_DIV_REG,
-                SW_PLL_NUM_LUT_ENTRIES(frac_values_90) / 2,
-                PLL_PPM_RANGE);
-
-    debug_printf("Using SW PLL to track I2S input\n");
-    sw_pll_ctx->sw_pll = &sw_pll;
-    sw_pll_ctx->p_mclk_count = p_mclk_count;
-    sw_pll_ctx->p_bclk_count = p_bclk_count;
-
-#endif
-}
-
 static void i2s_init(void)
 {
-
 #if appconfI2S_ENABLED
-#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     static rtos_driver_rpc_t i2s_rpc_config;
-#endif
 #if ON_TILE(I2S_TILE_NO)
-#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     port_t p_i2s_dout[1] = {
             PORT_I2S_DAC_DATA
@@ -193,36 +131,17 @@ static void i2s_init(void)
             PORT_MCLK,
             I2S_CLKBLK);
 
+
     rtos_i2s_rpc_host_init(
             i2s_ctx,
             &i2s_rpc_config,
             client_intertile_ctx,
             1);
-#elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
-    port_t p_i2s_dout[1] = {
-            PORT_I2S_ADC_DATA
-    };
-    port_t p_i2s_din[1] = {
-            PORT_I2S_DAC_DATA
-    };
-    rtos_i2s_slave_init(
-            i2s_ctx,
-            (1 << appconfI2S_IO_CORE),
-            p_i2s_dout,
-            1,
-            p_i2s_din,
-            1,
-            PORT_I2S_BCLK,
-            PORT_I2S_LRCLK,
-            I2S_CLKBLK);
-#endif
 #else
-#if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_i2s_rpc_client_init(
             i2s_ctx,
             &i2s_rpc_config,
             intertile_ctx);
-#endif
 #endif
 #endif
 }
@@ -243,27 +162,11 @@ static void uart_init(void)
 #endif
 }
 
-void control_init() {
-#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_TILE_NO)
-    control_ret_t ret = CONTROL_SUCCESS;
-    ret = device_control_init(device_control_i2c_ctx,
-                                DEVICE_CONTROL_HOST_MODE,
-                                (NUM_TILE_0_SERVICERS + NUM_TILE_1_SERVICERS),
-                                NULL, 0);
-    xassert(ret == CONTROL_SUCCESS);
-
-    ret = device_control_start(device_control_i2c_ctx,
-                                -1,
-                                -1);
-    xassert(ret == CONTROL_SUCCESS);
-#endif
-}
-
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
     rtos_intertile_init(intertile_ap_ctx, other_tile_c);
-    platform_sw_pll_init();
+
     mclk_init(other_tile_c);
     gpio_init();
     flash_init();
@@ -271,5 +174,4 @@ void platform_init(chanend_t other_tile_c)
     mics_init();
     i2s_init();
     uart_init();
-    control_init();
 }

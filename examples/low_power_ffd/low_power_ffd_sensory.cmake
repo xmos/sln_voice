@@ -100,7 +100,7 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    sln_voice::app::ffd::ap::ic_ns_agc
+    sln_voice::app::ffd::ap
     sln_voice::app::asr::sensory
     rtos::drivers::clock_control
     sln_voice::app::asr::device_memory

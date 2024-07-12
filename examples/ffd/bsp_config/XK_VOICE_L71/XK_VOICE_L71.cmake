@@ -20,7 +20,6 @@ target_link_libraries(sln_voice_app_ffd_board_support_xk_voice_l71
         rtos::drivers::general
         rtos::drivers::audio
         sln_voice::app::ffd::dac::dac3101
-        rtos::drivers::dfu_image
 )
 target_compile_options(sln_voice_app_ffd_board_support_xk_voice_l71
     INTERFACE
