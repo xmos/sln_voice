@@ -89,11 +89,9 @@ void audio_pipeline_input(void *input_app_data,
 {
 
     (void) input_app_data;
-#if !USE_I2S_INPUT
+#if !appconfUSE_I2S_INPUT
     int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
-//#else
-    int32_t **mic_ptr = (int32_t **)(input_audio_frames);
-//#endif
+
     static int flushed;
     while (!flushed) {
         size_t received;
@@ -144,7 +142,7 @@ void audio_pipeline_input(void *input_app_data,
 #endif
 
 #if appconfI2S_ENABLED
-    if (!appconfUSB_ENABLED || aec_ref_source == appconfAEC_REF_I2S || USE_I2S_INPUT) {
+    if (!appconfUSB_ENABLED || aec_ref_source == appconfAEC_REF_I2S || appconfUSE_I2S_INPUT) {
         /* This shouldn't need to block given it shares a clock with the PDM mics */
 
         xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
@@ -160,14 +158,14 @@ void audio_pipeline_input(void *input_app_data,
         xassert(rx_count == frame_count);
 
         for (int i=0; i<frame_count; i++) {
-            #if !USE_I2S_INPUT
             /* ref is first */
-            *(tmpptr + i) = tmp[i][0];
-            *(tmpptr + i + frame_count) = tmp[i][1];
-            #else
-            *(tmpptr + (2 * frame_count) + i) = tmp[i][0];
-            *(tmpptr + (2 * frame_count) + i + frame_count) = tmp[i][1];
-            #endif
+            if (!appconfUSE_I2S_INPUT) {
+                *(tmpptr + i) = tmp[i][0];
+                *(tmpptr + i + frame_count) = tmp[i][1];
+            } else {
+                *(tmpptr + (2 * frame_count) + i) = tmp[i][0];
+                *(tmpptr + (2 * frame_count) + i + frame_count) = tmp[i][1];
+            }
         }
     }
 #endif

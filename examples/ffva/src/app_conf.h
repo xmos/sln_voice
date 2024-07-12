@@ -176,6 +176,14 @@
 #define appconfI2S_MODE            appconfI2S_MODE_MASTER
 #endif
 
+
+/**
+ * Use I2S input instead of PDM microphones
+ */
+#ifndef appconfUSE_I2S_INPUT
+#define appconfUSE_I2S_INPUT       0
+#endif
+
 #define appconfAEC_REF_USB         0
 #define appconfAEC_REF_I2S         1
 #ifndef appconfAEC_REF_DEFAULT

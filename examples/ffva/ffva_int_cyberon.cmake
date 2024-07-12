@@ -55,18 +55,15 @@ set(FFVA_INT_CYBERON_COMPILE_DEFINITIONS
     QSPI_FLASH_CALIBRATION_ADDRESS=${CALIBRATION_PATTERN_START_ADDRESS}
     ASR_CYBERON=1
     MIC_ARRAY_CONFIG_MCLK_FREQ=12288000
-    appconfPIPELINE_BYPASS=1
-    USE_I2S_INPUT=1
 )
 
 foreach(FFVA_AP ${FFVA_PIPELINES_INT})
     #**********************
     # Tile Targets
     #**********************
-    #if(${FFVA_AP} STREQUAL empty)
-    #    list(APPEND FFVA_INT_CYBERON_COMPILE_DEFINITIONS USE_I2S_INPUT=1)
-    #endif()
-
+    if(${FFVA_AP} STREQUAL empty)
+        list(APPEND FFVA_INT_CYBERON_COMPILE_DEFINITIONS appconfUSE_I2S_INPUT=1)
+    endif()
     set(TARGET_NAME tile0_example_ffva_int_cyberon_${FFVA_AP})
     add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
     target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
