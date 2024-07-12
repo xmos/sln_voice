@@ -89,11 +89,11 @@ void audio_pipeline_input(void *input_app_data,
 {
 
     (void) input_app_data;
-    #if !USE_I2S_INPUT
+#if !USE_I2S_INPUT
     int32_t **mic_ptr = (int32_t **)(input_audio_frames + (2 * frame_count));
-    //#else
+//#else
     int32_t **mic_ptr = (int32_t **)(input_audio_frames);
-    //#endif
+//#endif
     static int flushed;
     while (!flushed) {
         size_t received;
@@ -120,7 +120,7 @@ void audio_pipeline_input(void *input_app_data,
                       mic_ptr,
                       frame_count,
                       portMAX_DELAY);
-    #endif
+#endif
 #if appconfUSB_ENABLED
     int32_t **usb_mic_audio_frame = NULL;
     size_t ch_cnt = 2;  /* ref frames */

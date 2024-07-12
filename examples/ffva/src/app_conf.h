@@ -50,7 +50,7 @@
 
 /* Enable audio response output */
 #ifndef appconfAUDIO_PLAYBACK_ENABLED
-#define appconfAUDIO_PLAYBACK_ENABLED           1
+#define appconfAUDIO_PLAYBACK_ENABLED           0
 #endif
 
 /* Intent Engine Configuration */
