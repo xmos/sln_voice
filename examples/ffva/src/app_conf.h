@@ -88,7 +88,7 @@
 #endif
 
 #ifndef appconfINTENT_I2C_OUTPUT_ENABLED
-#define appconfINTENT_I2C_OUTPUT_ENABLED   1
+#define appconfINTENT_I2C_OUTPUT_ENABLED   0
 #endif
 
 #ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
