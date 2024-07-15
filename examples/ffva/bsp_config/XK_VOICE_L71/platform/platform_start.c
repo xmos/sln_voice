@@ -54,6 +54,7 @@ static void i2c_master_start(void)
 
 static void audio_codec_start(void)
 {
+#if !appconfI2C_DFU_ENABLED
 #if appconfI2S_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
@@ -64,6 +65,7 @@ static void audio_codec_start(void)
 #else
     rtos_intertile_rx_len(intertile_ctx, 0, RTOS_OSAL_WAIT_FOREVER);
     rtos_intertile_rx_data(intertile_ctx, &ret, sizeof(ret));
+#endif
 #endif
 #endif
 }

@@ -99,6 +99,10 @@
 #define appconfINTENT_UART_OUTPUT_ENABLED   1
 #endif
 
+#ifndef UART_DUMP_RECORD
+#define UART_DUMP_RECORD 1
+#endif
+
 #ifndef appconfUART_BAUD_RATE
 #define appconfUART_BAUD_RATE       9600
 #endif
