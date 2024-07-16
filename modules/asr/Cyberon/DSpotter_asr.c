@@ -32,7 +32,9 @@
 #define VOLUME_SCALE_RECONG      800                     // The AGC volume scale percentage for recognition. It depends on original microphone data.
 
 static uint8_t *g_lpbyDSpotterMem = NULL;
+#ifndef UART_DUMP_RECORD
 static size_t g_nRecordFrameCount = 0;
+#endif
 devmem_manager_t *devmem_ctx = NULL;
 
 
