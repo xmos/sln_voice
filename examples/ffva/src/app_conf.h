@@ -99,9 +99,14 @@
 #define appconfINTENT_UART_OUTPUT_ENABLED   1
 #endif
 
-#ifndef UART_DUMP_RECORD
-#define UART_DUMP_RECORD 1
-#endif
+/**
+ * if this flag is enabled, we get in the Cyberon engine a lot of errors like the following:
+ * 'lost local output samples for intent'
+ * TODO: Enable this flag
+*/
+//#ifndef UART_DUMP_RECORD
+//#define UART_DUMP_RECORD 1
+//#endif
 
 #ifndef appconfUART_BAUD_RATE
 #define appconfUART_BAUD_RATE       9600

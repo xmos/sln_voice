@@ -45,10 +45,12 @@ static void flash_start(void)
 
 static void i2c_master_start(void)
 {
+#if !appconfI2C_DFU_ENABLED
     rtos_i2c_master_rpc_config(i2c_master_ctx, appconfI2C_MASTER_RPC_PORT, appconfI2C_MASTER_RPC_PRIORITY);
 
 #if ON_TILE(I2C_TILE_NO)
     rtos_i2c_master_start(i2c_master_ctx);
+#endif
 #endif
 }
 
