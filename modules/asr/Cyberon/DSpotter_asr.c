@@ -172,10 +172,18 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
 
         result->score = nCmdScore;
         result->gscore = nCmdSG;
+
         // The following result fields are not implemented
         result->start_index = -1;
         result->end_index = -1;
         result->duration = -1;
+    #if appconfINTENT_UART_CMD_INFO
+        static char res_info[128];
+        snprintf(res_info, 128-1, "ID:%d,Sc:%d,SGD:%d,En:%d\n", nCmdID, nCmdScore, nCmdSG, nCmdEnergy);
+        // rtos_printf(res_info);
+        rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&res_info, strlen(res_info));
+    #endif
+
         return ASR_OK;
     }
     else

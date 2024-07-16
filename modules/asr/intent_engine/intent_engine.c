@@ -175,7 +175,6 @@ void intent_engine_task(void *args)
 
         if (!IS_KEYWORD(word_id) && !IS_COMMAND(word_id)) continue;
 
-
     #if appconfINTENT_RAW_OUTPUT
         intent_engine_process_asr_result(word_id);
     #else
