@@ -204,7 +204,7 @@ static void platform_sw_pll_init(void)
                 SW_PLL_NUM_LUT_ENTRIES(frac_values_90) / 2,
                 PLL_PPM_RANGE);
 
-    debug_printf("Using SW PLL to track I2S input\n");
+    debug_printf("Using SW PLL to track I2S input at %d kHz\n", appconfLRCLK_NOMINAL_HZ / 1000);
     sw_pll_ctx->sw_pll = &sw_pll;
     sw_pll_ctx->p_mclk_count = p_mclk_count;
     sw_pll_ctx->p_bclk_count = p_bclk_count;
