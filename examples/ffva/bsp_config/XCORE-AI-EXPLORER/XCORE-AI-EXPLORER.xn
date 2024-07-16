@@ -74,7 +74,7 @@
             <Port Location="XS1_PORT_1A" Name="PORT_I2S_DAC_DATA"/>
             <Port Location="XS1_PORT_1N" Name="PORT_I2S_ADC_DATA"/>
             <Port Location="XS1_PORT_4A" Name="PORT_CODEC_RST_N"/>
-            
+
             <!-- I2C Slave ports -->
             <Port Location="XS1_PORT_1M" Name="PORT_I2C_SLAVE_SCL"/>
             <Port Location="XS1_PORT_1O" Name="PORT_I2C_SLAVE_SDA"/>
@@ -101,8 +101,6 @@
       <Attribute Name="PORT_SQI_CS" Value="PORT_SQI_CS"/>
       <Attribute Name="PORT_SQI_SCLK"   Value="PORT_SQI_SCLK"/>
       <Attribute Name="PORT_SQI_SIO"  Value="PORT_SQI_SIO"/>
-      <Attribute Name="QE_REGISTER" Value="flash_qe_location_status_reg_0"/>
-      <Attribute Name="QE_BIT" Value="flash_qe_bit_6"/>
     </Device>
   </ExternalDevices>
   <JTAGChain>
