@@ -12,8 +12,8 @@ XCORE-VOICE change log
   * ADDED: Support for DFU over I2C for FFVA INT example.
   * CHANGED: Updated submodule fwk_rtos to version 3.1.0 from 3.0.5.
   * ADDED: lib_sw_pll submodule v1.1.0.
-  * REMOVED: flash settings in .xn files, as they are not used by XMOS Tools
-    15.2.x.
+  * REMOVED: flash settings in .xn files, as they are not required by XMOS
+    Tools 15.2.x.
 
 2.2.0
 -----
