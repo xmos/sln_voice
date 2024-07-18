@@ -48,6 +48,7 @@ set(FFVA_INT_CYBERON_COMPILE_DEFINITIONS
     appconfAEC_REF_DEFAULT=appconfAEC_REF_I2S
     appconfI2S_MODE=appconfI2S_MODE_SLAVE
     appconfI2S_AUDIO_SAMPLE_RATE=48000
+    appconfUSE_I2S_INPUT=0
     configENABLE_DEBUG_PRINTF=1
     appconfRECOVER_MCLK_I2S_APP_PLL=1
     appconfINTENT_UART_CMD_INFO=1
@@ -62,9 +63,6 @@ foreach(FFVA_AP ${FFVA_PIPELINES_INT})
     #**********************
     # Tile Targets
     #**********************
-    if(${FFVA_AP} STREQUAL empty)
-        list(APPEND FFVA_INT_CYBERON_COMPILE_DEFINITIONS appconfUSE_I2S_INPUT=1)
-    endif()
     set(TARGET_NAME tile0_example_ffva_int_cyberon_${FFVA_AP})
     add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
     target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
