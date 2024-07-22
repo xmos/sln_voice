@@ -30,6 +30,13 @@ is on the same tile as the ASR engine, i.e. tile 0.
 
 More information about the Cyberon engine can be found in  :ref:`sln_voice_ffd_speech_recognition_cyberon` section.
 
+An additional configuration with an integrated ASR engine is an application that receive the audio via the an I2S interface, and it forwards the samples to the integrated ASR engine without any audio processing.
+This example can be built by following the steps below:
+
+ #. set *appconfI2S_AUDIO_SAMPLE_RATE* to either 16000 or 48000 (Hz) in ``examples/ffva/ffva_int_cyberon.cmake``
+ #. set *appconfUSE_I2S_INPUT* to 1 in ``examples/ffva/ffva_int_cyberon.cmake``, this replaces the microphone audio with the I2S audio as input to the intent engine
+ #. build and run the build config ``example_ffva_int_cyberon_empty``
+
 |newpage|
 
 *******************

@@ -15,7 +15,7 @@ In the example design ``app_conf.h`` file, change ``appconfAUDIO_PIPELINE_SAMPLE
 |I2S| AEC reference input audio & USB processed audio output
 ************************************************************
 
-The FFVA example design includes 2 basic configurations; INT and UA.  The INT configuration is setup with |I2S| for input and output audio.  The UA configuration is setup with USB for input and output audio.  This HOWTO explains how to modify the FFVA example design for |I2S| input audio and USB output audio.
+The FFVA example design includes 2 basic configurations: INT and UA.  The INT configuration is setup with |I2S| for input and output audio. The UA configuration is setup with USB for input and output audio.  This HOWTO explains how to modify the FFVA example design for |I2S| input audio and USB output audio.
 
 In the ``ffva_ua.cmake`` file, changing the ``appconfAEC_REF_DEFAULT`` to ``appconfAEC_REF_I2S`` will result in the expected input frames.
 
