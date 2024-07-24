@@ -104,7 +104,7 @@ set(APP_COMMON_LINK_LIBRARIES
 #**********************
 # Tile Targets
 #**********************
-set(TARGET_NAME tile0_example_ffd_cyberon_i2s_input)
+set(TARGET_NAME tile0_example_ffd_i2s_input_cyberon)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
@@ -114,7 +114,7 @@ target_link_libraries(${TARGET_NAME} PUBLIC ${APP_COMMON_LINK_LIBRARIES})
 target_link_options(${TARGET_NAME} PRIVATE ${APP_LINK_OPTIONS})
 unset(TARGET_NAME)
 
-set(TARGET_NAME tile1_example_ffd_cyberon_i2s_input)
+set(TARGET_NAME tile1_example_ffd_i2s_input_cyberon)
 add_executable(${TARGET_NAME} EXCLUDE_FROM_ALL)
 target_sources(${TARGET_NAME} PUBLIC ${APP_SOURCES})
 target_include_directories(${TARGET_NAME} PUBLIC ${APP_INCLUDES} ${RTOS_CONF_INCLUDES})
@@ -127,18 +127,18 @@ unset(TARGET_NAME)
 #**********************
 # Merge binaries
 #**********************
-merge_binaries(example_ffd_cyberon_i2s_input tile0_example_ffd_cyberon_i2s_input tile1_example_ffd_cyberon_i2s_input 1)
+merge_binaries(example_ffd_i2s_input_cyberon tile0_example_ffd_i2s_input_cyberon tile1_example_ffd_i2s_input_cyberon 1)
 
 #**********************
 # Create run and debug targets
 #**********************
-create_run_target(example_ffd_cyberon_i2s_input)
-create_debug_target(example_ffd_cyberon_i2s_input)
+create_run_target(example_ffd_i2s_input_cyberon)
+create_debug_target(example_ffd_i2s_input_cyberon)
 
 #**********************
 # Create data partition support targets
 #**********************
-set(TARGET_NAME example_ffd_cyberon_i2s_input)
+set(TARGET_NAME example_ffd_i2s_input_cyberon)
 set(DATA_PARTITION_FILE ${TARGET_NAME}_data_partition.bin)
 set(MODEL_FILE ${TARGET_NAME}_model.bin)
 set(FATFS_FILE ${TARGET_NAME}_fat.fs)

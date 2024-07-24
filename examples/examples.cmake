@@ -6,7 +6,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL XCORE_XS3A)
     include(${CMAKE_CURRENT_LIST_DIR}/asrc_demo/asrc_demo.cmake)
     include(${CMAKE_CURRENT_LIST_DIR}/ffd/ffd_sensory.cmake)
     include(${CMAKE_CURRENT_LIST_DIR}/ffd/ffd_cyberon.cmake)
-    include(${CMAKE_CURRENT_LIST_DIR}/ffd/ffd_cyberon_i2s_input.cmake)
+    include(${CMAKE_CURRENT_LIST_DIR}/ffd/ffd_i2s_input_cyberon.cmake)
 
     include(${CMAKE_CURRENT_LIST_DIR}/low_power_ffd/low_power_ffd_sensory.cmake)
     include(${CMAKE_CURRENT_LIST_DIR}/mic_aggregator/mic_aggregator.cmake)
