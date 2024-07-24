@@ -96,6 +96,13 @@ void intent_engine_process_asr_result(int word_id)
         }
     }
     rtos_printf("RECOGNIZED: 0x%x, %s\n", (int) word_id, (char*)text);
+#if appconfINTENT_UART_CMD_INFO
+    static char res_info[128];
+    snprintf(res_info, sizeof(res_info)-1, "Cmd:%s\r\n", text);
+    // Enable the printout below to see the information sent over UART
+    // rtos_printf(res_info);
+    rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&res_info, strlen(res_info));
+#endif
     intent_engine_play_response(wav_id);
 }
 
