@@ -42,8 +42,8 @@ static const char *audio_files_en[] = {
 
 #define NUM_FILES (sizeof(audio_files_en) / sizeof(char *))
 
-static int16_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int16_t)];
-static int32_t i2s_audio[2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t))];
+static int16_t file_audio[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+static int32_t i2s_audio[2*(appconfAUDIO_PIPELINE_FRAME_ADVANCE)];
 static drwav *wav_files = NULL;
 
 #pragma stackfunction 3000
@@ -95,12 +95,22 @@ void audio_response_play(int32_t id) {
                 i2s_audio[(2*i)+0] = (int32_t) file_audio[i] << 16;
                 i2s_audio[(2*i)+1] = (int32_t) file_audio[i] << 16;
             }
-
-            rtos_i2s_tx(i2s_ctx,
-                        (int32_t*) i2s_audio,
-                        appconfAUDIO_PIPELINE_FRAME_ADVANCE,
-                        portMAX_DELAY);
-
+            if (appconfI2S_MODE == appconfI2S_MODE_MASTER)
+            {
+                rtos_i2s_tx(i2s_ctx,
+                            (int32_t*) i2s_audio,
+                            appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                            portMAX_DELAY);
+            } else if (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+            {
+                rtos_intertile_tx(intertile_ctx,
+                            appconfI2S_OUTPUT_SLAVE_PORT,
+                            i2s_audio,
+                            sizeof(i2s_audio));
+            } else {
+                // Invalid I2S mode
+                xassert(0);
+            }
             if (framesRead != appconfAUDIO_PIPELINE_FRAME_ADVANCE) {
                 drwav_seek_to_pcm_frame(&tmp, 0);
                 break;

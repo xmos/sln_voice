@@ -32,10 +32,6 @@
 #define appconfAUDIO_PLAYBACK_ENABLED           1
 #endif
 
-#if appconfUSE_I2S_INPUT==1 && appconfAUDIO_PLAYBACK_ENABLED==1
-#error "I2S audio input cannot be used with audio playback"
-#endif
-
 /* Intent Engine Configuration */
 #define appconfINTENT_FRAME_BUFFER_MULT      (8*2)       /* total buffer size is this value * MIC_ARRAY_CONFIG_SAMPLES_PER_FRAME */
 #define appconfINTENT_SAMPLE_BLOCK_LENGTH    240
@@ -95,6 +91,18 @@
 #define appconfI2S_ENABLED   1
 #endif
 
+#ifndef appconfI2S_MODE_MASTER
+#define appconfI2S_MODE_MASTER     0
+#endif
+
+#ifndef appconfI2S_MODE_SLAVE
+#define appconfI2S_MODE_SLAVE      1
+#endif
+
+#ifndef appconfI2S_MODE
+#define appconfI2S_MODE            appconfI2S_MODE_MASTER
+#endif
+
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
 #endif
@@ -110,9 +118,6 @@
 #ifndef appconfI2S_AUDIO_SAMPLE_RATE
 #define appconfI2S_AUDIO_SAMPLE_RATE appconfAUDIO_PIPELINE_SAMPLE_RATE
 #endif
-
-#define appconfI2S_MODE_MASTER     0
-#define appconfI2S_MODE_SLAVE      1
 
 /* I/O and interrupt cores for Tile 0 */
 

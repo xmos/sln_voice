@@ -170,8 +170,14 @@
 #define appconfI2S_TDM_ENABLED     0
 #endif
 
+#ifndef appconfI2S_MODE_MASTER
 #define appconfI2S_MODE_MASTER     0
+#endif
+
+#ifndef appconfI2S_MODE_SLAVE
 #define appconfI2S_MODE_SLAVE      1
+#endif
+
 #ifndef appconfI2S_MODE
 #define appconfI2S_MODE            appconfI2S_MODE_MASTER
 #endif
@@ -231,6 +237,18 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY           (configMAX_PRIORITIES/2 + 0)
 #define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY  (configMAX_PRIORITIES - 2)
 #define appconfLED_TASK_PRIORITY                  (configMAX_PRIORITIES / 2 - 1)
+
+#ifndef appconfI2S_MODE_MASTER
+#define appconfI2S_MODE_MASTER     0
+#endif
+
+#ifndef appconfI2S_MODE_SLAVE
+#define appconfI2S_MODE_SLAVE      1
+#endif
+
+#ifndef appconfI2S_MODE
+#define appconfI2S_MODE            appconfI2S_MODE_MASTER
+#endif
 
 /* Software PLL settings for mclk recovery configurations */
 /* see fractions.h and register_setup.h for other pll settings */

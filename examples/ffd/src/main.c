@@ -41,10 +41,39 @@
 #endif
 
 #if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
-void i2s_slave_intertile(void *args) {
-    (void) args;
+void i2s_slave_intertile()
+{
+    int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
     while(1) {
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+        memset(tmp, 0x00, sizeof(tmp));
+
+        size_t bytes_received = 0;
+        bytes_received = rtos_intertile_rx_len(
+                intertile_ctx,
+                appconfI2S_OUTPUT_SLAVE_PORT,
+                portMAX_DELAY);
+
+        xassert(bytes_received == sizeof(tmp));
+
+        rtos_intertile_rx_data(
+                intertile_ctx,
+                tmp,
+                bytes_received);
+
+        rtos_i2s_tx(i2s_ctx,
+                    (int32_t*) tmp,
+                    appconfAUDIO_PIPELINE_FRAME_ADVANCE,
+                    portMAX_DELAY);
+    }
+}
+#endif
+
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+void sw_pll(void *args)
+{
+
+    while(1)
+    {
         sw_pll_ctx_t* i2s_callback_args = (sw_pll_ctx_t*) args;
         port_clear_buffer(i2s_callback_args->p_bclk_count);
         port_in(i2s_callback_args->p_bclk_count);                                  // Block until BCLK transition to synchronise. Will consume up to 1/64 of a LRCLK cycle
@@ -52,8 +81,6 @@ void i2s_slave_intertile(void *args) {
         uint16_t bclk_pt = port_get_trigger_time(i2s_callback_args->p_bclk_count); // Now grab bclk_count (which won't have changed)
 
         sw_pll_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
-#endif
-
     }
 }
 #endif
@@ -91,6 +118,7 @@ void audio_pipeline_input(void *input_app_data,
         xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
         int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
         int32_t *tmpptr = (int32_t *)input_audio_frames;
+
         /* I2S provides sample channel format */
         size_t rx_count =
         rtos_i2s_rx(i2s_ctx,
@@ -100,7 +128,6 @@ void audio_pipeline_input(void *input_app_data,
                 
                 
         for (int i=0; i<frame_count; i++) {
-            //printintln(tmp[i][0]);
             *(tmpptr + i) = tmp[i][0];
             *(tmpptr + i + frame_count) = tmp[i][1];
         }
@@ -227,19 +254,17 @@ void startup_task(void *arg)
 
 #if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 
-// Use sw_pll_ctx only if the MCLK recovery is enabled
-#if appconfRECOVER_MCLK_I2S_APP_PLL
-    xTaskCreate((TaskFunction_t) i2s_slave_intertile,
-                "i2s_slave_intertile",
-                RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
-                sw_pll_ctx,
-                appconfAUDIO_PIPELINE_TASK_PRIORITY,
-                NULL);
-#else
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
                 RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
                 NULL,
+                appconfAUDIO_PIPELINE_TASK_PRIORITY,
+                NULL);
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+    xTaskCreate((TaskFunction_t) sw_pll,
+                "sw_pll",
+                RTOS_THREAD_STACK_SIZE(sw_pll),
+                sw_pll_ctx,
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
