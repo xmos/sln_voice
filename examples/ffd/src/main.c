@@ -69,7 +69,7 @@ void i2s_slave_intertile()
 #endif
 
 #if appconfRECOVER_MCLK_I2S_APP_PLL
-void sw_pll(void *args)
+void sw_pll_control(void *args)
 {
 
     while(1)
@@ -261,9 +261,9 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #if appconfRECOVER_MCLK_I2S_APP_PLL
-    xTaskCreate((TaskFunction_t) sw_pll,
-                "sw_pll",
-                RTOS_THREAD_STACK_SIZE(sw_pll),
+    xTaskCreate((TaskFunction_t) sw_pll_control,
+                "sw_pll_control",
+                RTOS_THREAD_STACK_SIZE(sw_pll_control),
                 sw_pll_ctx,
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
