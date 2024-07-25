@@ -11,6 +11,11 @@ This document explains how to deploy the software using *CMake* and *Make*.
 
     In the commands below ``<speech_engine>`` can be either ``sensory`` or ``cyberon``, depending on the choice of the speech recognition engine and model.
 
+.. note::
+
+    The Cyberon speech recognition engine is integrated in two examples. The ``example_ffd_cyberon`` use the mic array as the audio source, and the ``example_ffd_i2s_input_cyberon`` uses the I2S interface as the audio source.
+    In the rest of this section, we use only the ``example_ffd_<speech_engine>`` as an example.
+
 Building the Host Applications
 ==============================
 
