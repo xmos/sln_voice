@@ -215,6 +215,8 @@ static void i2s_init(void)
             PORT_I2S_BCLK,
             PORT_I2S_LRCLK,
             I2S_CLKBLK);
+#else
+        #error "Invalid I2S mode"
 #endif
 #else
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER

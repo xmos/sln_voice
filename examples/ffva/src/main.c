@@ -226,6 +226,8 @@ int audio_pipeline_output(void *output_app_data,
                       appconfI2S_OUTPUT_SLAVE_PORT,
                       tmp,
                       sizeof(tmp));
+#else
+    #error "Invalid I2S mode"
 #endif
 #endif
 
