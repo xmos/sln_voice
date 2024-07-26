@@ -83,6 +83,10 @@
 #define appconfINTENT_UART_OUTPUT_ENABLED   1
 #endif
 
+#ifndef appconfINTENT_UART_CMD_INFO
+#define appconfINTENT_UART_CMD_INFO   0
+#endif
+
 #ifndef appconfUART_BAUD_RATE
 #define appconfUART_BAUD_RATE       9600
 #endif
