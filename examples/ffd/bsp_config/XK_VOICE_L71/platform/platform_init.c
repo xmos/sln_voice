@@ -74,6 +74,15 @@ static void i2c_init(void)
 {
     static rtos_driver_rpc_t i2c_rpc_config;
 
+#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+    rtos_i2c_slave_init(i2c_slave_ctx,
+                        (1 << appconfI2C_IO_CORE),
+                        PORT_I2C_SCL,
+                        PORT_I2C_SDA,
+                        appconf_CONTROL_I2C_DEVICE_ADDR);
+#endif
+
+#if appconfI2C_MASTER_ENABLED
 #if ON_TILE(I2C_TILE_NO)
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     rtos_i2c_master_init(
@@ -93,6 +102,7 @@ static void i2c_init(void)
             i2c_master_ctx,
             &i2c_rpc_config,
             intertile_ctx);
+#endif
 #endif
 }
 

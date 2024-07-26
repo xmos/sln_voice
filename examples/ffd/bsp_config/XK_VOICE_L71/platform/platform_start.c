@@ -39,16 +39,32 @@ static void flash_start(void)
 
 static void i2c_master_start(void)
 {
+#if appconfI2C_MASTER_ENABLED
     rtos_i2c_master_rpc_config(i2c_master_ctx, appconfI2C_MASTER_RPC_PORT, appconfI2C_MASTER_RPC_PRIORITY);
 
 #if ON_TILE(I2C_TILE_NO)
     rtos_i2c_master_start(i2c_master_ctx);
 #endif
+#endif
+}
+
+static void i2c_slave_start(void)
+{
+#if 0 //appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+    rtos_i2c_slave_start(i2c_slave_ctx,
+                         device_control_i2c_ctx,
+                         (rtos_i2c_slave_start_cb_t) device_control_i2c_start_cb,
+                         (rtos_i2c_slave_rx_cb_t) device_control_i2c_rx_cb,
+                         (rtos_i2c_slave_tx_start_cb_t) device_control_i2c_tx_start_cb,
+                         (rtos_i2c_slave_tx_done_cb_t) NULL,
+                         appconfI2C_INTERRUPT_CORE,
+                         appconfI2C_TASK_PRIORITY);
+#endif
 }
 
 static void audio_codec_start(void)
 {
-#if appconfI2S_ENABLED
+#if appconfI2S_ENABLED && appconfI2C_MASTER_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
     if (dac3101_init(appconfI2S_AUDIO_SAMPLE_RATE) != 0) {
@@ -114,4 +130,6 @@ void platform_start(void)
     mics_start();
     i2s_start();
     uart_start();
+    // I2C slave can be started only after i2c_master_start() is completed
+    i2c_slave_start();
 }

@@ -12,6 +12,7 @@ extern "C" {
 #include "rtos_qspi_flash.h"
 #include "rtos_gpio.h"
 #include "rtos_i2c_master.h"
+#include "rtos_i2c_slave.h"
 #include "rtos_i2s.h"
 #include "rtos_uart_tx.h"
 
@@ -31,6 +32,7 @@ extern "C" {
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
 #define I2C_TILE_NO        0
+#define I2C_CTRL_TILE_NO   I2C_TILE_NO
 #define MICARRAY_TILE_NO   1
 #define I2S_TILE_NO        1
 #define UART_TILE_NO       0
@@ -59,6 +61,7 @@ extern rtos_gpio_t *gpio_ctx_t0;
 extern rtos_gpio_t *gpio_ctx_t1;
 extern rtos_mic_array_t *mic_array_ctx;
 extern rtos_i2c_master_t *i2c_master_ctx;
+extern rtos_i2c_slave_t *i2c_slave_ctx;
 extern rtos_i2s_t *i2s_ctx;
 extern rtos_uart_tx_t *uart_tx_ctx;
 

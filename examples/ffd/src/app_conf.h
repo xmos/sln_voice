@@ -107,6 +107,18 @@
 #define appconfI2S_MODE            appconfI2S_MODE_MASTER
 #endif
 
+#ifndef appconfI2C_MASTER_ENABLED
+#define appconfI2C_MASTER_ENABLED   1
+#endif
+
+#ifndef appconfI2C_SLAVE_ENABLED
+#define appconfI2C_SLAVE_ENABLED   0
+#endif
+
+#if appconfINTENT_I2C_OUTPUT_ENABLED==1 && appconfI2C_MASTER_ENABLED==0
+#error "I2C master must be enabled for intent I2C output"
+#endif
+
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
 #endif

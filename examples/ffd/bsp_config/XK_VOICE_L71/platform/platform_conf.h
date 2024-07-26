@@ -54,6 +54,14 @@
 #define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
 #endif /* appconfI2S_IO_CORE */
 
+#ifndef appconfI2C_IO_CORE
+#define appconfI2C_IO_CORE                      3 /* Must be kept off core 0 with the RTOS tick ISR */
+#endif /* appconfI2C_IO_CORE */
+
+#ifndef appconfI2C_INTERRUPT_CORE
+#define appconfI2C_INTERRUPT_CORE               0 /* Must be kept off I/O cores. */
+#endif /* appconfI2C_INTERRUPT_CORE */
+
 #ifndef appconfPDM_MIC_INTERRUPT_CORE
 #define appconfPDM_MIC_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 #endif /* appconfPDM_MIC_INTERRUPT_CORE */
@@ -76,6 +84,14 @@
 #ifndef appconfPIPELINE_AUDIO_SAMPLE_RATE
 #define appconfPIPELINE_AUDIO_SAMPLE_RATE   16000
 #endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
+
+/*****************************************/
+/*  Other required defines               */
+/*****************************************/
+
+#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
+#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
+#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
 
 /*****************************************/
 /*  I/O Task Priorities                  */
