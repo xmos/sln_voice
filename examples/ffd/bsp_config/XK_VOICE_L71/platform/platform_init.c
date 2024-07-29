@@ -72,8 +72,6 @@ static void gpio_init(void)
 
 static void i2c_init(void)
 {
-    static rtos_driver_rpc_t i2c_rpc_config;
-
 #if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
@@ -83,6 +81,8 @@ static void i2c_init(void)
 #endif
 
 #if appconfI2C_MASTER_ENABLED
+    static rtos_driver_rpc_t i2c_rpc_config;
+
 #if ON_TILE(I2C_TILE_NO)
     rtos_intertile_t *client_intertile_ctx[1] = {intertile_ctx};
     rtos_i2c_master_init(

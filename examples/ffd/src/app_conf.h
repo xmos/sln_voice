@@ -108,7 +108,7 @@
 #endif
 
 #ifndef appconfI2C_MASTER_ENABLED
-#define appconfI2C_MASTER_ENABLED   1
+#define appconfI2C_MASTER_ENABLED  1
 #endif
 
 #ifndef appconfI2C_SLAVE_ENABLED
