@@ -10,6 +10,8 @@ XCORE-VOICE change log
     intent_handler from examples/ffd/src to folder modules/asr.
   * CHANGED: Remove need to use external MCLK in FFVA INT examples
   * ADDED: Support for DFU over I2C for FFVA INT example.
+  * ADDED: FFD example with I2S audio input to Cyberon speech recognition
+    engine and model.
   * CHANGED: Updated submodule fwk_rtos to version 3.1.0 from 3.0.5.
   * ADDED: lib_sw_pll submodule v1.1.0.
   * REMOVED: flash settings in .xn files, as they are not required by XMOS
