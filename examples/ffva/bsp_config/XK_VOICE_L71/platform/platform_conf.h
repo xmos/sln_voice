@@ -132,16 +132,6 @@
 #define appconfSPI_OUTPUT_ENABLED  0
 #endif /* appconfSPI_OUTPUT_ENABLED */
 
-#ifndef appconfI2S_MODE_MASTER
-#define appconfI2S_MODE_MASTER     0
-#endif /* appconfI2S_MODE_MASTER */
-#ifndef appconfI2S_MODE_SLAVE
-#define appconfI2S_MODE_SLAVE      1
-#endif /* appconfI2S_MODE_SLAVE */
-#ifndef appconfI2S_MODE
-#define appconfI2S_MODE            appconfI2S_MODE_MASTER
-#endif /* appconfI2S_MODE */
-
 /*
  * This option sends all 6 16 KHz channels (two channels of processed audio,
  * stereo reference audio, and stereo microphone audio) out over a single

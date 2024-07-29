@@ -11,6 +11,7 @@
 #define appconfI2C_MASTER_RPC_PORT                4
 #define appconfI2S_RPC_PORT                       5
 #define appconfINTENT_ENGINE_READY_SYNC_PORT      16
+#define appconfI2S_OUTPUT_SLAVE_PORT              8
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
@@ -90,6 +91,18 @@
 #define appconfI2S_ENABLED   1
 #endif
 
+#ifndef appconfI2S_MODE_MASTER
+#define appconfI2S_MODE_MASTER     0
+#endif
+
+#ifndef appconfI2S_MODE_SLAVE
+#define appconfI2S_MODE_SLAVE      1
+#endif
+
+#ifndef appconfI2S_MODE
+#define appconfI2S_MODE            appconfI2S_MODE_MASTER
+#endif
+
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
 #define appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR   0
 #endif
@@ -124,6 +137,18 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
 
+#if appconfI2S_MODE==appconfI2S_MODE_SLAVE
+/* Software PLL settings for mclk recovery configurations */
+/* see fractions.h and register_setup.h for other pll settings */
+#define appconfLRCLK_NOMINAL_HZ     appconfI2S_AUDIO_SAMPLE_RATE
+#define appconfBCLK_NOMINAL_HZ      (appconfLRCLK_NOMINAL_HZ * 64)
+#define PLL_RATIO                   (MIC_ARRAY_CONFIG_MCLK_FREQ / appconfLRCLK_NOMINAL_HZ)
+#define PLL_CONTROL_LOOP_COUNT_INT  512  // How many refclk ticks (LRCLK) per control loop iteration. Aim for ~100Hz
+#define PLL_PPM_RANGE               1000 // Max allowable diff in clk count. For the PID constants we
+                                         // have chosen, this number should be larger than the number
+                                         // of elements in the look up table as the clk count diff is
+                                         // added to the LUT index with a multiplier of 1. Only used for INT mclkless
+#endif
 #include "app_conf_check.h"
 
 #endif /* APP_CONF_H_ */

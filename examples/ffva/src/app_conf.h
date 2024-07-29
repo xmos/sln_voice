@@ -170,8 +170,14 @@
 #define appconfI2S_TDM_ENABLED     0
 #endif
 
+#ifndef appconfI2S_MODE_MASTER
 #define appconfI2S_MODE_MASTER     0
+#endif
+
+#ifndef appconfI2S_MODE_SLAVE
 #define appconfI2S_MODE_SLAVE      1
+#endif
+
 #ifndef appconfI2S_MODE
 #define appconfI2S_MODE            appconfI2S_MODE_MASTER
 #endif
@@ -232,6 +238,7 @@
 #define appconfINTENT_MODEL_RUNNER_TASK_PRIORITY  (configMAX_PRIORITIES - 2)
 #define appconfLED_TASK_PRIORITY                  (configMAX_PRIORITIES / 2 - 1)
 
+#if appconfI2S_MODE==appconfI2S_MODE_SLAVE
 /* Software PLL settings for mclk recovery configurations */
 /* see fractions.h and register_setup.h for other pll settings */
 #define appconfLRCLK_NOMINAL_HZ     appconfI2S_AUDIO_SAMPLE_RATE
@@ -242,6 +249,6 @@
                                          // have chosen, this number should be larger than the number
                                          // of elements in the look up table as the clk count diff is
                                          // added to the LUT index with a multiplier of 1. Only used for INT mclkless
-
+#endif
 
 #endif /* APP_CONF_H_ */
