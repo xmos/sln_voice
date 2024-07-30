@@ -74,5 +74,7 @@ If options are changed, the application firmware must be rebuilt.
      - Enables/disables the AGC
      - 0
 
-The ``example_ffd_i2s_input_cyberon`` has different default values from the ones in the table above.
-The list of updated values can be found in the ``APP_COMPILE_DEFINITIONS`` list in ``examples\ffd\ffd_i2s_input_cyberon.cmake``.
+.. note::
+
+  The ``example_ffd_i2s_input_cyberon`` has different default values from the ones in the table above.
+  The list of updated values can be found in the ``APP_COMPILE_DEFINITIONS`` list in ``examples\ffd\ffd_i2s_input_cyberon.cmake``.
