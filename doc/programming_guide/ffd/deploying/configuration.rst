@@ -31,9 +31,9 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_UART_OUTPUT_ENABLED
      - Enables/disables the UART intent message
      - 1
-   * - appconfINTENT_UART_CMD_INFO
+   * - appconfINTENT_UART_DEBUG_INFO_ENABLED
      - Enables/disables the UART intent debug information
-     - 1
+     - 0
    * - appconfINTENT_I2C_OUTPUT_ENABLED
      - Enables/disables the |I2C| intent message
      - 1
