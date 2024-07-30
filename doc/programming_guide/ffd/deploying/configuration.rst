@@ -62,19 +62,19 @@ If options are changed, the application firmware must be rebuilt.
      - Enables/disables the AGC
      - 0
 
-.. list-table:: Additional Compile Options for FFD with I2S audio source
+.. list-table:: Additional Compile Options for FFD with |I2S| audio source
    :widths: 90 85 20
    :header-rows: 1
    :align: left
 
    * - appconfUSE_I2S_INPUT
-     - Replace I2S audio source instead of the mic array audio source.
+     - Replace |I2S| audio source instead of the mic array audio source.
      - 1
    * - appconfI2S_MODE
-     - Select I2S mode, supported values are appconfI2S_MODE_MASTER and appconfI2S_MODE_SLAVE
+     - Select |I2S| mode, supported values are appconfI2S_MODE_MASTER and appconfI2S_MODE_SLAVE
      - appconfI2S_MODE_SLAVE
    * - appconfI2S_AUDIO_SAMPLE_RATE
-     - Select the sample rate of the I2S interface, supported values are 16000 and 48000
+     - Select the sample rate of the |I2S| interface, supported values are 16000 and 48000
      - 48000
    * - appconfRECOVER_MCLK_I2S_APP_PLL
      - Enables/disables the recovery of the MCLK from the Software PLL application; this removes the need to use an external MCLK.
