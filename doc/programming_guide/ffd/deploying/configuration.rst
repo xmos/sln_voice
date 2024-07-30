@@ -32,7 +32,7 @@ If options are changed, the application firmware must be rebuilt.
      - Enables/disables the UART intent message
      - 1
    * - appconfINTENT_UART_CMD_INFO
-     - Enables/disables the UART intent debug inform
+     - Enables/disables the UART intent debug information
      - 1
    * - appconfINTENT_I2C_OUTPUT_ENABLED
      - Enables/disables the |I2C| intent message
@@ -68,7 +68,7 @@ If options are changed, the application firmware must be rebuilt.
    :align: left
 
    * - appconfUSE_I2S_INPUT
-     - Replace |I2S| audio source instead of the mic array audio source.
+     - Replace |I2S| audio source instead of the microphone array audio source.
      - 1
    * - appconfI2S_MODE
      - Select |I2S| mode, supported values are appconfI2S_MODE_MASTER and appconfI2S_MODE_SLAVE
