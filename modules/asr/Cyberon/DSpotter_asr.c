@@ -176,7 +176,7 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
         result->start_index = -1;
         result->end_index = -1;
         result->duration = -1;
- #if appconfINTENT_UART_CMD_INFO
+ #if appconfINTENT_UART_DEBUG_INFO_ENABLED
         static char res_info[128];
         snprintf(res_info, sizeof(res_info)-1, "ID:%d,Sc:%d,SGD:%d,En:%d\r\n", nCmdID, nCmdScore, nCmdSG, nCmdEnergy);
         // Enable the printout below to see the information sent over UART

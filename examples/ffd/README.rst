@@ -2,7 +2,7 @@
 Far-field Voice Local Command
 *****************************
 
-This is the XCORE-VOICE far-field voice local control firmware. Two examples are provided: one example uses the Sensory TrulyHandsfree™ (THF) speech recognition, and the other one uses the Cyberon DSPotter™ speech recognition.
+This is the XCORE-VOICE far-field voice local control firmware. Three examples are provided: all examples include speech recognition and a local dictionary. One example uses the Sensory TrulyHandsfree™ (THF) libraries, and the other ones use the Cyberon DSPotter™ libraries. The two examples with the Cyberon DSPotter™ libraries differ in the audio source fed into the intent engine. One example uses the audio source from the microphone array, and the other uses the audio source from the I2S interface.
 
 This software is an evaluation version only. It includes a mechanism that limits the maximum number of recognitions. You can reset the counter to 0 by restarting or rebooting the application.
 
@@ -87,6 +87,11 @@ This application requires a host application to create the flash data partition.
 .. note::
 
     In the commands below ``<speech_engine>`` can be either ``sensory`` or ``cyberon``, depending on the choice of the speech recognition engine and model.
+
+.. note::
+
+    The Cyberon speech recognition engine is integrated in two examples. The ``example_ffd_cyberon`` use the microphone array as the audio source, and the ``example_ffd_i2s_input_cyberon`` uses the I2S interface as the audio source.
+    In the rest of this file, we use only the ``example_ffd_<speech_engine>`` as an example.
 
 .. note::
 

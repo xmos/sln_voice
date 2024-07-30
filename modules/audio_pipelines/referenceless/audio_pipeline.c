@@ -60,10 +60,16 @@ typedef struct agc_stage_ctx {
     agc_state_t state;
 } agc_stage_ctx_t;
 
+#if !appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
 static ic_stage_ctx_t DWORD_ALIGNED ic_stage_state = {};
 static vnr_pred_stage_ctx_t DWORD_ALIGNED vnr_pred_stage_state = {};
+#endif
+#if !appconfAUDIO_PIPELINE_SKIP_NS
 static ns_stage_ctx_t DWORD_ALIGNED ns_stage_state = {};
+#endif
+#if !appconfAUDIO_PIPELINE_SKIP_AGC
 static agc_stage_ctx_t DWORD_ALIGNED agc_stage_state = {};
+#endif
 
 static trace_data_t* trace_data = 0;
 
@@ -162,19 +168,23 @@ static void stage_agc(frame_data_t *frame_data)
 }
 
 static void initialize_pipeline_stages(void) {
+#if !appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
     ic_init(&ic_stage_state.state);
 
     // Set some VNR parameters
-    ic_stage_state.state.ic_adaption_controller_state.adaption_controller_config.input_vnr_threshold = 
+    ic_stage_state.state.ic_adaption_controller_state.adaption_controller_config.input_vnr_threshold =
         f64_to_float_s32(IC_INPUT_VNR_THRESHOLD);
-    ic_stage_state.state.ic_adaption_controller_state.adaption_controller_config.input_vnr_threshold_high = 
+    ic_stage_state.state.ic_adaption_controller_state.adaption_controller_config.input_vnr_threshold_high =
         f64_to_float_s32(IC_INPUT_VNR_THRESHOLD_HIGH);
-
+#endif
+#if !appconfAUDIO_PIPELINE_SKIP_NS
     ns_init(&ns_stage_state.state);
-
+#endif
+#if !appconfAUDIO_PIPELINE_SKIP_AGC
     agc_init(&agc_stage_state.state, &AGC_PROFILE_ASR);
     agc_stage_state.md.aec_ref_power = AGC_META_DATA_NO_AEC;
     agc_stage_state.md.aec_corr_factor = AGC_META_DATA_NO_AEC;
+#endif
 }
 
 void audio_pipeline_init(

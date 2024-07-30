@@ -9,7 +9,7 @@ XCORE-VOICE example designs include turn-key solutions to enable easier product 
 
 The C SDK is composed of the following components:
 
-- Peripheral IO libraries including; UART, I2C, I2S, SPI, QSPI, PDM microphones, and USB. These libraries support bare-metal and RTOS application development.
+- Peripheral IO libraries including; UART, |I2C|, |I2S|, SPI, QSPI, PDM microphones, and USB. These libraries support bare-metal and RTOS application development.
 - Libraries core to DSP applications, including vectorized math and voice processing DSP.  These libraries support bare-metal and RTOS application development.
 - Libraries for speech recognition applications.  These libraries support bare-metal and RTOS application development.
 - Libraries that enable multi-core FreeRTOS development on xcore including a wide array of RTOS drivers and middleware.
@@ -59,7 +59,7 @@ These include:
 - Boot from QSPI Flash
 - Default firmware image for power-on operation
 - Option to boot from a local host processor via SPI
-- Device Firmware Update (DFU) via USB or I2C
+- Device Firmware Update (DFU) via USB or |I2C|
 
 **Power Consumption**
 

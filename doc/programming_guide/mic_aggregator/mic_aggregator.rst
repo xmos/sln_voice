@@ -7,10 +7,10 @@ Operation
 =========
 
 The design consists of a number of tasks connected via the xcore-ai silicon communication channels.
-The decimators in the microphone array are configured to produce a 48 kHz PCM output. 
+The decimators in the microphone array are configured to produce a 48 kHz PCM output.
 The 16 output channels are loaded into a 16 slot TDM slave peripheral running at 24.576 MHz bit
 clock or a USB Audio Class 2 asynchronous interface and are optionally
-amplified. The TDM build also provides a simple I2C slave interface to allow
+amplified. The TDM build also provides a simple |I2C| slave interface to allow
 gains to be controlled at run-time. The USB build supports USB Audio Class 2 compliant volume controls.
 
 For the TDM build, a simple TDM16 master peripheral is included as well as a local
@@ -42,13 +42,13 @@ xcore-ai architecture. The thread diagrams are shown in :numref:`agg_tdm` and :n
 PDM Capture
 -----------
 
-Both the TDM and USB aggregator examples share a common PDM front end. This consists of an 8 bit port 
+Both the TDM and USB aggregator examples share a common PDM front end. This consists of an 8 bit port
 with each data line connected to two PDM microphones each configured to provide data
 on a different clock edge. The 3.072 MHz clock for the PDM microphones is provided by the xcore-ai
 device on a 1 bit port and clocks all PDM microphones. The PDM clock is divided down from the 24.576 MHz
 local MCLK.
 
-The data collected by the 8 bit port is sent to the lib_mic_array block which de-interleaves 
+The data collected by the 8 bit port is sent to the lib_mic_array block which de-interleaves
 the PDM data streams and performs decimation of the PDM data down to 48 kHz 32 bit PCM samples.
 Due to the large number of microphones the PDM capture stage uses four hardware threads on tile[0]; one for the microphone
 capture and three for decimation. This is needed to divide the processing workload and meet timing comfortably.
@@ -62,11 +62,11 @@ Audio Hub
 The 16 channels of 48 kHz PCM streams are collected by `Hub` and are amplified using a
 saturated gain stage. The initial gain is set to 100, since a gain of 1 sounds very
 quiet due to the mic_array output being scaled to allow acoustic
-overload of the microphones without clipping within the decimators. This value can be 
+overload of the microphones without clipping within the decimators. This value can be
 overridden using the ``MIC_GAIN_INIT`` define in `app_conf.h`.
 
 Additionally for the TDM configuration, the `Hub` task also checks for control packets
-from I2C which may be used to dynamically update the individual gains at runtime.
+from |I2C| which may be used to dynamically update the individual gains at runtime.
 
 A single hardware thread contains the task and a triple buffer scheme is used to ensure there is always
 a free buffer available to write into regardless of the relative phase between the production
@@ -80,9 +80,9 @@ TDM Host Connection
 -------------------
 
 The TDM build supports a 16-slot TDM slave Tx peripheral from the fwk_io sub-module. In this application
-it runs at 24.576 MHz bit clock which supports 16 channels of 32 bit, 48 kHz samples per frame. 
+it runs at 24.576 MHz bit clock which supports 16 channels of 32 bit, 48 kHz samples per frame.
 
-The TDM component uses a single hardware thread. 
+The TDM component uses a single hardware thread.
 
 For the purpose of debugging a simple TDM 16 Master Rx component is provided. This allows the transmitted
 TDM frames from the application to be received and checked without having to connect an external
@@ -113,7 +113,7 @@ Resource Usage
 ==============
 
 The xcore-ai device has a total resource count of 2 x 524288 Bytes of memory and 2 x 8 hardware threads across two tiles.
-This application uses around half of the processing resources and a tiny fraction of the available memory 
+This application uses around half of the processing resources and a tiny fraction of the available memory
 meaning there is plenty of space inside the chip for additional functionality if needed.
 
 TDM Build
@@ -124,7 +124,7 @@ Tile   Memory  Threads
 ===== ======== =======
   0    25996      5
   1    22812      2*
-Total  48808      7 
+Total  48808      7
 ===== ======== =======
 
 * An additional debug TDM Master thread is used on Tile[1] by default which is not needed in a practical deployment.
@@ -137,7 +137,7 @@ Tile   Memory  Threads
 ===== ======== =======
   0    24252      4
   1    52116      5
-Total  76368      9 
+Total  76368      9
 ===== ======== =======
 
 
@@ -171,7 +171,7 @@ Mic pair J14 pin
 7, 15    21
 ======== =======
 
-For I2C control, make the following connections:
+For |I2C| control, make the following connections:
 
 ===============     ================
 Host Connection     Board Connection
@@ -181,7 +181,7 @@ SDA IOL             Your I2C host SDA.
 GND                 Your I2C host ground.
 ===============     ================
 
-The I2C slave is tested at 100 kHz SCL.
+The |I2C| slave is tested at 100 kHz SCL.
 
 I2C Controlled Volume
 =====================
@@ -233,7 +233,7 @@ Register Value
 31       Channel 15 lower gain byte
 ======== ==========================
 
-If using a raspberry Pi as the I2C host you may use the following
+If using a raspberry Pi as the |I2C| host you may use the following
 commands:
 
 ::

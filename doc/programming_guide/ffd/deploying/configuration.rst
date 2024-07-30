@@ -31,12 +31,27 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_UART_OUTPUT_ENABLED
      - Enables/disables the UART intent message
      - 1
+   * - appconfINTENT_UART_DEBUG_INFO_ENABLED
+     - Enables/disables the UART intent debug information
+     - 0
    * - appconfINTENT_I2C_OUTPUT_ENABLED
      - Enables/disables the |I2C| intent message
      - 1
    * - appconfUART_BAUD_RATE
      - Sets the baud rate for the UART tx intent interface
      - 9600
+   * - appconfUSE_I2S_INPUT
+     - Replace |I2S| audio source instead of the microphone array audio source.
+     - 0
+   * - appconfI2S_MODE
+     - Select |I2S| mode, supported values are appconfI2S_MODE_MASTER and appconfI2S_MODE_SLAVE
+     - master
+   * - appconfI2S_AUDIO_SAMPLE_RATE
+     - Select the sample rate of the |I2S| interface, supported values are 16000 and 48000
+     - 16000
+   * - appconfRECOVER_MCLK_I2S_APP_PLL
+     - Enables/disables the recovery of the MCLK from the Software PLL application; this removes the need to use an external MCLK.
+     - 0
    * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
      - Sets the |I2C| slave address to transmit the intent to
      - 0x01
@@ -58,3 +73,8 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfAUDIO_PIPELINE_SKIP_AGC
      - Enables/disables the AGC
      - 0
+
+.. note::
+
+  The ``example_ffd_i2s_input_cyberon`` has different default values from the ones in the table above.
+  The list of updated values can be found in the ``APP_COMPILE_DEFINITIONS`` list in ``examples\ffd\ffd_i2s_input_cyberon.cmake``.
