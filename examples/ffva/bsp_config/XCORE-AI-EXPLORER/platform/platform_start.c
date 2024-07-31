@@ -17,7 +17,6 @@
 #include "usb_support.h"
 
 #if appconfI2C_DFU_ENABLED
-#include "app_control/app_control.h"
 #include "device_control_i2c.h"
 #endif
 

@@ -9,6 +9,10 @@
 #include "platform/app_pll_ctrl.h"
 #include "platform/driver_instances.h"
 #include "platform/platform_init.h"
+#include "device_control.h"
+#include "servicer.h"
+
+extern device_control_t *device_control_i2c_ctx;
 
 static void mclk_init(chanend_t other_tile_c)
 {
@@ -255,6 +259,22 @@ static void uart_init(void)
 #endif
 }
 
+void control_init() {
+#if appconfI2C_SLAVE+ENABLED == 1 && ON_TILE(I2C_TILE_NO)
+    control_ret_t ret = CONTROL_SUCCESS;
+    ret = device_control_init(device_control_i2c_ctx,
+                                DEVICE_CONTROL_HOST_MODE,
+                                (NUM_TILE_0_SERVICERS + NUM_TILE_1_SERVICERS),
+                                NULL, 0);
+    xassert(ret == CONTROL_SUCCESS);
+
+    ret = device_control_start(device_control_i2c_ctx,
+                                -1,
+                                -1);
+    xassert(ret == CONTROL_SUCCESS);
+#endif
+}
+
 void platform_init(chanend_t other_tile_c)
 {
     rtos_intertile_init(intertile_ctx, other_tile_c);
@@ -267,4 +287,5 @@ void platform_init(chanend_t other_tile_c)
     mics_init();
     i2s_init();
     uart_init();
+    control_init();
 }

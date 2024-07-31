@@ -10,6 +10,7 @@
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
 #define appconfI2S_RPC_PORT                       5
+#define appconfDEVICE_CONTROL_I2C_PORT            6
 #define appconfINTENT_ENGINE_READY_SYNC_PORT      16
 #define appconfI2S_OUTPUT_SLAVE_PORT              8
 

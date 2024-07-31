@@ -30,6 +30,9 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
+#if appconfI2C_SLAVE_ENABLED == 1
+#include "intent_servicer.h"
+#endif
 
 #if appconfRECOVER_MCLK_I2S_APP_PLL
 /* Config headers for sw_pll */
@@ -91,7 +94,7 @@ void audio_pipeline_input(void *input_app_data,
                           size_t frame_count)
 {
     (void) input_app_data;
-    
+
 #if !appconfUSE_I2S_INPUT
     static int flushed;
     while (!flushed) {
@@ -125,8 +128,8 @@ void audio_pipeline_input(void *input_app_data,
                     (int32_t *) tmp,
                     frame_count,
                     portMAX_DELAY);
-                
-                
+
+
         for (int i=0; i<frame_count; i++) {
             *(tmpptr + i) = tmp[i][0];
             *(tmpptr + i + frame_count) = tmp[i][1];
@@ -268,6 +271,12 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
+#endif
+
+#if appconfI2C_SLAVE_ENABLED == 1 && ON_TILE(I2C_CTRL_TILE_NO)
+    // Initialise control related things
+    servicer_t servicer_intent;
+    intent_servicer_init(&servicer_intent);
 #endif
 
 #if ON_TILE(0)

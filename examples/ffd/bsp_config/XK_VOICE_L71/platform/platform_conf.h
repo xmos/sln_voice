@@ -89,6 +89,14 @@
 /*  Other required defines               */
 /*****************************************/
 
+#ifndef APP_CONTROL_TRANSPORT_COUNT
+#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_SLAVE_ENABLED
+#endif // APP_CONTROL_TRANSPORT_COUNT
+
+#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
+#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
+#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
+
 #ifndef appconf_CONTROL_I2C_DEVICE_ADDR
 #define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
 #endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
@@ -97,7 +105,15 @@
 /*  I/O Task Priorities                  */
 /*****************************************/
 #ifndef appconfQSPI_FLASH_TASK_PRIORITY
-#define appconfQSPI_FLASH_TASK_PRIORITY		    ( configMAX_PRIORITIES - 1 )
+#define appconfQSPI_FLASH_TASK_PRIORITY		    (configMAX_PRIORITIES-1)
 #endif /* appconfQSPI_FLASH_TASK_PRIORITY */
+
+#ifndef appconfI2C_TASK_PRIORITY
+#define appconfI2C_TASK_PRIORITY                (configMAX_PRIORITIES/2)
+#endif /* appconfI2C_TASK_PRIORITY */
+
+#ifndef appconfDEVICE_CONTROL_I2C_PRIORITY
+#define appconfDEVICE_CONTROL_I2C_PRIORITY      (configMAX_PRIORITIES-1)
+#endif // appconfDEVICE_CONTROL_I2C_PRIORITY
 
 #endif /* PLATFORM_CONF_H_ */
