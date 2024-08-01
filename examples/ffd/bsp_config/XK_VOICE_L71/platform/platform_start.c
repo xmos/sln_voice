@@ -44,7 +44,7 @@ static void flash_start(void)
 
 static void i2c_master_start(void)
 {
-#if appconfI2C_ENABLED == 1 && appconfI2C_MODE == appconfI2C_MODE_MASTER
+#if appconfI2C_ENABLED && appconfI2C_MODE == appconfI2C_MODE_MASTER
     rtos_i2c_master_rpc_config(i2c_master_ctx, appconfI2C_MASTER_RPC_PORT, appconfI2C_MASTER_RPC_PRIORITY);
 
 #if ON_TILE(I2C_TILE_NO)
@@ -55,7 +55,7 @@ static void i2c_master_start(void)
 
 static void i2c_slave_start(void)
 {
-#if appconfI2C_SLAVE_ENABLED == 1 && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_start(i2c_slave_ctx,
                          device_control_i2c_ctx,
                          (rtos_i2c_slave_start_cb_t) device_control_i2c_start_cb,

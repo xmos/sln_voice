@@ -12,7 +12,7 @@
 #include "servicer.h"
 #include "intent_servicer.h"
 
-#if appconfI2C_SLAVE_ENABLED == 1 && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
 
 static device_control_t device_control_i2c_ctx_s;
 device_control_t *device_control_i2c_ctx = (device_control_t *) &device_control_i2c_ctx_s;

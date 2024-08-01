@@ -176,7 +176,7 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
         static char res_info[128];
         snprintf(res_info, sizeof(res_info)-1, "ID:%d,Sc:%d,SGD:%d,En:%d\r\n", nCmdID, nCmdScore, nCmdSG, nCmdEnergy);
         // Enable the printout below to see the information sent over UART
-        // rtos_printf(res_info);
+        rtos_printf(res_info);
         rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&res_info, strlen(res_info));
 #endif
         return ASR_OK;

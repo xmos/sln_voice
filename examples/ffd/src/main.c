@@ -30,7 +30,7 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
-#if appconfI2C_SLAVE_ENABLED == 1
+#if appconfI2C_SLAVE_ENABLED
 #include "intent_servicer.h"
 #endif
 
@@ -273,7 +273,7 @@ void startup_task(void *arg)
 #endif
 #endif
 
-#if appconfI2C_SLAVE_ENABLED == 1 && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     // Initialise control related things
     servicer_t servicer_intent;
     intent_servicer_init(&servicer_intent);

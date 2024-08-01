@@ -14,19 +14,19 @@
 #include "platform/platform_conf.h"
 #include "servicer.h"
 #include "intent_servicer.h"
-
+#include "asr.h"
 #include "device_control_i2c.h"
 
 enum e_intent_controller_servicer_resid_cmds
 {
 #ifndef INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION
-    INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION = 0,
+    INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION = 88,
 #endif
-    NUM_INTENT_CONTROLLER_SERVICER_RESID_CMDS
+    NUM_INTENT_CONTROLLER_SERVICER_RESID_CMDS = 1
 };
 static control_cmd_info_t intent_controller_servicer_resid_cmd_map[] =
 {
-    { INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION, 1, sizeof(uint8_t), CMD_READ_ONLY },
+    { INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION, 3, sizeof(uint8_t), CMD_READ_ONLY },
 };
 
 void intent_servicer_init(servicer_t *servicer)
@@ -72,7 +72,8 @@ void intent_servicer(void *args) {
         device_control_servicer_cmd_recv(&servicer_ctx, read_cmd, write_cmd, servicer, RTOS_OSAL_WAIT_FOREVER);
     }
 }
-
+extern uint32_t detection_number;
+extern asr_result_t last_asr_result;
 control_ret_t intent_servicer_read_cmd(control_resource_info_t *res_info, control_cmd_t cmd, uint8_t *payload, size_t payload_len)
 {
     control_ret_t ret = CONTROL_SUCCESS;
@@ -81,13 +82,18 @@ control_ret_t intent_servicer_read_cmd(control_resource_info_t *res_info, contro
     memset(payload, 0, payload_len);
 
     debug_printf("intent_servicer_read_cmd, cmd_id: %d.\n", cmd_id);
+    //asr_result_t asr_result;
+
+    //asr_error_t asr_error = asr_get_result(NULL, &asr_result);
+    printf("detection_number %d, last_asr_result.id %d\n", detection_number, last_asr_result.id);
+
     switch (cmd_id)
     {
     case INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION:
     {
         debug_printf("INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION\n");
-        uint8_t last_detection = 0;//intent_get_last_detection();
-        payload[0] = last_detection;
+        payload[0] = (uint8_t) last_asr_result.id;
+        payload[1] = (uint8_t) detection_number;
         break;
     }
 
