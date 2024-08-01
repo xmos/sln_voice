@@ -98,7 +98,6 @@ int32_t intent_handler_create(uint32_t priority, void *args)
                 args,
                 priority,
                 NULL);
-
     return 0;
 }
 

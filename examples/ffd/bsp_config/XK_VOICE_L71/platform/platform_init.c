@@ -260,7 +260,7 @@ static void uart_init(void)
 }
 
 void control_init() {
-#if appconfI2C_SLAVE+ENABLED == 1 && ON_TILE(I2C_TILE_NO)
+#if appconfI2C_SLAVE_ENABLED == 1 && ON_TILE(I2C_TILE_NO)
     control_ret_t ret = CONTROL_SUCCESS;
     ret = device_control_init(device_control_i2c_ctx,
                                 DEVICE_CONTROL_HOST_MODE,

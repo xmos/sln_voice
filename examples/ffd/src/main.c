@@ -277,6 +277,13 @@ void startup_task(void *arg)
     // Initialise control related things
     servicer_t servicer_intent;
     intent_servicer_init(&servicer_intent);
+
+    xTaskCreate((TaskFunction_t)intent_servicer,
+            "intent servicer",
+            RTOS_THREAD_STACK_SIZE(intent_servicer),
+            &servicer_intent,
+            appconfDEVICE_CONTROL_I2C_PRIORITY,
+            NULL);
 #endif
 
 #if ON_TILE(0)

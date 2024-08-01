@@ -51,7 +51,6 @@ void intent_servicer(void *args) {
 
     servicer_t *servicer = (servicer_t*)args;
     xassert(servicer != NULL);
-
     control_resid_t *resources = (control_resid_t*)pvPortMalloc(servicer->num_resources * sizeof(control_resid_t));
     for(int i=0; i<servicer->num_resources; i++)
     {
@@ -82,7 +81,6 @@ control_ret_t intent_servicer_read_cmd(control_resource_info_t *res_info, contro
     memset(payload, 0, payload_len);
 
     debug_printf("intent_servicer_read_cmd, cmd_id: %d.\n", cmd_id);
-
     switch (cmd_id)
     {
     case INTENT_CONTROLLER_SERVICER_RESID_LAST_DETECTION:

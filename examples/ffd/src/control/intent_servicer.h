@@ -4,8 +4,8 @@
 
 #include "servicer.h"
 
-#define INTENT_CONTROLLER_SERVICER_RESID   (1)
-#define NUM_RESOURCES_INTENT_SERVICER      (1) // DFU servicer
+#define INTENT_CONTROLLER_SERVICER_RESID   (240)
+#define NUM_RESOURCES_INTENT_SERVICER      (1) // Intent servicer
 
 /**
  * @brief DFU servicer task.
