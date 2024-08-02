@@ -32,7 +32,7 @@ size_t read_device_reg(rtos_i2c_slave_t *ctx,
     if (reg_addr >= WAKEWORD_REG_ADDRESS_START && reg_addr <= WAKEWORD_REG_ADDRESS_END) {
         if (last_asr_result->id == reg_addr - WAKEWORD_REG_ADDRESS_START + 1)
         {
-            uint8_t score = (uint8_t) last_asr_result->score&0xF;
+            uint8_t score = (uint8_t) last_asr_result->score&0xFF;
             printf("Found wakeword information: ID %d, score %d\n", last_asr_result->id, score);
             reg_value = score;
         } else {
