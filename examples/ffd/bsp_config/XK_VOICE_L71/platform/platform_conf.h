@@ -112,8 +112,4 @@
 #define appconfI2C_TASK_PRIORITY                (configMAX_PRIORITIES/2)
 #endif /* appconfI2C_TASK_PRIORITY */
 
-#ifndef appconfDEVICE_CONTROL_I2C_PRIORITY
-#define appconfDEVICE_CONTROL_I2C_PRIORITY      (configMAX_PRIORITIES-1)
-#endif // appconfDEVICE_CONTROL_I2C_PRIORITY
-
 #endif /* PLATFORM_CONF_H_ */

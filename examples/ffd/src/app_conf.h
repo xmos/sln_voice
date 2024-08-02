@@ -10,7 +10,6 @@
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
 #define appconfI2S_RPC_PORT                       5
-#define appconfDEVICE_CONTROL_I2C_PORT            6
 #define appconfINTENT_ENGINE_READY_SYNC_PORT      16
 #define appconfI2S_OUTPUT_SLAVE_PORT              8
 
@@ -116,7 +115,7 @@
 #define appconfI2C_SLAVE_ENABLED   0
 #endif
 
-#if appconfINTENT_I2C_OUTPUT_ENABLED==1 && appconfI2C_MASTER_ENABLED==0
+#if appconfINTENT_I2C_OUTPUT_ENABLED && ! appconfI2C_MASTER_ENABLED
 #error "I2C master must be enabled for intent I2C output"
 #endif
 

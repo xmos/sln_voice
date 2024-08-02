@@ -113,7 +113,7 @@ static void timeout_event_handler(TimerHandle_t pxTimer)
     }
 }
 asr_result_t last_asr_result = {0};
-uint32_t detection_number = 0;
+
 #pragma stackfunction 1000
 void intent_engine_task(void *args)
 {
@@ -171,7 +171,7 @@ void intent_engine_task(void *args)
 
         asr_error = asr_get_result(asr_ctx, &asr_result);
         memcpy(&last_asr_result, &asr_result, sizeof(asr_result_t));
-        detection_number++;
+
         if (asr_error != ASR_OK) continue;
 
         word_id = asr_result.id;

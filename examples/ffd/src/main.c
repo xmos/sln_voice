@@ -30,9 +30,6 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
-#if appconfI2C_SLAVE_ENABLED
-#include "intent_servicer.h"
-#endif
 
 #if appconfRECOVER_MCLK_I2S_APP_PLL
 /* Config headers for sw_pll */
@@ -271,19 +268,6 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
-#endif
-
-#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
-    // Initialise control related things
-    servicer_t servicer_intent;
-    intent_servicer_init(&servicer_intent);
-
-    xTaskCreate((TaskFunction_t)intent_servicer,
-            "intent servicer",
-            RTOS_THREAD_STACK_SIZE(intent_servicer),
-            &servicer_intent,
-            appconfDEVICE_CONTROL_I2C_PRIORITY,
-            NULL);
 #endif
 
 #if ON_TILE(0)
