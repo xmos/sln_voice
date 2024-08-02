@@ -89,14 +89,6 @@
 /*  Other required defines               */
 /*****************************************/
 
-#ifndef APP_CONTROL_TRANSPORT_COUNT
-#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_SLAVE_ENABLED
-#endif // APP_CONTROL_TRANSPORT_COUNT
-
-#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
-
 #ifndef appconf_CONTROL_I2C_DEVICE_ADDR
 #define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
 #endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/

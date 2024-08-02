@@ -105,7 +105,6 @@ set(APP_COMMON_LINK_LIBRARIES
     sln_voice::app::asr::intent_engine
     sln_voice::app::asr::intent_handler
     sln_voice::app::ffd::xk_voice_l71
-    rtos::freertos_usb
     lib_src
     lib_sw_pll
 )
