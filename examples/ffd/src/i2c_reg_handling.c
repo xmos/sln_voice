@@ -17,7 +17,7 @@ size_t read_device_reg(rtos_i2c_slave_t *ctx,
     uint8_t * data_p = *data;
     uint8_t reg_addr = data_p[0];
     uint8_t reg_value = -1;
-    if (reg_addr == appconfWAKEWORD_REG_ADDRESS) {
+    if (reg_addr == appconfINTENT_I2C_REG_ADDRESS) {
         reg_value = last_asr_result->id;
     }
     data_p[0] = reg_value;
