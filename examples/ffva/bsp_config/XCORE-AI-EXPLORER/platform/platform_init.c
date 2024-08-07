@@ -94,7 +94,7 @@ static void i2c_init(void)
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SLAVE_SCL,
                         PORT_I2C_SLAVE_SDA,
-                        appconf_CONTROL_I2C_DEVICE_ADDR);
+                        appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 #else
     static rtos_driver_rpc_t i2c_rpc_config;

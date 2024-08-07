@@ -124,9 +124,9 @@
 #define appconfEXTERNAL_MCLK       1
 #endif /* appconfEXTERNAL_MCLK */
 
-#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
+#ifndef appconfI2C_SLAVE_DEVICE_ADDR
+#define appconfI2C_SLAVE_DEVICE_ADDR 0x42
+#endif /* appconfI2C_SLAVE_DEVICE_ADDR*/
 
 #ifndef appconfSPI_OUTPUT_ENABLED
 #define appconfSPI_OUTPUT_ENABLED  0

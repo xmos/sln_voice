@@ -86,14 +86,6 @@
 #endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
 
 /*****************************************/
-/*  Other required defines               */
-/*****************************************/
-
-#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
-
-/*****************************************/
 /*  I/O Task Priorities                  */
 /*****************************************/
 #ifndef appconfQSPI_FLASH_TASK_PRIORITY

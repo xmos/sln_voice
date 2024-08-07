@@ -120,6 +120,10 @@
 #define appconfI2C_SLAVE_ENABLED   0
 #endif
 
+#ifndef appconfI2C_SLAVE_DEVICE_ADDR
+#define appconfI2C_SLAVE_DEVICE_ADDR 0x42
+#endif
+
 #if appconfINTENT_I2C_OUTPUT_ENABLED && !appconfI2C_MASTER_ENABLED
 #error "I2C master must be enabled for intent I2C output"
 #endif

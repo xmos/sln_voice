@@ -4,7 +4,7 @@
 Configuring the Firmware
 ========================
 
-The default application performs as described in the :ref:`sln_voice_ffd_overview`. There are numerous compile time options that can be added to change the example design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable located `here <https://github.com/xmos/sln_voice/blob/develop/examples/ffd/ffd.cmake>`_.
+The default application performs as described in the :ref:`sln_voice_ffd_overview`. There are numerous compile time options that can be added to change the example design without requiring code changes.  To change the options explained in the table below, add the desired configuration variables to the APP_COMPILE_DEFINITIONS cmake variable in the ``.cmake`` file located in the ``examples/ffd/`` folder.
 
 If options are changed, the application firmware must be rebuilt.
 
@@ -37,6 +37,21 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_I2C_OUTPUT_ENABLED
      - Enables/disables the |I2C| intent message
      - 1
+   * - appconfI2C_MASTER_ENABLED
+     - Enabled the |I2C| master mode to configure the DAC and send the intent message
+     - 1
+   * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
+     - Sets the |I2C| address to transmit the intent to via the |I2C| master interface
+     - 0x01
+   * - appconfI2C_SALVE_ENABLED
+     - Enabled the |I2C| slave mode to read the device register with the intent message
+     - 0
+   * - appconfI2C_SLAVE_DEVICE_ADDR
+     - Sets the |I2C| address to read the intent message from via the |I2C| slave interface
+     - 0x42
+   * - appconfINTENT_I2C_REG_ADDRESS
+     - Sets the |I2C| register to store the intent message, this value can be read via the |I2C| slave interface
+     - 0x01
    * - appconfUART_BAUD_RATE
      - Sets the baud rate for the UART tx intent interface
      - 9600
@@ -52,9 +67,6 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfRECOVER_MCLK_I2S_APP_PLL
      - Enables/disables the recovery of the MCLK from the Software PLL application; this removes the need to use an external MCLK.
      - 0
-   * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-     - Sets the |I2C| slave address to transmit the intent to
-     - 0x01
    * - appconfINTENT_TRANSPORT_DELAY_MS
      - Sets the delay between host wake up requested and |I2C| and UART keyword code transmission
      - 50
@@ -78,3 +90,34 @@ If options are changed, the application firmware must be rebuilt.
 
   The ``example_ffd_i2s_input_cyberon`` has different default values from the ones in the table above.
   The list of updated values can be found in the ``APP_COMPILE_DEFINITIONS`` list in ``examples\ffd\ffd_i2s_input_cyberon.cmake``.
+
+Configuring the |I2C| interfaces
+--------------------------------
+
+The |I2C| interfaces are used to communicate with the DAC and the host. The |I2C| interface can be configured as a master or slave.
+The |I2C| master is used to send the intent message to the host, and the |I2C| slave is used to read the intent message from the host.
+The |I2C| master and slave can be enabled or disabled by setting the ``appconfI2C_MASTER_ENABLED`` and ``appconfI2C_SLAVE_ENABLED`` configuration variables.
+To send the intent ID via |I2C| master interface when a command is detected, the following variables must be set:
+
+  - ``appconfINTENT_I2C_OUTPUT_ENABLED`` must be set to 1.
+  - ``appconfI2C_MASTER_ENABLED`` must be set to 1.
+  - ``appconfINTENT_I2C_OUTPUT_DEVICE_ADDR`` must be set to desired address used by the |I2C| slave device.
+  - ``appconfI2C_SLAVE_ENABLED`` must be set to 0.
+
+The retrieve the intent message from the host via the |I2C| slave interface, the following variables must be set:
+
+  - ``appconfI2C_SLAVE_ENABLED`` must be set to 1.
+  - ``appconfI2C_SLAVE_DEVICE_ADDR`` must be set to the desired address used by the |I2C| master device.
+  - ``appconfINTENT_I2C_REG_ADDRESS`` must be set to the desired register read by of the |I2C| master device.
+  - ``appconfINTENT_I2C_OUTPUT_ENABLED`` must be set to 0.
+
+The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_reg_handling.c`` file. The vatiable ``appconfINTENT_I2C_REG_ADDRESS`` is used in the callback function ``read_device_reg()``.
+
+Configuring the |I2S| interfaces
+--------------------------------
+
+The |I2S| interface can be configured as a master or slave. The |I2S| interface is used to receive the audio data over the |I2S| interface.
+The |I2S| interface can be enabled or disabled by setting the ``appconfI2S_MODE`` configuration variable either to ``appconfI2S_MODE_MASTER`` or ``appconfI2S_MODE_SLAVE``.
+The sample rate of the |I2S| interface can be set by changing the ``appconfI2S_AUDIO_SAMPLE_RATE`` configuration variable.
+The MCLK can be recovered from the Software PLL application by setting the ``appconfRECOVER_MCLK_I2S_APP_PLL`` configuration variable to 1, this will remove the need to use an external MCLK.
+

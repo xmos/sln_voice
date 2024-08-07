@@ -77,7 +77,7 @@ static void i2c_init(void)
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,
                         PORT_I2C_SDA,
-                        appconf_CONTROL_I2C_DEVICE_ADDR);
+                        appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 
 #if appconfI2C_MASTER_ENABLED
