@@ -79,6 +79,11 @@
 #define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR 0x01
 #endif
 
+/* @brief Address for wakeword register to be read over I2C slave*/
+#ifndef appconfWAKEWORD_REG_ADDRESS
+#define appconfWAKEWORD_REG_ADDRESS    0x01
+#endif
+
 #ifndef appconfINTENT_UART_OUTPUT_ENABLED
 #define appconfINTENT_UART_OUTPUT_ENABLED   1
 #endif
@@ -115,8 +120,12 @@
 #define appconfI2C_SLAVE_ENABLED   0
 #endif
 
-#if appconfINTENT_I2C_OUTPUT_ENABLED && ! appconfI2C_MASTER_ENABLED
+#if appconfINTENT_I2C_OUTPUT_ENABLED && !appconfI2C_MASTER_ENABLED
 #error "I2C master must be enabled for intent I2C output"
+#endif
+
+#if appconfI2C_SLAVE_ENABLED && appconfINTENT_I2C_OUTPUT_ENABLED
+#error "I2C slave cannot be enabled when intent I2C output over I2C master is enabled"
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR

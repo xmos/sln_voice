@@ -2,11 +2,12 @@
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #include "rtos_i2c_slave.h"
+#include "app_conf.h"
 #include "asr.h"
 
 /**
- * @brief Callback for reading data from a device register over I2C.
- *        Only one byte of data is read from the register.
+ * Callback for reading data from a device register over I2C.
+ * Only one byte of data is read from the register.
  *
  * @param ctx Pointer to the I2C slave context.
  * @param last_asr_result Pointer to the last Automatic Speech Recognition (ASR) result.
@@ -20,8 +21,8 @@ size_t read_device_reg(rtos_i2c_slave_t *ctx,
                        uint8_t **data);
 
 /**
- * @brief Callback for writing data to a device register over I2C.
- *        Only one byte of data is written to the register.
+ * Callback for writing data to a device register over I2C.
+ * Only one byte of data is written to the register.
  *
  * @param ctx Pointer to the I2C slave context.
  * @param app_data Pointer to application-specific data. Not used.
