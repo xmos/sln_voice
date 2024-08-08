@@ -4,6 +4,7 @@ XCORE-VOICE change log
 2.3.0
 -----
 
+  * CHANGED: Updated submodule fwk_rtos to version 3.2.0 from 3.0.5.
   * ADDED: FFVA INT example with Cyberon speech recognition engine and model
     (DSpotter v2.2.18.0).
   * CHANGED: Moved files in folders device_memory, gpio_ctrl, intent_engine and
