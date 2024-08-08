@@ -80,8 +80,8 @@
 #endif
 
 /* @brief Address for wakeword register to be read over I2C slave*/
-#ifndef appconfWAKEWORD_REG_ADDRESS
-#define appconfWAKEWORD_REG_ADDRESS    0x01
+#ifndef appconfINTENT_I2C_REG_ADDRESS
+#define appconfINTENT_I2C_REG_ADDRESS        0x01
 #endif
 
 #ifndef appconfINTENT_UART_OUTPUT_ENABLED

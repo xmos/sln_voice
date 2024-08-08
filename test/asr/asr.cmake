@@ -48,6 +48,8 @@ if(${TEST_ASR} STREQUAL "SENSORY")
     set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/command-pc62w-6.4.0-op10-prod-net.bin.nibble_swapped)
     set(TEST_ASR_LIBRARY_ID 0)
     set(TEST_ASR_NAME test_asr_sensory)
+    set(ASR_FLAG ASR_SENSORY=1)
+
 elseif(${TEST_ASR} STREQUAL "CYBERON")
     message(STATUS "Building Cyberon ASR test")
     set(ASR_LIBRARY sln_voice::app::asr::Cyberon)
@@ -58,6 +60,7 @@ elseif(${TEST_ASR} STREQUAL "CYBERON")
     set(MODEL_FILE ${FFD_SRC_ROOT}/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap)
     set(TEST_ASR_LIBRARY_ID 1)
     set(TEST_ASR_NAME test_asr_cyberon)
+    set(ASR_FLAG ASR_CYBERON=1)
 else()
     message(FATAL_ERROR "Unable to build ${TEST_ASR} test")
 endif()
@@ -82,18 +85,12 @@ set(APP_COMPILE_DEFINITIONS
     XUD_CORE_CLOCK=600
     XSCOPE_HOST_IO_ENABLED=1
     XSCOPE_HOST_IO_TILE=0
-    ASR_SENSORY=1
+    ${ASR_FLAG}
     QSPI_FLASH_CALIBRATION_ADDRESS=${CALIBRATION_PATTERN_START_ADDRESS}
     QSPI_FLASH_MODEL_START_ADDRESS=${MODEL_START_ADDRESS}
     appconfASR_LIBRARY_ID=${TEST_ASR_LIBRARY_ID}
     appconfASR_BRICK_SIZE_SAMPLES=${ASR_BRICK_SIZE_SAMPLES}
 )
-
-if(${TEST_ASR} STREQUAL "SENSORY")
-    set(APP_COMPILE_DEFINITIONS
-        ${APP_COMPILE_DEFINITIONS}
-    )
-endif()
 
 set(APP_LINK_OPTIONS
     -report

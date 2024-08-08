@@ -64,19 +64,16 @@ typedef struct asr_attributes_struct
 typedef struct asr_result_struct
 {
     uint16_t id;             ///< Keyword or command ID
-#if ASR_CYBERON==1
-    uint32_t score;          ///< The confidence score of the detection
-    uint32_t sg_diff;        ///< The voice similarity of the detection
-    uint32_t energy;         ///< The energy of the detection
-#elif ASR_SENSORY==1
+
+    // The following fields are optional and may not be supported by all ASR ports
     uint16_t score;          ///< The confidence score of the detection
     uint16_t gscore;         ///< The garbage score
     int32_t  start_index;    ///< The audio sample index that corresponds to the start of the utterance
     int32_t  end_index;      ///< The audio sample index that corresponds to the end of the utterance
     int32_t  duration;       ///< THe length of the utterance in samples
-#else
-    #error "Model has to be either Sensory or Cyberon"
-#endif
+    uint32_t sg_diff;        ///< The voice similarity of the detection
+    uint32_t energy;         ///< The energy of the detection
+
     void*    reserved;       ///< Reserved for future use
 } asr_result_t;
 
