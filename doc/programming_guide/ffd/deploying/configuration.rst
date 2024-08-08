@@ -104,7 +104,7 @@ The |I2C| master is used to send intent messages to the host, and the |I2C| slav
 
 The |I2C| master and slave can be enabled or disabled by setting the ``appconfI2C_MASTER_ENABLED`` and ``appconfI2C_SLAVE_ENABLED`` configuration variables.
 
-To send the intent ID via the |I2C| master interface when a command is detected, set the following variables::
+To send the intent ID via the |I2C| master interface when a command is detected, set the following variables:
 
   - ``appconfINTENT_I2C_OUTPUT_ENABLED`` to 1.
   - ``appconfI2C_MASTER_ENABLED`` to 1.
@@ -115,7 +115,7 @@ The retrieve the intent message from the host via the |I2C| slave interface, set
 
   - ``appconfI2C_SLAVE_ENABLED`` to 1.
   - ``appconfI2C_SLAVE_DEVICE_ADDR`` to the desired address used by the |I2C| master device.
-  - ``appconfINTENT_I2C_REG_ADDRESS`` to the desired register read by of the |I2C| master device.
+  - ``appconfINTENT_I2C_REG_ADDRESS`` to the desired register read by the |I2C| master device.
   - ``appconfINTENT_I2C_OUTPUT_ENABLED`` to 0, this will disable the |I2C| master interface.
 
 The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_reg_handling.c`` file. The variable ``appconfINTENT_I2C_REG_ADDRESS`` is used in the callback function ``read_device_reg()``.
