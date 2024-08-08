@@ -15,7 +15,7 @@
 
 /* Library headers */
 #include "rtos_printf.h"
-#if appconfI2S_ENABLED
+#if appconfUSE_I2S_INPUT
 #include "src.h"
 #endif
 
@@ -40,7 +40,7 @@
 #define MEM_ANALYSIS_ENABLED 0
 #endif
 
-#if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+#if appconfUSE_I2S_INPUT && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 void i2s_slave_intertile()
 {
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -252,7 +252,7 @@ void startup_task(void *arg)
 
     platform_start();
 
-#if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+#if ON_TILE(1) && appconfUSE_I2S_INPUT && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",

@@ -96,10 +96,6 @@
 #define appconfUART_BAUD_RATE       9600
 #endif
 
-#ifndef appconfI2S_ENABLED
-#define appconfI2S_ENABLED   1
-#endif
-
 #ifndef appconfI2S_MODE_MASTER
 #define appconfI2S_MODE_MASTER     0
 #endif

@@ -94,30 +94,39 @@ If options are changed, the application firmware must be rebuilt.
 Configuring the |I2C| interfaces
 --------------------------------
 
-The |I2C| interfaces are used to communicate with the DAC and the host. The |I2C| interface can be configured as a master or slave.
-The |I2C| master is used to send the intent message to the host, and the |I2C| slave is used to read the intent message from the host.
+The |I2C| interfaces are used to configure the DAC and to communicate with the host. The |I2C| interface can be configured as a master and a slave.
+The DAC must be configured at bootup via the |I2C| master interface.
+The |I2C| master is used to send intent messages to the host, and the |I2C| slave is used to read intent messages from the host.
+
+.. note::
+  Since the |I2C| interface cannot operate as both a master and a slave simultaneously, the FFD example design uses the |I2C| master interface to configure the DAC at bootup.
+  However, if the |I2C| slave interface is used to read intent messages, the |I2C| master interface will be disabled after the DAC configuration is complete.
+
 The |I2C| master and slave can be enabled or disabled by setting the ``appconfI2C_MASTER_ENABLED`` and ``appconfI2C_SLAVE_ENABLED`` configuration variables.
-To send the intent ID via |I2C| master interface when a command is detected, the following variables must be set:
 
-  - ``appconfINTENT_I2C_OUTPUT_ENABLED`` must be set to 1.
-  - ``appconfI2C_MASTER_ENABLED`` must be set to 1.
-  - ``appconfINTENT_I2C_OUTPUT_DEVICE_ADDR`` must be set to desired address used by the |I2C| slave device.
-  - ``appconfI2C_SLAVE_ENABLED`` must be set to 0.
+To send the intent ID via the |I2C| master interface when a command is detected, set the following variables::
 
-The retrieve the intent message from the host via the |I2C| slave interface, the following variables must be set:
+  - ``appconfINTENT_I2C_OUTPUT_ENABLED`` to 1.
+  - ``appconfI2C_MASTER_ENABLED`` to 1.
+  - ``appconfINTENT_I2C_OUTPUT_DEVICE_ADDR`` to the desired address used by the |I2C| slave device.
+  - ``appconfI2C_SLAVE_ENABLED`` to 0.
 
-  - ``appconfI2C_SLAVE_ENABLED`` must be set to 1.
-  - ``appconfI2C_SLAVE_DEVICE_ADDR`` must be set to the desired address used by the |I2C| master device.
-  - ``appconfINTENT_I2C_REG_ADDRESS`` must be set to the desired register read by of the |I2C| master device.
-  - ``appconfINTENT_I2C_OUTPUT_ENABLED`` must be set to 0.
+The retrieve the intent message from the host via the |I2C| slave interface, set the following variables:
 
-The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_reg_handling.c`` file. The vatiable ``appconfINTENT_I2C_REG_ADDRESS`` is used in the callback function ``read_device_reg()``.
+  - ``appconfI2C_SLAVE_ENABLED`` to 1.
+  - ``appconfI2C_SLAVE_DEVICE_ADDR`` to the desired address used by the |I2C| master device.
+  - ``appconfINTENT_I2C_REG_ADDRESS`` to the desired register read by of the |I2C| master device.
+  - ``appconfINTENT_I2C_OUTPUT_ENABLED`` to 0, this will disable the |I2C| master interface.
 
-Configuring the |I2S| interfaces
---------------------------------
+The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_reg_handling.c`` file. The variable ``appconfINTENT_I2C_REG_ADDRESS`` is used in the callback function ``read_device_reg()``.
 
-The |I2S| interface can be configured as a master or slave. The |I2S| interface is used to receive the audio data over the |I2S| interface.
-The |I2S| interface can be enabled or disabled by setting the ``appconfI2S_MODE`` configuration variable either to ``appconfI2S_MODE_MASTER`` or ``appconfI2S_MODE_SLAVE``.
-The sample rate of the |I2S| interface can be set by changing the ``appconfI2S_AUDIO_SAMPLE_RATE`` configuration variable.
-The MCLK can be recovered from the Software PLL application by setting the ``appconfRECOVER_MCLK_I2S_APP_PLL`` configuration variable to 1, this will remove the need to use an external MCLK.
+Configuring the |I2S| interface
+-------------------------------
 
+The |I2S| interface is used to receive the audio data from the host. The |I2S| interface can be configured as either a master or a slave.
+To configure the |I2S| interface, set the following variables:
+
+  - ``appconfUSE_I2S_INPUT`` to 1.
+  - ``appconfI2S_MODE`` to the desired mode, either ``appconfI2S_MODE_MASTER`` or ``appconfI2S_MODE_SLAVE``.
+  - ``appconfI2S_AUDIO_SAMPLE_RATE`` to the desired sample rate, either 16000 or 48000.
+  - ``appconfRECOVER_MCLK_I2S_APP_PLL`` to 1 if an external MCLK is not available, otherwise set it to 0.

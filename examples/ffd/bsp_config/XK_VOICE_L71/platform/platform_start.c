@@ -69,7 +69,7 @@ static void i2c_slave_start(void)
 
 static void audio_codec_start(void)
 {
-#if appconfI2S_ENABLED && appconfI2C_MASTER_ENABLED
+#if appconfUSE_I2S_INPUT && appconfI2C_MASTER_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
     if (dac3101_init(appconfI2S_AUDIO_SAMPLE_RATE) != 0) {
@@ -95,7 +95,7 @@ static void mics_start(void)
 
 static void i2s_start(void)
 {
-#if appconfI2S_ENABLED
+#if appconfUSE_I2S_INPUT
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_i2s_rpc_config(i2s_ctx, appconfI2S_RPC_PORT, appconfI2S_RPC_PRIORITY);
 #endif

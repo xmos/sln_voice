@@ -176,7 +176,7 @@ static void mics_init(void)
 
 static void i2s_init(void)
 {
-#if appconfI2S_ENABLED
+#if appconfUSE_I2S_INPUT
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     static rtos_driver_rpc_t i2s_rpc_config;
 #endif
