@@ -4,7 +4,6 @@ XCORE-VOICE change log
 2.3.0
 -----
 
-  * CHANGED: Updated submodule fwk_rtos to version 3.2.0 from 3.0.5.
   * ADDED: FFVA INT example with Cyberon speech recognition engine and model
     (DSpotter v2.2.18.0).
   * CHANGED: Moved files in folders device_memory, gpio_ctrl, intent_engine and
@@ -13,10 +12,11 @@ XCORE-VOICE change log
   * ADDED: Support for DFU over I2C for FFVA INT example.
   * ADDED: FFD example with I2S audio input to Cyberon speech recognition
     engine and model.
-  * CHANGED: Updated submodule fwk_rtos to version 3.1.0 from 3.0.5.
-  * ADDED: lib_sw_pll submodule v1.1.0.
   * REMOVED: flash settings in .xn files, as they are not required by XMOS
     Tools 15.2.x.
+  * ADDED: Support for reading registers over I2C slave in FFD examples.
+  * CHANGED: Updated submodule fwk_rtos to version 3.2.0 from 3.0.5.
+  * ADDED: lib_sw_pll submodule v1.1.0.
 
 2.2.0
 -----
