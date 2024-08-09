@@ -15,9 +15,6 @@
 
 /* Library headers */
 #include "rtos_printf.h"
-#if appconfI2S_ENABLED
-#include "src.h"
-#endif
 
 /* App headers */
 #include "app_conf.h"
@@ -30,6 +27,10 @@
 #include "gpio_ctrl/gpi_ctrl.h"
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
+
+#if appconfI2S_ENABLED
+#include "src.h"
+#endif
 
 #if appconfRECOVER_MCLK_I2S_APP_PLL
 /* Config headers for sw_pll */

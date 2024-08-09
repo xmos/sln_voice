@@ -69,7 +69,7 @@ static void i2c_slave_start(void)
 
 static void audio_codec_start(void)
 {
-#if #if appconfI2S_ENABLED && appconfI2C_MASTER_DAC_ENABLED
+#if appconfI2S_ENABLED && appconfI2C_MASTER_DAC_ENABLED
     int ret = 0;
 #if ON_TILE(I2C_TILE_NO)
     if (dac3101_init(appconfI2S_AUDIO_SAMPLE_RATE) != 0) {

@@ -132,11 +132,7 @@
 #define appconfI2C_SLAVE_DEVICE_ADDR 0x42
 #endif
 
-#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && !appconfI2C_MASTER_ENABLED
-#error "I2C master must be enabled for intent I2C output"
-#endif
-
-#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && appconfINTENT_I2C_SLAVE_POLLED_ENABLED
 #error "The intent message cannot be sent over I2C master and polled via I2C slave simultaneously"
 #endif
 
