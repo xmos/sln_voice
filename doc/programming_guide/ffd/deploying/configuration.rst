@@ -41,16 +41,16 @@ If options are changed, the application firmware must be rebuilt.
      - Enables/disables the |I2C| master mode to configure the DAC and send the intent message
      - 1
    * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-     - Sets the |I2C| address to transmit the intent to via the |I2C| master interface
+     - Sets the address of the |I2C| device receiving the intent via the |I2C| master interface
      - 0x01
    * - appconfI2C_SLAVE_ENABLED
      - Enables/disables the |I2C| slave mode to read the device register with the intent message
      - 0
    * - appconfI2C_SLAVE_DEVICE_ADDR
-     - Sets the |I2C| address to read the intent message from via the |I2C| slave interface
+     - Sets the address of the |I2C| device receiving the intent via the |I2C| slave interface
      - 0x42
    * - appconfINTENT_I2C_REG_ADDRESS
-     - Sets the |I2C| register to store the intent message, this value can be read via the |I2C| slave interface
+     - Sets the address of the |I2C| register to store the intent message, this value can be read via the |I2C| slave interface
      - 0x01
    * - appconfUART_BAUD_RATE
      - Sets the baud rate for the UART tx intent interface
@@ -94,13 +94,13 @@ If options are changed, the application firmware must be rebuilt.
 Configuring the |I2C| interfaces
 --------------------------------
 
-The |I2C| interfaces are used to configure the DAC and to communicate with the host. The |I2C| interface can be configured as a master and a slave.
+The |I2C| interfaces are used to configure the DAC and to communicate with the host. The |I2C| interface can be configured as a master or a slave.
 The DAC must be configured at bootup via the |I2C| master interface.
-The |I2C| master is used to send intent messages to the host, and the |I2C| slave is used to read intent messages from the host.
+The |I2C| master is used when the FFD example asynchronously sends intent messages to the host.  The |I2C| slave is used when the host wants to read intent messages from the FFD example through polling.
 
 .. note::
-  Since the |I2C| interface cannot operate as both a master and a slave simultaneously, the FFD example design uses the |I2C| master interface to configure the DAC at bootup.
-  However, if the |I2C| slave interface is used to read intent messages, the |I2C| master interface will be disabled after the DAC configuration is complete.
+  The |I2C| interface cannot operate as both master and slave simultaneously. The FFD example design uses the |I2C| master interface to configure the DAC at device initialisation.
+  However, if the host reads intent messages from the FFD example using the |I2C| slave interface, the |I2C| master interface will be disabled after the DAC configuration is complete.
 
 The |I2C| master and slave can be enabled or disabled by setting the ``appconfI2C_MASTER_ENABLED`` and ``appconfI2C_SLAVE_ENABLED`` configuration variables.
 

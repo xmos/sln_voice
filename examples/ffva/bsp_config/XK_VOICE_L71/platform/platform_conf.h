@@ -153,7 +153,7 @@
 #endif /* appconfI2C_TASK_PRIORITY */
 
 #ifndef appconfSPI_TASK_PRIORITY
-#define appconfSPI_TASK_PRIORITY                ( configMAX_PRIORITIES/2)
+#define appconfSPI_TASK_PRIORITY                (configMAX_PRIORITIES/2)
 #endif /* appconfSPI_TASK_PRIORITY */
 
 #ifndef appconfDEVICE_CONTROL_I2C_PRIORITY
