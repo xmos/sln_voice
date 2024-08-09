@@ -121,7 +121,7 @@ Configuring the |I2S| interface
 -------------------------------
 
 The |I2S| interface is used to send the intent audio to the DAC, and to receive the audio samples from the host. The |I2S| interface can be configured as either a master or a slave.
-To configure the |I2S| interface to send the audio to the DAC, set the following variables:
+To configure the |I2S| interface, set the following variables:
 
   - ``appconfI2S_ENABLED`` to 1.
   - ``appconfI2S_MODE`` to the desired mode, either ``appconfI2S_MODE_MASTER`` or ``appconfI2S_MODE_SLAVE``.
