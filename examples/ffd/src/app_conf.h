@@ -71,12 +71,12 @@
 #define appconfINTENT_TRANSPORT_DELAY_MS     50
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_ENABLED
-#define appconfINTENT_I2C_OUTPUT_ENABLED   1
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR 0x01
+#ifndef appconfINTENT_I2C_MASTER_DEVICE_ADDR
+#define appconfINTENT_I2C_MASTER_DEVICE_ADDR 0x01
 #endif
 
 /* @brief Address for wakeword register to be read over I2C slave*/
@@ -104,28 +104,40 @@
 #define appconfI2S_MODE_SLAVE      1
 #endif
 
+#ifndef appconfI2S_ENABLED
+#define appconfI2S_ENABLED         1
+#endif
+
 #ifndef appconfI2S_MODE
 #define appconfI2S_MODE            appconfI2S_MODE_MASTER
 #endif
 
-#ifndef appconfI2C_MASTER_ENABLED
-#define appconfI2C_MASTER_ENABLED  1
+#ifndef appconfUSE_I2S_INPUT
+#define appconfUSE_I2S_INPUT       0
 #endif
 
-#ifndef appconfI2C_SLAVE_ENABLED
-#define appconfI2C_SLAVE_ENABLED   0
+#if appconfUSE_I2S_INPUT && !appconfI2S_ENABLED
+#error "I2S must be enabled if receiving the audio over I2S"
+#endif
+
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
+#endif
+
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   0
 #endif
 
 #ifndef appconfI2C_SLAVE_DEVICE_ADDR
 #define appconfI2C_SLAVE_DEVICE_ADDR 0x42
 #endif
 
-#if appconfINTENT_I2C_OUTPUT_ENABLED && !appconfI2C_MASTER_ENABLED
+#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && !appconfI2C_MASTER_ENABLED
 #error "I2C master must be enabled for intent I2C output"
 #endif
 
-#if appconfI2C_SLAVE_ENABLED && appconfINTENT_I2C_OUTPUT_ENABLED
-#error "I2C slave cannot be enabled when intent I2C output over I2C master is enabled"
+#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#error "The intent message cannot be sent over I2C master and polled via I2C slave simultaneously"
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR

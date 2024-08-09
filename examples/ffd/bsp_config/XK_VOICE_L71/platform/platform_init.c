@@ -72,7 +72,7 @@ static void gpio_init(void)
 
 static void i2c_init(void)
 {
-#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfINTENT_I2C_SLAVE_POLLED_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,
@@ -80,7 +80,7 @@ static void i2c_init(void)
                         appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 
-#if appconfI2C_MASTER_ENABLED
+#if appconfI2C_MASTER_DAC_ENABLED || appconfINTENT_I2C_OUTPUT_ENABLED
     static rtos_driver_rpc_t i2c_rpc_config;
 
 #if ON_TILE(I2C_TILE_NO)
@@ -176,7 +176,7 @@ static void mics_init(void)
 
 static void i2s_init(void)
 {
-#if appconfUSE_I2S_INPUT
+#if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     static rtos_driver_rpc_t i2s_rpc_config;
 #endif

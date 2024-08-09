@@ -67,12 +67,12 @@
 #define appconfINTENT_TRANSPORT_DELAY_MS        50
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_ENABLED
-#define appconfINTENT_I2C_OUTPUT_ENABLED        1
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED        1
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR    0x01
+#ifndef appconfINTENT_I2C_MASTER_DEVICE_ADDR
+#define appconfINTENT_I2C_MASTER_DEVICE_ADDR    0x01
 #endif
 
 #ifndef appconfINTENT_UART_OUTPUT_ENABLED
