@@ -38,13 +38,13 @@ If options are changed, the application firmware must be rebuilt.
      - Enables/disables the |I2C| intent message
      - 1
    * - appconfI2C_MASTER_ENABLED
-     - Enabled the |I2C| master mode to configure the DAC and send the intent message
+     - Enables/disables the |I2C| master mode to configure the DAC and send the intent message
      - 1
    * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
      - Sets the |I2C| address to transmit the intent to via the |I2C| master interface
      - 0x01
-   * - appconfI2C_SALVE_ENABLED
-     - Enabled the |I2C| slave mode to read the device register with the intent message
+   * - appconfI2C_SLAVE_ENABLED
+     - Enables/disables the |I2C| slave mode to read the device register with the intent message
      - 0
    * - appconfI2C_SLAVE_DEVICE_ADDR
      - Sets the |I2C| address to read the intent message from via the |I2C| slave interface
