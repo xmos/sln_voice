@@ -111,7 +111,7 @@ To send the intent ID via the |I2C| master interface when a command is detected,
   - ``appconfINTENT_I2C_OUTPUT_DEVICE_ADDR`` to the desired address used by the |I2C| slave device.
   - ``appconfI2C_SLAVE_ENABLED`` to 0.
 
-The retrieve the intent message from the host via the |I2C| slave interface, set the following variables:
+To configure the FFD example so that the host can poll for the intent via the |I2C| slave interface, set the following variables:
 
   - ``appconfI2C_SLAVE_ENABLED`` to 1.
   - ``appconfI2C_SLAVE_DEVICE_ADDR`` to the desired address used by the |I2C| master device.
