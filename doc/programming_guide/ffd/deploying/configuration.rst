@@ -113,21 +113,19 @@ To configure the FFD example so that the host can poll for the intent via the |I
   - ``appconfINTENT_I2C_SLAVE_POLLED_ENABLED`` to 1.
   - ``appconfI2C_SLAVE_DEVICE_ADDR`` to the desired address used by the |I2C| master device.
   - ``appconfINTENT_I2C_REG_ADDRESS`` to the desired register read by the |I2C| master device.
-  - ``appconfINTENT_I2C_MASTER_OUTPUT_ENABLED`` to 0, this will disable the |I2C| master interface.
+  - ``appconfINTENT_I2C_MASTER_OUTPUT_ENABLED`` to 0, this will disable the |I2C| master interface after initialization.
 
 The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_reg_handling.c`` file. The variable ``appconfINTENT_I2C_REG_ADDRESS`` is used in the callback function ``read_device_reg()``.
 
 Configuring the |I2S| interface
 -------------------------------
 
-The |I2S| interface is used to send the intent audio to the DAC and to receive the audio data from the host. The |I2S| interface can be configured as either a master or a slave.
+The |I2S| interface is used to send the intent audio to the DAC, and to receive the audio samples from the host. The |I2S| interface can be configured as either a master or a slave.
 To configure the |I2S| interface to send the audio to the DAC, set the following variables:
 
   - ``appconfI2S_ENABLED`` to 1.
   - ``appconfI2S_MODE`` to the desired mode, either ``appconfI2S_MODE_MASTER`` or ``appconfI2S_MODE_SLAVE``.
   - ``appconfI2S_AUDIO_SAMPLE_RATE`` to the desired sample rate, either 16000 or 48000.
   - ``appconfRECOVER_MCLK_I2S_APP_PLL`` to 1 if an external MCLK is not available, otherwise set it to 0.
-
-To configure the |I2S| interface to receive audio data from the host, set the variables above and set the following variable:
-
-  - ``appconfUSE_I2S_INPUT`` to 1.
+  - ``appconfAUDIO_PLAYBACK_ENABLED`` to 1, if the intent audio is to be played back.
+  - ``appconfUSE_I2S_INPUT`` to 1, if the |I2S| audio source is to be used instead of the microphone array audio source.
