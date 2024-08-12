@@ -14,7 +14,7 @@
 
 static void mclk_init(chanend_t other_tile_c)
 {
-#if ON_TILE(1) && !appconfEXTERNAL_MCLK
+#if ON_TILE(I2S_TILE_NO) && !appconfEXTERNAL_MCLK
     app_pll_init();
 #endif
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)

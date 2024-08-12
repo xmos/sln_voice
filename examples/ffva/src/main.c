@@ -68,7 +68,7 @@ void i2s_slave_intertile(void *args) {
                     portMAX_DELAY);
 
 
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
     sw_pll_ctx_t* i2s_callback_args = (sw_pll_ctx_t*) args;
     port_clear_buffer(i2s_callback_args->p_bclk_count);
     port_in(i2s_callback_args->p_bclk_count);                                  // Block until BCLK transition to synchronise. Will consume up to 1/64 of a LRCLK cycle
@@ -353,7 +353,7 @@ void startup_task(void *arg)
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
     platform_start();
 
-#if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+#if ON_TILE(I2S_TILE_NO) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 
 // Use sw_pll_ctx only if the MCLK recovery is enabled
 #if appconfRECOVER_MCLK_I2S_APP_PLL

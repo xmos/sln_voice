@@ -120,7 +120,7 @@ The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_
 Configuring the |I2S| interface
 -------------------------------
 
-The |I2S| interface is used to send the intent audio to the DAC, and to receive the audio samples from the host. The |I2S| interface can be configured as either a master or a slave.
+The |I2S| interface is used to send the intent audio to the DAC, and/or to receive the audio samples from the host. The |I2S| interface can be configured as either a master or a slave.
 To configure the |I2S| interface, set the following variables:
 
   - ``appconfI2S_ENABLED`` to 1.

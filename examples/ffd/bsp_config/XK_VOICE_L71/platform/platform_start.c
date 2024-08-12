@@ -53,7 +53,7 @@ static void i2c_master_start(void)
 
 static void i2c_slave_start(void)
 {
-#if appconfINTENT_I2C_SLAVE_POLLED_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfINTENT_I2C_SLAVE_POLLED_ENABLED && ON_TILE(I2C_TILE_NO)
     rtos_i2c_slave_start(i2c_slave_ctx,
                          &last_asr_result,
                          (rtos_i2c_slave_start_cb_t) NULL,

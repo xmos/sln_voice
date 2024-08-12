@@ -124,8 +124,8 @@
 #define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
 #endif
 
-#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
-#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   0
+#ifndef appconfI2C_MASTER_DAC_ENABLED
+#define appconfI2C_MASTER_DAC_ENABLED   1
 #endif
 
 #ifndef appconfI2C_SLAVE_DEVICE_ADDR
