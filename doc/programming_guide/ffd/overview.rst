@@ -13,6 +13,13 @@ The examples using the microphone array as the audio source include an audio pip
     #. Noise Suppressor (NS)
     #. Adaptive Gain Control (AGC)
 
+The FFD examples provide several options to inform the host of a possible intent detected by the intent engine. The device can notify the host by:
+
+  - sending the intent ID over UART interface upon the detection
+  - sending the intent ID over |I2C| master interface upon the detection
+  - allowing the host polling the last detected intent ID over |I2C| slave interface
+  - listening to an audio message over the |I2S| interface
+
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
 Sensory's THF and Cyberon's DSpotter™ libraries ship with an expiring development license. The Sensory one will suspend recognition after 11.4 hours or 107 recognition events, and the Cyberon one will suspend recognition after 100 recognition events. After the maximum number of recognitions is reached, a device reset is required to resume normal operation. To perform a reset, either power cycle the device or press the SW2 button.

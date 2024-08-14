@@ -44,7 +44,7 @@ If options are changed, the application firmware must be rebuilt.
      - Sets the address of the |I2C| device receiving the intent via the |I2C| master interface
      - 0x01
    * - appconfINTENT_I2C_SLAVE_POLLED_ENABLED
-     - Enables/disables allowing polling the intent message via |I2C| slave
+     - Enables/disables allowing another device to poll the intent message via |I2C| slave
      - 0
    * - appconfI2C_SLAVE_DEVICE_ADDR
      - Sets the address of the |I2C| device receiving the intent via the |I2C| slave interface
@@ -120,7 +120,7 @@ The handling of the |I2C| slave registers is done in the ``examples\ffd\src\i2c_
 Configuring the |I2S| interface
 -------------------------------
 
-The |I2S| interface is used to send the intent audio to the DAC, and/or to receive the audio samples from the host. The |I2S| interface can be configured as either a master or a slave.
+The |I2S| interface is used to play the audio command response to the DAC, and/or to receive the audio samples from the host. The |I2S| interface can be configured as either a master or a slave.
 To configure the |I2S| interface, set the following variables:
 
   - ``appconfI2S_ENABLED`` to 1.
