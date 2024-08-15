@@ -15,10 +15,10 @@ The examples using the microphone array as the audio source include an audio pip
 
 The FFD examples provide several options to inform the host of a possible intent detected by the intent engine. The device can notify the host by:
 
-  - sending the intent ID over UART interface upon the detection
-  - sending the intent ID over |I2C| master interface upon the detection
-  - allowing the host polling the last detected intent ID over |I2C| slave interface
-  - listening to an audio message over the |I2S| interface
+  - sending the intent ID over a UART interface upon detecting the intent
+  - sending the intent ID over an |I2C| master interface upon detecting the intent
+  - allowing the host to poll the last detected intent ID over the |I2C| slave interface
+  - listening to an audio message over an |I2S| interface
 
 When a wakeword phrase is detected followed by a command phrase, the application will output an audio response and a discrete message over |I2C| and UART.
 
