@@ -26,13 +26,13 @@ If options are changed, the application firmware must be rebuilt.
    * - appconfINTENT_UART_OUTPUT_ENABLED
      - Enables/disables the UART intent message
      - 1
-   * - appconfINTENT_I2C_OUTPUT_ENABLED
-     - Enables/disables the |I2C| intent message
+   * - appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+     - Enables/disables sending the intent message over |I2C| master
      - 1
    * - appconfUART_BAUD_RATE
      - Sets the baud rate for the UART tx intent interface
      - 9600
-   * - appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
+   * - appconfINTENT_I2C_MASTER_DEVICE_ADDR
      - Sets the |I2C| slave address to transmit the intent to
      - 0x01
    * - appconfINTENT_TRANSPORT_DELAY_MS

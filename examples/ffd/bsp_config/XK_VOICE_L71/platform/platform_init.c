@@ -12,7 +12,7 @@
 
 static void mclk_init(chanend_t other_tile_c)
 {
-#if ON_TILE(1)
+#if ON_TILE(I2S_TILE_NO)
     app_pll_init();
 #endif
 }
@@ -54,7 +54,7 @@ static void gpio_init(void)
             intertile_ctx);
 #endif
 
-#if ON_TILE(1)
+#if ON_TILE(I2S_TILE_NO)
     rtos_gpio_init(gpio_ctx_t1);
 
     rtos_gpio_rpc_client_init(
@@ -72,7 +72,7 @@ static void gpio_init(void)
 
 static void i2c_init(void)
 {
-#if appconfI2C_SLAVE_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+#if appconfINTENT_I2C_SLAVE_POLLED_ENABLED && ON_TILE(I2C_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,
@@ -80,7 +80,7 @@ static void i2c_init(void)
                         appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 
-#if appconfI2C_MASTER_ENABLED
+#if appconfI2C_MASTER_DAC_ENABLED || appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
     static rtos_driver_rpc_t i2c_rpc_config;
 
 #if ON_TILE(I2C_TILE_NO)
@@ -106,7 +106,7 @@ static void i2c_init(void)
 #endif
 }
 
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
 static int *p_lock_status = NULL;
 /// @brief Save the pointer to the pll lock_status variable
 static void set_pll_lock_status_ptr(int* p)
@@ -117,7 +117,7 @@ static void set_pll_lock_status_ptr(int* p)
 
 static void platform_sw_pll_init(void)
 {
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
 
     port_t p_bclk = PORT_I2S_BCLK;
     port_t p_mclk = PORT_MCLK;
@@ -176,7 +176,7 @@ static void mics_init(void)
 
 static void i2s_init(void)
 {
-#if appconfUSE_I2S_INPUT
+#if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     static rtos_driver_rpc_t i2s_rpc_config;
 #endif

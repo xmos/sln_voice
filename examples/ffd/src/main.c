@@ -15,9 +15,6 @@
 
 /* Library headers */
 #include "rtos_printf.h"
-#if appconfUSE_I2S_INPUT
-#include "src.h"
-#endif
 
 /* App headers */
 #include "app_conf.h"
@@ -31,6 +28,10 @@
 #include "gpio_ctrl/leds.h"
 #include "intent_handler/intent_handler.h"
 
+#if appconfI2S_ENABLED
+#include "src.h"
+#endif
+
 #if appconfRECOVER_MCLK_I2S_APP_PLL
 /* Config headers for sw_pll */
 #include "sw_pll.h"
@@ -40,7 +41,7 @@
 #define MEM_ANALYSIS_ENABLED 0
 #endif
 
-#if appconfUSE_I2S_INPUT && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+#if appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 void i2s_slave_intertile()
 {
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -146,7 +147,7 @@ int audio_pipeline_output(void *output_app_data,
 
     return AUDIO_PIPELINE_FREE_FRAME;
 }
-#if appconfUSE_I2S_INPUT
+#if appconfI2S_ENABLED
 RTOS_I2S_APP_SEND_FILTER_CALLBACK_ATTR
 size_t i2s_send_upsample_cb(rtos_i2s_t *ctx, void *app_data, int32_t *i2s_frame, size_t i2s_frame_size, int32_t *send_buf, size_t samples_available)
 {
@@ -252,7 +253,7 @@ void startup_task(void *arg)
 
     platform_start();
 
-#if ON_TILE(1) && appconfUSE_I2S_INPUT && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+#if ON_TILE(I2S_TILE_NO) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
