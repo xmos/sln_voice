@@ -169,9 +169,8 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
     {
         DBG_TRACE("\r\nGet %s, ID=%d, Score=%d, SG_Diff=%d, Energy=%d\r\n", szCommand, nCmdID, nCmdScore, nCmdSG, nCmdEnergy);
         result->id = nCmdID;
-
-        result->score = nCmdScore;
-        result->gscore = nCmdSG;
+        result->sg_diff = nCmdSG;
+        result->energy = nCmdEnergy;
         // The following result fields are not implemented
         result->start_index = -1;
         result->end_index = -1;

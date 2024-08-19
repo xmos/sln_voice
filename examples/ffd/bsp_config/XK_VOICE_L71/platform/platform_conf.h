@@ -54,6 +54,14 @@
 #define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
 #endif /* appconfI2S_IO_CORE */
 
+#ifndef appconfI2C_IO_CORE
+#define appconfI2C_IO_CORE                      3 /* Must be kept off core 0 with the RTOS tick ISR */
+#endif /* appconfI2C_IO_CORE */
+
+#ifndef appconfI2C_INTERRUPT_CORE
+#define appconfI2C_INTERRUPT_CORE               0 /* Must be kept off I/O cores. */
+#endif /* appconfI2C_INTERRUPT_CORE */
+
 #ifndef appconfPDM_MIC_INTERRUPT_CORE
 #define appconfPDM_MIC_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
 #endif /* appconfPDM_MIC_INTERRUPT_CORE */
@@ -81,7 +89,11 @@
 /*  I/O Task Priorities                  */
 /*****************************************/
 #ifndef appconfQSPI_FLASH_TASK_PRIORITY
-#define appconfQSPI_FLASH_TASK_PRIORITY		    ( configMAX_PRIORITIES - 1 )
+#define appconfQSPI_FLASH_TASK_PRIORITY		    (configMAX_PRIORITIES-1)
 #endif /* appconfQSPI_FLASH_TASK_PRIORITY */
+
+#ifndef appconfI2C_TASK_PRIORITY
+#define appconfI2C_TASK_PRIORITY                (configMAX_PRIORITIES/2)
+#endif /* appconfI2C_TASK_PRIORITY */
 
 #endif /* PLATFORM_CONF_H_ */

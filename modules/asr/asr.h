@@ -64,11 +64,16 @@ typedef struct asr_attributes_struct
 typedef struct asr_result_struct
 {
     uint16_t id;             ///< Keyword or command ID
+
+    // The following fields are optional and may not be supported by all ASR ports
     uint16_t score;          ///< The confidence score of the detection
     uint16_t gscore;         ///< The garbage score
     int32_t  start_index;    ///< The audio sample index that corresponds to the start of the utterance
     int32_t  end_index;      ///< The audio sample index that corresponds to the end of the utterance
     int32_t  duration;       ///< THe length of the utterance in samples
+    uint32_t sg_diff;        ///< The voice similarity of the detection
+    uint32_t energy;         ///< The energy of the detection
+
     void*    reserved;       ///< Reserved for future use
 } asr_result_t;
 

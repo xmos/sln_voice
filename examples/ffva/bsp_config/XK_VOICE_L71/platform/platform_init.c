@@ -18,7 +18,7 @@ extern device_control_t *device_control_i2c_ctx;
 
 static void mclk_init(chanend_t other_tile_c)
 {
-#if !appconfEXTERNAL_MCLK && ON_TILE(1)
+#if !appconfEXTERNAL_MCLK && ON_TILE(I2S_TILE_NO)
     app_pll_init();
 #endif
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
@@ -115,7 +115,7 @@ static void i2c_init(void)
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SCL,
                         PORT_I2C_SDA,
-                        appconf_CONTROL_I2C_DEVICE_ADDR);
+                        appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 
 #if ON_TILE(I2C_TILE_NO)
@@ -154,7 +154,7 @@ static void spi_init(void)
 #endif
 }
 
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
 static int *p_lock_status = NULL;
 /// @brief Save the pointer to the pll lock_status variable
 static void set_pll_lock_status_ptr(int* p)
@@ -165,7 +165,7 @@ static void set_pll_lock_status_ptr(int* p)
 
 static void platform_sw_pll_init(void)
 {
-#if ON_TILE(1) && appconfRECOVER_MCLK_I2S_APP_PLL
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
 
     port_t p_bclk = PORT_I2S_BCLK;
     port_t p_mclk = PORT_MCLK;

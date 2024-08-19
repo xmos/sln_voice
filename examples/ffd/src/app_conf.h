@@ -71,12 +71,17 @@
 #define appconfINTENT_TRANSPORT_DELAY_MS     50
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_ENABLED
-#define appconfINTENT_I2C_OUTPUT_ENABLED   1
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR 0x01
+#ifndef appconfINTENT_I2C_MASTER_DEVICE_ADDR
+#define appconfINTENT_I2C_MASTER_DEVICE_ADDR 0x01
+#endif
+
+/* @brief Address for wakeword register to be read over I2C slave*/
+#ifndef appconfINTENT_I2C_REG_ADDRESS
+#define appconfINTENT_I2C_REG_ADDRESS        0x01
 #endif
 
 #ifndef appconfINTENT_UART_OUTPUT_ENABLED
@@ -91,10 +96,6 @@
 #define appconfUART_BAUD_RATE       9600
 #endif
 
-#ifndef appconfI2S_ENABLED
-#define appconfI2S_ENABLED   1
-#endif
-
 #ifndef appconfI2S_MODE_MASTER
 #define appconfI2S_MODE_MASTER     0
 #endif
@@ -103,8 +104,36 @@
 #define appconfI2S_MODE_SLAVE      1
 #endif
 
+#ifndef appconfI2S_ENABLED
+#define appconfI2S_ENABLED         1
+#endif
+
 #ifndef appconfI2S_MODE
 #define appconfI2S_MODE            appconfI2S_MODE_MASTER
+#endif
+
+#ifndef appconfUSE_I2S_INPUT
+#define appconfUSE_I2S_INPUT       0
+#endif
+
+#if appconfUSE_I2S_INPUT && !appconfI2S_ENABLED
+#error "I2S must be enabled if receiving the audio over I2S"
+#endif
+
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
+#endif
+
+#ifndef appconfI2C_MASTER_DAC_ENABLED
+#define appconfI2C_MASTER_DAC_ENABLED   1
+#endif
+
+#ifndef appconfI2C_SLAVE_DEVICE_ADDR
+#define appconfI2C_SLAVE_DEVICE_ADDR 0x42
+#endif
+
+#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && appconfINTENT_I2C_SLAVE_POLLED_ENABLED
+#error "The intent message cannot be sent over I2C master and polled via I2C slave simultaneously"
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR

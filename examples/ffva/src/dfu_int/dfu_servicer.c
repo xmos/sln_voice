@@ -114,7 +114,7 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
         payload[2] = time_mid;
         payload[3] = time_high;
         payload[4] = retval.next_state;
-        
+
         break;
     }
 
@@ -130,7 +130,7 @@ control_ret_t dfu_servicer_read_cmd(control_resource_info_t *res_info, control_c
     {
         debug_printf("DFU_CONTROLLER_SERVICER_RESID_DFU_TRANSFERBLOCK\n");
         uint16_t transferblock =  dfu_int_get_transfer_block();
-        
+
         uint8_t tb_high, tb_low;
         tb_low = (uint8_t)(transferblock & 0xFF);
         tb_high = (uint8_t)((transferblock >> 8) & 0xFF);

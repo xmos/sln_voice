@@ -124,9 +124,9 @@
 #define appconfEXTERNAL_MCLK       1
 #endif /* appconfEXTERNAL_MCLK */
 
-#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
+#ifndef appconfI2C_SLAVE_DEVICE_ADDR
+#define appconfI2C_SLAVE_DEVICE_ADDR 0x42
+#endif /* appconfI2C_SLAVE_DEVICE_ADDR*/
 
 #ifndef appconfSPI_OUTPUT_ENABLED
 #define appconfSPI_OUTPUT_ENABLED  0
@@ -145,7 +145,7 @@
 /*  I/O Task Priorities                  */
 /*****************************************/
 #ifndef appconfQSPI_FLASH_TASK_PRIORITY
-#define appconfQSPI_FLASH_TASK_PRIORITY		    ( configMAX_PRIORITIES - 1 )
+#define appconfQSPI_FLASH_TASK_PRIORITY		    (configMAX_PRIORITIES-1)
 #endif /* appconfQSPI_FLASH_TASK_PRIORITY */
 
 #ifndef appconfI2C_TASK_PRIORITY

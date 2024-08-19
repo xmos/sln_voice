@@ -14,7 +14,7 @@
 
 static void mclk_init(chanend_t other_tile_c)
 {
-#if ON_TILE(1) && !appconfEXTERNAL_MCLK
+#if ON_TILE(I2S_TILE_NO) && !appconfEXTERNAL_MCLK
     app_pll_init();
 #endif
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
@@ -94,7 +94,7 @@ static void i2c_init(void)
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SLAVE_SCL,
                         PORT_I2C_SLAVE_SDA,
-                        appconf_CONTROL_I2C_DEVICE_ADDR);
+                        appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 #else
     static rtos_driver_rpc_t i2c_rpc_config;
