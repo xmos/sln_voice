@@ -2,6 +2,26 @@
 Overview
 ********
 
+.. warning::
+
+   This example is based on the RTOS framework and drivers. This choice allowed simplifying the example design, but it lead to some latency in the system.
+   The main sources of latency are:
+
+      - the size of the buffer to which the ASRC output samples are written
+      - RTOS task scheduling overhead between the tasks
+      - bInterval of USB in the RTOS drivers is set to 4, i.e. one frame every 1ms
+      - Block based implementation of the USB and I2S RTOS drivers
+
+   The expected latencies for USB at 48 kHz are as follows:
+
+      - USB -> ASRC -> I2S: from 8 ms at |I2S| at 192 kHz to 22 ms at 44.1 kHz
+      - I2S -> ASRC -> USB: from 13 ms at |I2S| at 192 kHz to 19 ms at 44.1 kHz
+
+   For a proposed implementation with lower latency, please refer to the bare-metal examples below:
+
+      - TODO- Update link! `AN02002: Adding an additional |I2S| bus to USB Audio (via SRC )<https://www.xmos.com/file/an02003-spdif-adat-i2s-slave-receive-to-i2s-slave-bridge-with-asrc/>`__.
+      - `AN02003: SPDIF/ADAT/|I2S| Slave Receive to |I2S| Slave Bridge with ASRC <https://www.xmos.com/file/an02003-spdif-adat-i2s-slave-receive-to-i2s-slave-bridge-with-asrc/>`__
+
 This is the |SOFTWARE_URL| Asynchronous Sampling Rate Converter (ASRC) example design.
 
 The example system implements a stereo |I2S| Slave and a stereo Adaptive UAC2.0 interface and exchanges data between the two interfaces.
@@ -55,8 +75,6 @@ The table :ref:`table-pin-connections-label` lists the pins on the XK-VOICE-L71 
      - |I2S| Data output from the Master
    * - One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)
      - GND on the |I2S| Master board
-
-
 
 Obtaining the app files
 =======================

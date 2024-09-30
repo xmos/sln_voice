@@ -2,6 +2,18 @@
 ASRC Demo Application
 *********************
 
+.. warning::
+
+   This example is based on the RTOS framework and drivers, and it can lead to latency of up to 20 ms in the system.
+   More information can be found in the Overview section of the ASRC example in the Programming Guide.
+
+   For a proposed implementation with lower latency, please refer to the bare-metal examples below:
+
+      - TODO- Update link! `AN02002: Adding an additional |I2S| bus to USB Audio (via SRC )<https://www.xmos.com/file/an02003-spdif-adat-i2s-slave-receive-to-i2s-slave-bridge-with-asrc/>`__.
+      - `AN02003: SPDIF/ADAT/|I2S| Slave Receive to |I2S| Slave Bridge with ASRC <https://www.xmos.com/file/an02003-spdif-adat-i2s-slave-receive-to-i2s-slave-bridge-with-asrc/>`__
+
+
+
 This is the XCORE-VOICE Asynchronous Sampling Rate Converter (ASRC) example design.
 
 The example system implements a stereo I2S slave and a stereo adaptive UAC2.0 interface and exchanges data between the two interfaces.
