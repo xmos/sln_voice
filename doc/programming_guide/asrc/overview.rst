@@ -6,7 +6,7 @@ This is the |SOFTWARE_URL| Asynchronous Sampling Rate Converter (ASRC) example d
 
 The example system implements a stereo |I2S| Slave and a stereo Adaptive UAC2.0 interface and exchanges data between the two interfaces.
 Since the two interfaces are operating in different clock domains, there is an ASRC block between them that converts from the input to the output sampling rate.
-There are two ASRC blocks, one each in the |I2S| >> ASRC >> USB and USB >> ASRC >> |I2S| path, as illustrated in the :ref:`fig-asrc-top-level-label`.
+There are two ASRC blocks, one each in the |I2S| -> ASRC -> USB and USB -> ASRC -> |I2S| path, as illustrated in the :ref:`fig-asrc-top-level-label`.
 The diagram also shows the rate calculation path, which monitors and computes the instantaneous ratio between the ASRC input and output sampling rate.
 The rate ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
 
@@ -25,7 +25,7 @@ The |I2S| Slave interface is a stereo 32 bit interface supporting sampling rates
 The USB interface is a stereo, 32 bit, 48 kHz, High-Speed, USB Audio Class 2, Adaptive interface.
 
 The ASRC algorithm implemented in the `lib_src <https://github.com/xmos/lib_src/>`_ library is used for the ASRC processing.
-The ASRC processing is block based and works on a block size of 244 samples per channel in the |I2S| >> ASRC >> USB path and 96 samples per channel in the USB >> ASRC >> |I2S| path.
+The ASRC processing is block based and works on a block size of 244 samples per channel in the |I2S| -> ASRC -> USB path and 96 samples per channel in the USB -> ASRC -> |I2S| path.
 
 Supported Hardware
 ==================
