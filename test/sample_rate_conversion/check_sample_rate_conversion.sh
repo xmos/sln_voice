@@ -81,4 +81,4 @@ echo "  OUTPUT_WAV="${OUTPUT_WAV}
 echo "  LENGTH="${LENGTH}
 
 # reset board for the next test
-xrun --reset --adapter-id ${ADAPTER_ID}
+xrun --reset ${ADAPTER_ID}
