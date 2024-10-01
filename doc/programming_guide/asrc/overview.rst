@@ -11,7 +11,7 @@ Overview
       - Large size of the buffer to which the ASRC output samples are written: a stable level (half full) must be reached before  the start of streaming out over USB.
       - RTOS task scheduling overhead between the tasks.
       - bInterval of USB in the RTOS drivers is set to 4, i.e. one frame every 1 ms.
-      - Block based implementation of the USB and I2S RTOS drivers.
+      - Block based implementation of the USB and |I2S| RTOS drivers.
 
    The expected latencies for USB at 48 kHz are as follows:
 
