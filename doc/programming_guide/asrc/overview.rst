@@ -4,19 +4,19 @@ Overview
 
 .. warning::
 
-   This example is based on the RTOS framework and drivers. This choice allowed simplifying the example design, but it lead to some latency in the system.
+   This example is based on the RTOS framework and drivers.  This choice simplifies the example design, but it leads to high latency in the system.
    The main sources of latency are:
 
       - Large block size used for ASRC processing: this is necessary to minimise latency associated with the intertile context and thread switching overhead.
-      - Large size of the buffer to which the ASRC output samples are written: a stable level (half full) must be reached before starting streaming out over USB.
+      - Large size of the buffer to which the ASRC output samples are written: a stable level (half full) must be reached before  the start of streaming out over USB.
       - RTOS task scheduling overhead between the tasks.
-      - bInterval of USB in the RTOS drivers is set to 4, i.e. one frame every 1ms.
+      - bInterval of USB in the RTOS drivers is set to 4, i.e. one frame every 1 ms.
       - Block based implementation of the USB and I2S RTOS drivers.
 
    The expected latencies for USB at 48 kHz are as follows:
 
-      - USB -> ASRC -> I2S: from 8 ms at |I2S| at 192 kHz to 22 ms at 44.1 kHz
-      - I2S -> ASRC -> USB: from 13 ms at |I2S| at 192 kHz to 19 ms at 44.1 kHz
+      - USB -> ASRC -> |I2S|: from 8 ms at |I2S| at 192 kHz to 22 ms at 44.1 kHz
+      - |I2S| -> ASRC -> USB: from 13 ms at |I2S| at 192 kHz to 19 ms at 44.1 kHz
 
    For a proposed implementation with lower latency, please refer to the bare-metal examples below:
 
