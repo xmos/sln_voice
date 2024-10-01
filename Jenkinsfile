@@ -53,7 +53,6 @@ pipeline {
                         stage('Build tests') {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
-                                {
                                 //script {
                                 //    uid = sh(returnStdout: true, script: 'id -u').trim()
                                 //    gid = sh(returnStdout: true, script: 'id -g').trim()
