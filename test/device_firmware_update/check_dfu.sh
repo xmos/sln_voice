@@ -50,7 +50,7 @@ fi
 
 
 # reset board
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+xrun --reset --adapter-id ${ADAPTER_ID}
 
 # flash the data partition
 # build_tests.sh creates example_ffva_ua_adec_altarch_data_partition.bin used here
@@ -78,7 +78,7 @@ xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR}
 dfu-util -e -d  ${USB_VID}:${USB_PID} -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # reset board
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+xrun --reset --adapter-id ${ADAPTER_ID}
 
 # wait for dust to gather
 sleep 5

@@ -9,7 +9,7 @@ help()
    echo "XCORE-VOICE Sample Rate Conversion test"
    echo
    echo "Syntax: check_sample_rate_conversion.sh [-h] adapterID"
-   echo 
+   echo
    echo "Options:"
    echo "   h     Print this Help."
 }
@@ -81,4 +81,4 @@ echo "  OUTPUT_WAV="${OUTPUT_WAV}
 echo "  LENGTH="${LENGTH}
 
 # reset board for the next test
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+xrun --reset --adapter-id ${ADAPTER_ID}

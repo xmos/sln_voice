@@ -15,7 +15,7 @@ pipeline {
     parameters {
         string(
             name: 'TOOLS_VERSION',
-            defaultValue: '15.2.1',
+            defaultValue: '15.3.0',
             description: 'The XTC tools version'
         )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
