@@ -27,7 +27,7 @@ Run the following commands in the root folder to build the host application usin
 
 The host application, ``xscope_host_endpoint``, will be installed at ``/opt/xmos/bin``, and may be moved if desired.  You may wish to add this directory to your ``PATH`` variable.
 
-Before running the host application, you may need to add the location of ``xscope_endpoint.so`` to your ``LD_LIBRARY_PATH`` environment variable.  This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.com/documentation/XM-014363-PC/html/installation/index.html>`__.
+Before running the host application, you may need to add the location of ``xscope_endpoint.so`` to your ``LD_LIBRARY_PATH`` environment variable.  This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://xmos.com/xtc-install-guide>`__.
 
 Building the Firmware
 =====================
