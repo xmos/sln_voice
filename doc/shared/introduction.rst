@@ -72,11 +72,11 @@ Obtaining the Hardware
 
 The XK-VOICE-L71 DevKit and Hardware Manual can be obtained from the |HARDWARE_URL| product information page.
 
-The XK-VOICE-L71 is based on the: `XU316-1024-QF60A <https://www.xmos.ai/file/xu316-1024-qf60b-xcore_ai-datasheet?version=latest>`_
+The XK-VOICE-L71 is based on the: `XU316-1024-QF60A <https://www.xmos.com/file/xu316-1024-qf60b-xcore_ai-datasheet?version=latest>`_
 
 The XCORE-AI-EXPLORER DevKit and Hardware Manual used in the :ref:`Microphone Aggregation <sln_voice_mic_aggregator_programming_guide>` example can be obtained from the |HARDWARE_URL| product information page.
 
-Learn more about the `The XMOS XS3 Architecture <https://www.xmos.ai/download/The-XMOS-XS3-Architecture.pdf>`_
+Learn more about the `The XMOS XS3 Architecture <https://www.xmos.com/download/The-XMOS-XS3-Architecture.pdf>`_
 
 ######################
 Obtaining the Software
