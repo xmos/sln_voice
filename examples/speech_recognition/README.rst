@@ -61,7 +61,7 @@ Linux or Mac
 
 The host application, `xscope_host_endpoint`, will be installed at `/opt/xmos/bin/`, and may be moved if desired.  You may wish to add this directory to your `PATH` variable.
 
-Before running the host application, you may need to add the location of `xscope_endpoint.so` to your `LD_LIBRARY_PATH` environment variable.  This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.ai/documentation/XM-014363-PC-LATEST/html/tools-guide/install-configure/getting-started.html>`__.
+Before running the host application, you may need to add the location of `xscope_endpoint.so` to your `LD_LIBRARY_PATH` environment variable.  This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.com/documentation/XM-014363-PC/html/installation/index.html>`__.
 
 Windows
 -------
@@ -99,7 +99,7 @@ Then build the host application:
 
 The host application, `xscope_host_endpoint.exe`, will install at `<USERPROFILE>\.xmos\bin`, and may be moved if desired.  You may wish to add this directory to your `PATH` variable.
 
-Before running the host application, you may need to add the location of `xscope_endpoint.dll` to your `PATH`. This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.ai/documentation/XM-014363-PC-LATEST/html/tools-guide/install-configure/getting-started.html>`__.
+Before running the host application, you may need to add the location of `xscope_endpoint.dll` to your `PATH`. This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.com/documentation/XM-014363-PC/html/installation/index.html>`__.
 
 Building the Firmware
 =====================
@@ -138,7 +138,7 @@ Run the following command in the build folder to run the firmware:
 
 ::
 
-    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
+    xrun --xscope --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 
