@@ -217,26 +217,23 @@ pipeline {
                                 sh "ls -la $ASR_TEST_VECTORS"
                             }
                         }
-                        // TODO: Disabled till http://bugzilla.xmos.local/show_bug.cgi?id=18895 is fixed
-                        // This problem occurred in the USB tests if the HIL tests were run first.
-                        // Tools 15.3.1 should include the fix.
-                        //stage('Run FFVA Pipeline test') {
-                        //    when {
-                        //        expression { params.NIGHTLY_TEST_ONLY == true }
-                        //    }
-                        //    steps {
-                        //        withTools(params.TOOLS_VERSION) {
-                        //            withVenv {
-                        //                script {
-                        //                    withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                        //                        sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
-                        //                    }
-                        //                    sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
-                        //                }
-                        //            }
-                        //        }
-                        //    }
-                        //}
+                        stage('Run FFVA Pipeline test') {
+                            when {
+                                expression { params.NIGHTLY_TEST_ONLY == true }
+                            }
+                            steps {
+                                withTools(params.TOOLS_VERSION) {
+                                    withVenv {
+                                        script {
+                                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                                sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
+                                            }
+                                            sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
+                                        }
+                                    }
+                                }
+                            }
+                        }
                         stage('Run FFD Pipeline test') {
                             when {
                                 expression { params.NIGHTLY_TEST_ONLY == true }
