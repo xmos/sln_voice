@@ -20,8 +20,9 @@ Overview
 
    For a proposed implementation with lower latency, please refer to the bare-metal examples below:
 
-      - `AN02002: Adding an additional |I2S| bus to USB Audio (via SRC )<https://www.xmos.com/file/AN02002>`__
-      - `AN02003: SPDIF/ADAT/|I2S| Slave Receive to |I2S| Slave Bridge with ASRC <https://www.xmos.com/file/AN02003>`__
+      - `AN02002: Adding an additional I2S bus to USB Audio via SRC <https://www.xmos.com/file/AN02002>`__
+      - `AN02003: SPDIF/ADAT/I2S Slave Receive to I2S Slave Bridge with ASRC <https://www.xmos.com/file/AN02003>`__
+
 
 This is the |SOFTWARE_URL| Asynchronous Sampling Rate Converter (ASRC) example design.
 
