@@ -2,11 +2,33 @@
 Overview
 ********
 
+.. warning::
+
+   This example is based on the RTOS framework and drivers.  This choice simplifies the example design, but it leads to high latency in the system.
+   The main sources of latency are:
+
+      - Large block size used for ASRC processing: this is necessary to minimise latency associated with the intertile context and thread switching overhead.
+      - Large size of the buffer to which the ASRC output samples are written: a stable level (half full) must be reached before the start of streaming out over USB.
+      - RTOS task scheduling overhead between the tasks.
+      - bInterval of USB in the RTOS drivers is set to 4, i.e. one frame every 1 ms.
+      - Block based implementation of the USB and |I2S| RTOS drivers.
+
+   The expected latencies for USB at 48 kHz are as follows:
+
+      - USB -> ASRC -> |I2S|: from 8 ms at |I2S| at 192 kHz to 22 ms at 44.1 kHz
+      - |I2S| -> ASRC -> USB: from 13 ms at |I2S| at 192 kHz to 19 ms at 44.1 kHz
+
+   For a proposed implementation with lower latency, please refer to the bare-metal examples below:
+
+      - `AN02002: Adding an additional I2S bus to USB Audio via SRC <https://www.xmos.com/file/AN02002>`__
+      - `AN02003: SPDIF/ADAT/I2S Slave Receive to I2S Slave Bridge with ASRC <https://www.xmos.com/file/AN02003>`__
+
+
 This is the |SOFTWARE_URL| Asynchronous Sampling Rate Converter (ASRC) example design.
 
 The example system implements a stereo |I2S| Slave and a stereo Adaptive UAC2.0 interface and exchanges data between the two interfaces.
 Since the two interfaces are operating in different clock domains, there is an ASRC block between them that converts from the input to the output sampling rate.
-There are two ASRC blocks, one each in the |I2S| → ASRC → USB and USB → ASRC → |I2S| path, as illustrated in the :ref:`fig-asrc-top-level-label`.
+There are two ASRC blocks, one each in the |I2S| -> ASRC -> USB and USB -> ASRC -> |I2S| path, as illustrated in the :ref:`fig-asrc-top-level-label`.
 The diagram also shows the rate calculation path, which monitors and computes the instantaneous ratio between the ASRC input and output sampling rate.
 The rate ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
 
@@ -25,7 +47,7 @@ The |I2S| Slave interface is a stereo 32 bit interface supporting sampling rates
 The USB interface is a stereo, 32 bit, 48 kHz, High-Speed, USB Audio Class 2, Adaptive interface.
 
 The ASRC algorithm implemented in the `lib_src <https://github.com/xmos/lib_src/>`_ library is used for the ASRC processing.
-The ASRC processing is block based and works on a block size of 244 samples per channel in the |I2S| → ASRC → USB path and 96 samples per channel in the USB → ASRC → |I2S| path.
+The ASRC processing is block based and works on a block size of 244 samples per channel in the |I2S| -> ASRC -> USB path and 96 samples per channel in the USB -> ASRC -> |I2S| path.
 
 Supported Hardware
 ==================
@@ -39,7 +61,7 @@ The table :ref:`table-pin-connections-label` lists the pins on the XK-VOICE-L71 
 .. _table-pin-connections-label:
 
 .. list-table:: XK-VOICE-L71 RPI host interface header (J4) connections
-   :widths: 30 50
+   :widths: 50 50
    :header-rows: 1
    :align: left
 
@@ -56,8 +78,6 @@ The table :ref:`table-pin-connections-label` lists the pins on the XK-VOICE-L71 
    * - One of the GND pins (6, 14, 20, 30, 34, 9, 25 or 39)
      - GND on the |I2S| Master board
 
-
-
 Obtaining the app files
 =======================
 
@@ -72,7 +92,7 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. The output should be
+First install and source the XTC version: |TOOLS_VERSION| tools. For example with version 15.2.1, the output should be
 something like this:
 
 ::
