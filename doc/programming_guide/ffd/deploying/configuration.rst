@@ -9,6 +9,7 @@ The default application performs as described in the :ref:`sln_voice_ffd_overvie
 If options are changed, the application firmware must be rebuilt.
 
 .. list-table:: FFD Compile Options
+   :class: longtable
    :widths: 90 85 20
    :header-rows: 1
    :align: left
