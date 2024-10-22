@@ -34,7 +34,6 @@ pipeline {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
-        XMOSDOC_VERSION = 'v4.0'
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
         PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
         ASR_TEST_VECTORS = "asr_test_vectors"
@@ -286,7 +285,6 @@ pipeline {
                         label 'documentation'
                     }
                     steps {
-                        runningOn(env.NODE_NAME)
                         checkout scm
                         sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
                         warnError("Docs") {
