@@ -281,28 +281,25 @@ pipeline {
                         }
                     }
                 }
-                stage ('Build Documentation') {
+                stage('Build Documentation') {
                     agent {
                         label 'documentation'
                     }
-                    stages {
-                        stage('Build Documentation') {
-                            steps {
-                                runningOn(env.NODE_NAME)
-                                checkout scm
-                                sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
-                                warnError("Docs") {
-                                    buildDocs()
-                                } // warnError("Docs")
-                            } // steps
-                        } // stage('Build Documentation')
-                    } // stages
+                    steps {
+                        runningOn(env.NODE_NAME)
+                        checkout scm
+                        sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
+                        warnError("Docs") {
+                            buildDocs()
+                        } // warnError("Docs")
+                    } // steps
                     post {
                         cleanup {
                             xcoreCleanSandbox()
                         }
                     }
-                } // Build Documentation
+                } // stage('Build Documentation')
+
             }
         }
     }
