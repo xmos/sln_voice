@@ -10,7 +10,7 @@ If options are changed, the application firmware must be rebuilt.
 
 .. list-table:: FFD Compile Options
    :class: longtable
-   :widths: 90 85 20
+   :widths: 48 42 10
    :header-rows: 1
    :align: left
 

@@ -13,7 +13,7 @@ variables to the APP_COMPILE_DEFINITIONS CMake variable located in the example's
 If options are changed, the application firmware must be rebuilt.
 
 .. list-table:: Low Power FFD Compile Options
-   :widths: 92 85 20
+   :widths: 48 42 10
    :header-rows: 1
    :align: left
 
