@@ -282,7 +282,7 @@ pipeline {
                 }
                 stage('Build Documentation') {
                     agent {
-                        label 'documentation'
+                        label 'documentation&&docker'
                     }
                     steps {
                         checkout scm
