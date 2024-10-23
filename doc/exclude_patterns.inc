@@ -4,12 +4,12 @@ modules/core/modules/legacy_compat
 modules/core/modules/otpinfo
 modules/core/modules/random
 modules/core/modules/trycatch
-modules/rtos/modules/FreeRTOS
+modules/rtos/**
 modules/inferencing
 modules/io/modules/xud
 modules/io/doc/substitutions.rst
 modules/sample_rate_conversion
-modules/voice/doc/substitutions.rst
+modules/voice/**
 modules/xscope_fileio
 modules/xua
 sln_voice_venv
