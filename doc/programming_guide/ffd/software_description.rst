@@ -10,7 +10,6 @@ Software Description
 
    software_desc/overview
    software_desc/bsp_config
-   software_desc/ext
    software_desc/filesystem_support
    software_desc/src
    software_desc/intent_engine

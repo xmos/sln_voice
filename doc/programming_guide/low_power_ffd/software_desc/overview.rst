@@ -44,7 +44,7 @@ added code and/or user added compile options.
 The description of the software is split up by folder:
 
 .. list-table:: Low Power FFD Software Description
-   :widths: 40 120
+   :widths: 40 60
    :header-rows: 1
    :align: left
 

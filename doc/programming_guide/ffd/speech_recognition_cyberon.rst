@@ -1,5 +1,3 @@
-.. include:: <isonum.txt>
-
 .. _sln_voice_ffd_speech_recognition_cyberon:
 
 ############################

@@ -99,7 +99,7 @@ Therefore, the underlying distribution of these 10 ms bins should not be assumed
 The description of the software is split up by folder:
 
 .. list-table:: FFD Software Description
-   :widths: 40 120
+   :widths: 40 60
    :header-rows: 1
    :align: left
 
