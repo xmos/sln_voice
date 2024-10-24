@@ -1,4 +1,4 @@
-@Library('xmos_jenkins_shared_library@v0.28.0') _
+@Library('xmos_jenkins_shared_library@v0.34.0') _
 
 getApproval()
 
@@ -18,9 +18,15 @@ pipeline {
             defaultValue: '15.3.0',
             description: 'The XTC tools version'
         )
+        string(
+            name: 'XMOSDOC_VERSION',
+            defaultValue: 'v6.1.2',
+            description: 'The xmosdoc version'
+        )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
             defaultValue: false,
             description: 'Tests that only run during nightly builds.')
+
     }
     environment {
         REPO = 'sln_voice'
@@ -28,7 +34,6 @@ pipeline {
         PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
-        XMOSDOC_VERSION = 'v4.0'
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
         PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
         ASR_TEST_VECTORS = "asr_test_vectors"
@@ -267,40 +272,24 @@ pipeline {
                         }
                     }
                 }
-                stage('Build docs') {
-                    agent { label 'docker' }
-                    stages {
-                        stage ('Build docs with docker') {
-                            steps {
-                                checkout scm
-                                sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
-                                sh "docker pull ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION"
-                                sh """docker run -u "\$(id -u):\$(id -g)" \
-                                        --rm \
-                                        -v ${WORKSPACE}:/build \
-                                        ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION -v"""
-                                // Zip all the generated files
-                                zip dir: "doc/_build/", zipFile: "xcore_voice_docs_original.zip"
-                                // Rename latex folder as pdf
-                                sh "mv doc/_build/latex doc/_build/pdf"
-                                // Update links to latex folder in html files
-                                sh "find doc/_build/html -type f -exec sed -i -e 's/latex\\/sln_voice_programming_guide_/pdf\\/sln_voice_programming_guide_/g' {} \\;"
-                                sh "find doc/_build/html -type f -exec sed -i -e 's/latex\\/sln_voice_quick_start_guide_/pdf\\/sln_voice_quick_start_guide_/g' {} \\;"
-                                // Remove linkcheck folder
-                                sh "rm -rf doc/_build/linkcheck"
-                                // Zip all the generated files
-                                zip dir: "doc/_build/", zipFile: "xcore_voice_docs_release.zip"
-                                // Archive doc files
-                                archiveArtifacts artifacts: "xcore_voice_docs*.zip"
-                            }
-                        }
+                stage('Build Documentation') {
+                    agent {
+                        label 'documentation&&docker'
                     }
+                    steps {
+                        checkout scm
+                        sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
+                        warnError("Docs") {
+                            buildDocs()
+                        } // warnError("Docs")
+                    } // steps
                     post {
                         cleanup {
                             xcoreCleanSandbox()
                         }
                     }
-                }
+                } // stage('Build Documentation')
+
             }
         }
     }
