@@ -128,7 +128,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     rm ${TEMP_WAV}
 
     # call xrun (in background)
-    (xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${PIPELINE_FIRMWARE}) &
+    (xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${PIPELINE_FIRMWARE}) &
 
     # wait for app to load
     sleep 15
@@ -157,7 +157,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     cp ${PROCESSED_WAV} ${TEMP_XSCOPE_FILEIO_INPUT_WAV}
 
     # call xrun (in background)
-    (xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${ASR_FIRMWARE}) &
+    (xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${ASR_FIRMWARE}) &
 
     # wait for app to load
     sleep 15

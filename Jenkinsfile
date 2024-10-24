@@ -15,7 +15,7 @@ pipeline {
     parameters {
         string(
             name: 'TOOLS_VERSION',
-            defaultValue: '15.2.1',
+            defaultValue: '15.3.0',
             description: 'The XTC tools version'
         )
         string(
@@ -57,17 +57,13 @@ pipeline {
                         }
                         stage('Build tests') {
                             steps {
-                                script {
-                                    uid = sh(returnStdout: true, script: 'id -u').trim()
-                                    gid = sh(returnStdout: true, script: 'id -g').trim()
+                                withTools(params.TOOLS_VERSION) {
+
+                                    sh "tools/ci/build_host_apps.sh"
+
+                                    // test firmware and filesystems
+                                    sh "tools/ci/build_tests.sh"
                                 }
-                                // pull docker images
-                                sh "docker pull ghcr.io/xmos/xcore_builder:latest"
-                                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
-                                // host apps
-                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
-                                // test firmware and filesystems
-                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
                                 // List built files for log
                                 sh "ls -la dist_host/"
                                 sh "ls -la dist/"
@@ -185,14 +181,10 @@ pipeline {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
-                                        script {
-                                            uid = sh(returnStdout: true, script: 'id -u').trim()
-                                            gid = sh(returnStdout: true, script: 'id -g').trim()
-                                            withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "docker run --rm -u $uid:$gid --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
-                                            }
-                                            sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/test_ffva_dfu_upgrade.bin"
+                                        withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                            sh "test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
                                         }
+                                        sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/test_ffva_dfu_upgrade.bin"
                                     }
                                 }
                             }

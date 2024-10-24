@@ -198,7 +198,7 @@ create_flash_app_target(
 # Create run target
 #**********************
 add_custom_target(run_${TEST_ASR_NAME}
-  COMMAND xrun --xscope-realtime --xscope-port localhost:12345 ${TEST_ASR_NAME}.xe
+  COMMAND xrun --xscope --xscope-port localhost:12345 ${TEST_ASR_NAME}.xe
   DEPENDS ${TEST_ASR_NAME}
   COMMENT
     "Run application"

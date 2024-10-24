@@ -12,12 +12,14 @@ XCORE-VOICE change log
   * ADDED: Support for DFU over I2C for FFVA INT example.
   * ADDED: FFD example with I2S audio input to Cyberon speech recognition
     engine and model.
+  * ADDED: Support for XMOS Tools 15.3.0.
   * REMOVED: flash settings in .xn files, as they are not required by XMOS
-    Tools 15.2.x.
+    Tools 15.3.x.
   * ADDED: Support for reading registers over I2C slave in FFD examples.
   * ADDED: Note in ASRC demo documentation about large latency in ASRC
     processing. References to alternative application notes have been provided.
   * CHANGED: Updated submodule fwk_rtos to version 3.2.0 from 3.0.5.
+  * CHANGED: Updated submodule fwk_io to version 3.5.1 from 3.3.0.
   * ADDED: lib_sw_pll submodule v1.1.0.
 
 2.2.0

@@ -129,7 +129,7 @@ merge_binaries(${TEST_PIPELINE_NAME} tile0_${TEST_PIPELINE_NAME} tile1_${TEST_PI
 # Create run and debug targets
 #**********************
 add_custom_target(run_${TEST_PIPELINE_NAME}
-  COMMAND xrun --xscope-realtime --xscope-port localhost:12345 ${TEST_PIPELINE_NAME}.xe
+  COMMAND xrun --xscope --xscope-port localhost:12345 ${TEST_PIPELINE_NAME}.xe
   DEPENDS ${TEST_PIPELINE_NAME}
   COMMENT
     "Run application"
