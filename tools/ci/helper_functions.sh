@@ -60,3 +60,23 @@ function export_ci_build_vars {
         export CI_BUILD_TOOL_ARGS="-j"
     fi
 }
+
+# Function to set up Python environment and install dependencies
+function setup_python_env() {
+    local root=$1
+    local venv_dir="${root}/venv"
+    local req_file="${root}/requirements.txt"
+    if [ ! -d "${venv_dir}" ]; then
+        echo "Creating Python virtual environment in ${venv_dir}..."
+        python3 -m venv "${venv_dir}"
+    fi
+    echo "Activating virtual environment in ${venv_dir}..."
+    source "${venv_dir}/bin/activate"
+    if [ -f "${req_file}" ]; then
+        echo "Installing Python dependencies from ${req_file}..."
+        pip install --no-cache-dir -r "${req_file}"
+    else
+        echo "No requirements.txt found at ${req_file}. Skipping dependency installation."
+    fi
+    echo "Python environment setup complete."
+}
