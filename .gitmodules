@@ -19,16 +19,9 @@
 [submodule "modules/xscope_fileio"]
 	path = modules/xscope_fileio/xscope_fileio
 	url = git@github.com:xmos/xscope_fileio.git
-[submodule "modules/inferencing/lib_nn"]
-	path = modules/inferencing/lib_nn
-	url = git@github.com:xmos/lib_nn.git
 [submodule "modules/lib_qspi_fast_read"]
 	path = modules/lib_qspi_fast_read
 	url = git@github.com:xmos/lib_qspi_fast_read.git
-[submodule "modules/inferencing/lib_tflite_micro"]
-	path = modules/inferencing/lib_tflite_micro
-	url = git@github.com:xmos/lib_tflite_micro.git
-	ignore = dirty
 [submodule "modules/xua"]
 	path = modules/xua
 	url = git@github.com:xmos/lib_xua.git
