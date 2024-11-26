@@ -3,15 +3,15 @@
 #**********************
 
 set(APP_SRC_PATH ${CMAKE_CURRENT_LIST_DIR}/src)
-set(MIC_ARRAY_DEMO_PATH ${CMAKE_CURRENT_LIST_DIR}/../../modules/io/modules/mic_array/demos/)
+set(MIC_ARRAY_DEMO_PATH ${CMAKE_CURRENT_LIST_DIR}/../../modules/io/modules/mic_array/examples/)
 set(PLATFORM_FILE ${APP_SRC_PATH}/XCORE-AI-EXPLORER.xn)
 
 
 #We make a copy of the par decimator files to avoid include clashes from the demo
-set(DEMO_PAR_DECIMATOR_FILES        ${MIC_ARRAY_DEMO_PATH}/demo_par_decimator/src/decimator_subtask.c
-                                    ${MIC_ARRAY_DEMO_PATH}/demo_par_decimator/src/decimator_subtask.h
-                                    ${MIC_ARRAY_DEMO_PATH}/demo_par_decimator/src/app_decimator.hpp
-                                    ${MIC_ARRAY_DEMO_PATH}/demo_par_decimator/src/app_mic_array.hpp
+set(DEMO_PAR_DECIMATOR_FILES        ${MIC_ARRAY_DEMO_PATH}/app_par_decimator/src/decimator_subtask.c
+                                    ${MIC_ARRAY_DEMO_PATH}/app_par_decimator/src/decimator_subtask.h
+                                    ${MIC_ARRAY_DEMO_PATH}/app_par_decimator/src/app_decimator.hpp
+                                    ${MIC_ARRAY_DEMO_PATH}/app_par_decimator/src/app_mic_array.hpp
 )
 file(COPY ${DEMO_PAR_DECIMATOR_FILES} DESTINATION ${APP_SRC_PATH}/par_decimator)
 
