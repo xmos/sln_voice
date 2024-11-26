@@ -80,7 +80,7 @@ function setup_python_env() {
     # Install dependencies if requirements.txt is found
     if [ -f "${req_file}" ]; then
         echo "Installing Python dependencies from ${req_file}"
-        pip install --no-cache-dir -r --user "${req_file}"
+        pip install --no-cache-dir --user -r "${req_file}"
     else
         echo "No requirements.txt found at ${req_file}. Skipping dependency installation."
     fi
