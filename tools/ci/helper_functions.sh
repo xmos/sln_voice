@@ -57,7 +57,7 @@ function export_ci_build_vars {
         export CI_BUILD_TOOL_ARGS=""
     else
         export CI_BUILD_TOOL="make"
-        export CI_BUILD_TOOL_ARGS="-j"
+        export CI_BUILD_TOOL_ARGS="-j$(nproc)"
     fi
 }
 
