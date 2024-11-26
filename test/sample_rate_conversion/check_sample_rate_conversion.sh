@@ -81,4 +81,4 @@ echo "  OUTPUT_WAV="${OUTPUT_WAV}
 echo "  LENGTH="${LENGTH}
 
 # reset board for the next test
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+xrun --reset ${ADAPTER_ID}
