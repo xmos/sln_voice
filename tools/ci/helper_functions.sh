@@ -74,7 +74,7 @@ function setup_python_env() {
         # Activate the virtual environment
         echo "Activating virtual environment in ${venv_dir}..."
         source "${venv_dir}/bin/activate"
-        pip install --user xmos_ai_tools
+        pip install --no-cache-dir xmos_ai_tools
         echo "Python environment setup complete."
     fi
 }
