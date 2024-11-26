@@ -64,17 +64,9 @@ function export_ci_build_vars {
 # Function to set up Python environment and install dependencies
 function setup_python_env() {
     local root=$1
-    local venv_dir="${root}/venv"
+    local venv_dir="${root}/.venv"
     local req_file="${root}/requirements.txt"
     
-    # Check if python3-venv is installed and install it if necessary
-    if ! dpkg -s python3-venv > /dev/null 2>&1; then
-        echo "Installing python3-venv..."
-        sudo apt-get update && sudo apt-get install -y python3-venv
-    else
-        echo "python3-venv is already installed."
-    fi
-
     # Check if virtual environment exists, if not, create it
     if [ ! -d "${venv_dir}" ]; then
         echo "Creating Python virtual environment in ${venv_dir}..."
