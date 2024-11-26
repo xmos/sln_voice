@@ -7,7 +7,7 @@ source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 export_ci_build_vars
 
 # Call the Python setup function
-# setup_python_env "${XCORE_VOICE_ROOT}"
+setup_python_env "${XCORE_VOICE_ROOT}"
 
 # setup distribution folder
 DIST_DIR=${XCORE_VOICE_ROOT}/dist
