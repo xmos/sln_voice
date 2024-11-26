@@ -61,6 +61,8 @@ pipeline {
                                     uid = sh(returnStdout: true, script: 'id -u').trim()
                                     gid = sh(returnStdout: true, script: 'id -g').trim()
                                 }
+                                createVenv(reqFile: "requirements.txt")
+                                withVenv {
                                 // pull docker images
                                 sh "docker pull ghcr.io/xmos/xcore_builder:latest"
                                 sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
@@ -71,6 +73,7 @@ pipeline {
                                 // List built files for log
                                 sh "ls -la dist_host/"
                                 sh "ls -la dist/"
+                                }
                             }
                         }
                         stage('ASRC Unit tests') {
