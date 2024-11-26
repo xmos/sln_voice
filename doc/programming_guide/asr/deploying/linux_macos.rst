@@ -64,7 +64,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
+    xrun --xscope --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 

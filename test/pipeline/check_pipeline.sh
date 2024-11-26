@@ -112,7 +112,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
     # call xrun (in background)
-    xrun ${ADAPTER_ID} --xscope-realtime --xscope-port localhost:12345 ${FIRMWARE} &
+    xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${FIRMWARE} &
 
     # wait for app to load
     sleep 10

@@ -99,7 +99,7 @@ add_custom_target(flash_app_example_asr
 # Create run and debug targets
 #**********************
 add_custom_target(run_example_asr
-  COMMAND xrun --xscope-realtime --xscope-port ${XSCOPE_PORT} example_asr.xe
+  COMMAND xrun --xscope --xscope-port ${XSCOPE_PORT} example_asr.xe
   DEPENDS example_asr
   COMMENT
     "Run application"
