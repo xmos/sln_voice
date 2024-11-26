@@ -71,11 +71,10 @@ function setup_python_env() {
     if [ ! -d "${venv_dir}" ]; then
         echo "Creating Python virtual environment in ${venv_dir}..."
         python3 -m venv "${venv_dir}"
+        # Activate the virtual environment
+        echo "Activating virtual environment in ${venv_dir}..."
+        source "${venv_dir}/bin/activate"
+        pip install --user xmos_ai_tools
+        echo "Python environment setup complete."
     fi
-    
-    # Activate the virtual environment
-    echo "Activating virtual environment in ${venv_dir}..."
-    source "${venv_dir}/bin/activate"
-    pip install --user xmos_ai_tools
-    echo "Python environment setup complete."
 }
