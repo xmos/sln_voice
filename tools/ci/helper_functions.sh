@@ -72,18 +72,10 @@ function setup_python_env() {
         echo "Creating Python virtual environment in ${venv_dir}..."
         python3 -m venv "${venv_dir}"
     fi
-
+    
     # Activate the virtual environment
     echo "Activating virtual environment in ${venv_dir}..."
     source "${venv_dir}/bin/activate"
-
-    # Install dependencies if requirements.txt is found
-    if [ -f "${req_file}" ]; then
-        echo "Installing Python dependencies from ${req_file}"
-        pip install --user -r "${req_file}"
-    else
-        echo "No requirements.txt found at ${req_file}. Skipping dependency installation."
-    fi
-    
+    pip install --user xmos_ai_tools
     echo "Python environment setup complete."
 }
