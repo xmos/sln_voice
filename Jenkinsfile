@@ -187,7 +187,7 @@ pipeline {
                                             uid = sh(returnStdout: true, script: 'id -u').trim()
                                             gid = sh(returnStdout: true, script: 'id -g').trim()
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "docker run --rm -u $uid:$gid --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
+                                                sh "test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
                                             }
                                             sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/test_ffva_dfu_upgrade.bin"
                                         }
