@@ -28,14 +28,13 @@ pipeline {
             description: 'Tests that only run during nightly builds.'
         )
         booleanParam(name: 'FORCE_FULL_RUN',
-            defaultValue: false,
+            defaultValue: true,
             description: 'Force to run all tests, including nigthly.'
         )
     } // parameters
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
-        PYTHON_VERSION = "3.10"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
@@ -104,14 +103,11 @@ pipeline {
                                 }
                             }
                         }
-                        stage('Create virtual environment') {
+                        stage('Install test requirements') {
                             when {
                                 expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
                             }
                             steps {
-                                // Create venv
-                                sh "pyenv install -s $PYTHON_VERSION"
-                                sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
                                 // Install dependencies
                                 withVenv() {
                                     sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
