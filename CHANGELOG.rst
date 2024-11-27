@@ -4,6 +4,13 @@ XCORE-VOICE change log
 2.3.0
 -----
 
+  * CHANGED: Updated submodule fwk_io to version v3.6.0 from v3.3.0.
+  * CHANGED: Updated submodule fwk_core to version v1.1.0 from v1.0.2. 
+  * CHANGED: Updated submodule fwk_voice to version v0.8.0 from v0.7.0.  
+  * CHANGED: Updated Xmosdoc to version v6.2.0.
+  * CHANGED: Updated XTC Tools to 15.3.0.
+  * REMOVED: Deleted inferencing submodule. 
+  * ADDED: xmos-ai-tools v1.3.1 Python requirement. 
   * ADDED: FFVA INT example with Cyberon speech recognition engine and model
     (DSpotter v2.2.18.0).
   * CHANGED: Moved files in folders device_memory, gpio_ctrl, intent_engine and
@@ -13,7 +20,7 @@ XCORE-VOICE change log
   * ADDED: FFD example with I2S audio input to Cyberon speech recognition
     engine and model.
   * REMOVED: flash settings in .xn files, as they are not required by XMOS
-    Tools 15.2.x.
+    Tools 15.3.0.
   * ADDED: Support for reading registers over I2C slave in FFD examples.
   * ADDED: Note in ASRC demo documentation about large latency in ASRC
     processing. References to alternative application notes have been provided.
@@ -102,4 +109,3 @@ XCORE-VOICE change log
 ------
 
   * ADDED: FFD demo using OLED display
-
