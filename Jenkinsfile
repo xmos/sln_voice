@@ -24,10 +24,9 @@ pipeline {
             description: 'The xmosdoc version'
         )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
-            defaultValue: true, //TODO reset value to false
+            defaultValue: false,
             description: 'Tests that only run during nightly builds.')
-
-    }
+    } // parameters
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
@@ -102,7 +101,7 @@ pipeline {
                         }
                         stage('Create virtual environment') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 // Create venv
@@ -117,7 +116,7 @@ pipeline {
                         }
                         stage('Cleanup xtagctl') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 // Cleanup any xtagctl cruft from previous failed runs
@@ -131,7 +130,7 @@ pipeline {
                         }
                         stage('Run Sample Rate Conversion test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -148,7 +147,7 @@ pipeline {
                         }
                         stage('Run GPIO test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -163,7 +162,7 @@ pipeline {
                         }
                         stage('Run FFD Low Power Audio Buffer test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -178,7 +177,7 @@ pipeline {
                         }
                         stage('Run Device Firmware Update test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -197,7 +196,7 @@ pipeline {
                         }
                         stage('Checkout Amazon WWE') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 sh 'git clone git@github.com:xmos/amazon_wwe.git'
@@ -205,7 +204,7 @@ pipeline {
                         }
                         stage('Setup test vectors') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 sh "cp -r /projects/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
@@ -216,7 +215,7 @@ pipeline {
                         }
                         stage('Run FFVA Pipeline test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -233,7 +232,7 @@ pipeline {
                         }
                         stage('Run FFD Pipeline test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true }
+                                expression { params.NIGHTLY_TEST_ONLY == false }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
