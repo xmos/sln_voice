@@ -49,7 +49,7 @@ pipeline {
                         expression { !env.GH_LABEL_DOC_ONLY.toBoolean() }
                     }
                     agent {
-                        label 'xcore.ai && vrd'
+                        label 'sw-hw-xcai-vrd0' //TODO put back
                     }
                     stages {
                         stage('Checkout') {
@@ -215,6 +215,7 @@ pipeline {
                             }
                         }
                         stage('Run FFVA Pipeline test') {
+                            input {message "Should we continue?"}
                             when {
                                 expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
                             }
@@ -223,6 +224,9 @@ pipeline {
                                     withVenv {
                                         script {
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
+                                                sh "xtagctl reset " + adapterIDs[0]
+                                                sh "pip install -e modules/xscope_fileio/xscope_fileio/"
+                                                sh "cp modules/xscope_fileio/xscope_fileio/host/xscope_host_endpoint dist_host/"
                                                 sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                             }
                                             sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
