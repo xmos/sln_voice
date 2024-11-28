@@ -155,6 +155,8 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # Only needed for adapter id=0 according to jenkinsfile
     xgdb --batch -ex "attach --id=0" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
     sleep 1
+    xgdb --batch -ex "attach --id=1" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
+    sleep 1
 
 done 
 
