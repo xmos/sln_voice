@@ -24,7 +24,7 @@ pipeline {
             description: 'The xmosdoc version'
         )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
-            defaultValue: false,
+            defaultValue: true, //TODO replace with false
             description: 'Tests that only run during nightly builds.'
         )
     } // parameters
