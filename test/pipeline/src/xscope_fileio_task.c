@@ -202,6 +202,7 @@ void xscope_fileio_task(void *arg) {
         xscope_close_all_files();
     }
     rtos_osal_critical_exit(state);
+    exit(0);
 }
 
 void xscope_fileio_tasks_create(unsigned priority, void* app_data) {

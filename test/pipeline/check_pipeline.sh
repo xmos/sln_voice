@@ -150,6 +150,10 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     rm ${XSCOPE_FILEIO_INPUT_WAV}
     rm ${XSCOPE_FILEIO_OUTPUT_WAV}
 
+    # Temp solution (reset all xtags between tests)
+    # This will be solved in: bugzilla id 18895
+    xgdb --batch -ex "attach --id=0" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
+
 done 
 
 # clean up
