@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include <xcore/hwtimer.h>
+#include <xcore/assert.h>
 
 #include "app_conf.h"
 #include "asr.h"
@@ -64,8 +65,7 @@ void process_file() {
 
     // Validate input wav file
     if(get_wav_header_details(&file, &header_struct, &header_size) != 0){
-        printf("Error: error in get_wav_header_details()\n");
-        _Exit(1);
+        xassert(0 && "Error: error in get_wav_header_details()\n");
     }
     assert(header_struct.bit_depth == 16);
     assert(header_struct.num_channels == MAX_CHANNELS);
@@ -116,5 +116,4 @@ void process_file() {
 
     asr_release(asr_port);
     xscope_close_all_files();
-    _Exit(0);
 }

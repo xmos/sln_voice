@@ -27,10 +27,6 @@ pipeline {
             defaultValue: false,
             description: 'Tests that only run during nightly builds.'
         )
-        booleanParam(name: 'FORCE_FULL_RUN',
-            defaultValue: true,
-            description: 'Force to run all tests, including nigthly.'
-        )
     } // parameters
     environment {
         REPO = 'sln_voice'
@@ -49,7 +45,7 @@ pipeline {
                         expression { !env.GH_LABEL_DOC_ONLY.toBoolean() }
                     }
                     agent {
-                        label 'sw-hw-xcai-vrd0' //TODO put back
+                        label 'xcore.ai && vrd'
                     }
                     stages {
                         stage('Checkout') {
@@ -105,7 +101,7 @@ pipeline {
                         }
                         stage('Install test requirements') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 // Install dependencies
@@ -117,7 +113,7 @@ pipeline {
                         }
                         stage('Cleanup xtagctl') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 // Cleanup any xtagctl cruft from previous failed runs
@@ -131,7 +127,7 @@ pipeline {
                         }
                         stage('Run Sample Rate Conversion test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -148,7 +144,7 @@ pipeline {
                         }
                         stage('Run GPIO test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -163,7 +159,7 @@ pipeline {
                         }
                         stage('Run FFD Low Power Audio Buffer test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -178,7 +174,7 @@ pipeline {
                         }
                         stage('Run Device Firmware Update test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -197,7 +193,7 @@ pipeline {
                         }
                         stage('Checkout Amazon WWE') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 sh 'git clone git@github.com:xmos/amazon_wwe.git'
@@ -205,7 +201,7 @@ pipeline {
                         }
                         stage('Setup test vectors') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 sh "cp -r /projects/hydra_audio/xcore-voice_xvf3510_no_processing_xmos_test_suite_subset $PIPELINE_TEST_VECTORS"
@@ -216,16 +212,13 @@ pipeline {
                         }
                         stage('Run FFVA Pipeline test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "xtagctl reset " + adapterIDs[0]
-                                                sh "pip install -e modules/xscope_fileio/xscope_fileio/"
-                                                sh "cp modules/xscope_fileio/xscope_fileio/host/xscope_host_endpoint dist_host/"
                                                 sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                             }
                                             sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffva_test_output/results.csv"
@@ -236,7 +229,7 @@ pipeline {
                         }
                         stage('Run FFD Pipeline test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -253,7 +246,7 @@ pipeline {
                         }
                         stage('Run ASR test') {
                             when {
-                                expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
+                                expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
                                 withTools(params.TOOLS_VERSION) {

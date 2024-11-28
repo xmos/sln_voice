@@ -65,7 +65,6 @@ void vWD(void *arg)
     vTaskDelay(10);
     test_printf("Host Timeout");
     test_printf("FAIL");
-    _Exit(0);
 }
 
 #if ON_TILE(1)
@@ -152,8 +151,6 @@ void vApplicationDaemonTaskStartup(void *arg)
     sync(other_tile_c);
 
     test_printf("PASS GPIO");
-
-    _Exit(0);
 #endif
 
     chanend_free(other_tile_c);
