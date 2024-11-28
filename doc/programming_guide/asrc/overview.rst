@@ -106,11 +106,12 @@ something like this:
 Linux or Mac
 ------------
 
-To build for the first time, run ``cmake`` to create the
+To build for the first time, activate your python environment, run ``cmake`` to create the
 make files:
 
 ::
 
+   $ pip install -r requirements.txt
    $ mkdir build
    $ cd build
    $ cmake --toolchain ../xmos_cmake_toolchain/xs3a.cmake  ..
@@ -142,11 +143,12 @@ To install Ninja, follow these steps:
    set the path in the current command line session using something
    like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
-To build for the first time, run ``cmake`` to create the
+To build for the first time, activate your python environment, run ``cmake`` to create the
 make files:
 
 ::
 
+   $ pip install -r requirements.txt
    $ md build
    $ cd build
    $ cmake -G "Ninja" --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake ..

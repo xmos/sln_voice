@@ -27,26 +27,29 @@ The host applications will be installed at ``/opt/xmos/bin``, and may be moved i
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the |I2S| firmware:
+After having your python environment activated, run the following commands in the root folder to build the |I2S| firmware:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
     cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_ffva_int_fixed_delay
 
-Run the following commands in the root folder to build the |I2S| firmware with the Cyberon ASR engine:
+After having your python environment activated, run the following commands in the root folder to build the |I2S| firmware with the Cyberon ASR engine:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
     cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_ffva_int_cyberon_fixed_delay
 
-Run the following commands in the root folder to build the USB firmware:
+After having your python environment activated, run the following commands in the root folder to build the USB firmware:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
     cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_ffva_ua_adec_altarch

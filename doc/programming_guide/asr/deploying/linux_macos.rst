@@ -32,10 +32,11 @@ Before running the host application, you may need to add the location of ``xscop
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the firmware:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
     cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_asr
