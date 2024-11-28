@@ -143,7 +143,7 @@ static void platform_sw_pll_init(void)
 
     // Allow p_bclk_count to count bclks
     port_set_clock(p_bclk_count, ck_bclk);
-    sw_pll_init(&sw_pll,
+    sw_pll_lut_init(&sw_pll,
                 SW_PLL_15Q16(0.0),
                 SW_PLL_15Q16(1.0),
                 PLL_CONTROL_LOOP_COUNT_INT,

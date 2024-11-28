@@ -75,7 +75,7 @@ void i2s_slave_intertile(void *args) {
     uint16_t mclk_pt = port_get_trigger_time(i2s_callback_args->p_mclk_count); // Immediately sample mclk_count
     uint16_t bclk_pt = port_get_trigger_time(i2s_callback_args->p_bclk_count); // Now grab bclk_count (which won't have changed)
 
-    sw_pll_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
+    sw_pll_lut_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
 #endif
 
     }
