@@ -149,6 +149,11 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     rm "${OUTPUT_DIR}/${AMAZON_WAV}"
     rm ${XSCOPE_FILEIO_INPUT_WAV}
     rm ${XSCOPE_FILEIO_OUTPUT_WAV}
+
+    # Temp solution (reset all xtags between tests)
+    # This will be solved in: bugzilla id 18895
+    xtagctl reset_all /.*/ 
+
 done 
 
 # clean up

@@ -1,2 +1,5 @@
 # filename, AEC, min instances, total instances
 InHouse_XVF3510v080_v1.2_20190423_Loc1_Clean_XMOS_DUT1_80dB_Take1           Y   24      25
+InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise1_65dB_XMOS_DUT1_80dB_Take1     Y   22      25
+InHouse_XVF3510v080_v1.2_20190423_Loc1_Noise2_70dB__Take1                   Y   21      25
+InHouse_XVF3510v080_v1.2_20190423_Loc2_Noise1_65dB__Take1                   Y   24      25

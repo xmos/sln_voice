@@ -215,7 +215,6 @@ pipeline {
                             }
                         }
                         stage('Run FFVA Pipeline test') {
-                            input {message "Should we continue?"}
                             when {
                                 expression { params.NIGHTLY_TEST_ONLY == true || params.FORCE_FULL_RUN == true}
                             }
