@@ -111,6 +111,13 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
     sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
 
+    # Temp solution (reset all xtags between tests)
+    # This will be solved in: bugzilla id 18895
+    xgdb --batch -ex "attach --id=0" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
+    sleep 5
+    xgdb --batch -ex "attach --id=1" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
+    sleep 5
+    
     # call xrun (in background)
     xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${FIRMWARE} &
 
@@ -149,13 +156,6 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     rm "${OUTPUT_DIR}/${AMAZON_WAV}"
     rm ${XSCOPE_FILEIO_INPUT_WAV}
     rm ${XSCOPE_FILEIO_OUTPUT_WAV}
-
-    # Temp solution (reset all xtags between tests)
-    # This will be solved in: bugzilla id 18895
-    xgdb --batch -ex "attach --id=0" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
-    sleep 5
-    xgdb --batch -ex "attach --id=1" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
-    sleep 5
 
 done 
 

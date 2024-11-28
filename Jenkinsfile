@@ -24,7 +24,7 @@ pipeline {
             description: 'The xmosdoc version'
         )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
-            defaultValue: true, //TODO replace with false
+            defaultValue: false,
             description: 'Tests that only run during nightly builds.'
         )
     } // parameters
@@ -45,7 +45,7 @@ pipeline {
                         expression { !env.GH_LABEL_DOC_ONLY.toBoolean() }
                     }
                     agent {
-                        label 'xcore.ai && vrd'
+                        label 'sw-hw-xcai-vrd1'
                     }
                     stages {
                         stage('Checkout') {
@@ -218,6 +218,7 @@ pipeline {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
+                                            sh "xtagctl reset NEAPPG2F && xtagctl reset UY899HH6 && sleep 20"
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                                 sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                             }
@@ -234,9 +235,10 @@ pipeline {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
+                                        sh "xtagctl reset NEAPPG2F && xtagctl reset UY899HH6 && sleep 20"
                                         script {
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $PIPELINE_TEST_VECTORS test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output $WORKSPACE/amazon_wwe " + adapterIDs[1]
+                                                sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $PIPELINE_TEST_VECTORS test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                             }
                                             sh "pytest test/pipeline/test_pipeline.py --log test/pipeline/ffd_test_output/results.csv"
                                         }
@@ -252,13 +254,13 @@ pipeline {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
+                                            sh "xtagctl reset NEAPPG2F && xtagctl reset UY899HH6 && sleep 20"
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                                 sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick_sensory.txt test/asr/sensory_output " + adapterIDs[0]
-                                                sh "test/asr/check_asr.sh Cyberon $ASR_TEST_VECTORS test/asr/ffd_quick_cyberon.txt test/asr/cyberon_output " + adapterIDs[1]
+                                                sh "test/asr/check_asr.sh Cyberon $ASR_TEST_VECTORS test/asr/ffd_quick_cyberon.txt test/asr/cyberon_output " + adapterIDs[0]
                                             }
                                             sh "pytest test/asr/test_asr.py --log test/asr/sensory_output/results.csv"
                                             sh "pytest test/asr/test_asr.py --log test/asr/cyberon_output/results.csv"
-
                                         }
                                     }
                                 }
