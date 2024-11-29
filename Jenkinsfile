@@ -180,8 +180,6 @@ pipeline {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
-                                            uid = sh(returnStdout: true, script: 'id -u').trim()
-                                            gid = sh(returnStdout: true, script: 'id -g').trim()
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                                 sh "test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
                                             }
