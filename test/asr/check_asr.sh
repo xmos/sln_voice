@@ -21,6 +21,18 @@ help()
    echo "   h     Print this Help."
 }
 
+# Writes the XS3 TestMode register in the JTAG domain to reboot the device into JTAG-boot mode. 
+# Unsets the 'reboot' bit to release the chip from reset and waits for connection.
+# Will be Fixed in XTC > 15.3.0 (Bugzilla ID 18895).
+target_reset_reboot() {
+    local id=$1
+    xgdb --batch \
+        -ex "attach --id=${id}" \
+        -ex "monitor sysreg write 0 8 8 0xA1006300" \
+        -ex "monitor sysreg write 0 8 8 0x21006300"
+    sleep 5  # Fixed delay
+}
+
 # flag arguments
 while getopts h option
 do
@@ -70,6 +82,8 @@ then
 fi
 
 # flash the data partition file
+target_reset_reboot 0
+target_reset_reboot 1
 xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${ASR_FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}
 
 # read input list
@@ -128,6 +142,8 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     rm ${TEMP_WAV}
 
     # call xrun (in background)
+    target_reset_reboot 0
+    target_reset_reboot 1
     (xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${PIPELINE_FIRMWARE}) &
 
     # wait for app to load
@@ -157,6 +173,8 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     cp ${PROCESSED_WAV} ${TEMP_XSCOPE_FILEIO_INPUT_WAV}
 
     # call xrun (in background)
+    target_reset_reboot 0
+    target_reset_reboot 1
     (xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${ASR_FIRMWARE}) &
 
     # wait for app to load
@@ -191,6 +209,7 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     rm ${TEMP_XSCOPE_FILEIO_INPUT_WAV}
     rm ${TEMP_XSCOPE_FILEIO_OUTPUT_WAV}
     rm ${TEMP_XSCOPE_FILEIO_OUTPUT_LOG}
+
 done
 
 # print results

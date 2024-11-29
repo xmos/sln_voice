@@ -65,7 +65,8 @@ void process_file() {
 
     // Validate input wav file
     if(get_wav_header_details(&file, &header_struct, &header_size) != 0){
-        xassert(0 && "Error: error in get_wav_header_details()\n");
+        printf("Error: error in get_wav_header_details()\n");
+        xassert(0);
     }
     assert(header_struct.bit_depth == 16);
     assert(header_struct.num_channels == MAX_CHANNELS);
@@ -116,4 +117,5 @@ void process_file() {
 
     asr_release(asr_port);
     xscope_close_all_files();
+    exit(0); // Note: exit syscall can cause issues with tools XTC 15.3.0 if called from both tiles 
 }

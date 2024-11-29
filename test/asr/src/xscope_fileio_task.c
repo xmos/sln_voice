@@ -238,6 +238,7 @@ void xscope_fileio_task(void *arg) {
         xscope_close_all_files();
     }
     rtos_osal_critical_exit(state);
+    exit(0); // exit syscall can cause issues with XTC 15.3.0 if called from both tiles
 }
 
 void xscope_fileio_tasks_create(unsigned priority, void* app_data) {
