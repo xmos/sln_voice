@@ -45,7 +45,7 @@ pipeline {
                         expression { !env.GH_LABEL_DOC_ONLY.toBoolean() }
                     }
                     agent {
-                        label 'sw-hw-xcai-vrd1'
+                        label 'xcore.ai && vrd'
                     }
                     stages {
                         stage('Checkout') {
