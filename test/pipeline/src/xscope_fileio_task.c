@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <xcore/assert.h>
+
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
@@ -92,7 +94,7 @@ void xscope_fileio_task(void *arg) {
         // Validate input wav file
         if(get_wav_header_details(&audio_infile, &input_header_struct, &input_header_size) != 0){
             rtos_printf("Error: error in get_wav_header_details()\n");
-            _Exit(1);
+            xassert(0);
         }
         xscope_fseek(&audio_infile, input_header_size, SEEK_SET);
     }
@@ -102,12 +104,12 @@ void xscope_fileio_task(void *arg) {
     if(input_header_struct.bit_depth != appconfSAMPLE_BIT_DEPTH)
     {
         rtos_printf("Error: unsupported wav bit depth (%d) for %s file. Only 32 supported\n", input_header_struct.bit_depth, appconfINPUT_FILENAME);
-        _Exit(1);
+        xassert(0);
     }
     // Ensure input wav file contains correct number of channels 
     if(input_header_struct.num_channels != appconfAUDIO_PIPELINE_INPUT_CHANNELS){
         rtos_printf("Error: wav num channels(%d) does not match (%u)\n", input_header_struct.num_channels, appconfAUDIO_PIPELINE_INPUT_CHANNELS);
-        _Exit(1);
+        xassert(0);
     }
     
     // Calculate number of frames in the wav file
@@ -200,9 +202,7 @@ void xscope_fileio_task(void *arg) {
         xscope_close_all_files();
     }
     rtos_osal_critical_exit(state);
-
-    /* Close the app */
-    _Exit(0);
+    exit(0);
 }
 
 void xscope_fileio_tasks_create(unsigned priority, void* app_data) {

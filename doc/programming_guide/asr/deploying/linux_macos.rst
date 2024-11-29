@@ -32,10 +32,11 @@ Before running the host application, you may need to add the location of ``xscop
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the firmware:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
     cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_asr
@@ -64,7 +65,7 @@ From the build folder run:
 
 .. code-block:: console
 
-    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
+    xrun --xscope --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 

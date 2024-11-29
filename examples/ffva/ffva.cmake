@@ -44,7 +44,6 @@ set(APP_LINK_OPTIONS
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    inferencing_tflite_micro
     rtos::freertos_usb
     rtos::sw_services::device_control
     lib_src
