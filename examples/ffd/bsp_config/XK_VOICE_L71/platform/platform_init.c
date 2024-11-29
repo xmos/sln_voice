@@ -146,6 +146,7 @@ static void platform_sw_pll_init(void)
     sw_pll_lut_init(&sw_pll,
                 SW_PLL_15Q16(0.0),
                 SW_PLL_15Q16(1.0),
+                SW_PLL_15Q16(0.0),
                 PLL_CONTROL_LOOP_COUNT_INT,
                 PLL_RATIO,
                 (appconfBCLK_NOMINAL_HZ / appconfLRCLK_NOMINAL_HZ),
