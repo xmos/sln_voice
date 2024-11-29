@@ -117,4 +117,5 @@ void process_file() {
 
     asr_release(asr_port);
     xscope_close_all_files();
+    exit(0); // Note: exit syscall can cause issues with tools XTC 15.3.0 if called from both tiles 
 }

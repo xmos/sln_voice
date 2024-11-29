@@ -77,6 +77,18 @@ echo "***********************************"
 echo "Log file: ${RESULTS}"
 echo "***********************************"
 
+# Writes the XS3 TestMode register in the JTAG domain to reboot the device into JTAG-boot mode. 
+# Unsets the 'reboot' bit to release the chip from reset and waits for connection.
+# Will be Fixed in XTC > 15.3.0 (Bugzilla ID 18895).
+target_reset_reboot() {
+    local id=$1
+    xgdb --batch \
+        -ex "attach --id=${id}" \
+        -ex "monitor sysreg write 0 8 8 0xA1006300" \
+        -ex "monitor sysreg write 0 8 8 0x21006300"
+    sleep 5  # Fixed delay
+}
+
 for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     read -ra FIELDS <<< ${INPUT_ARRAY[j]}
     FILE_NAME=${FIELDS[0]}
@@ -110,15 +122,10 @@ for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
 
     # remix and create input wav to the filename expected for xscope_fileio (input.wav)
     sox ${INPUT_WAV} --no-dither -r 16000 -b 32 ${XSCOPE_FILEIO_INPUT_WAV} ${REMIX_PATTERN}
-
-    # Temp solution (reset all xtags between tests)
-    # This will be solved in: bugzilla id 18895
-    xgdb --batch -ex "attach --id=0" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
-    sleep 5
-    xgdb --batch -ex "attach --id=1" -ex "monitor sysreg write 0 8 8 0xA1006300" -ex "monitor sysreg write 0 8 8 0x21006300"
-    sleep 5
     
     # call xrun (in background)
+    target_reset_reboot 0
+    target_reset_reboot 1
     xrun ${ADAPTER_ID} --xscope --xscope-port localhost:12345 ${FIRMWARE} &
 
     # wait for app to load
