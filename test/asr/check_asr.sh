@@ -21,6 +21,18 @@ help()
    echo "   h     Print this Help."
 }
 
+# Writes the XS3 TestMode register in the JTAG domain to reboot the device into JTAG-boot mode. 
+# Unsets the 'reboot' bit to release the chip from reset and waits for connection.
+# Will be Fixed in XTC > 15.3.0 (Bugzilla ID 18895).
+target_reset_reboot() {
+    local id=$1
+    xgdb --batch \
+        -ex "attach --id=${id}" \
+        -ex "monitor sysreg write 0 8 8 0xA1006300" \
+        -ex "monitor sysreg write 0 8 8 0x21006300"
+    sleep 5  # Fixed delay
+}
+
 # flag arguments
 while getopts h option
 do
@@ -70,6 +82,8 @@ then
 fi
 
 # flash the data partition file
+target_reset_reboot 0
+target_reset_reboot 1
 xflash ${ADAPTER_ID} --quad-spi-clock 50MHz --factory ${ASR_FIRMWARE} --boot-partition-size 0x100000 --data ${DATA_PARTITION}
 
 # read input list
@@ -89,18 +103,6 @@ rm -rf ${RESULTS}
 
 echo "Log file: ${RESULTS}"
 echo "Filename, Max_Allowable_WER, Computed_WER" >> ${RESULTS}
-
-# Writes the XS3 TestMode register in the JTAG domain to reboot the device into JTAG-boot mode. 
-# Unsets the 'reboot' bit to release the chip from reset and waits for connection.
-# Will be Fixed in XTC > 15.3.0 (Bugzilla ID 18895).
-target_reset_reboot() {
-    local id=$1
-    xgdb --batch \
-        -ex "attach --id=${id}" \
-        -ex "monitor sysreg write 0 8 8 0xA1006300" \
-        -ex "monitor sysreg write 0 8 8 0x21006300"
-    sleep 5  # Fixed delay
-}
 
 for ((j = 0; j < ${#INPUT_ARRAY[@]}; j += 1)); do
     read -ra FIELDS <<< ${INPUT_ARRAY[j]}

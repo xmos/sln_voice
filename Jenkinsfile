@@ -284,7 +284,7 @@ pipeline {
                         checkout scm
                         sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
                         warnError("Docs") {
-                            buildDocs()
+                            buildDocs(archiveZipOnly: true)
                         } // warnError("Docs")
                     } // steps
                     post {
