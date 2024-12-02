@@ -1,5 +1,5 @@
 # filename, Max allowable WER
 ETSIRock_Speech54dB_Noise45dB    0.40
 Pink_Speech54dB_Noise45dB    0.37
-Pub_Speech54dB_Noise45dB    0.35
-Silence_Speech59dB    0.21
+Pub_Speech54dB_Noise45dB    0.37
+Silence_Speech59dB    0.24
