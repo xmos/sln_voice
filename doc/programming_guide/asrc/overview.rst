@@ -128,10 +128,9 @@ Following initial ``cmake`` build, for subsequent builds, as long as new source 
 Windows
 -------
 
-It is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under Windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 

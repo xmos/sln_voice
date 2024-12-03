@@ -59,10 +59,9 @@ something like this:
    XTC version: 15.2.1
    Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
 
-On Windows it is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under Windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 
@@ -120,12 +119,13 @@ The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may 
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the firmware:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_ffd_<speech_engine>
@@ -134,6 +134,7 @@ On Windows run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_ffd_<speech_engine>

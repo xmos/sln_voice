@@ -14,7 +14,7 @@ Windows
 
 A standard C/C++ compiler is required to build applications for the host PC.  Windows users may use `Build Tools for Visual Studio <https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#download-and-install-the-tools>`__ command-line interface.
 
-It is highly recommended to use *Ninja* as the build system for native Windows firmware builds.
+It is recommended to use *Ninja* as the build system for native Windows firmware builds.
 To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
 install with ``winget`` by running the following commands in *PowerShell*:
 
