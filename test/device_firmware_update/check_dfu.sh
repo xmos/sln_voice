@@ -50,7 +50,7 @@ fi
 
 
 # reset board
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+xrun --reset ${ADAPTER_ID}
 
 # flash the data partition
 # build_tests.sh creates example_ffva_ua_adec_altarch_data_partition.bin used here
@@ -78,7 +78,7 @@ xflash ${ADAPTER_ID} --factory-version ${XTC_VERSION_MAJOR}.${XTC_VERSION_MINOR}
 dfu-util -e -d  ${USB_VID}:${USB_PID} -a 1 -D ${OUTPUT_DIR}/${FIRMWARE_NAME}_upgrade.bin
 
 # reset board
-xgdb -batch -ex "connect ${ADAPTER_ID} --reset-to-mode-pins" -ex detach
+xrun --reset ${ADAPTER_ID}
 
 # wait for dust to gather
 sleep 5
@@ -88,4 +88,3 @@ dfu-util -e -d  ${USB_VID}:${USB_PID} -a 1 -U ${OUTPUT_DIR}/readback_upgrade.bin
 
 # cleanup afterwards so we don't leave an image on the flash. Leaving an image may cause issues as we have multiple targets
 xflash ${ADAPTER_ID} --erase-all --target-file "${SLN_VOICE_ROOT}"/examples/ffd/bsp_config/XK_VOICE_L71/XK_VOICE_L71.xn
-

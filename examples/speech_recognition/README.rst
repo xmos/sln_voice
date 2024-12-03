@@ -20,10 +20,9 @@ something like this:
    XTC version: 15.2.1
    Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
 
-On Windows it is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under Windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 
@@ -66,22 +65,6 @@ Before running the host application, you may need to add the location of `xscope
 Windows
 -------
 
-It is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under windows.
-
-To install Ninja, follow these steps:
-
--  Download ``ninja.exe`` from
-   https://github.com/ninja-build/ninja/releases. This firmware has been
-   tested with Ninja version v1.11.1.
--  Ensure Ninja is on the command line path. You can add to the path
-   permanently by following these steps
-   https://www.computerhope.com/issues/ch000549.htm. Alternatively you
-   may set the path in the current command line session using something
-   like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
-
 Before building the host application, you will need to add the path to the XTC Tools to your environment:
 
 ::
@@ -104,12 +87,13 @@ Before running the host application, you may need to add the location of `xscope
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the firmware:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_asr
@@ -118,6 +102,7 @@ On Windows run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -G "Ninja" -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_asr
