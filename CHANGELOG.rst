@@ -4,12 +4,16 @@ XCORE-VOICE change log
 2.3.0
 -----
 
-  * CHANGED: Updated submodule fwk_io to version v3.6.0 from v3.3.0.
-  * CHANGED: Updated submodule fwk_core to version v1.1.0 from v1.0.2. 
-  * CHANGED: Updated submodule fwk_voice to version v0.8.0 from v0.7.0.  
   * CHANGED: Updated XTC Tools to 15.3.0.
-  * REMOVED: Deleted inferencing submodule. 
+  * CHANGED: Updated submodule fwk_io to version v3.6.0 from v3.3.0.
+  * CHANGED: Updated submodule fwk_core to version v1.1.0 from v1.0.2.
+  * CHANGED: Updated submodule fwk_voice to version v0.8.0 from v0.7.0.
+  * CHANGED: Updated submodule fwk_rtos to version 3.2.0 from 3.0.5.
+  * CHANGED: Updated submodule lib_src to version 2.7.0 from 2.4.0.
+  * CHANGED: Updated submodule xscope_fileio to version 1.2.0 from 1.1.2.
+  * ADDED: lib_sw_pll submodule v2.3.1.
   * ADDED: xmos-ai-tools v1.3.1 Python requirement. 
+  * REMOVED: Deleted inferencing submodule.
   * ADDED: FFVA INT example with Cyberon speech recognition engine and model
     (DSpotter v2.2.18.0).
   * CHANGED: Moved files in folders device_memory, gpio_ctrl, intent_engine and
@@ -23,8 +27,6 @@ XCORE-VOICE change log
   * ADDED: Support for reading registers over I2C slave in FFD examples.
   * ADDED: Note in ASRC demo documentation about large latency in ASRC
     processing. References to alternative application notes have been provided.
-  * CHANGED: Updated submodule fwk_rtos to version 3.2.0 from 3.0.5.
-  * ADDED: lib_sw_pll submodule v1.1.0.
 
 2.2.0
 -----
