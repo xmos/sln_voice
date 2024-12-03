@@ -69,16 +69,7 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. The output should be
-something like this:
-
-::
-
-   $ xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
-
+First make sure that your XTC tools environment is activated.
 
 Linux or Mac
 ------------

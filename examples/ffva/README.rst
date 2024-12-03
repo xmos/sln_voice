@@ -9,16 +9,7 @@ Supported Hardware and pre-requisites
 
 This example is supported on the XK_VOICE_L71 board.
 
-On the host machine the XTC tools, version 15.2.1, must be installed and sourced.
-The output should be
-something like this:
-
-::
-
-   $ xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
+Make sure that your XTC tools environment is activated.
 
 It is recommended to use `Ninja` or `xmake` as the make system under Windows.
 `Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.

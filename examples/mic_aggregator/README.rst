@@ -2,6 +2,9 @@
 PDM Microphone Aggregator Example
 #################################
 
+.. warning::
+   This example is deprecated and will be moved into a separate
+   Application Note and may be removed in the next major release.
 
 This example provides a bridge between 16 PDM microphones to either
 TDM16 slave or USB Audio and targets the xcore-ai explorer board.
@@ -29,16 +32,7 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. The easiest way to source
-the tools is to open the provided shortcut to ``XTC Tools 15.2.1 Command Prompt``.
-Running the compiler binary ``xcc`` will produce an output like this:
-
-::
-
-   xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
+First make sure that your XTC tools environment is activated.
 
 Linux or Mac
 ------------
