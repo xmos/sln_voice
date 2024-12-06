@@ -4,7 +4,7 @@
 
 set(MODEL_LANGUAGE "english_usa")
 #set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/asr/model/english_usa/Hello_XMOS_pack_WithTxt.bin.Enc.NibbleSwap")
-set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/asr/model/english_usa/Tesing_level_2_pack.bin.Enc.NibbleSwap")
+set(CYBERON_COMMAND_NET_FILE "${CMAKE_CURRENT_LIST_DIR}/asr/model/english_usa/Testing_level_2_pack.bin.Enc.NibbleSwap")
 
 #**********************
 # QSPI Flash Layout
