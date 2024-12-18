@@ -4,6 +4,7 @@ XCORE-VOICE change log
 2.3.0
 -----
 
+  * CHANGED: Updated Cyberon Wake Word engine.
   * CHANGED: Updated XTC Tools to 15.3.0.
   * CHANGED: Updated submodule fwk_io to version v3.6.0 from v3.3.0.
   * CHANGED: Updated submodule fwk_core to version v1.1.0 from v1.0.2.
