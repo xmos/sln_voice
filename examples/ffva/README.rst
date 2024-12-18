@@ -138,6 +138,7 @@ Run the following commands in the build folder:
 ::
 
     xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec_altarch.xe
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_int_cyberon_fixed_delay.xe
 
 
