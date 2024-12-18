@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef APP_CONF_H_
@@ -18,10 +18,10 @@
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
-#define AUDIO_PIPELINE_TILE_NO                  MICARRAY_TILE_NO
+#define AUDIO_PIPELINE_OUTPUT_TILE_NO           MICARRAY_TILE_NO
 #define ASR_TILE_NO                             FLASH_TILE_NO
 #define FS_TILE_NO                              FLASH_TILE_NO
-#define WAKEWORD_TILE_NO                        AUDIO_PIPELINE_TILE_NO
+#define WAKEWORD_TILE_NO                        AUDIO_PIPELINE_OUTPUT_TILE_NO
 
 /* Sensory specific settings */
 #if ON_TILE(ASR_TILE_NO)
@@ -67,12 +67,12 @@
 #define appconfINTENT_TRANSPORT_DELAY_MS        50
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_ENABLED
-#define appconfINTENT_I2C_OUTPUT_ENABLED        1
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED        1
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR    0x01
+#ifndef appconfINTENT_I2C_MASTER_DEVICE_ADDR
+#define appconfINTENT_I2C_MASTER_DEVICE_ADDR    0x01
 #endif
 
 #ifndef appconfINTENT_UART_OUTPUT_ENABLED

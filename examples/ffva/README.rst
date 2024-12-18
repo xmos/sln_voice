@@ -9,21 +9,11 @@ Supported Hardware and pre-requisites
 
 This example is supported on the XK_VOICE_L71 board.
 
-On the host machine the XTC tools, version 15.2.1, must be installed and sourced.
-The output should be
-something like this:
+Make sure that your XTC tools environment is activated.
 
-::
-
-   $ xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
-
-On Windows it is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under Windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 
@@ -78,27 +68,31 @@ The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may 
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the firmware.
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    make example_ffva_int_fixed_delay
     make example_ffva_ua_adec_altarch
+    make example_ffva_int_fixed_delay
+    make example_ffva_int_cyberon_fixed_delay
 
 On Windows run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
-    ninja example_ffva_int_fixed_delay
     ninja example_ffva_ua_adec_altarch
+    ninja example_ffva_int_fixed_delay
+    ninja example_ffva_int_cyberon_fixed_delay
 
 From the build folder, create the data partition containing the filesystem and
 flash the device with the appropriate command to the desired configuration:
@@ -107,15 +101,17 @@ On Linux and Mac run:
 
 ::
 
-    make flash_app_example_ffva_int_fixed_delay
     make flash_app_example_ffva_ua_adec_altarch
+    make flash_app_example_ffva_int_fixed_delay
+    make flash_app_example_ffva_int_cyberon_fixed_delay
 
 On Windows run:
 
 ::
 
-    ninja flash_app_example_ffva_int_fixed_delay
     ninja flash_app_example_ffva_ua_adec_altarch
+    ninja flash_app_example_ffva_int_fixed_delay
+    ninja flash_app_example_ffva_int_cyberon_fixed_delay
 
 Once flashed, the application will run.
 
@@ -129,8 +125,10 @@ Run the following commands in the build folder:
 
 ::
 
-    xrun --xscope example_ffva_int_fixed_delay.xe
     xrun --xscope example_ffva_ua_adec_altarch.xe
+    xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_int_cyberon_fixed_delay.xe
+
 
 Debugging the firmware with `xgdb`
 =================================
@@ -139,8 +137,10 @@ Run the following commands in the build folder:
 
 ::
 
-    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec_altarch.xe
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_cyberon_fixed_delay.xe
+
 
 Running the Firmware With WAV Files
 ===================================
@@ -149,12 +149,13 @@ This application supports USB audio input and output debug configuration.
 
 To enable USB audio debug, configure cmake with:
 
-Run the following commands in the root folder to build the firmware.
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run::
 
 ::
 
+    pip install -r requirements.txt
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
 
@@ -164,6 +165,7 @@ On Windows run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake -DDEBUG_FFVA_USB_MIC_INPUT=1
     cd build
 

@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef APP_CONF_H_
@@ -13,9 +13,9 @@
 
 #ifndef appconfASR_BRICK_SIZE_SAMPLES
 #define appconfASR_BRICK_SIZE_SAMPLES                 240  // typically set in asr.cmake
-#endif 
+#endif
 
-#ifndef appconfASR_MISSING_METADATA_CORRECTION  
+#ifndef appconfASR_MISSING_METADATA_CORRECTION
 #define appconfASR_MISSING_METADATA_CORRECTION        (40 * appconfASR_BRICK_SIZE_SAMPLES)
 #endif
 
@@ -30,5 +30,8 @@
 #define appconfSTARTUP_TASK_PRIORITY            (configMAX_PRIORITIES / 2)
 #define appconfXSCOPE_IO_TASK_PRIORITY          (configMAX_PRIORITIES - 1)
 #define appconfQSPI_FLASH_TASK_PRIORITY         (configMAX_PRIORITIES - 1)
+
+/* Maximum delay between a wake up phrase and command phrase */
+#define appconfINTENT_RESET_DELAY_MS         4000
 
 #endif /* APP_CONF_H_ */

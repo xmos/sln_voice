@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef PLATFORM_CONF_H_
@@ -101,21 +101,21 @@
 #define appconfPIPELINE_AUDIO_SAMPLE_RATE   16000
 #endif /* appconfPIPELINE_AUDIO_SAMPLE_RATE */
 
-#ifndef appconfI2C_CTRL_ENABLED
-#define appconfI2C_CTRL_ENABLED    0
-#endif /* appconfI2C_CTRL_ENABLED */
+#ifndef appconfI2C_DFU_ENABLED
+#define appconfI2C_DFU_ENABLED    0
+#endif /* appconfI2C_DFU_ENABLED */
+
+#ifndef APP_CONTROL_TRANSPORT_COUNT
+#define APP_CONTROL_TRANSPORT_COUNT appconfI2C_DFU_ENABLED
+#endif // APP_CONTROL_TRANSPORT_COUNT
 
 #ifndef appconfEXTERNAL_MCLK
-#if appconfI2C_CTRL_ENABLED
 #define appconfEXTERNAL_MCLK       1
-#else
-#define appconfEXTERNAL_MCLK       0
-#endif /* appconfI2C_CTRL_ENABLED */
 #endif /* appconfEXTERNAL_MCLK */
 
-#ifndef appconf_CONTROL_I2C_DEVICE_ADDR
-#define appconf_CONTROL_I2C_DEVICE_ADDR 0x42
-#endif /* appconf_CONTROL_I2C_DEVICE_ADDR*/
+#ifndef appconfI2C_SLAVE_DEVICE_ADDR
+#define appconfI2C_SLAVE_DEVICE_ADDR 0x42
+#endif /* appconfI2C_SLAVE_DEVICE_ADDR*/
 
 #ifndef appconfSPI_OUTPUT_ENABLED
 #define appconfSPI_OUTPUT_ENABLED  0
@@ -188,14 +188,14 @@
 #ifndef BOARD_QSPI_SPEC
 /* Set up a default SPI spec if the app has not provided
  * one explicitly.
- * Note: The version checks only work in XTC Tools >15.2.0 
- *       By default FL_QUADDEVICE_W25Q64JW is used 
+ * Note: The version checks only work in XTC Tools >15.2.0
+ *       By default FL_QUADDEVICE_W25Q64JW is used
  */
 #ifdef __XMOS_XTC_VERSION_MAJOR__
 #if (__XMOS_XTC_VERSION_MAJOR__ == 15)      \
     && (__XMOS_XTC_VERSION_MINOR__ >= 2)    \
     && (__XMOS_XTC_VERSION_PATCH__ >= 0)
-/* In XTC >15.2.0 some SFDP support enables a generic 
+/* In XTC >15.2.0 some SFDP support enables a generic
  * default spec
  */
 #define BOARD_QSPI_SPEC     FL_QUADDEVICE_DEFAULT

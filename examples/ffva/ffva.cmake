@@ -1,11 +1,14 @@
 #**********************
 # Gather Sources
 #**********************
-file(GLOB_RECURSE APP_SOURCES ${CMAKE_CURRENT_LIST_DIR}/src/*.c )
+
+file(GLOB_RECURSE APP_SOURCES   ${CMAKE_CURRENT_LIST_DIR}/src/*.c)
+
 set(APP_INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/src
+    ${CMAKE_CURRENT_LIST_DIR}/src/control
+    ${CMAKE_CURRENT_LIST_DIR}/src/dfu_int
     ${CMAKE_CURRENT_LIST_DIR}/src/usb
-    ${CMAKE_CURRENT_LIST_DIR}/src/ww_model_runner
 )
 
 include(${CMAKE_CURRENT_LIST_DIR}/bsp_config/bsp_config.cmake)
@@ -36,13 +39,15 @@ set(APP_COMPILE_DEFINITIONS
 set(APP_LINK_OPTIONS
     -lquadspi
     -report
+    -lotp3
     ${CMAKE_CURRENT_LIST_DIR}/src/config.xscope
 )
 
 set(APP_COMMON_LINK_LIBRARIES
-    inferencing_tflite_micro
     rtos::freertos_usb
+    rtos::sw_services::device_control
     lib_src
+    lib_sw_pll
 )
 
 #**********************
@@ -81,6 +86,7 @@ endif()
 # XMOS Example Design Targets
 #**********************
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_int.cmake)
+include(${CMAKE_CURRENT_LIST_DIR}/ffva_int_cyberon.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/ffva_ua.cmake)
 
 #**********************

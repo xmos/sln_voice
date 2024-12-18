@@ -4,7 +4,7 @@
 Prerequisites
 #############
 
-It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`__.  XTC Tools 15.2.1 or newer are required for building, running, flashing and debugging the example applications.
+It is recommended that you download and install the latest release of the `XTC Tools <https://www.xmos.com/software/tools/>`__.  XTC Tools |TOOLS_VERSION| or newer are required for building, running, flashing and debugging the example applications.
 
 `CMake 3.21 <https://cmake.org/download/>`_ or newer and `Git <https://git-scm.com/>`_ are also required for building the example applications.
 
@@ -14,7 +14,7 @@ Windows
 
 A standard C/C++ compiler is required to build applications for the host PC.  Windows users may use `Build Tools for Visual Studio <https://docs.microsoft.com/en-us/cpp/build/building-on-the-command-line?view=msvc-170#download-and-install-the-tools>`__ command-line interface.
 
-It is highly recommended to use *Ninja* as the build system for native Windows firmware builds.
+It is recommended to use *Ninja* as the build system for native Windows firmware builds.
 To install *Ninja* follow install instructions at https://ninja-build.org/ or on Windows
 install with ``winget`` by running the following commands in *PowerShell*:
 

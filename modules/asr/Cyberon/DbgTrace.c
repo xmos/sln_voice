@@ -13,7 +13,9 @@ void DbgTrace(const char *lpszFormat, ...)
 	if (n >= 0 && n < 256)
 	{
 		rtos_printf(szTemp);
+#ifdef UART_DUMP_RECORD
 		rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)szTemp, strlen(szTemp));
+#endif
 	}
     va_end(args);
 }

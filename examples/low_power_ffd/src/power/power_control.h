@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef POWER_CONTROL_H_
@@ -8,7 +8,7 @@
 #include "power_state.h"
 
 // Specifies the tile that is controlling the low power mode.
-#define POWER_CONTROL_TILE_NO        AUDIO_PIPELINE_TILE_NO
+#define POWER_CONTROL_TILE_NO        AUDIO_PIPELINE_OUTPUT_TILE_NO
 
 /**
  * @brief Initialize the power control task.

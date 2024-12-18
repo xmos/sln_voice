@@ -1,12 +1,12 @@
-.. _sln_voice_ffd_intent_engine:
+.. _sln_voice_intent_engine:
 
-#################
-src/intent_engine
-#################
+#########################
+modules/asr/intent_engine
+#########################
 
-This folder contains the intent engine module for the FFD application.
+This folder contains the intent engine module for the FFD and FFVA applications.
 
-.. list-table:: FFD Intent Engine
+.. list-table:: ASR Intent Engine
    :widths: 30 50
    :header-rows: 1
    :align: left
@@ -43,12 +43,12 @@ intent_engine_create
 
 This function has the role of creating the model running task and providing a pointer, which can be used by the application to handle the output intent result.  In the case of the default configuration, the application provides a FreeRTOS Queue object.
 
-In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
+The ASR engine is on tile 0 in both FFD and FFVA, but the audio pipeline output is on tile 1 for FFD and on tile 0 for FFVA.
 
 .. code-block:: c
     :caption: intent_engine_create snippet (intent_engine_io.c)
 
-    #if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+    #if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
         intent_engine_task_create(priority);
     #else
         intent_engine_intertile_task_create(priority);
@@ -67,7 +67,7 @@ samples at startup.
     :caption: intent_engine_create snippet (intent_engine_io.c)
 
         int sync = 0;
-    #if ON_TILE(AUDIO_PIPELINE_TILE_NO)
+    #if ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
         size_t len = rtos_intertile_rx_len(intertile_ctx, appconfINTENT_ENGINE_READY_SYNC_PORT, RTOS_OSAL_WAIT_FOREVER);
         xassert(len == sizeof(sync));
         rtos_intertile_rx_data(intertile_ctx, &sync, sizeof(sync));
@@ -80,13 +80,13 @@ intent_engine_sample_push
 
 This function has the role of sending the ASR output channel from the audio pipeline to the intent engine.
 
-In FFD, the audio pipeline output is on tile 1 and the ASR engine on tile 0.
+The ASR engine is on tile 0 in both FFD and FFVA, but the audio pipeline output is on tile 1 for FFD and on tile 0 for FFVA.
 
 .. code-block:: c
     :caption: intent_engine_create snippet (intent_engine_io.c)
 
-    #if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_TILE_NO)
-    #if ASR_TILE_NO == AUDIO_PIPELINE_TILE_NO
+    #if appconfINTENT_ENABLED && ON_TILE(AUDIO_PIPELINE_OUTPUT_TILE_NO)
+    #if ASR_TILE_NO == AUDIO_PIPELINE_OUTPUT_TILE_NO
         intent_engine_samples_send_local(
                 frames,
                 buf);

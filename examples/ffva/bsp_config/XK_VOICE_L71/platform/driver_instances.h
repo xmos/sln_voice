@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef DRIVER_INSTANCES_H_
@@ -13,6 +13,12 @@
 #include "rtos_qspi_flash.h"
 #include "rtos_dfu_image.h"
 #include "rtos_spi_slave.h"
+#include "rtos_uart_tx.h"
+
+/* Config headers for sw_pll */
+#include "sw_pll.h"
+#include "fractions_1000ppm.h"
+#include "register_setup_1000ppm.h"
 
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
@@ -21,6 +27,7 @@
 #define SPI_OUTPUT_TILE_NO 0
 #define MICARRAY_TILE_NO   1
 #define I2S_TILE_NO        1
+#define UART_TILE_NO       0
 
 /** TILE 0 Clock Blocks */
 #define FLASH_CLKBLK  XS1_CLKBLK_1
@@ -59,5 +66,17 @@ extern rtos_i2c_slave_t *i2c_slave_ctx;
 extern rtos_spi_slave_t *spi_slave_ctx;
 extern rtos_i2s_t *i2s_ctx;
 extern rtos_dfu_image_t *dfu_image_ctx;
+extern rtos_uart_tx_t *uart_tx_ctx;
+
+typedef struct {
+    port_t p_mclk_count;                    // Used for keeping track of MCLK output for sw_pll
+    port_t p_bclk_count;                    // Used for keeping track of BCLK input for sw_pll
+    sw_pll_state_t *sw_pll;                 // Pointer to sw_pll state (if used)
+
+}sw_pll_ctx_t;
+
+static sw_pll_state_t sw_pll = {0};
+
+extern sw_pll_ctx_t *sw_pll_ctx;
 
 #endif /* DRIVER_INSTANCES_H_ */

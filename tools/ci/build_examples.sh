@@ -35,6 +35,7 @@ XCORE_VOICE_ROOT=`git rev-parse --show-toplevel`
 
 source ${XCORE_VOICE_ROOT}/tools/ci/helper_functions.sh
 export_ci_build_vars
+setup_python_env "${XCORE_VOICE_ROOT}" 
 
 # setup distribution folder
 DIST_DIR=${XCORE_VOICE_ROOT}/dist
@@ -74,4 +75,9 @@ for ((i = 0; i < ${#examples[@]}; i += 1)); do
         (cd ${path}/build_${board}; log_errors $CI_BUILD_TOOL make_data_partition_${app_target} $CI_BUILD_TOOL_ARGS)
         (cd ${path}/build_${board}; cp ${app_target}_data_partition.bin ${DIST_DIR})
     fi
+    echo '******************************************************'
+    echo '* Add extra files'
+    echo '******************************************************'
+    cd ${path}; cp LICENSE.rst ${DIST_DIR}
+    cd ${path}; cp README.rst ${DIST_DIR}
 done

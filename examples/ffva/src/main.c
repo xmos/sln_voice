@@ -1,4 +1,4 @@
-// Copyright 2020-2023 XMOS LIMITED.
+// Copyright 2020-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #include <platform.h>
@@ -19,13 +19,24 @@
 #include "app_conf.h"
 #include "platform/platform_init.h"
 #include "platform/driver_instances.h"
+#include "platform/platform_conf.h"
 #include "usb_support.h"
 #include "usb_audio.h"
 #include "audio_pipeline.h"
-#include "ww_model_runner/ww_model_runner.h"
-#include "fs_support.h"
+#include "dfu_servicer.h"
 
+/* Headers used for the WW intent engine */
+#if appconfINTENT_ENABLED
+#include "intent_engine.h"
+#include "intent_handler.h"
+#include "fs_support.h"
+#include "gpi_ctrl.h"
+#include "leds.h"
+#endif
 #include "gpio_test/gpio_test.h"
+
+/* Config headers for sw_pll */
+#include "sw_pll.h"
 
 volatile int mic_from_usb = appconfMIC_SRC_DEFAULT;
 volatile int aec_ref_source = appconfAEC_REF_DEFAULT;
@@ -55,6 +66,18 @@ void i2s_slave_intertile(void *args) {
                     (int32_t*) tmp,
                     appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                     portMAX_DELAY);
+
+
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
+    sw_pll_ctx_t* i2s_callback_args = (sw_pll_ctx_t*) args;
+    port_clear_buffer(i2s_callback_args->p_bclk_count);
+    port_in(i2s_callback_args->p_bclk_count);                                  // Block until BCLK transition to synchronise. Will consume up to 1/64 of a LRCLK cycle
+    uint16_t mclk_pt = port_get_trigger_time(i2s_callback_args->p_mclk_count); // Immediately sample mclk_count
+    uint16_t bclk_pt = port_get_trigger_time(i2s_callback_args->p_bclk_count); // Now grab bclk_count (which won't have changed)
+
+    sw_pll_lut_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
+#endif
+
     }
 }
 #endif
@@ -139,6 +162,7 @@ void audio_pipeline_input(void *input_app_data,
         }
     }
 #endif
+
 }
 
 int audio_pipeline_output(void *output_app_data,
@@ -147,7 +171,6 @@ int audio_pipeline_output(void *output_app_data,
                         size_t frame_count)
 {
     (void) output_app_data;
-
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
 #if !appconfI2S_TDM_ENABLED
@@ -188,6 +211,7 @@ int audio_pipeline_output(void *output_app_data,
                     portMAX_DELAY);
     }
 #endif
+
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
@@ -202,6 +226,8 @@ int audio_pipeline_output(void *output_app_data,
                       appconfI2S_OUTPUT_SLAVE_PORT,
                       tmp,
                       sizeof(tmp));
+#else
+    #error "Invalid I2S mode"
 #endif
 #endif
 
@@ -211,11 +237,16 @@ int audio_pipeline_output(void *output_app_data,
                 output_audio_frames,
                 6);
 #endif
+#if appconfINTENT_ENABLED
 
-#if appconfWW_ENABLED
-    ww_audio_send(intertile_ctx,
-                  frame_count,
-                  (int32_t(*)[2])output_audio_frames);
+    int32_t ww_samples[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    for (int j=0; j<appconfAUDIO_PIPELINE_FRAME_ADVANCE; j++) {
+        /* ASR output is first */
+        ww_samples[j] = (uint32_t) *(output_audio_frames+j);
+    }
+
+    intent_engine_sample_push(ww_samples,
+                              frame_count);
 #endif
 
     return AUDIO_PIPELINE_FREE_FRAME;
@@ -320,10 +351,19 @@ static void mem_analysis(void)
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
-
     platform_start();
 
-#if ON_TILE(1) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+#if ON_TILE(I2S_TILE_NO) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
+
+// Use sw_pll_ctx only if the MCLK recovery is enabled
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+    xTaskCreate((TaskFunction_t) i2s_slave_intertile,
+                "i2s_slave_intertile",
+                RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
+                sw_pll_ctx,
+                appconfAUDIO_PIPELINE_TASK_PRIORITY,
+                NULL);
+#else
     xTaskCreate((TaskFunction_t) i2s_slave_intertile,
                 "i2s_slave_intertile",
                 RTOS_THREAD_STACK_SIZE(i2s_slave_intertile),
@@ -331,21 +371,54 @@ void startup_task(void *arg)
                 appconfAUDIO_PIPELINE_TASK_PRIORITY,
                 NULL);
 #endif
-
+#endif
 #if ON_TILE(1)
     gpio_test(gpio_ctx_t0);
 #endif
 
-    audio_pipeline_init(NULL, NULL);
+#if appconfI2C_DFU_ENABLED && ON_TILE(I2C_CTRL_TILE_NO)
+    // Initialise control related things
+    servicer_t servicer_dfu;
+    dfu_servicer_init(&servicer_dfu);
 
-#if ON_TILE(FS_TILE_NO)
+    xTaskCreate(
+        dfu_servicer,
+        "DFU servicer",
+        RTOS_THREAD_STACK_SIZE(dfu_servicer),
+        &servicer_dfu,
+        appconfDEVICE_CONTROL_I2C_PRIORITY,
+        NULL
+    );
+#endif
+
+#if appconfINTENT_ENABLED && ON_TILE(0)
+    led_task_create(appconfLED_TASK_PRIORITY, NULL);
+#endif
+
+#if appconfINTENT_ENABLED && ON_TILE(1)
+    gpio_gpi_init(gpio_ctx_t0);
+#endif
+
+#if appconfINTENT_ENABLED && ON_TILE(FS_TILE_NO)
     rtos_fatfs_init(qspi_flash_ctx);
-    rtos_dfu_image_print_debug(dfu_image_ctx);
+    // Setup flash low-level mode
+    //   NOTE: must call rtos_qspi_flash_fast_read_shutdown_ll to use non low-level mode calls
+    rtos_qspi_flash_fast_read_setup_ll(qspi_flash_ctx);
 #endif
 
-#if appconfWW_ENABLED && ON_TILE(WW_TILE_NO)
-    ww_task_create(appconfWW_TASK_PRIORITY);
+#if appconfINTENT_ENABLED && ON_TILE(ASR_TILE_NO)
+    QueueHandle_t q_intent = xQueueCreate(appconfINTENT_QUEUE_LEN, sizeof(int32_t));
+    intent_handler_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
+    intent_engine_create(appconfINTENT_MODEL_RUNNER_TASK_PRIORITY, q_intent);
 #endif
+
+#if appconfINTENT_ENABLED && !ON_TILE(ASR_TILE_NO)
+    // Wait until the intent engine is initialized before starting the
+    // audio pipeline.
+    intent_engine_ready_sync();
+#endif
+
+    audio_pipeline_init(NULL, NULL);
 
     mem_analysis();
 }

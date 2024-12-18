@@ -47,19 +47,29 @@ The host applications will be installed at ``%USERPROFILE%\.xmos\bin``, and may 
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the |I2S| firmware:
+After having your python environment activated, run the following commands in the root folder to build the |I2S| firmware:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
     cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_ffva_int_fixed_delay
 
-
-Run the following commands in the root folder to build the USB firmware:
+After having your python environment activated, run the following commands in the root folder to build the |I2S| firmware with the Cyberon ASR engine:
 
 .. code-block:: console
 
+    pip install -r requirements.txt
+    cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
+    cd build
+    ninja example_ffva_int_cyberon_fixed_delay
+
+After having your python environment activated, run the following commands in the root folder to build the USB firmware:
+
+.. code-block:: console
+
+    pip install -r requirements.txt
     cmake -G Ninja -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_ffva_ua_adec_altarch
@@ -74,6 +84,7 @@ Inside of the build folder root, after building the firmware, run one of:
 .. code-block:: console
 
     ninja flash_app_example_ffva_int_fixed_delay
+    ninja flash_app_example_ffva_int_cyberon_fixed_delay
     ninja flash_app_example_ffva_ua_adec_altarch
 
 Once flashed, the application will run.
@@ -85,12 +96,14 @@ From the build folder run:
 .. code-block:: console
 
     xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_int_cyberon_fixed_delay.xe
     xrun --xscope example_ffva_ua_adec_altarch.xe
 
 Upgrading the Firmware
 ======================
 
 The UA variants of this application contain DFU over the USB DFU Class V1.1 transport method.
+In this section DFU over |I2C| for the INT variants is not covered. The INT variants require an |I2C| connection to the host, and Windows doesn't support this feature.
 
 To create an upgrade image from the build folder run:
 

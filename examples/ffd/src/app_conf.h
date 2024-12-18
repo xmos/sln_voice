@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 #ifndef APP_CONF_H_
@@ -11,12 +11,13 @@
 #define appconfI2C_MASTER_RPC_PORT                4
 #define appconfI2S_RPC_PORT                       5
 #define appconfINTENT_ENGINE_READY_SYNC_PORT      16
+#define appconfI2S_OUTPUT_SLAVE_PORT              8
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
-#define AUDIO_PIPELINE_TILE_NO  MICARRAY_TILE_NO
-#define ASR_TILE_NO             FLASH_TILE_NO
-#define FS_TILE_NO              FLASH_TILE_NO
+#define AUDIO_PIPELINE_OUTPUT_TILE_NO   MICARRAY_TILE_NO
+#define ASR_TILE_NO                     FLASH_TILE_NO
+#define FS_TILE_NO                      FLASH_TILE_NO
 
 /* Audio Pipeline Configuration */
 #define appconfAUDIO_CLOCK_FREQUENCY            MIC_ARRAY_CONFIG_MCLK_FREQ
@@ -70,24 +71,69 @@
 #define appconfINTENT_TRANSPORT_DELAY_MS     50
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_ENABLED
-#define appconfINTENT_I2C_OUTPUT_ENABLED   1
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
 #endif
 
-#ifndef appconfINTENT_I2C_OUTPUT_DEVICE_ADDR
-#define appconfINTENT_I2C_OUTPUT_DEVICE_ADDR 0x01
+#ifndef appconfINTENT_I2C_MASTER_DEVICE_ADDR
+#define appconfINTENT_I2C_MASTER_DEVICE_ADDR 0x01
+#endif
+
+/* @brief Address for wakeword register to be read over I2C slave*/
+#ifndef appconfINTENT_I2C_REG_ADDRESS
+#define appconfINTENT_I2C_REG_ADDRESS        0x01
 #endif
 
 #ifndef appconfINTENT_UART_OUTPUT_ENABLED
 #define appconfINTENT_UART_OUTPUT_ENABLED   1
 #endif
 
+#ifndef appconfINTENT_UART_DEBUG_INFO_ENABLED
+#define appconfINTENT_UART_DEBUG_INFO_ENABLED   0
+#endif
+
 #ifndef appconfUART_BAUD_RATE
 #define appconfUART_BAUD_RATE       9600
 #endif
 
+#ifndef appconfI2S_MODE_MASTER
+#define appconfI2S_MODE_MASTER     0
+#endif
+
+#ifndef appconfI2S_MODE_SLAVE
+#define appconfI2S_MODE_SLAVE      1
+#endif
+
 #ifndef appconfI2S_ENABLED
-#define appconfI2S_ENABLED   1
+#define appconfI2S_ENABLED         1
+#endif
+
+#ifndef appconfI2S_MODE
+#define appconfI2S_MODE            appconfI2S_MODE_MASTER
+#endif
+
+#ifndef appconfUSE_I2S_INPUT
+#define appconfUSE_I2S_INPUT       0
+#endif
+
+#if appconfUSE_I2S_INPUT && !appconfI2S_ENABLED
+#error "I2S must be enabled if receiving the audio over I2S"
+#endif
+
+#ifndef appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
+#define appconfINTENT_I2C_MASTER_OUTPUT_ENABLED   1
+#endif
+
+#ifndef appconfI2C_MASTER_DAC_ENABLED
+#define appconfI2C_MASTER_DAC_ENABLED   1
+#endif
+
+#ifndef appconfI2C_SLAVE_DEVICE_ADDR
+#define appconfI2C_SLAVE_DEVICE_ADDR 0x42
+#endif
+
+#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED && appconfINTENT_I2C_SLAVE_POLLED_ENABLED
+#error "The intent message cannot be sent over I2C master and polled via I2C slave simultaneously"
 #endif
 
 #ifndef appconfAUDIO_PIPELINE_SKIP_IC_AND_VNR
@@ -124,6 +170,18 @@
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
 
+#if appconfI2S_MODE==appconfI2S_MODE_SLAVE
+/* Software PLL settings for mclk recovery configurations */
+/* see fractions.h and register_setup.h for other pll settings */
+#define appconfLRCLK_NOMINAL_HZ     appconfI2S_AUDIO_SAMPLE_RATE
+#define appconfBCLK_NOMINAL_HZ      (appconfLRCLK_NOMINAL_HZ * 64)
+#define PLL_RATIO                   (MIC_ARRAY_CONFIG_MCLK_FREQ / appconfLRCLK_NOMINAL_HZ)
+#define PLL_CONTROL_LOOP_COUNT_INT  512  // How many refclk ticks (LRCLK) per control loop iteration. Aim for ~100Hz
+#define PLL_PPM_RANGE               1000 // Max allowable diff in clk count. For the PID constants we
+                                         // have chosen, this number should be larger than the number
+                                         // of elements in the look up table as the clk count diff is
+                                         // added to the LUT index with a multiplier of 1. Only used for INT mclkless
+#endif
 #include "app_conf_check.h"
 
 #endif /* APP_CONF_H_ */

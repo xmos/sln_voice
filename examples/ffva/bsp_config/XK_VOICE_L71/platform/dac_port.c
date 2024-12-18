@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -13,7 +13,7 @@
 #include "dac3101.h"
 #include "pcal6408a.h"
 
-/* I2C io expander address on XCF3610_Q60A board */
+/* I2C io expander address on XK-VOICE-L71 board */
 #define IOEXP_I2C_ADDR        PCAL6408A_I2C_ADDR
 
 /* IO expander pinout */

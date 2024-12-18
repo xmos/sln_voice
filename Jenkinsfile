@@ -1,4 +1,4 @@
-@Library('xmos_jenkins_shared_library@v0.28.0') _
+@Library('xmos_jenkins_shared_library@v0.34.0') _
 
 getApproval()
 
@@ -15,20 +15,24 @@ pipeline {
     parameters {
         string(
             name: 'TOOLS_VERSION',
-            defaultValue: '15.2.1',
+            defaultValue: '15.3.0',
             description: 'The XTC tools version'
+        )
+        string(
+            name: 'XMOSDOC_VERSION',
+            defaultValue: 'v6.2.0',
+            description: 'The xmosdoc version'
         )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',
             defaultValue: false,
-            description: 'Tests that only run during nightly builds.')
-    }
+            description: 'Tests that only run during nightly builds.'
+        )
+    } // parameters
     environment {
         REPO = 'sln_voice'
         VIEW = getViewName(REPO)
-        PYTHON_VERSION = "3.8.11"
         VENV_DIRNAME = ".venv"
         BUILD_DIRNAME = "dist"
-        XMOSDOC_VERSION = 'v4.0'
         VRD_TEST_RIG_TARGET = "XCORE-AI-EXPLORER"
         PIPELINE_TEST_VECTORS = "pipeline_test_vectors"
         ASR_TEST_VECTORS = "asr_test_vectors"
@@ -52,23 +56,20 @@ pipeline {
                         }
                         stage('Build tests') {
                             steps {
-                                script {
-                                    uid = sh(returnStdout: true, script: 'id -u').trim()
-                                    gid = sh(returnStdout: true, script: 'id -g').trim()
-                                }
-                                // pull docker images
-                                sh "docker pull ghcr.io/xmos/xcore_builder:latest"
-                                sh "docker pull ghcr.io/xmos/xcore_voice_tester:develop"
-                                // host apps
-                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_host_apps.sh"
-                                // test firmware and filesystems
-                                sh "docker run --rm -u $uid:$gid -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_builder:latest bash -l tools/ci/build_tests.sh"
-                                // List built files for log
-                                sh "ls -la dist_host/"
-                                sh "ls -la dist/"
+                                createVenv(reqFile: "requirements.txt")
+                                withTools(params.TOOLS_VERSION) {
+                                    withVenv {
+                                        // host apps
+                                        sh "tools/ci/build_host_apps.sh"
+                                        // test firmware and filesystems
+                                        sh "tools/ci/build_tests.sh"
+                                        // List built files for log
+                                        sh "ls -la dist_host/"
+                                        sh "ls -la dist/"
+                                    } // venv
+                                } // tools
                             }
                         }
-
                         stage('ASRC Unit tests') {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
@@ -98,14 +99,11 @@ pipeline {
                                 }
                             }
                         }
-                        stage('Create virtual environment') {
+                        stage('Install test requirements') {
                             when {
                                 expression { params.NIGHTLY_TEST_ONLY == true }
                             }
                             steps {
-                                // Create venv
-                                sh "pyenv install -s $PYTHON_VERSION"
-                                sh "~/.pyenv/versions/$PYTHON_VERSION/bin/python -m venv $VENV_DIRNAME"
                                 // Install dependencies
                                 withVenv() {
                                     sh "pip install git+https://github0.xmos.com/xmos-int/xtagctl.git"
@@ -182,10 +180,8 @@ pipeline {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
-                                            uid = sh(returnStdout: true, script: 'id -u').trim()
-                                            gid = sh(returnStdout: true, script: 'id -g').trim()
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "docker run --rm -u $uid:$gid --privileged -v /dev/bus/usb:/dev/bus/usb -w /sln_voice -v $WORKSPACE:/sln_voice ghcr.io/xmos/xcore_voice_tester:develop bash -l test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
+                                                sh "test/device_firmware_update/check_dfu.sh " + adapterIDs[0]
                                             }
                                             sh "pytest test/device_firmware_update/test_dfu.py --readback_image test/device_firmware_update/test_output/readback_upgrade.bin --upgrade_image test/device_firmware_update/test_output/test_ffva_dfu_upgrade.bin"
                                         }
@@ -220,6 +216,7 @@ pipeline {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
+                                            sh "xtagctl reset_all $VRD_TEST_RIG_TARGET"
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                                 sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffva_adec_altarch.xe $PIPELINE_TEST_VECTORS test/pipeline/ffva_quick.txt test/pipeline/ffva_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
                                             }
@@ -236,6 +233,7 @@ pipeline {
                             steps {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
+                                        sh "xtagctl reset_all $VRD_TEST_RIG_TARGET"
                                         script {
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
                                                 sh "test/pipeline/check_pipeline.sh $BUILD_DIRNAME/test_pipeline_ffd.xe $PIPELINE_TEST_VECTORS test/pipeline/ffd_quick.txt test/pipeline/ffd_test_output $WORKSPACE/amazon_wwe " + adapterIDs[0]
@@ -254,10 +252,13 @@ pipeline {
                                 withTools(params.TOOLS_VERSION) {
                                     withVenv {
                                         script {
+                                            sh "xtagctl reset_all $VRD_TEST_RIG_TARGET"
                                             withXTAG(["$VRD_TEST_RIG_TARGET"]) { adapterIDs ->
-                                                sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick.txt test/asr/sensory_output " + adapterIDs[0]
+                                                sh "test/asr/check_asr.sh Sensory $ASR_TEST_VECTORS test/asr/ffd_quick_sensory.txt test/asr/sensory_output " + adapterIDs[0]
+                                                sh "test/asr/check_asr.sh Cyberon $ASR_TEST_VECTORS test/asr/ffd_quick_cyberon.txt test/asr/cyberon_output " + adapterIDs[0]
                                             }
                                             sh "pytest test/asr/test_asr.py --log test/asr/sensory_output/results.csv"
+                                            sh "pytest test/asr/test_asr.py --log test/asr/cyberon_output/results.csv"
                                         }
                                     }
                                 }
@@ -273,28 +274,24 @@ pipeline {
                         }
                     }
                 }
-                stage('Build docs') {
-                    agent { label 'docker' }
-                    stages {
-                        stage ('Build docs with docker') {
-                            steps {
-                                checkout scm
-                                sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
-                                sh "docker pull ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION"
-                                sh """docker run -u "\$(id -u):\$(id -g)" \
-                                        --rm \
-                                        -v ${WORKSPACE}:/build \
-                                        ghcr.io/xmos/xmosdoc:$XMOSDOC_VERSION -v"""
-                                archiveArtifacts artifacts: 'doc/_build/**', allowEmptyArchive: true
-                            }
-                        }
+                stage('Build Documentation') {
+                    agent {
+                        label 'documentation&&docker'
                     }
+                    steps {
+                        checkout scm
+                        sh 'git submodule update --init --recursive --depth 1 --jobs \$(nproc)'
+                        warnError("Docs") {
+                            buildDocs(archiveZipOnly: true)
+                        } // warnError("Docs")
+                    } // steps
                     post {
                         cleanup {
                             xcoreCleanSandbox()
                         }
                     }
-                }
+                } // stage('Build Documentation')
+
             }
         }
     }

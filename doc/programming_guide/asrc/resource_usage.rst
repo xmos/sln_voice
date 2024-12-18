@@ -68,8 +68,8 @@ Intertile contexts
 
 The application uses 3 intertile contexts for cross tile communication.
 
-    * A dedicated intertile context for sending ASRC output data from the I2S tile to the USB tile.
-    * A dedicated intertile context for sending ASRC output data from the USB tile to the I2S tile.
+    * A dedicated intertile context for sending ASRC output data from the |I2S| tile to the USB tile.
+    * A dedicated intertile context for sending ASRC output data from the USB tile to the |I2S| tile.
     * The intertile context for all other cross tile communication.
 
 

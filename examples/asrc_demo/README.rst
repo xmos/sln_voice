@@ -2,11 +2,21 @@
 ASRC Demo Application
 *********************
 
+.. warning::
+
+   This example is based on the RTOS framework and drivers, and it can lead to latency of up to 20 ms in the system.
+   More information can be found in the Overview section of the ASRC example in the Programming Guide.
+
+   For a proposed implementation with lower latency, please refer to the bare-metal examples below:
+
+      - `AN02003: SPDIF/ADAT/I2S Slave Receive to I2S Slave Bridge with ASRC <https://www.xmos.com/file/AN02003>`__
+
+
 This is the XCORE-VOICE Asynchronous Sampling Rate Converter (ASRC) example design.
 
 The example system implements a stereo I2S slave and a stereo adaptive UAC2.0 interface and exchanges data between the two interfaces.
 Since the two interfaces are operating in different clock domains, there is an ASRC block between them that converts from the input to the output sampling rate.
-There are two ASRC blocks, one in the I2S → ASRC → USB path and the other in the USB → ASRC → I2S path.
+There are two ASRC blocks, one in the I2S -> ASRC -> USB path and the other in the USB -> ASRC -> I2S path.
 
 The application also monitors and computes the instantaneous ratio between the ASRC input and output sampling rate. The rate ratio is used by the ASRC task to dynamically adapt filter coefficients using spline interpolation in its filtering stage.
 
@@ -15,7 +25,7 @@ The I2S slave interface is a stereo 32 bit interface supporting sampling rates b
 
 The USB interface is a stereo, 32 bit, 48 kHz, High-Speed, USB Audio Class 2, Adaptive interface.
 
-The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_  library is used for the ASRC processing. The ASRC processing is block based and works on a block size of 244 samples per channel in the I2S → ASRC → USB path and 96 samples per channel in the USB → ASRC → I2S path.
+The ASRC algorithm in the `lib_src <https://github.com/xmos/lib_src/>`_  library is used for the ASRC processing. The ASRC processing is block based and works on a block size of 244 samples per channel in the I2S -> ASRC -> USB path and 96 samples per channel in the USB -> ASRC -> I2S path.
 
 Supported Hardware
 ==================
@@ -58,25 +68,15 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. The output should be
-something like this:
-
-::
-
-   $ xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
-
+First make sure that your XTC tools environment is activated.
 
 Linux or Mac
 ------------
 
-To build for the first time, run ``cmake`` to create the
-make files:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 ::
-
+   $ pip install -r requirements.txt
    $ mkdir build
    $ cd build
    $ cmake --toolchain ../xmos_cmake_toolchain/xs3a.cmake  ..
@@ -93,10 +93,9 @@ Following initial ``cmake`` build, for subsequent builds, as long as new source 
 Windows
 -------
 
-It is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under Windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 
@@ -109,11 +108,11 @@ To install Ninja, follow these steps:
    set the path in the current command line session using something
    like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
-To build for the first time, run ``cmake`` to create the
-make files:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 ::
 
+   $ pip install -r requirements.txt
    $ md build
    $ cd build
    $ cmake -G "Ninja" --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake ..

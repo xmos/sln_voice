@@ -2,6 +2,9 @@
 PDM Microphone Aggregator Example
 #################################
 
+.. warning::
+   This example is deprecated and will be moved into a separate
+   Application Note and may be removed in the next major release.
 
 This example provides a bridge between 16 PDM microphones to either
 TDM16 slave or USB Audio and targets the xcore-ai explorer board.
@@ -29,25 +32,16 @@ Download the main repo and submodules using:
 Building the app
 ================
 
-First install and source the XTC version: 15.2.1 tools. The easiest way to source
-the tools is to open the provided shortcut to ``XTC Tools 15.2.1 Command Prompt``.
-Running the compiler binary ``xcc`` will produce an output like this:
-
-::
-
-   xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
+First make sure that your XTC tools environment is activated.
 
 Linux or Mac
 ------------
 
-To build for the first time you will need to run ``cmake`` to create the
-make files:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 ::
 
+   $ pip install -r requirements.txt
    $ mkdir build
    $ cd build
    $ cmake --toolchain ../xmos_cmake_toolchain/xs3a.cmake  ..
@@ -68,10 +62,9 @@ again.
 Windows
 -------
 
-It is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 
@@ -84,11 +77,11 @@ To install Ninja, follow these steps:
    may set the path in the current command line session using something
    like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
-To build for the first time you will need to run ``cmake`` to create the
-make files:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 ::
 
+   $ pip install -r requirements.txt
    $ md build
    $ cd build
    $ cmake -G "Ninja" --toolchain  ..\xmos_cmake_toolchain\xs3a.cmake ..

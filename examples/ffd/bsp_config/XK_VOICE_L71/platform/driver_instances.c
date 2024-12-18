@@ -27,5 +27,13 @@ rtos_i2c_master_t *i2c_master_ctx = &i2c_master_ctx_s;
 static rtos_i2s_t i2s_ctx_s;
 rtos_i2s_t *i2s_ctx = &i2s_ctx_s;
 
+static rtos_i2c_slave_t i2c_slave_ctx_s;
+rtos_i2c_slave_t *i2c_slave_ctx = &i2c_slave_ctx_s;
+
 static rtos_uart_tx_t uart_tx_ctx_s;
 rtos_uart_tx_t *uart_tx_ctx = &uart_tx_ctx_s;
+
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+static sw_pll_ctx_t sw_pll_ctx_s;
+sw_pll_ctx_t *sw_pll_ctx = &sw_pll_ctx_s;
+#endif

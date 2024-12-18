@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 /*
  * The MIT License (MIT)
@@ -26,7 +26,7 @@
  *
  */
 #define DEBUG_UNIT USB_AUDIO
-#define DEBUG_PRINT_ENABLE_USB_AUDIO 1
+#define DEBUG_PRINT_ENABLE_USB_AUDIO 0
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -744,7 +744,9 @@ bool tud_audio_set_itf_cb(uint8_t rhport,
 {
     (void) rhport;
     uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex));
+#if DEBUG_PRINT_ENABLE_USB_AUDIO
     uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
+#endif
 
 #if AUDIO_OUTPUT_ENABLED
     if (itf == ITF_NUM_AUDIO_STREAMING_SPK) {
@@ -774,8 +776,9 @@ bool tud_audio_set_itf_close_EP_cb(uint8_t rhport,
 {
     (void) rhport;
     uint8_t const itf = tu_u16_low(tu_le16toh(p_request->wIndex));
+#if DEBUG_PRINT_ENABLE_USB_AUDIO
     uint8_t const alt = tu_u16_low(tu_le16toh(p_request->wValue));
-
+#endif
 #if AUDIO_OUTPUT_ENABLED
     if (itf == ITF_NUM_AUDIO_STREAMING_SPK) {
         spkr_interface_open = false;

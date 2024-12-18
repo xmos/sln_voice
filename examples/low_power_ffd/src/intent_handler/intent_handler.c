@@ -50,14 +50,14 @@ static void proc_keyword_res(void *args) {
             vTaskDelay(pdMS_TO_TICKS(appconfINTENT_TRANSPORT_DELAY_MS));
             rtos_gpio_port_out(gpio_ctx_t0, p_out_wakeup, WAKEUP_LOW);
         }
-#if appconfINTENT_I2C_OUTPUT_ENABLED
+#if appconfINTENT_I2C_MASTER_OUTPUT_ENABLED
         i2c_res_t ret;
         uint32_t buf = id;
         size_t sent = 0;
 
         ret = rtos_i2c_master_write(
             i2c_master_ctx,
-            appconfINTENT_I2C_OUTPUT_DEVICE_ADDR,
+            appconfINTENT_I2C_MASTER_DEVICE_ADDR,
             (uint8_t*)&buf,
             sizeof(uint32_t),
             &sent,

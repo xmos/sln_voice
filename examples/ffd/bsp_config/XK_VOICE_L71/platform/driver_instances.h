@@ -12,6 +12,7 @@ extern "C" {
 #include "rtos_qspi_flash.h"
 #include "rtos_gpio.h"
 #include "rtos_i2c_master.h"
+#include "rtos_i2c_slave.h"
 #include "rtos_i2s.h"
 #include "rtos_uart_tx.h"
 
@@ -21,9 +22,17 @@ extern "C" {
 
 #include "rtos_mic_array.h"
 
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+/* Config headers for sw_pll */
+#include "sw_pll.h"
+#include "fractions_1000ppm.h"
+#include "register_setup_1000ppm.h"
+#endif
+
 /* Tile specifiers */
 #define FLASH_TILE_NO      0
 #define I2C_TILE_NO        0
+#define I2C_CTRL_TILE_NO   I2C_TILE_NO
 #define MICARRAY_TILE_NO   1
 #define I2S_TILE_NO        1
 #define UART_TILE_NO       0
@@ -52,7 +61,21 @@ extern rtos_gpio_t *gpio_ctx_t0;
 extern rtos_gpio_t *gpio_ctx_t1;
 extern rtos_mic_array_t *mic_array_ctx;
 extern rtos_i2c_master_t *i2c_master_ctx;
+extern rtos_i2c_slave_t *i2c_slave_ctx;
 extern rtos_i2s_t *i2s_ctx;
 extern rtos_uart_tx_t *uart_tx_ctx;
+
+#if appconfRECOVER_MCLK_I2S_APP_PLL
+typedef struct {
+    port_t p_mclk_count;                    // Used for keeping track of MCLK output for sw_pll
+    port_t p_bclk_count;                    // Used for keeping track of BCLK input for sw_pll
+    sw_pll_state_t *sw_pll;                 // Pointer to sw_pll state (if used)
+
+}sw_pll_ctx_t;
+
+static sw_pll_state_t sw_pll = {0};
+
+extern sw_pll_ctx_t *sw_pll_ctx;
+#endif
 
 #endif /* DRIVER_INSTANCES_H_ */

@@ -1,6 +1,3 @@
-.. include:: <isonum.txt>
-.. include:: ../../substitutions.rst
-
 .. _sln_voice_ffd_speech_recognition_cyberon:
 
 ############################
@@ -22,7 +19,8 @@ The Cyberon DSpotter™ speech recognition engine runs proprietary models to ide
 
 One model for US English is provided. For any technical questions or additional models please contact Cyberon.
 
-To replace the Cyberon engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
+.. TODO: Check if the line below can be removed or re-added
+.. To replace the Cyberon engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
 Dictionary command table
 ========================

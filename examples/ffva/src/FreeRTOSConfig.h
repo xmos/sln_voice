@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 #ifndef FREERTOS_CONFIG_H
 #define FREERTOS_CONFIG_H
@@ -29,7 +29,7 @@ your application. */
 #define configUSE_16_BIT_TICKS                  0
 #define configIDLE_SHOULD_YIELD                 1
 #define configUSE_TASK_NOTIFICATIONS            1
-#define configTASK_NOTIFICATION_ARRAY_ENTRIES   1
+#define configTASK_NOTIFICATION_ARRAY_ENTRIES   2
 #define configUSE_MUTEXES                       1
 #define configUSE_RECURSIVE_MUTEXES             1
 #define configUSE_COUNTING_SEMAPHORES           1
@@ -46,7 +46,7 @@ your application. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
 #if ON_TILE(0)
-#define configTOTAL_HEAP_SIZE                   128*1024
+#define configTOTAL_HEAP_SIZE                   160*1024
 #endif
 #if ON_TILE(1)
 #define configTOTAL_HEAP_SIZE                   128*1024

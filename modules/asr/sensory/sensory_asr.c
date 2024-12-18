@@ -200,6 +200,13 @@ asr_error_t asr_get_result(asr_port_t *ctx, asr_result_t *result)
         result->start_index = sensory_asr->start_index;
         result->end_index = sensory_asr->end_index;
         result->duration = sensory_asr->duration;
+#if appconfINTENT_UART_DEBUG_INFO_ENABLED
+        static char res_info[128];
+        snprintf(res_info, sizeof(res_info)-1, "score:%d,start:%d,end:%d,dur:%d\r\n", result->score, result->start_index,  result->end_index, result->duration);
+        // Enable the printout below to see the information sent over UART
+        // rtos_printf(res_info);
+        rtos_uart_tx_write(uart_tx_ctx, (uint8_t*)&res_info, strlen(res_info));
+#endif
     } else {
         result->id = 0;
         result->score = 0;

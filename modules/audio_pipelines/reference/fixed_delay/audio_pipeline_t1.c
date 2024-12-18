@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* STD headers */
@@ -35,7 +35,6 @@ static aec_ctx_t DWORD_ALIGNED aec_state = {};
 static void *audio_pipeline_input_i(void *input_app_data)
 {
     frame_data_t *frame_data;
-
     frame_data = pvPortMalloc(sizeof(frame_data_t));
     memset(frame_data, 0x00, sizeof(frame_data_t));
 
@@ -54,10 +53,12 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
+
     rtos_intertile_tx(intertile_ctx,
                       appconfAUDIOPIPELINE_PORT,
                       frame_data,
                       sizeof(frame_data_t));
+
     return AUDIO_PIPELINE_FREE_FRAME;
 }
 
@@ -152,7 +153,6 @@ void audio_pipeline_init(
     void *output_app_data)
 {
     const int stage_count = 2;
-
     const pipeline_stage_t stages[] = {
         (pipeline_stage_t)stage_delay,
         (pipeline_stage_t)stage_aec,
@@ -173,5 +173,6 @@ void audio_pipeline_init(
                         (const size_t*) stage_stack_sizes,
                         appconfAUDIO_PIPELINE_TASK_PRIORITY,
                         stage_count);
+
 }
 #endif /* ON_TILE(1) */

@@ -9,21 +9,11 @@ Supported Hardware and pre-requisites
 
 This example is supported on the XK_VOICE_L71 board.  However, the XCORE-AI-EXPLORER board can be supported with a couple minor modifications.
 
-On the host machine the XTC tools, version 15.2.1, must be installed and sourced.
-The output should be
-something like this:
+Make sure that your XTC tools environment is activated.
 
-::
-
-   $ xcc --version
-   xcc: Build 19-198606c, Oct-25-2022
-   XTC version: 15.2.1
-   Copyright (C) XMOS Limited 2008-2021. All Rights Reserved.
-
-On Windows it is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under Windows.
+It is recommended to use `Ninja` or `xmake` as the make system under Windows.
+`Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
+This firmware has been tested with `Ninja` version v1.11.1.
 
 To install Ninja, follow these steps:
 
@@ -61,26 +51,10 @@ Linux or Mac
 
 The host application, `xscope_host_endpoint`, will be installed at `/opt/xmos/bin/`, and may be moved if desired.  You may wish to add this directory to your `PATH` variable.
 
-Before running the host application, you may need to add the location of `xscope_endpoint.so` to your `LD_LIBRARY_PATH` environment variable.  This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.ai/documentation/XM-014363-PC-LATEST/html/tools-guide/install-configure/getting-started.html>`__.
+Before running the host application, you may need to add the location of `xscope_endpoint.so` to your `LD_LIBRARY_PATH` environment variable.  This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://xmos.com/xtc-install-guide>`__.
 
 Windows
 -------
-
-It is highly recommended to use ``Ninja`` as the make system under
-``cmake``. Not only is it a lot faster than MSVC ``nmake``, it also
-works around an issue where certain path names may cause an issue with
-the XMOS compiler under windows.
-
-To install Ninja, follow these steps:
-
--  Download ``ninja.exe`` from
-   https://github.com/ninja-build/ninja/releases. This firmware has been
-   tested with Ninja version v1.11.1.
--  Ensure Ninja is on the command line path. You can add to the path
-   permanently by following these steps
-   https://www.computerhope.com/issues/ch000549.htm. Alternatively you
-   may set the path in the current command line session using something
-   like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
 
 Before building the host application, you will need to add the path to the XTC Tools to your environment:
 
@@ -99,17 +73,18 @@ Then build the host application:
 
 The host application, `xscope_host_endpoint.exe`, will install at `<USERPROFILE>\.xmos\bin`, and may be moved if desired.  You may wish to add this directory to your `PATH` variable.
 
-Before running the host application, you may need to add the location of `xscope_endpoint.dll` to your `PATH`. This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://www.xmos.ai/documentation/XM-014363-PC-LATEST/html/tools-guide/install-configure/getting-started.html>`__.
+Before running the host application, you may need to add the location of `xscope_endpoint.dll` to your `PATH`. This environment variable will be set if you run the host application in the XTC Tools command-line environment.  For more information see `Configuring the command-line environment <https://xmos.com/xtc-install-guide>`__.
 
 Building the Firmware
 =====================
 
-Run the following commands in the root folder to build the firmware:
+After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 On Linux and Mac run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     make example_asr
@@ -118,6 +93,7 @@ On Windows run:
 
 ::
 
+    pip install -r requirements.txt
     cmake -G "Ninja" -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
     ninja example_asr
@@ -138,7 +114,7 @@ Run the following command in the build folder to run the firmware:
 
 ::
 
-    xrun --xscope-realtime --xscope-port localhost:12345 example_asr.xe
+    xrun --xscope --xscope-port localhost:12345 example_asr.xe
 
 In a second console, run the following command in the ``examples/speech_recognition`` folder to run the host server:
 

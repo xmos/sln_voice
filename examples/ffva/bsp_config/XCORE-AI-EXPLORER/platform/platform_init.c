@@ -1,4 +1,4 @@
-// Copyright 2022-2023 XMOS LIMITED.
+// Copyright 2022-2024 XMOS LIMITED.
 // This Software is subject to the terms of the XMOS Public Licence: Version 1.
 
 /* System headers */
@@ -14,7 +14,7 @@
 
 static void mclk_init(chanend_t other_tile_c)
 {
-#if ON_TILE(1) && !appconfEXTERNAL_MCLK
+#if ON_TILE(I2S_TILE_NO) && !appconfEXTERNAL_MCLK
     app_pll_init();
 #endif
 #if appconfUSB_ENABLED && ON_TILE(USB_TILE_NO)
@@ -88,13 +88,13 @@ static void gpio_init(void)
 
 static void i2c_init(void)
 {
-#if appconfI2C_CTRL_ENABLED
+#if appconfI2C_DFU_ENABLED
 #if ON_TILE(I2C_CTRL_TILE_NO)
     rtos_i2c_slave_init(i2c_slave_ctx,
                         (1 << appconfI2C_IO_CORE),
                         PORT_I2C_SLAVE_SCL,
                         PORT_I2C_SLAVE_SDA,
-                        appconf_CONTROL_I2C_DEVICE_ADDR);
+                        appconfI2C_SLAVE_DEVICE_ADDR);
 #endif
 #else
     static rtos_driver_rpc_t i2c_rpc_config;
