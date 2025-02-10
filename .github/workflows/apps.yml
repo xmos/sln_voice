@@ -53,7 +53,7 @@ jobs:
           docker run --rm -u $(id -u):$(id -g) -w /sln_voice -v ${{github.workspace}}:/sln_voice ${XCORE_BUILDER} bash -l tools/ci/build_host_apps.sh
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
           path: ./dist_host
@@ -93,7 +93,7 @@ jobs:
           fi
 
       - name: Save example app firmware artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ env.EXAMPLES_ARTIFACT_NAME }}
           path: |
