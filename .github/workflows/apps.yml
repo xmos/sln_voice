@@ -73,7 +73,7 @@ jobs:
           docker pull ${XCORE_BUILDER}
 
       - name: Download host build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
           path: ./dist_host
@@ -115,7 +115,7 @@ jobs:
           docker pull ${XCORE_BUILDER}
 
       - name: Download host build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
           path: ./dist_host
@@ -140,7 +140,7 @@ jobs:
           docker pull ${XCORE_BUILDER}
 
       - name: Download host build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: ${{ env.HOST_APPS_ARTIFACT_NAME }}
           path: ./dist_host
