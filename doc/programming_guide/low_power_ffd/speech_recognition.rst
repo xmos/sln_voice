@@ -43,8 +43,7 @@ Make sure run the following commands to rebuild and re-flash the data partition:
 
 You may also wish to modify the command ID-to-string lookup table which is located in the ``src/intent_engine/intent_engine_io.c`` source file.
 
-.. TODO: Check if the line below can be removed or re-added
-.. To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
+To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
 Wake Word Dictionary
 ====================

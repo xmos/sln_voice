@@ -26,8 +26,7 @@ Two models are provided - one in US English and one in Mainland Mandarin. The US
     make clean
     make flash_app_example_ffd_sensory -j
 
-.. TODO: Check if the line below can be removed or re-added
-.. To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
+To replace the Sensory engine with a different engine, refer to the ASR documentation on :ref:`sln_voice_asr_programming_guide`
 
 Dictionary command table
 ========================

@@ -11,6 +11,7 @@ XCORE-VOICE Programming Guide
    prerequisites
    example_designs
    asr_ports
+   asr/asr
    extending
    howto
    faq
