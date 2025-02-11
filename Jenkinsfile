@@ -1,4 +1,4 @@
-@Library('xmos_jenkins_shared_library@v0.34.0') _
+@Library('xmos_jenkins_shared_library@v0.38.0') _
 
 getApproval()
 
@@ -20,7 +20,7 @@ pipeline {
         )
         string(
             name: 'XMOSDOC_VERSION',
-            defaultValue: 'v6.2.0',
+            defaultValue: 'v6.3.1',
             description: 'The xmosdoc version'
         )
         booleanParam(name: 'NIGHTLY_TEST_ONLY',

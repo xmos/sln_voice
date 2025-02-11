@@ -1,6 +1,11 @@
 XCORE-VOICE change log
 ======================
 
+2.3.1
+-----
+
+  * FIXED: Added back missing documentation.
+
 2.3.0
 -----
 

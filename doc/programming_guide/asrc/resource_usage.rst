@@ -17,8 +17,7 @@ This application uses 19 chanends on the USB tile (tile 0) and 11 chanends on th
 
 The chanend use for both tiles is described in the :ref:`table-tile0-chanend-label` and :ref:`table-tile1-chanend-label` tables.
 
-Tile 0
-------
+**Tile 0**
 
 .. _table-tile0-chanend-label:
 
@@ -39,8 +38,7 @@ Tile 0
      - 1
 
 
-Tile 1
-------
+**Tile 1**
 
 .. _table-tile1-chanend-label:
 
@@ -64,13 +62,13 @@ Tile 1
 .. _intertile-context-label:
 
 Intertile contexts
-------------------
+==================
 
 The application uses 3 intertile contexts for cross tile communication.
 
-    * A dedicated intertile context for sending ASRC output data from the |I2S| tile to the USB tile.
-    * A dedicated intertile context for sending ASRC output data from the USB tile to the |I2S| tile.
-    * The intertile context for all other cross tile communication.
+* A dedicated intertile context for sending ASRC output data from the |I2S| tile to the USB tile.
+* A dedicated intertile context for sending ASRC output data from the USB tile to the |I2S| tile.
+* The intertile context for all other cross tile communication.
 
 
 CPU
@@ -80,8 +78,7 @@ Profiling the CPU usage for this application using an RTOS friendly profiling to
 However, profiling some application tasks has taken place. These numbers along with some already existing profiling numbers for the drivers are listed in the :ref:`table-mips-tile0-label` and :ref:`table-mips-tile1-label` tables.
 Each tile has 5 bare-metal cores being used for running RTOS tasks so each core has a fixed bandwidth of 120 MHz available.
 
-Tile 0
-------
+**Tile 0**
 
 .. _table-mips-tile0-label:
 
@@ -102,8 +99,7 @@ Tile 0
      - 14
 
 
-Tile 1
-------
+**Tile 1**
 
 .. _table-mips-tile1-label:
 
