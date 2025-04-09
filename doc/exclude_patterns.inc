@@ -12,6 +12,8 @@ modules/lib_qspi_fast_read
 modules/xscope_fileio
 modules/sw_pll
 modules/xua
+modules/voice
+
 sln_voice_venv
 **/.venv
 test
@@ -19,11 +21,12 @@ xmos_cmake_toolchain
 build_*
 modules/*/build
 modules/*/build_*
-modules/*/test
-modules/*/doc/shared/legal.rst
 modules/*/index*
+modules/*/doc/index*
+# modules/*/doc/shared/legal.rst
 modules/*/modules/*/index*
 **/*.md
+**/*.ipynb
 **CHANGELOG*
 **LICENSE*
 **README*
