@@ -9,9 +9,9 @@ XCORE-VOICE Quick Start Guide
 .. toctree::
    :maxdepth: 4
 
-   introduction
-   example_designs
-   legal
+   01_introduction
+   02_example_designs
+   03_legal
 
 
 **************
