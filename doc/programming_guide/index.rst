@@ -7,7 +7,7 @@ XCORE-VOICE Programming Guide
 .. toctree::
    :maxdepth: 4
 
-   ../shared/introduction
+   introduction
    prerequisites
    example_designs
    asr_ports
@@ -15,4 +15,4 @@ XCORE-VOICE Programming Guide
    extending
    howto
    faq
-   ../shared/legal
+   legal

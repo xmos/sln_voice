@@ -50,19 +50,19 @@ Hardware Setup
 
 This example design requires an XTAG4 and XK-VOICE-L71 board.
 
-.. image:: ../../shared/images/all_components.jpg
+.. image:: ../../images/all_components.jpg
   :width: 800
   :alt: all components
 
 Connect the XTAG4 to the debug header, as shown below.
 
-.. image:: ../../shared/images/xtag_installation.jpg
+.. image:: ../../images/xtag_installation.jpg
   :width: 800
   :alt: xtag
 
 Connect the both USB Micro-B connections on the XTAG4 and XK-VOICE-L71 to the programming host computer.
 
-.. image:: ../../shared/images/host_setup.jpg
+.. image:: ../../images/host_setup.jpg
   :width: 800
   :alt: programming host setup
 
