@@ -10,7 +10,7 @@ Setting up the Hardware
 
 This example design requires an XTAG4 and XK-VOICE-L71 board.
 
-.. image:: ../../shared/images/all_components.jpg
+.. image:: ../../images/all_components.jpg
   :width: 800
   :alt: all components
 
