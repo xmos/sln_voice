@@ -25,8 +25,8 @@ INPUT += ../modules/voice/modules/lib_vnr/api/common ../modules/voice/modules/li
 INPUT += ../modules/rtos/modules/drivers 
 
 # RTOS SW Services
-INPUT += ../modules/rtos/modules/sw_services/device_control
-INPUT += ../modules/rtos/modules/sw_services/device_control/host ../modules/rtos/modules/sw_services/device_control/api 
+INPUT += ../modules/rtos/modules/sw_services/device_control/host
+INPUT += ../modules/rtos/modules/sw_services/device_control/api
 INPUT += ../modules/rtos/modules/sw_services/concurrency_support/api
 INPUT += ../modules/rtos/modules/sw_services/generic_pipeline/api
 

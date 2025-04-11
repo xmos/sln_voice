@@ -66,6 +66,8 @@ These include:
 - FFD/FFVA: 300-350mW (Typical)
 - Low Power FFD: 110mW (Full-Power), 54mW (Low-Power), <50mW possible with Sensory's LPSD under certain conditions.
 
+|newpage|
+
 ######################
 Obtaining the Hardware
 ######################

@@ -7,6 +7,11 @@ modules/core/modules/random
 modules/core/modules/trycatch
 modules/rtos/modules/FreeRTOS
 
+#voice 
+modules/voice/doc/getting_started/index.rst
+modules/voice/doc/user_guide/index.rst
+modules/voice/examples/bare-metal/*
+
 # io
 modules/io/modules/xud
 modules/io/doc/substitutions.rst

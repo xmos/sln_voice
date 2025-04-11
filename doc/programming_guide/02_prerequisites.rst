@@ -37,3 +37,5 @@ macOS
 *****
 
 A standard C/C++ compiler is required to build applications for the host PC.  Mac users may use the Xcode command-line tools.
+
+|newpage|
