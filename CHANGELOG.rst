@@ -5,6 +5,7 @@ XCORE-VOICE change log
 -----
 
   * FIXED: Added back missing documentation.
+  * CHANGED: Updated XTC Tools to 15.3.1.
 
 2.3.0
 -----

@@ -97,16 +97,11 @@ It is recommended to use `Ninja` or `xmake` as the make system under Windows.
 `Ninja` has been observed to be faster than `xmake`, however `xmake` comes natively with XTC tools.
 This firmware has been tested with `Ninja` version v1.11.1.
 
-To install Ninja, follow these steps:
+To install Ninja, activate your python environment, and run the following command:
 
--  Download ``ninja.exe`` from
-   https://github.com/ninja-build/ninja/releases. This firmware has been
-   tested with Ninja version v1.11.1.
--  Ensure Ninja is on the command line path. It can be added to the path
-   permanently by following these steps
-   https://www.computerhope.com/issues/ch000549.htm. Alternatively,
-   set the path in the current command line session using something
-   like ``set PATH=%PATH%;C:\Users\xmos\utils\ninja``
+::
+
+   $ pip install ninja
 
 After having your python environment activated, run the following commands in the root folder to build the firmware:
 
