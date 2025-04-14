@@ -5,6 +5,7 @@ XCORE-VOICE change log
 -----
 
   * FIXED: Added back missing documentation.
+  * CHANGED: Updated submodule fwk_voice to version v0.8.0 from v0.8.1.
 
 2.3.0
 -----
