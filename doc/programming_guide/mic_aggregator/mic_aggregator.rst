@@ -246,3 +246,6 @@ commands:
 
    $ i2cset -y 1 0x3c 16 1 #Set the gain on mic channel 8 to 256
    $ i2cset -y 1 0x3c 15 0 #Set the gain on mic channel 8 to 256
+
+
+|newpage|

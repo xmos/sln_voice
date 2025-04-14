@@ -17,7 +17,7 @@ The C SDK is composed of the following components:
 - Code Examples - Examples showing a variety of xcore features based on bare-metal and FreeRTOS programming.
 - Documentation - Tutorials, references and API guides.
 
-.. figure:: diagrams/xcore-voice_component_diagram.drawio.png
+.. figure:: ../images/xcore-voice_component_diagram.drawio.png
    :align: center
    :scale: 80 %
    :alt: component diagram
@@ -65,6 +65,8 @@ These include:
 
 - FFD/FFVA: 300-350mW (Typical)
 - Low Power FFD: 110mW (Full-Power), 54mW (Low-Power), <50mW possible with Sensory's LPSD under certain conditions.
+
+|newpage|
 
 ######################
 Obtaining the Hardware

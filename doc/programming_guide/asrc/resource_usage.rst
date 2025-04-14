@@ -118,3 +118,6 @@ Each tile has 5 bare-metal cores being used for running RTOS tasks so each core 
      - 0.7
    * - rate_server
      - 19
+
+
+|newpage|
