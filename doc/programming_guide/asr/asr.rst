@@ -12,4 +12,4 @@ Automated Speech Recognition Porting
    deploying/linux_macos
    deploying/native_windows
    modifying
-   ../asr_ports
+   asr_ports

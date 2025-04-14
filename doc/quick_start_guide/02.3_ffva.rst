@@ -40,7 +40,7 @@ Hardware Setup
 
 Connect either end of the ribbon cable to the XTAG4, and the other end to the XK-VOICE-L71 board as shown (Image shows piggybacked connection to RPi. Standalone operation is also supported):
 
-.. image:: images/XMOS_XK_VOICE_L71_Rev2_5N2A8560_2048px.jpg
+.. image:: ../images/XMOS_XK_VOICE_L71_Rev2_5N2A8560_2048px.jpg
   :width: 800
   :alt: XK-VOICE-L71 on RPi with ribbon cable
 
@@ -52,7 +52,7 @@ Configure the Hardware
 
 Connect the host system to the micro-USB socket, and the speakers to the jack plug as shown:
 
-.. image:: images/XMOS_XK_VOICE_L71_Rev2_5N2A8765_2048px.jpg
+.. image:: ../images/XMOS_XK_VOICE_L71_Rev2_5N2A8765_2048px.jpg
   :width: 800
   :alt: XK-VOICE-L71 connected to powered speakers and host device
 
@@ -84,13 +84,13 @@ Record Captured Voice
 
 5. Set recording channels to 2 (Stereo) in Device
 
-.. image:: images/channels_dropdown.png
+.. image:: ../images/channels_dropdown.png
   :width: 800
   :alt: audacity channels dropdown
 
 6. Set Project Rate to 48000Hz in Selection Toolbar.
 
-.. image:: images/audacity-rate.png
+.. image:: ../images/audacity-rate.png
   :width: 230
   :alt: audacity bitrate setting
 
@@ -104,13 +104,13 @@ Record Captured Voice
 
 11. Click dropdown menu next to Audio Track, and select Split Stereo To Mono.
 
-.. image:: images/split-track-to-mono.jpg
+.. image:: ../images/split-track-to-mono.jpg
   :width: 400
   :alt: audacity split action dropdown
 
 12. Click Solo on left channel of split processed audio. Increase Gain slider if necessary.
 
-.. image:: images/solo-gain.png
+.. image:: ../images/solo-gain.png
   :width: 400
   :alt: audacity solo and gain options
 

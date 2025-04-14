@@ -11,7 +11,7 @@ PREDEFINED += __attribute__((weak))=
 PREDEFINED += C_API= MA_C_API= C_API_START= C_API_END= EXTERN_C=
 
 # Core library APIs
-INPUT += ../modules/core/modules/xcore_math/lib_xcore_math/lib_xcore_math/api ../modules/core/modules/xcore_math/lib_xcore_math/doc/programming_guide
+INPUT += ../modules/core/modules/xcore_math/lib_xcore_math/lib_xcore_math/api ../modules/core/modules/xcore_math/lib_xcore_math/doc/rst/src/reference
 
 # Voice DSP library APIs
 INPUT += ../modules/voice/modules/lib_aec/api ../modules/voice/examples/bare-metal/shared_src/aec/
@@ -35,10 +35,7 @@ INPUT += ../modules/io/modules/i2c/api
 INPUT += ../modules/io/modules/i2s/api
 INPUT += ../modules/io/modules/spi/api
 INPUT += ../modules/io/modules/uart/api
-INPUT += ../modules/io/modules/mic_array/lib_mic_array/api ../modules/io/modules/mic_array/etc/vanilla ../modules/io/modules/mic_array/doc/programming_guide/src
-
-# QSPI library APIs
-INPUT += ../modules/lib_qspi_fast_read/lib_qspi_fast_read/api
+INPUT += ../modules/io/modules/mic_array/lib_mic_array/api ../modules/io/modules/mic_array/etc/vanilla
 
 # XCORE-VOICE APIs
 INPUT += ../modules/asr/
