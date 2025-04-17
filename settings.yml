@@ -1,7 +1,7 @@
 ---
 project: sln_voice
 title: XCORE-VOICE SOLUTION
-version: 2.3.1
+version: 2.3.2
 
 documentation:
   root_doc: doc/index.rst
