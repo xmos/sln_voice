@@ -1,6 +1,11 @@
 XCORE-VOICE change log
 ======================
 
+2.3.2
+-----
+
+  * CHANGED: Updated Cyberon DSpotter static library
+
 2.3.1
 -----
 
