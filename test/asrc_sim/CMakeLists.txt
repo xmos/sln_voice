@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.21)
 project(usb_in_i2s_out)
 
 set (CMAKE_CXX_STANDARD 17 CACHE STRING CXX_Standard)
