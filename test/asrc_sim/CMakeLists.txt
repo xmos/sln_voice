@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.21)
 project(usb_in_i2s_out)
 
 set (CMAKE_CXX_STANDARD 17 CACHE STRING CXX_Standard)
@@ -8,7 +8,7 @@ add_compile_definitions(NUMCPP_NO_USE_BOOST=1)
 include(FetchContent)
 FetchContent_Declare(SystemC
         GIT_REPOSITORY https://github.com/accellera-official/systemc
-        GIT_TAG 2.3.4)
+        GIT_TAG 3.0.1)
 FetchContent_MakeAvailable(SystemC)
 
 FetchContent_Declare(NumCpp

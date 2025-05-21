@@ -1,4 +1,4 @@
--e git+https://github.com/xmos/audio_test_tools@develop#egg=audio_test_tools&subdirectory=python
+-e git+https://github.com/xmos/audio_test_tools@feature/pyproject#egg=audio_test_tools&subdirectory=python
 matplotlib==3.3.1
 numpy>=1.19.5,<2
 pylint==2.5.3
