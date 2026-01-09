@@ -7,8 +7,8 @@
 #define _XUA_CONF_H_
 
 #define NUM_USB_CHAN_OUT 0
-#define NUM_USB_CHAN_IN 16
-#define I2S_CHANS_DAC 0
+#define NUM_USB_CHAN_IN 2
+#define I2S_CHANS_DAC 2
 #define I2S_CHANS_ADC 0
 #define MCLK_441 (512 * 44100)
 #define MCLK_48 (512 * 48000)   // 24.576MHz

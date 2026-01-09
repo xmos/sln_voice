@@ -20,6 +20,7 @@
 #include "device_control_i2c.h"
 
 extern void i2s_rate_conversion_enable(void);
+extern void i2s_restart_callback_enable(void);
 
 static void gpio_start(void)
 {
@@ -113,6 +114,9 @@ static void i2s_start(void)
 #if appconfI2S_ENABLED
 #if appconfI2S_MODE == appconfI2S_MODE_MASTER
     rtos_i2s_rpc_config(i2s_ctx, appconfI2S_RPC_PORT, appconfI2S_RPC_PRIORITY);
+#endif
+#if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
+    i2s_restart_callback_enable();
 #endif
 #if ON_TILE(I2S_TILE_NO)
     if (appconfI2S_AUDIO_SAMPLE_RATE == 3*appconfAUDIO_PIPELINE_SAMPLE_RATE) {

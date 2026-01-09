@@ -23,7 +23,7 @@ To install Ninja, activate your python environment, and run the following comman
 
 Before building the host application, you will need to add the path to the XTC Tools to your environment.
 
-  set "XMOS_TOOL_PATH=<path-to-xtc-tools>"
+  set "XMOS_TOOL_PATH=C:\Program Files\XMOS\XTC\15.3.1<path-to-xtc-tools>"
 
 Building the Host Applications
 ==============================

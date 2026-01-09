@@ -19,7 +19,7 @@ file(GLOB APP_SOURCES               ${APP_SRC_PATH}/*.c
                                     ${APP_SRC_PATH}/*.xc
                                     ${APP_SRC_PATH}/*.cpp
                                     ${APP_SRC_PATH}/par_decimator/*.c
-                                    ${APP_SRC_PATH}/config.xscope
+                                    #${APP_SRC_PATH}/config.xscope
                                     ${MIC_ARRAY_DEMO_PATH}/common/src/device_pll_ctrl.c
 )
 
@@ -35,7 +35,7 @@ set(APP_COMPILER_FLAGS
     -O3
     -g
     -report
-    -fxscope
+    #-fxscope
     -mcmodel=large
     -Wall
     -Wno-xcore-fptrgroup
@@ -61,7 +61,7 @@ set(APP_LINK_OPTIONS
     -report
     -lquadflash
     ${PLATFORM_FILE}
-    ${CMAKE_CURRENT_LIST_DIR}/src/config.xscope
+    #${CMAKE_CURRENT_LIST_DIR}/src/config.xscope
 )
 
 set(APP_COMMON_LINK_LIBRARIES
