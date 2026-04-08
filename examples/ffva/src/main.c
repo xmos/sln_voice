@@ -66,19 +66,28 @@ void i2s_slave_intertile(void *args) {
                     (int32_t*) tmp,
                     appconfAUDIO_PIPELINE_FRAME_ADVANCE,
                     portMAX_DELAY);
+    }
+}
+#endif
 
 
 #if ON_TILE(I2S_TILE_NO) && appconfRECOVER_MCLK_I2S_APP_PLL
-    sw_pll_ctx_t* i2s_callback_args = (sw_pll_ctx_t*) args;
+RTOS_I2S_APP_RESTART_CALLBACK_ATTR
+i2s_restart_t i2s_restart_cb(rtos_i2s_t *ctx, void *app_data)
+{
+    sw_pll_ctx_t* i2s_callback_args = (sw_pll_ctx_t*) app_data;
     port_clear_buffer(i2s_callback_args->p_bclk_count);
     port_in(i2s_callback_args->p_bclk_count);                                  // Block until BCLK transition to synchronise. Will consume up to 1/64 of a LRCLK cycle
     uint16_t mclk_pt = port_get_trigger_time(i2s_callback_args->p_mclk_count); // Immediately sample mclk_count
     uint16_t bclk_pt = port_get_trigger_time(i2s_callback_args->p_bclk_count); // Now grab bclk_count (which won't have changed)
 
     sw_pll_lut_do_control(i2s_callback_args->sw_pll, mclk_pt, bclk_pt);
-#endif
 
-    }
+    return I2S_NO_RESTART;
+}
+
+void i2s_restart_callback_enable() {
+    rtos_i2s_restart_cb_set(i2s_ctx, i2s_restart_cb, sw_pll_ctx);
 }
 #endif
 
@@ -213,6 +222,7 @@ int audio_pipeline_output(void *output_app_data,
 #endif
 
 #elif appconfI2S_MODE == appconfI2S_MODE_SLAVE
+    xassert(frame_count == appconfAUDIO_PIPELINE_FRAME_ADVANCE);
     /* I2S expects sample channel format */
     int32_t tmp[appconfAUDIO_PIPELINE_FRAME_ADVANCE][appconfAUDIO_PIPELINE_CHANNELS];
     int32_t *tmpptr = (int32_t *)output_audio_frames;
