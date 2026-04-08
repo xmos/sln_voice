@@ -47,6 +47,16 @@ typedef enum led_color {
     rtos_gpio_port_enable(gpio_ctx_t0, gpo_port);                           \
 }
 
+#elif XK_VOICE_SQ66
+#define LED_GREEN_MASK      (1<<3)
+#define LED_RED_MASK        (1<<2)
+#define LED_YELLOW_MASK     (LED_GREEN_MASK | LED_RED_MASK)
+
+#define gpo_setup()     {                                                   \
+    gpo_port = rtos_gpio_port(PORT_GPO);                                    \
+    rtos_gpio_port_enable(gpio_ctx_t0, gpo_port);                           \
+}
+
 #elif XCOREAI_EXPLORER
 /* LED 0 is "green"
  * LED 1 is "red" */

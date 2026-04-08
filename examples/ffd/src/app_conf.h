@@ -10,12 +10,19 @@
 #define appconfINTENT_MODEL_RUNNER_SAMPLES_PORT   3
 #define appconfI2C_MASTER_RPC_PORT                4
 #define appconfI2S_RPC_PORT                       5
+#ifdef XK_VOICE_SQ66
+    #define appconfMICARRAY_RPC_PORT              6
+#endif
 #define appconfINTENT_ENGINE_READY_SYNC_PORT      16
 #define appconfI2S_OUTPUT_SLAVE_PORT              8
 
 /* Application tile specifiers */
 #include "platform/driver_instances.h"
-#define AUDIO_PIPELINE_OUTPUT_TILE_NO   MICARRAY_TILE_NO
+#ifdef XK_VOICE_SQ66
+    #define AUDIO_PIPELINE_OUTPUT_TILE_NO   1
+#else
+    #define AUDIO_PIPELINE_OUTPUT_TILE_NO   MICARRAY_TILE_NO
+#endif
 #define ASR_TILE_NO                     FLASH_TILE_NO
 #define FS_TILE_NO                      FLASH_TILE_NO
 
@@ -153,12 +160,21 @@
 #endif
 
 /* I/O and interrupt cores for Tile 0 */
+#ifdef XK_VOICE_SQ66
+    #define appconfPDM_MIC_IO_CORE                  2 /* Must be kept off core 0 with the RTOS tick ISR */
+    #define appconfPDM_MIC_INTERRUPT_CORE           3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#endif
 
 /* I/O and interrupt cores for Tile 1 */
-#define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off core 0 with the RTOS tick ISR */
-#define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
-#define appconfPDM_MIC_INTERRUPT_CORE           4 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
-#define appconfI2S_INTERRUPT_CORE               3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#ifdef XK_VOICE_SQ66
+    #define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
+    #define appconfI2S_INTERRUPT_CORE               3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#else
+    #define appconfPDM_MIC_IO_CORE                  1 /* Must be kept off core 0 with the RTOS tick ISR */
+    #define appconfI2S_IO_CORE                      2 /* Must be kept off core 0 with the RTOS tick ISR */
+    #define appconfPDM_MIC_INTERRUPT_CORE           4 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+    #define appconfI2S_INTERRUPT_CORE               3 /* Must be kept off I/O cores. Best kept off core 0 with the tick ISR. */
+#endif
 
 /* Task Priorities */
 #define appconfSTARTUP_TASK_PRIORITY                (configMAX_PRIORITIES / 2 + 5)
@@ -169,6 +185,9 @@
 #define appconfI2C_MASTER_RPC_PRIORITY              (configMAX_PRIORITIES / 2)
 #define appconfQSPI_FLASH_TASK_PRIORITY             (configMAX_PRIORITIES - 1)
 #define appconfLED_TASK_PRIORITY                    (configMAX_PRIORITIES / 2 - 1)
+#ifdef XK_VOICE_SQ66
+    #define appconfMICARRAY_RPC_PRIORITY            (configMAX_PRIORITIES / 2 - 2)
+#endif
 
 #if appconfI2S_MODE==appconfI2S_MODE_SLAVE
 /* Software PLL settings for mclk recovery configurations */

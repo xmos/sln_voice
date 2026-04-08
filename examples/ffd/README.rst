@@ -46,7 +46,7 @@ Command Utterances
 Supported Hardware and pre-requisites
 =====================================
 
-This example is supported on the XK_VOICE_L71 board.
+This example is supported on the XK_VOICE_L71 board and XK_VOICE_SQ66 board.
 
 Make sure that your XTC tools environment is activated.
 
@@ -71,7 +71,7 @@ This application requires a host application to create the flash data partition.
 
 .. note::
 
-    In the commands below ``<speech_engine>`` can be either ``sensory`` or ``cyberon``, depending on the choice of the speech recognition engine and model.
+    In the commands below ``<speech_engine>`` can be either ``sensory``, ``cyberon``, ``sensory_sq66`` or ``cyberon_sq66``, depending on the choice of the speech recognition engine, model and board.
 
 .. note::
 
