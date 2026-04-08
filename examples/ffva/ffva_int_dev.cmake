@@ -6,7 +6,7 @@ ${APP_COMPILE_DEFINITIONS}
     appconfUSB_ENABLED=0
     appconfAEC_REF_DEFAULT=appconfAEC_REF_I2S
     appconfI2S_MODE=appconfI2S_MODE_SLAVE
-    appconfI2S_AUDIO_SAMPLE_RATE=480000
+    appconfI2S_AUDIO_SAMPLE_RATE=48000
 
     ## VK Voice uses 12288000 for RPI integration, EXPLORER Board uses default 24576000
     # MIC_ARRAY_CONFIG_MCLK_FREQ=12288000

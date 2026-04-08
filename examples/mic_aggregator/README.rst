@@ -75,7 +75,13 @@ To install Ninja, activate your python environment, and run the following comman
 After having your python environment activated, run the following commands in the root folder to build the firmware:
 
 ::
+   $ python -m venv env
+::
 
+After having your python environment activated, run the following commands in the root folder to build the firmware:
+
+::
+   $ .\.venv\Scripts\activate
    $ pip install -r requirements.txt
    $ md build
    $ cd build
