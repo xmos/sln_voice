@@ -27,4 +27,5 @@
 	url = git@github.com:xmos/lib_sw_pll
 [submodule "modules/voice"]
 	path = modules/voice
-	url = git@github.com:xmos/lib_voice.git
+	url = git@github.com:xalbertoisorna/lib_voice.git
+	branch = vx4b
