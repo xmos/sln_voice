@@ -15,6 +15,7 @@
 
 /* Library headers */
 #include "generic_pipeline.h"
+#include "rtos_printf.h"
 #include "adec.h"
 
 /* App headers */
@@ -117,6 +118,10 @@ void audio_pipeline_init(
     };
 
     initialize_pipeline_stages();
+
+    rtos_printf("MEM tile 1 sizeof stage1_t=%u frame_data_t=%u\n",
+            (unsigned)sizeof(stage_1_state),
+            (unsigned)sizeof(frame_data_t));
 
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,

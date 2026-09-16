@@ -78,6 +78,7 @@ target_include_directories(adec_altarch_aec_ic_ns_agc_2mic_2ref
 target_compile_definitions(adec_altarch_aec_ic_ns_agc_2mic_2ref
     INTERFACE
         ALT_ARCH_MODE=1
+        AEC_COEFF_S16=1
 )
 target_link_libraries(adec_altarch_aec_ic_ns_agc_2mic_2ref
     INTERFACE

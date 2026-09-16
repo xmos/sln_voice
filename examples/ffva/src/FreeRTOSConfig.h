@@ -45,11 +45,26 @@ your application. */
 /* Memory allocation related definitions. */
 #define configSUPPORT_STATIC_ALLOCATION         0
 #define configSUPPORT_DYNAMIC_ALLOCATION        1
+/*
+ * Heap sizes from xsim (xgdb) watermarks of example_ffva_ua_adec_altarch:
+ * tile 0 used ~26 KB at scheduler start (USB audio already created);
+ * tile 1 used ~16 KB. Remaining budget covers pipeline stages, I2S/mic
+ * driver buffers, and USB manager start, plus margin.
+ * Intent-enabled INT builds keep the original heaps; ASR needs more.
+ */
 #if ON_TILE(0)
+#if defined(appconfINTENT_ENABLED) && appconfINTENT_ENABLED
 #define configTOTAL_HEAP_SIZE                   160*1024
+#else
+#define configTOTAL_HEAP_SIZE                   96*1024
+#endif
 #endif
 #if ON_TILE(1)
+#if defined(appconfINTENT_ENABLED) && appconfINTENT_ENABLED
 #define configTOTAL_HEAP_SIZE                   128*1024
+#else
+#define configTOTAL_HEAP_SIZE                   80*1024
+#endif
 #endif
 #define configAPPLICATION_ALLOCATED_HEAP        0
 
