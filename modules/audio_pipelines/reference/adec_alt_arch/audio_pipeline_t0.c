@@ -15,6 +15,7 @@
 
 /* Library headers */
 #include "generic_pipeline.h"
+#include "rtos_printf.h"
 #include "aec.h"
 #include "agc.h"
 #include "ic.h"
@@ -157,6 +158,12 @@ void audio_pipeline_init(
     };
 
     initialize_pipeline_stages();
+
+    rtos_printf("MEM tile 0 sizeof ic=%u ns=%u agc=%u frame_data_t=%u\n",
+            (unsigned)sizeof(ic_stage_state),
+            (unsigned)sizeof(ns_stage_state),
+            (unsigned)sizeof(agc_stage_state),
+            (unsigned)sizeof(frame_data_t));
 
     generic_pipeline_init((pipeline_input_t)audio_pipeline_input_i,
                         (pipeline_output_t)audio_pipeline_output_i,

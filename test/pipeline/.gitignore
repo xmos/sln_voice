@@ -1,0 +1,5 @@
+local_output/
+goldens/
+dut/
+vectors/
+*.so

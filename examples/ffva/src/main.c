@@ -342,6 +342,12 @@ void vApplicationMallocFailedHook(void)
 
 static void mem_analysis(void)
 {
+	rtos_printf("MEM tile %d heap_cfg=%u min_free=%d cur_free=%d used=%d\n",
+			THIS_XCORE_TILE,
+			(unsigned)configTOTAL_HEAP_SIZE,
+			xPortGetMinimumEverFreeHeapSize(),
+			xPortGetFreeHeapSize(),
+			(int)configTOTAL_HEAP_SIZE - xPortGetMinimumEverFreeHeapSize());
 	for (;;) {
 		rtos_printf("Tile[%d]:\n\tMinimum heap free: %d\n\tCurrent heap free: %d\n", THIS_XCORE_TILE, xPortGetMinimumEverFreeHeapSize(), xPortGetFreeHeapSize());
 		vTaskDelay(pdMS_TO_TICKS(5000));
@@ -351,7 +357,15 @@ static void mem_analysis(void)
 void startup_task(void *arg)
 {
     rtos_printf("Startup task running from tile %d on core %d\n", THIS_XCORE_TILE, portGET_CORE_ID());
+    rtos_printf("MEM tile %d pre_platform heap_cfg=%u cur_free=%d\n",
+            THIS_XCORE_TILE,
+            (unsigned)configTOTAL_HEAP_SIZE,
+            xPortGetFreeHeapSize());
     platform_start();
+    rtos_printf("MEM tile %d post_platform cur_free=%d min_free=%d\n",
+            THIS_XCORE_TILE,
+            xPortGetFreeHeapSize(),
+            xPortGetMinimumEverFreeHeapSize());
 
 #if ON_TILE(I2S_TILE_NO) && appconfI2S_ENABLED && (appconfI2S_MODE == appconfI2S_MODE_SLAVE)
 
