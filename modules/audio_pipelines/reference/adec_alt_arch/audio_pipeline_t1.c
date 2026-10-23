@@ -67,17 +67,17 @@ static void stage_aec(frame_data_t *frame_data)
 {
 #if appconfAUDIO_PIPELINE_SKIP_AEC
 #else
-    int32_t DWORD_ALIGNED stage_1_out[AEC_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    int32_t DWORD_ALIGNED stage_1_out[STAGE1_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
     stage1_process_frame(&stage_1_state,
                           &stage_1_out[0],
                           &frame_data->max_ref_energy,
-                          &frame_data->aec_corr_factor,
+                          frame_data->aec_corr_factor,
                           &frame_data->ref_active_flag,
                           frame_data->samples,
                           frame_data->aec_reference_audio_samples);
 
-    memcpy(frame_data->samples, stage_1_out, AEC_MAX_Y_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
+    memcpy(frame_data->samples, stage_1_out, STAGE1_MAX_Y_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
 }
 

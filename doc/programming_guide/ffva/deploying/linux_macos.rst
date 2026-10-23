@@ -54,6 +54,16 @@ After having your python environment activated, run the following commands in th
     cd build
     make example_ffva_ua_adec_altarch
 
+After having your python environment activated, run the following commands in the root folder to build the |I2S| and USB firmware using the alternating architecture with a fixed delay (ADEC disabled):
+
+.. code-block:: console
+
+    pip install -r requirements.txt
+    cmake -B build --toolchain=xmos_cmake_toolchain/xs3a.cmake
+    cd build
+    make example_ffva_int_fixed_delay_altarch
+    make example_ffva_ua_fixed_delay_altarch
+
 Running the Firmware
 ====================
 
@@ -64,8 +74,10 @@ Inside of the build folder root, after building the firmware, run one of:
 .. code-block:: console
 
     make flash_app_example_ffva_int_fixed_delay
+    make flash_app_example_ffva_int_fixed_delay_altarch
     make flash_app_example_ffva_int_cyberon_fixed_delay
     make flash_app_example_ffva_ua_adec_altarch
+    make flash_app_example_ffva_ua_fixed_delay_altarch
 
 Once flashed, the application will run.
 
@@ -76,8 +88,10 @@ From the build folder run:
 .. code-block:: console
 
     xrun --xscope example_ffva_int_fixed_delay.xe
+    xrun --xscope example_ffva_int_fixed_delay_altarch.xe
     xrun --xscope example_ffva_int_cyberon_fixed_delay.xe
     xrun --xscope example_ffva_ua_adec_altarch.xe
+    xrun --xscope example_ffva_ua_fixed_delay_altarch.xe
 
 Upgrading the Firmware
 ======================
@@ -214,4 +228,6 @@ To debug with xgdb, from the build folder run:
 .. code-block:: console
 
     xgdb -ex "connect --xscope" -ex "run" example_ffva_int_fixed_delay.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_int_fixed_delay_altarch.xe
     xgdb -ex "connect --xscope" -ex "run" example_ffva_ua_adec_altarch.xe
+    xgdb -ex "connect --xscope" -ex "run" example_ffva_ua_fixed_delay_altarch.xe

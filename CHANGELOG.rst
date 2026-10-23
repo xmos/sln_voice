@@ -1,6 +1,15 @@
 XCORE-VOICE change log
 ======================
 
+UNRELEASED
+----------
+
+  * CHANGED: Updated submodule lib_voice to version v2.0.0 from v1.0.1
+  * CHANGED: Updated submodule lib_xcore_math to version v3.0.0 from v2.4.0
+  * ADDED: FFVA ``fixed_delay_altarch`` audio pipeline with
+    ``example_ffva_int_fixed_delay_altarch`` and ``example_ffva_ua_fixed_delay_altarch``
+    build options (alternating architecture with a fixed delay and ADEC disabled).
+
 2.4.0
 -----
 
