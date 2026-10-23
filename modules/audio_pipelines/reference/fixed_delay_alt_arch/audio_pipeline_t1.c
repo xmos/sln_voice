@@ -15,32 +15,30 @@
 
 /* Library headers */
 #include "generic_pipeline.h"
-#include "adec.h"
 
 /* App headers */
 #include "app_conf.h"
 #include "audio_pipeline.h"
 #include "audio_pipeline_dsp.h"
-#include "stage1.h"
 
 #if appconfAUDIO_PIPELINE_FRAME_ADVANCE != 240
 #error This pipeline is only configured for 240 frame advance
 #endif
 
-/* Positive delays the mic, negative delays the reference */
-#define AP_FIXED_DELAY_SAMPLES (16000 * appconfINPUT_SAMPLES_MIC_DELAY_MS / 1000)
+#if !ALT_ARCH_MODE
+#error This pipeline requires ALT_ARCH_MODE
+#endif
 
 #if ON_TILE(1)
-// Stage1 - AEC only (ADEC compiled out via STAGE1_DISABLE_ADEC, fixed startup delay applied)
-static stage1_t DWORD_ALIGNED stage_1_state;
-static aec_conf_t aec_de_mode_conf;
-static aec_conf_t aec_non_de_mode_conf;
-static adec_config_t adec_conf;
+#if appconfINPUT_SAMPLES_MIC_DELAY_MS != 0
+static stage_delay_ctx_t DWORD_ALIGNED delay_buf_state = {};
+#endif
+static aec_ctx_t DWORD_ALIGNED aec_state = {};
+
 
 static void *audio_pipeline_input_i(void *input_app_data)
 {
     frame_data_t *frame_data;
-
     frame_data = pvPortMalloc(sizeof(frame_data_t));
     memset(frame_data, 0x00, sizeof(frame_data_t));
 
@@ -59,67 +57,116 @@ static void *audio_pipeline_input_i(void *input_app_data)
 static int audio_pipeline_output_i(frame_data_t *frame_data,
                                    void *output_app_data)
 {
+
     rtos_intertile_tx(intertile_ctx,
                       appconfAUDIOPIPELINE_PORT,
                       frame_data,
                       sizeof(frame_data_t));
+
     return AUDIO_PIPELINE_FREE_FRAME;
+}
+
+static void stage_delay(frame_data_t *frame_data)
+{
+#if appconfAUDIO_PIPELINE_SKIP_STATIC_DELAY
+#else
+#if (appconfINPUT_SAMPLES_MIC_DELAY_MS > 0) /* Delay mics */
+    size_t bytes_sent = xStreamBufferSend(
+                                delay_buf_state.delay_buf,
+                                &frame_data->samples,
+                                AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES,
+                                0);
+
+    configASSERT(bytes_sent == AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES);
+
+    if (xStreamBufferBytesAvailable(delay_buf_state.delay_buf) > AP_INPUT_SAMPLES_MIC_DELAY_BUF_SIZE_BYTES) {
+        size_t bytes_rx = xStreamBufferReceive(
+                                    delay_buf_state.delay_buf,
+                                    &frame_data->samples,
+                                    AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES,
+                                    0);
+
+        configASSERT(bytes_rx == AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES);
+    }
+#elif (appconfINPUT_SAMPLES_MIC_DELAY_MS < 0) /* Delay Ref*/
+    size_t bytes_sent = xStreamBufferSend(
+                                delay_buf_state.delay_buf,
+                                &frame_data->aec_reference_audio_samples,
+                                AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES,
+                                0);
+
+    configASSERT(bytes_sent == AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES);
+
+    if (xStreamBufferBytesAvailable(delay_buf_state.delay_buf) > AP_INPUT_SAMPLES_MIC_DELAY_BUF_SIZE_BYTES) {
+        size_t bytes_rx = xStreamBufferReceive(
+                                    delay_buf_state.delay_buf,
+                                    &frame_data->aec_reference_audio_samples,
+                                    AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES,
+                                    0);
+
+        configASSERT(bytes_rx == AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES);
+    }
+#else /* Delay None */
+#endif
+#endif /* appconfAUDIO_PIPELINE_SKIP_DELAY */
 }
 
 static void stage_aec(frame_data_t *frame_data)
 {
 #if appconfAUDIO_PIPELINE_SKIP_AEC
 #else
-    int32_t DWORD_ALIGNED stage_1_out[AEC_MAX_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
+    int32_t DWORD_ALIGNED aec_output[AP_AEC_Y_CHANNELS][appconfAUDIO_PIPELINE_FRAME_ADVANCE];
 
-    stage1_process_frame(&stage_1_state,
-                          &stage_1_out[0],
-                          &frame_data->max_ref_energy,
-                          &frame_data->aec_corr_factor,
-                          &frame_data->ref_active_flag,
-                          frame_data->samples,
-                          frame_data->aec_reference_audio_samples);
+    /* In alt arch mode the AEC bypasses itself once the reference has been inactive for
+     * HOLD_AEC_LIMIT_SECONDS, and reports the held reference active flag used to bypass the IC */
+    aec_process_frame(
+            &aec_state.aec_state,
+            aec_output,
+            NULL,
+            frame_data->samples,
+            frame_data->aec_reference_audio_samples,
+            &frame_data->ref_active_flag);
 
-    memcpy(frame_data->samples, stage_1_out, AEC_MAX_Y_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
+    frame_data->max_ref_energy = aec_calc_max_input_energy(
+                                    frame_data->aec_reference_audio_samples,
+                                    aec_state.aec_state.shared_state.num_x_channels);
+    frame_data->aec_corr_factor = aec_calc_corr_factor(&aec_state.aec_state.main_state, 0);
+
+    /* Only the AEC processed mic channels are overwritten. The other mic channel bypasses the
+     * AEC and is passed to the IC alongside the AEC output */
+    memcpy(frame_data->samples, aec_output, AP_AEC_Y_CHANNELS * appconfAUDIO_PIPELINE_FRAME_ADVANCE * sizeof(int32_t));
 #endif
 }
 
 static void initialize_pipeline_stages(void)
 {
-    aec_non_de_mode_conf.num_y_channels = 1;
-    aec_non_de_mode_conf.num_x_channels = 2;
-    aec_non_de_mode_conf.num_main_filt_phases = 15;
-    aec_non_de_mode_conf.num_shadow_filt_phases = AEC_SHADOW_FILTER_PHASES;
-    aec_non_de_mode_conf.tdist = &aec_tdist_chans2_threads1;
+#if (appconfINPUT_SAMPLES_MIC_DELAY_MS != 0)
+    configASSERT(AP_INPUT_SAMPLES_MIC_DELAY_BUF_SIZE_BYTES > 0);
+    delay_buf_state.delay_buf = xStreamBufferCreate((size_t)AP_INPUT_SAMPLES_MIC_DELAY_BUF_SIZE_BYTES + AP_INPUT_SAMPLES_MIC_DELAY_CUR_FRAME_BYTES, 0);
+    configASSERT(delay_buf_state.delay_buf);
+#endif
 
-    aec_de_mode_conf.num_y_channels = 1;
-    aec_de_mode_conf.num_x_channels = 1;
-    aec_de_mode_conf.num_main_filt_phases = 30;
-    aec_de_mode_conf.num_shadow_filt_phases = 0;
-    aec_de_mode_conf.tdist = &aec_tdist_chans2_threads1;
-
-    // ADEC is compiled out (STAGE1_DISABLE_ADEC); these fields are unused but left inert
-    adec_conf.bypass = 1;
-    adec_conf.force_de_cycle_trigger = 0;
-    stage1_init(&stage_1_state, &aec_de_mode_conf, &aec_non_de_mode_conf, &adec_conf);
-
-    // Apply the fixed delay directly; without ADEC the delay buffer is never retimed
-    update_delay_samples(&stage_1_state.delay_state, AP_FIXED_DELAY_SAMPLES);
+    aec_init(&aec_state.aec_state,
+             AP_AEC_Y_CHANNELS,
+             AEC_MAX_X_CHANNELS,
+             AP_AEC_MAIN_FILTER_PHASES,
+             AEC_SHADOW_FILTER_PHASES,
+             &aec_tdist_chans2_threads1);
 }
 
 void audio_pipeline_init(
     void *input_app_data,
     void *output_app_data)
 {
-    const int stage_count = 1;
-
+    const int stage_count = 2;
     const pipeline_stage_t stages[] = {
+        (pipeline_stage_t)stage_delay,
         (pipeline_stage_t)stage_aec,
     };
 
     const configSTACK_DEPTH_TYPE stage_stack_sizes[] = {
-        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_aec) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
-
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_delay) + RTOS_THREAD_STACK_SIZE(audio_pipeline_input_i),
+        configMINIMAL_STACK_SIZE + RTOS_THREAD_STACK_SIZE(stage_aec) + RTOS_THREAD_STACK_SIZE(audio_pipeline_output_i),
     };
 
     initialize_pipeline_stages();
@@ -132,5 +179,6 @@ void audio_pipeline_init(
                         (const size_t*) stage_stack_sizes,
                         appconfAUDIO_PIPELINE_TASK_PRIORITY,
                         stage_count);
+
 }
 #endif /* ON_TILE(1) */

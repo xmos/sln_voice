@@ -73,10 +73,12 @@ On Linux and Mac run:
     cmake -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
+    make example_ffva_ua_adec
     make example_ffva_ua_adec_altarch
     make example_ffva_ua_fixed_delay_altarch
     make example_ffva_int_fixed_delay
     make example_ffva_int_fixed_delay_altarch
+    make example_ffva_int_adec
     make example_ffva_int_cyberon_fixed_delay
 
 On Windows run:
@@ -87,10 +89,12 @@ On Windows run:
     cmake -G Ninja -B build --toolchain xmos_cmake_toolchain/xs3a.cmake
     cd build
 
+    ninja example_ffva_ua_adec
     ninja example_ffva_ua_adec_altarch
     ninja example_ffva_ua_fixed_delay_altarch
     ninja example_ffva_int_fixed_delay
     ninja example_ffva_int_fixed_delay_altarch
+    ninja example_ffva_int_adec
     ninja example_ffva_int_cyberon_fixed_delay
 
 From the build folder, create the data partition containing the filesystem and
@@ -100,20 +104,24 @@ On Linux and Mac run:
 
 ::
 
+    make flash_app_example_ffva_ua_adec
     make flash_app_example_ffva_ua_adec_altarch
     make flash_app_example_ffva_ua_fixed_delay_altarch
     make flash_app_example_ffva_int_fixed_delay
     make flash_app_example_ffva_int_fixed_delay_altarch
+    make flash_app_example_ffva_int_adec
     make flash_app_example_ffva_int_cyberon_fixed_delay
 
 On Windows run:
 
 ::
 
+    ninja flash_app_example_ffva_ua_adec
     ninja flash_app_example_ffva_ua_adec_altarch
     ninja flash_app_example_ffva_ua_fixed_delay_altarch
     ninja flash_app_example_ffva_int_fixed_delay
     ninja flash_app_example_ffva_int_fixed_delay_altarch
+    ninja flash_app_example_ffva_int_adec
     ninja flash_app_example_ffva_int_cyberon_fixed_delay
 
 Once flashed, the application will run.
@@ -128,10 +136,12 @@ Run the following commands in the build folder:
 
 ::
 
+    xrun --xscope example_ffva_ua_adec.xe
     xrun --xscope example_ffva_ua_adec_altarch.xe
     xrun --xscope example_ffva_ua_fixed_delay_altarch.xe
     xrun --xscope example_ffva_int_fixed_delay.xe
     xrun --xscope example_ffva_int_fixed_delay_altarch.xe
+    xrun --xscope example_ffva_int_adec.xe
     xrun --xscope example_ffva_int_cyberon_fixed_delay.xe
 
 
@@ -142,10 +152,12 @@ Run the following commands in the build folder:
 
 ::
 
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_adec_altarch.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_ua_fixed_delay_altarch.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_int_fixed_delay_altarch.xe
+    xgdb -ex "conn --xscope" -ex "r" example_ffva_int_adec.xe
     xgdb -ex "conn --xscope" -ex "r" example_ffva_int_cyberon_fixed_delay.xe
 
 

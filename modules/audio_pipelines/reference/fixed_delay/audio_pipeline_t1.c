@@ -118,7 +118,8 @@ static void stage_aec(frame_data_t *frame_data)
             stage1_output,
             NULL,
             frame_data->samples,
-            frame_data->aec_reference_audio_samples);
+            frame_data->aec_reference_audio_samples,
+            NULL);
 
     frame_data->max_ref_energy = aec_calc_max_input_energy(
                                     frame_data->aec_reference_audio_samples,

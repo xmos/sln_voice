@@ -75,10 +75,11 @@ static void stage_vnr_and_ic(frame_data_t *frame_data)
     int32_t DWORD_ALIGNED ic_output[appconfAUDIO_PIPELINE_FRAME_ADVANCE];
     float_s32_t input_vnr_pred;
     ic_process_frame(&ic_stage_state.state,
+                     ic_output,
                      frame_data->samples[0],
                      frame_data->samples[1],
-                     ic_output,
-                     &input_vnr_pred);
+                     &input_vnr_pred,
+                     frame_data->ref_active_flag);
     frame_data->vnr_pred_flag = input_vnr_pred;
 
     /* Intentionally ignoring comms ch from here on out */

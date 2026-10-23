@@ -113,19 +113,16 @@ target_include_directories(fixed_delay_altarch_aec_ic_ns_agc_2mic_2ref
 target_compile_definitions(fixed_delay_altarch_aec_ic_ns_agc_2mic_2ref
     INTERFACE
         ALT_ARCH_MODE=1
-        STAGE1_DISABLE_ADEC=1
 )
 target_link_libraries(fixed_delay_altarch_aec_ic_ns_agc_2mic_2ref
     INTERFACE
         core::general
         rtos::freertos
         rtos::sw_services::generic_pipeline
-        lib_voice::adec
         lib_voice::aec
         lib_voice::agc
         lib_voice::ic
         lib_voice::ns
-        lib_voice::stage1
         lib_voice::vnr
 )
 
