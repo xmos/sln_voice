@@ -110,7 +110,7 @@ static void stage_agc(frame_data_t *frame_data)
 
     agc_stage_state.md.vnr_flag = frame_data->vnr_pred_flag;
     agc_stage_state.md.aec_ref_power = frame_data->max_ref_energy;
-    agc_stage_state.md.aec_corr_factor = frame_data->aec_corr_factor;
+    agc_stage_state.md.aec_corr_factor = frame_data->aec_corr_factor[0];
     agc_stage_state.md.ref_active_flag = frame_data->ref_active_flag;
 
     agc_process_frame(
